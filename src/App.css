@@ -1,0 +1,9 @@
+*{
+  font-family: "Montserrat",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ol-zoom {
+  display: none !important;
+}

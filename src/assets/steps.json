@@ -1,0 +1,8 @@
+{
+    "Resource_mapping" : {
+        "step-1" : [0],
+        "step-2" : [1],
+        "step-3" : [2],
+        "step-4" : [3]
+    }
+}

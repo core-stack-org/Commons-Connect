@@ -1,0 +1,86 @@
+{
+    "works" : [
+        "Agri Impact - HH, Community",
+        "Household Livelihood",
+        "Irrigation - Site level impact",
+        "Plantation",
+        "SWC - Landscape level impact",
+        "Others - HH, Community",
+        "Un Identified"
+    ],
+    "properWorkNames" : [
+        "Land Restoration",
+        "Off-farm livelihood assets",
+        "Irrigation on farms",
+        "Plantations",
+        "Soil and Water Conservation",
+        "Community assets",
+        "Unidentified"
+    ],
+    "workToNumMapping" : {
+        "Household Livelihood": 1, 
+        "Others - HH, Community": 2,
+        "Agri Impact - HH, Community": 3,
+        "SWC - Landscape level impact": 4,
+        "Irrigation - Site level impact": 5,
+        "Plantation": 6,
+        "Un Identified": 7,
+        "Default": 8
+    },
+    "workToColorMapping" : {
+        "Household Livelihood": "#C2678D",
+        "Others - HH, Community": "#355070",
+        "Agri Impact - HH, Community": "#FFA500",
+        "SWC - Landscape level impact": "#6495ED",
+        "Irrigation - Site level impact": "#1A759F",
+        "Plantation": "#52B69A",
+        "Un Identified": "#6D597A",
+        "Default": "#EAAC8B"
+    },
+    "buttonColorMapping" : {
+        "Household Livelihood": [194, 103, 141, 0.7],
+        "Others - HH, Community": [53, 80, 112, 0.7],
+        "Agri Impact - HH, Community": [255, 165, 0, 0.7],
+        "SWC - Landscape level impact": [100, 149, 237, 0.7],
+        "Irrigation - Site level impact": [26, 117, 159, 0.7],
+        "Plantation": [82, 182, 154, 0.7],
+        "Un Identified": [109, 89, 122, 0.7],
+        "Default": [234, 172, 139, 0.7]
+    },
+    "NumToColorMapping" : {
+        "1": "#C2678D",
+        "2": "#355070",
+        "3": "#FFA500",
+        "4": "#6495ED",
+        "5": "#1A759F",
+        "6": "#52B69A",
+        "7": "#6D597A",
+        "8": "#EAAC8B"
+    },
+    "NameDisplayMapping" : {
+        "State": "State",
+        "District" : "District",
+        "Panchayat": "Panchayat",
+        "Panchayat_": "Panchayat ID",
+        "Gram_panch": "Gram Panchayat",
+        "Start Loca": "Start Location",
+        "Asset Name": "Asset Name",
+        "Work Name": "Work Name",
+        "Work Type": "Work Type",
+        "workYear" : "Work Year",
+        "WorkCatego": "Work Category",
+        "Work_start": "Work Start Date",
+        "Total_Expe": "Total Expenditure",
+        "lat": "Latitude",
+        "lon": "Longitude",
+        "End Locati": "End Location",
+        "Unskilled_": "Unskilled Labor",
+        "Semi-Skill": "Semi-Skilled Labor",
+        "Unskilled": "Unskilled Labor Count",
+        "Skilled": "Skilled Labor Count",
+        "Material": "Material Cost",
+        "Estimated": "Estimated Cost",
+        "Asset ID": "Asset ID",
+        "creation_t": "Creation Time"
+    }
+}
