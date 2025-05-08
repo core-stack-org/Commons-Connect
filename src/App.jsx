@@ -1,10 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
 import './App.css'
-import Homepage from './pages/Homepage';
+
 import MapComponent from "./components/MapComponent";
-import ResourceMapping from "./pages/ResourceMapping";
 import Bottomsheet from "./components/BottomSheet";
+
+import Homepage from './pages/Homepage';
+import ResourceMapping from "./pages/ResourceMapping";
+import Groundwater from "./pages/Groundwater";
+import SurfaceWaterBodies from "./pages/SurfaceWaterbodies";
+import Agriculture from "./pages/Agriculture";
+import Livelihood from "./pages/Livelihood";
 
 function App() {
   
@@ -24,6 +30,10 @@ function App() {
              <Routes>
                <Route path="/" element={<Homepage />} />
                <Route path="/resourcemapping" element={<ResourceMapping />} />
+               <Route path="/groundwater" element={<Groundwater />} />
+               <Route path="/surfaceWater" element={<SurfaceWaterBodies />} />
+               <Route path="/agriculture" element={<Agriculture />} />
+               <Route path="/livelihood" element={<Livelihood />} />
              </Routes>
            </BrowserRouter>
          </div>

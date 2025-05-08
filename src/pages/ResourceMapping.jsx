@@ -27,7 +27,7 @@ const ResourceMapping = () => {
       const handleBackButton = () => {
         let BACK = MainStore.currentStep - 1
 
-        if(MainStore.currentStep && BACK){
+        if(MainStore.currentStep){
           MainStore.setCurrentStep(BACK)
         }
       }
@@ -44,7 +44,7 @@ const ResourceMapping = () => {
     },[MainStore.currentStep])
 
     const toggleFormsUrl = () =>{
-      if(MainStore.currentStep >= 1 && MainStore.markerCoords){
+      if(MainStore.markerCoords){
         MainStore.setIsForm(true)
         MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, ""))
         MainStore.setIsOpen(true)
@@ -62,6 +62,17 @@ const ResourceMapping = () => {
         MainStore.setIsLoading(false);
       }
     };
+
+    const getPlanLabel = () => {
+      const plan = MainStore.currentPlan?.plan ?? "Select Plan";
+    
+      const words = plan.trim().split(/\s+/);
+      if (words.length > 15) {
+        return words.slice(0, 15).join(' ') + '…';
+      }
+      return plan;
+    };
+
 
     return(
       <>
@@ -83,9 +94,80 @@ const ResourceMapping = () => {
         </div>
       </div>
 
+      {/* 2. Top-left buttons */}
+        <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
+          <div className="flex gap-4 max-w-lg">
+            <div className="flex flex-col gap-3">
+                {/* GPS Button */}
+                <button
+                className="flex-shrink-0 w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                style={{
+                    backgroundColor: '#D6D5C9',
+                    color: '#592941',
+                    border: 'none',
+                    backdropFilter: 'none',
+                }}
+                onClick={() => {}}
+                >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+                    />
+                </svg>
+                </button>
+
+                <button
+                  className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                  style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                  onClick={() => setIsInfoOpen(true)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8h.01M11 12h1v4h1m0 4a9 9 0 100-18 9 9 0 000 18z"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+            {/* Plan selector with dropdown */}
+            <div className="relative">
+            <button
+                className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm"
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  backdropFilter: 'none',
+                }}
+              >
+                {getPlanLabel()}
+              </button>
+
+            </div>
+          </div>
+        </div>
+
       {/* Bottom Controls */}
       <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
-        {MainStore.currentStep === 1 && !MainStore.isFeatureClicked && (
+        {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
           <div className="flex gap-4 w-full">
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
@@ -102,11 +184,14 @@ const ResourceMapping = () => {
           </div>
         )}
 
-        {MainStore.currentStep === 1 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
+        {MainStore.currentStep === 0 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
           <div className="flex gap-4 w-full">
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
-              onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
+              onClick={() => withLoading(() =>{
+                MainStore.setCurrentStep(1)
+                MainStore.setIsResource(false)
+              })}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
               Mark Resources
@@ -116,6 +201,30 @@ const ResourceMapping = () => {
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
               Settlement Info
+            </button>
+          </div>
+        )}
+
+        {MainStore.currentStep === 1 && (
+          <div className="flex gap-4 w-full">
+            <button
+              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              onClick={() => withLoading(toggleFormsUrl)}
+              disabled={MainStore.isFeatureClicked && MainStore.isMarkerPlaced}
+              style={{
+                backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                color: '#592941',
+                border: 'none',
+              }}
+            >
+              Add Well
+            </button>
+            <button
+              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
+              style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+            >
+              {"Next ->"}
             </button>
           </div>
         )}
@@ -132,7 +241,7 @@ const ResourceMapping = () => {
                 border: 'none',
               }}
             >
-              Add Well
+              Add WaterStructure
             </button>
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
@@ -145,30 +254,6 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 3 && (
-          <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
-              onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && MainStore.isMarkerPlaced}
-              style={{
-                backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                color: '#592941',
-                border: 'none',
-              }}
-            >
-              Add WaterStructure
-            </button>
-            <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
-              onClick={() => withLoading(() => MainStore.setCurrentStep(4))}
-              style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-            >
-              {"Next ->"}
-            </button>
-          </div>
-        )}
-
-        {MainStore.currentStep === 4 && (
           <div className="flex gap-4 w-full">
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"

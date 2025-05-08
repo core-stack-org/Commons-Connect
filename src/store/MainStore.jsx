@@ -45,14 +45,21 @@ const useMainStore = create((set) => ({
     isMarkerPlaced : false,
     markerCoords : null,
     selectedResource : null,
+    fortnightData : null,
+    lulcYearIdx : 0,
+    isWaterbody : false,
+    isGroundWater : false,
 
     setMarkerPlaced : (stat) => set({isMarkerPlaced : stat}),
     setFeatureStat : (stat) => set({isFeatureClicked : stat}),
     setCurrentScreen : (screen) => set({currentScreen : screen}),
     setCurrentStep : (step) => set({currentStep : step}),
+    setFortnightData : (stat) => set({fortnightData : stat}),
     setSelectedResource : (stat) => set({selectedResource : stat}),
     setMarkerCoords : (stat) => set({markerCoords : stat}),
-    
+    setLulcYearIdx : (stat) => set({lulcYearIdx : stat}),
+    setIsWaterBody : (stat) => set({isWaterbody : stat}),
+    setIsGroundWater : (stat) => set({isGroundWater : stat}),
 
     //? NREGA Hooks
     isNregaSheet : false,
@@ -83,18 +90,25 @@ const useMainStore = create((set) => ({
     isOpen : false,
     isForm : false,
     isMetadata : false,
+    metadata : null,
     formUrl : "",
     isLoading : false,
     isSubmissionSuccess : false,
-    metadata : null,
+    isResource : false,
+    resourceType : null,
+    isAnalyze : false,
 
     setIsOpen : (stat) => set({isOpen : stat}),
     setIsForm : (stat) => set({isForm : stat}),
     setIsMetadata: (stat) => set({isMetadata : stat}),
+    setIsResource: (stat) => set({isResource : stat}),
+    setResourceType: (stat) => set({resourceType : stat}),
     setMetadata: (stat) => set({metadata : stat}),
     setFormUrl : (stat) => set({formUrl : stat}),
     setIsLoading : (stat) => set({isLoading : stat}),
     setIsSubmissionSuccess : (stat) => set({isSubmissionSuccess : stat}),
+    setIsAnalyze : (stat) => set({isAnalyze : stat}),
+
 }))
 
 export default useMainStore;

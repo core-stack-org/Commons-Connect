@@ -4,17 +4,22 @@ import useMainStore from "../store/MainStore.jsx";
 import { useEffect } from 'react';
 
 import nregaDetails from "../assets/nregaMapping.json"
+import resourceDetails from "../assets/resource_mapping.json"
+import SurfaceWaterBodies from './analyze/SurfaceWaterbodyAnalyze.jsx';
+import GroundwaterAnalyze from './analyze/GroundwaterAnalyze.jsx';
 
 const Bottomsheet = () => {
 
     const MainStore = useMainStore((state) => state);
     let flg = false
+    
     const LayerNameMapping = {
         1 : "settlement_layer",
         2 : "well_layer",
         3 : "waterbody_layer",
         4 : "cropgrid_layer"
     }
+    
     const ResourceMapping = {
         1 : "settlement",
         2 : "well",
@@ -205,7 +210,7 @@ const Bottomsheet = () => {
             <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
                 <table className="w-full table-auto border-separate border-spacing-y-3">
                     <tbody>
-                    {MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key) => {
+                    {MainStore.isMetadata && MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key) => {
                         const rawValue = MainStore.metadata[key];
                         const formattedValue =
                         key === 'Material' || key === 'Total_Expe'
@@ -232,6 +237,74 @@ const Bottomsheet = () => {
         </>
     )
 
+    const resourceBody = (
+        <>
+        <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
+            Asset Info
+        </div>
+
+        <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
+            <table className="w-full table-auto border-separate border-spacing-y-3">
+            <tbody>
+                {MainStore.isResource && MainStore.selectedResource !== null &&
+                /* ↓ flatMap lets us return 1 … N rows for each top‑level key */
+                Object.keys(resourceDetails[MainStore.resourceType]).flatMap(
+                    (key) => {
+                    const rawValue = MainStore.selectedResource[key];
+
+                    /* ---------- 1.  If the value is a nested object ---------- */
+                    if (
+                        rawValue &&
+                        typeof rawValue === "object" &&
+                        !Array.isArray(rawValue)
+                    ) {
+                        return Object.entries(rawValue).map(([subKey, subVal]) => {
+                        /* friendly label: use mapping if available, else prettify */
+                        const label =
+                            resourceDetails[MainStore.resourceType][subKey] ??
+                            subKey
+                            .replace(/_/g, " ")
+                            .replace(/\b\w/g, (c) => c.toUpperCase());
+
+                        return (
+                            <tr
+                            key={`${key}-${subKey}`}
+                            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                            >
+                            <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
+                                {label}
+                            </td>
+                            <td className="px-6 py-4 text-gray-600 break-words text-md">
+                                {subVal ?? "—"}
+                            </td>
+                            </tr>
+                        );
+                        });
+                    }
+
+                    /* ---------- 2.  Plain scalar value ---------- */
+                    return (
+                        <tr
+                        key={key}
+                        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                        >
+                        <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
+                            {resourceDetails[MainStore.resourceType][key]}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600 break-words text-md">
+                            {rawValue ?? "—"}
+                        </td>
+                        </tr>
+                    );
+                    }
+                )}
+            </tbody>
+            </table>
+        </div>
+        </>
+
+    )
+
     const onDismiss = () => {
         if(MainStore.isForm){
             MainStore.setIsForm(false)
@@ -242,6 +315,18 @@ const Bottomsheet = () => {
         else if(MainStore.isMetadata){
             MainStore.setIsMetadata(false)
             MainStore.setMetadata(null)
+        }
+        else if(MainStore.isResource){
+            MainStore.setIsResource(true)
+            MainStore.setSelectedResource(null)
+        }
+        else if(MainStore.isWaterbody){
+            MainStore.setIsWaterBody(false)
+            MainStore.setSelectedResource(null)
+        }
+        else if(MainStore.isGroundWater){
+            MainStore.setIsGroundWater(false)
+            MainStore.setSelectedResource(null)
         }
         MainStore.setIsOpen(false)
     }
@@ -262,6 +347,12 @@ const Bottomsheet = () => {
                 {MainStore.isNregaSheet && nregaBody}
 
                 {MainStore.isMetadata && MainStore.metadata !== null && metaDataBody}
+
+                {MainStore.isResource && (MainStore.currentScreen === "HomeScreen" || MainStore.currentStep !== 0) && MainStore.selectedResource !== null && resourceBody}
+
+                {MainStore.isWaterbody && <SurfaceWaterBodies/>}
+
+                {MainStore.isGroundWater && <GroundwaterAnalyze/>}
 
             </BottomSheet>
     )
