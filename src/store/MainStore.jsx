@@ -49,6 +49,7 @@ const useMainStore = create((set) => ({
     lulcYearIdx : 0,
     isWaterbody : false,
     isGroundWater : false,
+    selectedMWSDrought : null,
 
     setMarkerPlaced : (stat) => set({isMarkerPlaced : stat}),
     setFeatureStat : (stat) => set({isFeatureClicked : stat}),
@@ -60,6 +61,7 @@ const useMainStore = create((set) => ({
     setLulcYearIdx : (stat) => set({lulcYearIdx : stat}),
     setIsWaterBody : (stat) => set({isWaterbody : stat}),
     setIsGroundWater : (stat) => set({isGroundWater : stat}),
+    setSelectedMwsDrought : (stat) => set({selectedMWSDrought : stat}),
 
     //? NREGA Hooks
     isNregaSheet : false,

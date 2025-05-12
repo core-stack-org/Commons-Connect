@@ -5,9 +5,6 @@ import WebGLVectorLayer from 'ol/layer/WebGLVector.js';
 
 
 export default async function getWebglVectorLayers (layer_store, layer_name, setVisible = true, setActive = true, resource_type = null , plan_id = null, district, block) {
-
-    const drainageColors = ["03045E","023E8A","0077B6","0096C7","00B4D8","48CAE4","90E0EF","ADE8F4","CAF0F8"]
-
     let url = 
     (plan_id === null ? 
         `${import.meta.env.VITE_GEOSERVER_URL}` + layer_store + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + layer_store + ':' + layer_name + "&outputFormat=application/json&screen=main"

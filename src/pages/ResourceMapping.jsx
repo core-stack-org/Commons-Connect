@@ -73,6 +73,11 @@ const ResourceMapping = () => {
       return plan;
     };
 
+    const handleAnalyze = () =>{
+      console.log("Reached here !")
+      MainStore.setIsOpen(true)
+    }
+
 
     return(
       <>
@@ -199,6 +204,7 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+              onClick={handleAnalyze}
             >
               Settlement Info
             </button>
@@ -210,7 +216,7 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && MainStore.isMarkerPlaced}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
                 backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
                 color: '#592941',
@@ -234,7 +240,7 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && MainStore.isMarkerPlaced}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
                 backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
                 color: '#592941',
@@ -258,7 +264,7 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && MainStore.isMarkerPlaced}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
                 backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
                 color: '#592941',

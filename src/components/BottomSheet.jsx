@@ -7,6 +7,7 @@ import nregaDetails from "../assets/nregaMapping.json"
 import resourceDetails from "../assets/resource_mapping.json"
 import SurfaceWaterBodies from './analyze/SurfaceWaterbodyAnalyze.jsx';
 import GroundwaterAnalyze from './analyze/GroundwaterAnalyze.jsx';
+import AgricultureAnalyze from './analyze/AgricultureAnalyze.jsx';
 
 const Bottomsheet = () => {
 
@@ -14,17 +15,17 @@ const Bottomsheet = () => {
     let flg = false
     
     const LayerNameMapping = {
-        1 : "settlement_layer",
-        2 : "well_layer",
-        3 : "waterbody_layer",
-        4 : "cropgrid_layer"
+        0 : "settlement_layer",
+        1 : "well_layer",
+        2 : "waterbody_layer",
+        3 : "cropgrid_layer"
     }
     
     const ResourceMapping = {
-        1 : "settlement",
-        2 : "well",
-        3 : "waterbody",
-        4 : "cropgrid"
+        0 : "settlement",
+        1 : "well",
+        2 : "waterbody",
+        3 : "cropgrid"
     }
 
     const handleOnLoadEvent = async() => {
@@ -337,22 +338,40 @@ const Bottomsheet = () => {
                 onDismiss={onDismiss}
                 snapPoints={({ maxHeight }) => [maxHeight]}
             >
-                {MainStore.isForm && MainStore.formUrl !== "" && <iframe
-                    id="odk-frame"
-                    src={MainStore.formUrl}
-                    style={{ width: "100vw", height: "100vh" }}
-                    onLoad={() => handleOnLoadEvent()}
-                ></iframe>}
+                <button
+                    onClick={onDismiss}
+                    className="
+                    absolute right-3 top-3 z-10
+                    w-8 h-8 flex items-center justify-center
+                    rounded-full bg-gray-200 hover:bg-gray-300
+                    text-gray-600 hover:text-gray-800
+                    shadow-sm transition
+                    "
+                    aria-label="Close"
+                >
+                    &times;
+                </button>
+                <div className="pt-6">
+                    {MainStore.isForm && MainStore.formUrl !== "" && <iframe
+                        id="odk-frame"
+                        src={MainStore.formUrl}
+                        style={{ width: "100vw", height: "100vh" }}
+                        onLoad={() => handleOnLoadEvent()}
+                    ></iframe>}
 
-                {MainStore.isNregaSheet && nregaBody}
+                    {MainStore.isNregaSheet && nregaBody}
 
-                {MainStore.isMetadata && MainStore.metadata !== null && metaDataBody}
+                    {MainStore.isMetadata && MainStore.metadata !== null && metaDataBody}
 
-                {MainStore.isResource && (MainStore.currentScreen === "HomeScreen" || MainStore.currentStep !== 0) && MainStore.selectedResource !== null && resourceBody}
+                    {MainStore.isResource && (MainStore.currentScreen === "HomeScreen" || MainStore.currentStep !== 0) && MainStore.selectedResource !== null && resourceBody}
 
-                {MainStore.isWaterbody && <SurfaceWaterBodies/>}
+                    {MainStore.isWaterbody && <SurfaceWaterBodies/>}
 
-                {MainStore.isGroundWater && <GroundwaterAnalyze/>}
+                    {MainStore.isGroundWater && <GroundwaterAnalyze/>}
+
+                    {MainStore.selectedMWSDrought !== null && <AgricultureAnalyze/>}
+
+                </div>
 
             </BottomSheet>
     )

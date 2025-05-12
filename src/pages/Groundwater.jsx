@@ -176,7 +176,7 @@ const Groundwater = () => {
                       <button
                         className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                         onClick={() => toggleFormsUrl(true)}
-                        disabled={!MainStore.isMarkerPlaced}
+                        disabled={!MainStore.isMarkerPlaced && MainStore.isFeatureClicked}
                         style={{
                           backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
                           color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
@@ -189,7 +189,12 @@ const Groundwater = () => {
                       <button
                         className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                         onClick={() => toggleFormsUrl(false)}
-                        style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                        style={{  
+                          backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                          color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                          border: 'none', 
+                        }}
+                        disabled={!MainStore.isMarkerPlaced && !MainStore.isFeatureClicked}
                       >
                         Build New Recharge Structure
                       </button>

@@ -26,7 +26,6 @@ const Agriculture = () => {
     const percent = (MainStore.lulcYearIdx / (years.length - 1)) * 100;    // 0 – 100 %
   
 
-  /* ─── Existing helper (unchanged) ───────────────────── */
   const toggleFormsUrl = (toggle) => {
     if (MainStore.markerCoords) {
       MainStore.setIsForm(true);
@@ -59,6 +58,9 @@ const Agriculture = () => {
     return plan;
   };
 
+  const handleAnalyze = () =>{
+    MainStore.setIsOpen(true)
+  }
 
   return (
     <>
@@ -172,15 +174,6 @@ const Agriculture = () => {
                 {years[MainStore.lulcYearIdx]}
                 </div>
             )}
-
-            {/* evenly spaced year labels */}
-            {/* <div className="flex justify-between text-white text-xs mt-1 px-1">
-                {years.map((y) => (
-                <span key={y} className="flex-1 text-center">
-                    {y}
-                </span>
-                ))}
-            </div> */}
             </div>
         </div>
         )}
@@ -217,7 +210,7 @@ const Agriculture = () => {
               <button
                 className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                 onClick={() => toggleFormsUrl(false)}
-                disabled={!MainStore.isMarkerPlaced}
+                disabled={MainStore.isMarkerPlaced}
                 style={{
                   backgroundColor: !MainStore.isMarkerPlaced ? "#696969" : "#D6D5C9",
                   color: !MainStore.isMarkerPlaced ? "#A8A8A8" : "#592941",
@@ -231,6 +224,7 @@ const Agriculture = () => {
                 className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                 onClick={() => toggleFormsUrl(true)}
                 style={{ backgroundColor: "#D6D5C9", color: "#592941", border: "none" }}
+                disabled={MainStore.isMarkerPlaced}
               >
                 Propose Maintenance
               </button>

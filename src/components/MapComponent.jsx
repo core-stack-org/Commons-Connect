@@ -17,6 +17,7 @@ import VectorLayer from "ol/layer/Vector.js";
 import Point from "ol/geom/Point.js";
 import Select from "ol/interaction/Select.js";
 import WebGLPointsLayer from 'ol/layer/WebGLPoints.js';
+import WebGLVectorLayer from 'ol/layer/WebGLVector.js';
 import VectorSource from "ol/source/Vector.js";
 
 import settlementIcon from "../assets/settlement_icon.svg"
@@ -24,6 +25,10 @@ import LargeWaterBody from "../assets/waterbodiesScreenIcon.svg"
 import selectedSettlementIcon from "../assets/selected_settlement.svg"
 import iconsDetails from "../assets/icons.json"
 import mapMarker from "../assets/map_marker.svg"
+import farm_pond_proposed from "../assets/farm_pond_proposed.svg"
+import land_leveling_proposed from "../assets/land_leveling_proposed.svg"
+import well_mrker from "../assets/well_proposed.svg"
+
 
 const MapComponent = () => {
     const mapElement = useRef(null);
@@ -64,8 +69,8 @@ const MapComponent = () => {
     //?                     17-18       18-19           19-20       20-21           21-22       22-23           23-24
     let LulcLayerRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)]
     
-    //?                   Drought       Cropping Inten
-    let AgriLayersRefs = [useRef(null), useRef(null)]
+    //?                   Cropping      Drought        Works
+    let AgriLayersRefs = [useRef(null), useRef(null), useRef(null)]
     let LulcYears = {
         0 : "17_18",
         1 : "18_19",
@@ -196,10 +201,11 @@ const MapComponent = () => {
                 });
             });
 
-            mapRef.current.on("click", (e) => {
+            mapRef.current.on("click", async(e) => {
                 MainStore.setIsMetadata(false)
                 MainStore.setIsWaterBody(false)
                 MainStore.setIsGroundWater(false)
+
                 const NregaFeature = mapRef.current.forEachFeatureAtPixel(
                     e.pixel,
                     (feature, layer) => {
@@ -213,15 +219,6 @@ const MapComponent = () => {
                     e.pixel,
                     (feature, layer) => {
                       if (layer === groundwaterRefs[0].current) {
-                        return feature;
-                      }
-                    }
-                );
-
-                const croppingFeature = mapRef.current.forEachFeatureAtPixel(
-                    e.pixel,
-                    (feature, layer) => {
-                      if (layer === AgriLayersRefs[0].current) {
                         return feature;
                       }
                     }
@@ -245,6 +242,15 @@ const MapComponent = () => {
                     }
                 );
 
+                const croppingFeature = mapRef.current.forEachFeatureAtPixel(
+                    e.pixel,
+                    (feature, layer) => {
+                      if (layer === AgriLayersRefs[0].current) {
+                        return feature;
+                      }
+                    }
+                );
+
                 if(NregaFeature){
                     MainStore.setIsMetadata(true)
                     MainStore.setMetadata(NregaFeature.values_)
@@ -254,7 +260,6 @@ const MapComponent = () => {
                 if(deltaGFeature !== undefined){
                     setSelectedResource(deltaGFeature.values_)
                     MainStore.setIsGroundWater(true)
-                    console.log(deltaGFeature.values_)
                     const clickedMwsId = deltaGFeature.get("uid");
                     groundwaterRefs[0].current.setStyle((feature) => {
                         if(feature.values_.uid === clickedMwsId){
@@ -295,22 +300,15 @@ const MapComponent = () => {
                     MainStore.setFortnightData(fortnightFeature.values_)
                 }
 
-                if(croppingFeature !== undefined){
-                    croppingFeature.setStyle(new Style({
-                        fill: new Fill({
-                          color: "rgba(0, 0, 0, 0.9)",
-                        }),
-                        stroke: new Stroke({
-                          color: "#1AA7EC",
-                          width: 1,
-                        }),
-                      })
-                    )
-                }
-
                 if(waterBodyFeature !== undefined){
                     setSelectedResource(waterBodyFeature.values_)
                     MainStore.setIsWaterBody(true)
+                }
+
+                if(croppingFeature !== undefined){
+                    setSelectedResource(croppingFeature.values_)
+                    const src = AgriLayersRefs[1].current.getSource().getFeatures()
+                    MainStore.setSelectedMwsDrought(src.find((f) => f.get('uid') === croppingFeature.values_.uid)?.values_ ?? null)
                 }
             });
 
@@ -354,6 +352,13 @@ const MapComponent = () => {
             true
         )
 
+        const AgricultureWorkLayer = await getVectorLayers(
+            "works",
+            `plan_agri_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+            true,
+            true
+        )
+
         settlementLayer.setStyle(
             new Style({
               image: new Icon({ src: settlementIcon, scale: 0.4 }),
@@ -388,15 +393,37 @@ const MapComponent = () => {
             }
         });
 
+        AgricultureWorkLayer.setStyle(function (feature) {
+            const status = feature.values_;
+            if (status.TYPE_OF_WO == "New farm pond") {
+                return new Style({
+                  image: new Icon({ src: farm_pond_proposed }),
+                });
+              } else if (status.TYPE_OF_WO == "Land leveling") {
+                return new Style({
+                  image: new Icon({ src: land_leveling_proposed }),
+                });
+              } else if (status.TYPE_OF_WO == "New well") {
+                return new Style({
+                  image: new Icon({ src: well_mrker }),
+                });
+              } else {
+                return new Style({
+                  image: new Icon({ src: LargeWaterBody }),
+                });
+              }
+        });
 
         if(assetsLayerRefs[0].current !== null){mapRef.current.removeLayer(assetsLayerRefs[0].current)}
         if(assetsLayerRefs[1].current !== null){mapRef.current.removeLayer(assetsLayerRefs[1].current)}
         if(assetsLayerRefs[2].current !== null){mapRef.current.removeLayer(assetsLayerRefs[2].current)}
+        if(AgriLayersRefs[2].current !== null){mapRef.current.removeLayer(AgriLayersRefs[2].current)}
 
         assetsLayerRefs[0].current = settlementLayer
         assetsLayerRefs[1].current = wellLayer
         assetsLayerRefs[2].current = waterStructureLayer
         assetsLayerRefs[3].current = cropGridLayer
+        AgriLayersRefs[2].current = AgricultureWorkLayer
 
         mapRef.current.addLayer(assetsLayerRefs[0].current)
         mapRef.current.addLayer(assetsLayerRefs[1].current)
@@ -455,7 +482,6 @@ const MapComponent = () => {
                 mapRef.current.removeInteraction(selectSettleIcon)
                 mapRef.current.addInteraction(selectSettleIcon)
                 setSelectedResource(feature.values_)
-                console.log(feature.values_)
                 tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
                 MainStore.setIsResource(true)
                 MainStore.setIsOpen(true)
@@ -482,8 +508,7 @@ const MapComponent = () => {
     }
 
     const refreshResourceLayers = async() => {
-        
-        if(currentStep === 1){
+        if(currentStep === 0){
             const settlementLayer = await getVectorLayers(
                 "resources",
                 "settlement_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
@@ -497,10 +522,12 @@ const MapComponent = () => {
                 })
             );
 
+            tempSettlementFeature.current.setGeometry(new Point(MainStore.markerCoords))
+            MainStore.setCurrentStep(1)
             assetsLayerRefs[0].current = settlementLayer
         }
 
-        else if(currentStep === 2){
+        else if(currentStep === 1){
             const wellLayer = await getVectorLayers(
                 "resources",
                 "well_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
@@ -525,7 +552,7 @@ const MapComponent = () => {
             assetsLayerRefs[1].current = wellLayer
         }
 
-        else if(currentStep === 3){
+        else if(currentStep === 2){
             const waterStructureLayer = await getVectorLayers(
                 "resources",
                 "waterbody_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
@@ -550,7 +577,7 @@ const MapComponent = () => {
             assetsLayerRefs[2].current = waterStructureLayer
         }
 
-        mapRef.current.addLayer(assetsLayerRefs[stepsDetail[currentScreen]["step-"+currentStep]].current)
+        mapRef.current.addLayer(assetsLayerRefs[currentStep].current)
 
     }
 
@@ -608,8 +635,38 @@ const MapComponent = () => {
             mapRef.current.addLayer(groundwaterRefs[currentStep].current)
 
             mapRef.current.addLayer(assetsLayerRefs[0].current)
-            mapRef.current.addLayer(assetsLayerRefs[1].current)
             mapRef.current.addLayer(assetsLayerRefs[2].current)
+        }
+        
+        else if(currentScreen === "Agriculture"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AgriLayersRefs[0].current && layer !== MapMarkerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+
+            if(ClartLayerRef.current === null && currentStep === 1){
+                const ClartLayer = await getImageLayer(
+                    "clart",
+                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}` + "_clart",
+                    true,
+                    ""
+                )
+                ClartLayer.setOpacity(0.4)
+                ClartLayerRef.current = ClartLayer
+            }
+            if(groundwaterRefs[1].current === null && currentStep === 1){
+                const drainageLayer = await getWebglVectorLayers(
+                    "drainage",
+                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                groundwaterRefs[1].current = drainageLayer
+            }
+
+            mapRef.current.addLayer(ClartLayerRef.current)
+            mapRef.current.addLayer(groundwaterRefs[currentStep].current)
         }
     }
 
@@ -766,6 +823,7 @@ const MapComponent = () => {
             mapRef.current.addLayer(LulcLayerRefs[0].current)
             mapRef.current.addLayer(AgriLayersRefs[0].current)
             mapRef.current.addLayer(AgriLayersRefs[1].current)
+            mapRef.current.addLayer(AgriLayersRefs[2].current)
 
         }
         else if(currentScreen === "Livelihood"){
@@ -857,7 +915,7 @@ const MapComponent = () => {
     useEffect(() => {
       
         if(MainStore.isSubmissionSuccess){
-            mapRef.current.removeLayer(assetsLayerRefs[stepsDetail[currentScreen]["step-"+currentStep]].current)
+            mapRef.current.removeLayer(assetsLayerRefs[currentStep].current)
             refreshResourceLayers()
         }
 
