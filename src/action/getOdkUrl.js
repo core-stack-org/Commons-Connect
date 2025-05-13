@@ -31,6 +31,14 @@ export default function getOdkUrlForScreen(screen, step, latlong, settlement_nam
         odk_url = `${import.meta.env.VITE_ODK_SURFACEWATER_BODIES}` + `$zsF8xTTrt3ONGuK6pvM4P!cpQLoo` + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name
     }
 
+    else if(screen === "Agriculture" && !maintain){
+        odk_url = `${import.meta.env.VITE_ODK_AGRICULTURE_WORK}`
+    }
+
+    else if(screen === "Agriculture" && maintain){
+        odk_url = `${import.meta.env.VITE_ODK_AGRICULTURE_MAINTAIN}` + '$Wxl01nY6n39' + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name 
+    }
+
     console.log(odk_url)
 
     return odk_url;

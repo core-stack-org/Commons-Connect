@@ -11,6 +11,7 @@ import Groundwater from "./pages/Groundwater";
 import SurfaceWaterBodies from "./pages/SurfaceWaterbodies";
 import Agriculture from "./pages/Agriculture";
 import Livelihood from "./pages/Livelihood";
+import InfoBox from "./components/InfoBox";
 
 function App() {
   
@@ -27,6 +28,7 @@ function App() {
        <div className="absolute inset-0 z-10 pointer-events-none">
          <div className="pointer-events-auto">
            <BrowserRouter>
+           <InfoBox/>
              <Routes>
                <Route path="/" element={<Homepage />} />
                <Route path="/resourcemapping" element={<ResourceMapping />} />

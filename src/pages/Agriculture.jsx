@@ -43,6 +43,18 @@ const Agriculture = () => {
           toggle
         )
       );
+      console.log(getOdkUrlForScreen(
+        MainStore.currentScreen,
+        MainStore.currentStep,
+        MainStore.markerCoords,
+        "",
+        "",
+        MainStore.blockName,
+        MainStore.currentPlan.plan_id,
+        MainStore.currentPlan.plan,
+        "",
+        toggle
+      ))
       MainStore.setIsOpen(true);
     }
   };
@@ -75,77 +87,60 @@ const Agriculture = () => {
 
       {/* 2. Top-left buttons */}
       <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
-        <div className="flex gap-4 max-w-lg">
-          <div className="flex flex-col gap-3">
-              {/* GPS Button */}
-              <button
-              className="flex-shrink-0 w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
-              style={{
-                  backgroundColor: '#D6D5C9',
-                  color: '#592941',
-                  border: 'none',
-                  backdropFilter: 'none',
-              }}
-              onClick={() => {}}
-              >
-              <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-              >
-                  <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
-                  />
-              </svg>
-              </button>
-
-              <button
-                className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
-                style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-                onClick={() => setIsInfoOpen(true)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+            <div className="flex gap-4 max-w-lg">
+            <div className="flex flex-col gap-3">
+                {/* GPS Button */}
+                <button
+                className="flex-shrink-0 w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                style={{
+                    backgroundColor: '#D6D5C9',
+                    color: '#592941',
+                    border: 'none',
+                    backdropFilter: 'none',
+                }}
+                onClick={() => {console.log("IN Agri")}}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8h.01M11 12h1v4h1m0 4a9 9 0 100-18 9 9 0 000 18z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <path d="M50 20c-11 0-20 9-20 20 0 11 20 40 20 40s20-29 20-40c0-11-9-20-20-20z" 
+                    fill="#592941" stroke="#592941" strokeWidth="1" />
+                    <circle cx="50" cy="40" r="7" fill="white" />
                 </svg>
-              </button>
-            </div>
+                </button>
 
-          {/* Plan selector with dropdown */}
-          <div className="relative">
-          <button
-              className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm"
-              style={{
-                backgroundColor: '#D6D5C9',
-                color: '#592941',
-                border: 'none',
-                backdropFilter: 'none',
-              }}
-            >
-              {getPlanLabel()}
-            </button>
-          </div>
-        </div>
-      </div>
+                <button
+                    className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                    style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                    onClick={() => MainStore.setIsInfoOpen(true)}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="30" fill="#592941" stroke="#592941" strokeWidth="2" />
+                    <circle cx="50" cy="40" r="3.5" fill="white" />
+                    <rect x="46.5" y="47" width="7" height="25" rx="2" fill="white" />
+                    </svg>
+                </button>
+                </div>
+
+                {/* Plan selector with dropdown */}
+                <div className="relative">
+                <button
+                    className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm"
+                    style={{
+                    backgroundColor: '#D6D5C9',
+                    color: '#592941',
+                    border: 'none',
+                    backdropFilter: 'none',
+                    }}
+                >
+                    {getPlanLabel()}
+                </button>
+
+                </div>
+            </div>
+            </div>
 
      {/* ─── Slider + popup (step 0 only) - MOVED BELOW TOP BUTTONS ─── */}
      {MainStore.currentStep === 0 && (
-        <div className="absolute top-36 left-0 w-full px-4 z-10 pointer-events-auto">
+        <div className="absolute top-36 left-0 w-full px-4 z-10">
             <div className="relative w-3/4 max-w-md mx-auto">
             <input
                 type="range"
@@ -210,7 +205,7 @@ const Agriculture = () => {
               <button
                 className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                 onClick={() => toggleFormsUrl(false)}
-                disabled={MainStore.isMarkerPlaced}
+                disabled={!MainStore.isMarkerPlaced}
                 style={{
                   backgroundColor: !MainStore.isMarkerPlaced ? "#696969" : "#D6D5C9",
                   color: !MainStore.isMarkerPlaced ? "#A8A8A8" : "#592941",
@@ -223,8 +218,12 @@ const Agriculture = () => {
               <button
                 className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                 onClick={() => toggleFormsUrl(true)}
-                style={{ backgroundColor: "#D6D5C9", color: "#592941", border: "none" }}
-                disabled={MainStore.isMarkerPlaced}
+                style={{ 
+                  backgroundColor: !MainStore.isMarkerPlaced ? "#696969" : "#D6D5C9",
+                  color: !MainStore.isMarkerPlaced ? "#A8A8A8" : "#592941",
+                  border: "none", 
+                }}
+                disabled={!MainStore.isMarkerPlaced}
               >
                 Propose Maintenance
               </button>

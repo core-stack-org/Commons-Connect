@@ -28,6 +28,11 @@ const Bottomsheet = () => {
         3 : "cropgrid"
     }
 
+    const PlanningResource = {
+        "Agriculture" : "plan_agri",
+        "Groundwater" : "plan_gw"
+    }
+
     const handleOnLoadEvent = async() => {
         if(flg){
             if (MainStore.currentScreen === "Resource_mapping"){
@@ -41,7 +46,7 @@ const Bottomsheet = () => {
                         district_name: MainStore.districtName,
                         block_name: MainStore.blockName,
                     }
-                    console.log(payload)
+
                     const response = await fetch(`${import.meta.env.VITE_API_URL}add_resources/`, {
                         method: 'POST',
                         headers: {
@@ -51,16 +56,50 @@ const Bottomsheet = () => {
                     })
 
                     const res = await response.json()
-                    console.log(res)
 
                     MainStore.setIsLoading(false)
 
-                    if (res.message == "Success") {
+                    if (res.message === "Success") {
                         MainStore.setIsSubmissionSuccess(true)
                     }
                     onDismiss()
 
                 }catch(err){
+                    console.log(err)
+                }
+            }
+            else{
+                try{
+                    MainStore.setIsLoading(true)
+                    const payload = {
+                        layer_name: "planning_layer",
+                        work_type: PlanningResource[MainStore.currentScreen],
+                        plan_id: MainStore.currentPlan.plan_id,
+                        plan_name: MainStore.currentPlan.plan,
+                        district_name: MainStore.districtName,
+                        block_name: MainStore.blockName,
+                    }
+                    console.log(payload)
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}add_works/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+
+                    const res = await response.json()
+
+                    MainStore.setIsLoading(false)
+
+                    console.log(res)
+
+                    if (res.message === "Success") {
+                        MainStore.setIsSubmissionSuccess(true)
+                    }
+                    onDismiss()
+                }
+                catch(err){
                     console.log(err)
                 }
             }
@@ -329,6 +368,11 @@ const Bottomsheet = () => {
             MainStore.setIsGroundWater(false)
             MainStore.setSelectedResource(null)
         }
+        else if(MainStore.selectedMWSDrought !== null){
+            MainStore.setIsAgriculture(false)
+            MainStore.setSelectedMwsDrought(null)
+            MainStore.setSelectedResource(null)
+        }
         MainStore.setIsOpen(false)
     }
 
@@ -369,7 +413,7 @@ const Bottomsheet = () => {
 
                     {MainStore.isGroundWater && <GroundwaterAnalyze/>}
 
-                    {MainStore.selectedMWSDrought !== null && <AgricultureAnalyze/>}
+                    {MainStore.isAgriculture && MainStore.currentStep === 0 && <AgricultureAnalyze/>}
 
                 </div>
 

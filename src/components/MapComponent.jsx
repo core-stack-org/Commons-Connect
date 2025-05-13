@@ -205,6 +205,7 @@ const MapComponent = () => {
                 MainStore.setIsMetadata(false)
                 MainStore.setIsWaterBody(false)
                 MainStore.setIsGroundWater(false)
+                MainStore.setIsAgriculture(false)
 
                 const NregaFeature = mapRef.current.forEachFeatureAtPixel(
                     e.pixel,
@@ -307,6 +308,7 @@ const MapComponent = () => {
 
                 if(croppingFeature !== undefined){
                     setSelectedResource(croppingFeature.values_)
+                    MainStore.setIsAgriculture(true)
                     const src = AgriLayersRefs[1].current.getSource().getFeatures()
                     MainStore.setSelectedMwsDrought(src.find((f) => f.get('uid') === croppingFeature.values_.uid)?.values_ ?? null)
                 }
@@ -508,76 +510,115 @@ const MapComponent = () => {
     }
 
     const refreshResourceLayers = async() => {
-        if(currentStep === 0){
-            const settlementLayer = await getVectorLayers(
-                "resources",
-                "settlement_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
-                true,
-                true
-            );
 
-            settlementLayer.setStyle(
-                new Style({
-                  image: new Icon({ src: settlementIcon, scale: 0.4 }),
-                })
-            );
+        if(currentScreen === "Resource_mapping"){
+            mapRef.current.removeLayer(assetsLayerRefs[currentStep].current)
 
-            tempSettlementFeature.current.setGeometry(new Point(MainStore.markerCoords))
-            MainStore.setCurrentStep(1)
-            assetsLayerRefs[0].current = settlementLayer
+            if(currentStep === 0){
+                const settlementLayer = await getVectorLayers(
+                    "resources",
+                    "settlement_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+
+                settlementLayer.setStyle(
+                    new Style({
+                    image: new Icon({ src: settlementIcon, scale: 0.4 }),
+                    })
+                );
+
+                tempSettlementFeature.current.setGeometry(new Point(MainStore.markerCoords))
+                MainStore.setCurrentStep(1)
+                assetsLayerRefs[0].current = settlementLayer
+            }
+
+            else if(currentStep === 1){
+                const wellLayer = await getVectorLayers(
+                    "resources",
+                    "well_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                )
+
+                wellLayer.setStyle(function (feature) {
+                    const status = feature.values_;
+                    if(status.status_re in iconsDetails.socialMapping_icons.well){
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
+                        })
+                    }
+                    else{
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.socialMapping_icons.well["proposed"] }),
+                        })
+                    }
+                });
+                
+                assetsLayerRefs[1].current = wellLayer
+            }
+
+            else if(currentStep === 2){
+                const waterStructureLayer = await getVectorLayers(
+                    "resources",
+                    "waterbody_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                )
+
+                waterStructureLayer.setStyle(function (feature) {
+                    const status = feature.values_;
+                    if(status.status_re in iconsDetails.WB_Icons){
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type] }),
+                        })
+                    }
+                    else{
+                        return new Style({
+                            image: new Icon({ src: LargeWaterBody }),
+                        })
+                    }
+                });
+
+                assetsLayerRefs[2].current = waterStructureLayer
+            }
+
+            mapRef.current.addLayer(assetsLayerRefs[currentStep].current)
         }
-
-        else if(currentStep === 1){
-            const wellLayer = await getVectorLayers(
-                "resources",
-                "well_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+        else if(currentScreen === "Groundwater"){}
+        else if(currentScreen === "Agriculture"){
+            console.log("in here")
+            const AgricultureWorkLayer = await getVectorLayers(
+                "works",
+                `plan_agri_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
                 true,
                 true
             )
-
-            wellLayer.setStyle(function (feature) {
+            AgricultureWorkLayer.setStyle(function (feature) {
                 const status = feature.values_;
-                if(status.status_re in iconsDetails.socialMapping_icons.well){
+                if (status.TYPE_OF_WO == "New farm pond") {
                     return new Style({
-                        image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
-                    })
-                }
-                else{
+                      image: new Icon({ src: farm_pond_proposed }),
+                    });
+                  } else if (status.TYPE_OF_WO == "Land leveling") {
                     return new Style({
-                        image: new Icon({ src: iconsDetails.socialMapping_icons.well["proposed"] }),
-                    })
-                }
-            });
-            
-            assetsLayerRefs[1].current = wellLayer
-        }
-
-        else if(currentStep === 2){
-            const waterStructureLayer = await getVectorLayers(
-                "resources",
-                "waterbody_"+ currentPlan.plan_id + '_' +`${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
-                true,
-                true
-            )
-
-            waterStructureLayer.setStyle(function (feature) {
-                const status = feature.values_;
-                if(status.status_re in iconsDetails.WB_Icons){
+                      image: new Icon({ src: land_leveling_proposed }),
+                    });
+                  } else if (status.TYPE_OF_WO == "New well") {
                     return new Style({
-                        image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type] }),
-                    })
-                }
-                else{
+                      image: new Icon({ src: well_mrker }),
+                    });
+                  } else {
                     return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
+                      image: new Icon({ src: LargeWaterBody }),
+                    });
+                  }
             });
 
-            assetsLayerRefs[2].current = waterStructureLayer
+            mapRef.current.removeLayer(AgriLayersRefs[2].current)
+            AgriLayersRefs[2].current = AgricultureWorkLayer
+            mapRef.current.addLayer(AgriLayersRefs[2].current)
         }
-
-        mapRef.current.addLayer(assetsLayerRefs[currentStep].current)
 
     }
 
@@ -913,10 +954,11 @@ const MapComponent = () => {
     },[MainStore.nregaStyle])
 
     useEffect(() => {
-      
+        console.log("Submission success value : ",MainStore.isSubmissionSuccess)
         if(MainStore.isSubmissionSuccess){
-            mapRef.current.removeLayer(assetsLayerRefs[currentStep].current)
+
             refreshResourceLayers()
+            MainStore.setIsSubmissionSuccess(false)
         }
 
     },[MainStore.isSubmissionSuccess])

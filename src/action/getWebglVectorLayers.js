@@ -47,9 +47,9 @@ export default async function getWebglVectorLayers (layer_store, layer_name, set
     }
     else if(layer_store === "water_bodies"){
       style = {
-        'stroke-color': '#6495ed',
+        'stroke-color': '#21618c',
         'stroke-width': 3,
-        'fill-color' : "rgba(100, 149, 237, 0.5)"
+        'fill-color' : "rgba(33, 97, 140, 0.5)"
       }
     }
     else if(layer_store === "cropping_intensity"){

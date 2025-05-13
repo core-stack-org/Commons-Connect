@@ -6,11 +6,12 @@ const useMainStore = create((set) => ({
     districtName : null,
     blockName : null,
     block_id : null,
+    isInfoOpen : false,
 
     setDistrictName : (name) => set({districtName : name}),
     setBlockName : (name) => set({blockName : name}),
     setBlockId : (id) => set({block_id : id}),
-
+    setIsInfoOpen : (stat) => set({isInfoOpen : stat}),
 
     //? Plans Store
     currentPlan : null,
@@ -49,6 +50,7 @@ const useMainStore = create((set) => ({
     lulcYearIdx : 0,
     isWaterbody : false,
     isGroundWater : false,
+    isAgriculture : false,
     selectedMWSDrought : null,
 
     setMarkerPlaced : (stat) => set({isMarkerPlaced : stat}),
@@ -62,6 +64,7 @@ const useMainStore = create((set) => ({
     setIsWaterBody : (stat) => set({isWaterbody : stat}),
     setIsGroundWater : (stat) => set({isGroundWater : stat}),
     setSelectedMwsDrought : (stat) => set({selectedMWSDrought : stat}),
+    setIsAgriculture : (stat) => set({isAgriculture : stat}),
 
     //? NREGA Hooks
     isNregaSheet : false,

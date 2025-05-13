@@ -135,7 +135,7 @@ const Homepage = () => {
               <button
                 className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
                 style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-                onClick={() => setIsInfoOpen(true)}
+                onClick={() => MainStore.setIsInfoOpen(true)}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="30" fill="#592941" stroke="#592941" strokeWidth="2" />
@@ -173,6 +173,7 @@ const Homepage = () => {
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
                         onClick={() => {
                         /* handle selection */
+                        console.log(plan)
                         setIsPlanOpen(false);
                         MainStore.setCurrentPlan(plan)
                         }}
