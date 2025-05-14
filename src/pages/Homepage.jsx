@@ -123,7 +123,10 @@ const Homepage = () => {
                   border: 'none',
                   backdropFilter: 'none',
               }}
-              onClick={() => {}}
+              onClick={() => {
+                console.log("Button clicked")
+                MainStore.setIsGPSClick(true)
+              }}
               >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                 <path d="M50 20c-11 0-20 9-20 20 0 11 20 40 20 40s20-29 20-40c0-11-9-20-20-20z" 
@@ -172,8 +175,6 @@ const Homepage = () => {
                         key={plan.plan_id}
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
                         onClick={() => {
-                        /* handle selection */
-                        console.log(plan)
                         setIsPlanOpen(false);
                         MainStore.setCurrentPlan(plan)
                         }}

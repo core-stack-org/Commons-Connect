@@ -7,11 +7,15 @@ const useMainStore = create((set) => ({
     blockName : null,
     block_id : null,
     isInfoOpen : false,
+    isGPSClick : false,
+    gpsLocation : null,
 
     setDistrictName : (name) => set({districtName : name}),
     setBlockName : (name) => set({blockName : name}),
     setBlockId : (id) => set({block_id : id}),
     setIsInfoOpen : (stat) => set({isInfoOpen : stat}),
+    setIsGPSClick : (stat) => set({isGPSClick : stat}),
+    setGpsLocation : (stat) => set({gpsLocation : stat}),
 
     //? Plans Store
     currentPlan : null,

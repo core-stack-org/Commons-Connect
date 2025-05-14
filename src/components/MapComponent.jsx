@@ -4,20 +4,21 @@ import getWebglVectorLayers from '../action/getWebglVectorLayers.js';
 import getVectorLayers from "../action/getVectorLayers.js";
 import getWebGlLayers from "../action/getWebglLayers.js";
 import getImageLayer from "../action/getImageLayer.js";
+import toast from 'react-hot-toast';
 
 //* OpenLayers imports
 import "ol/ol.css";
+import { easeOut } from 'ol/easing';
 import XYZ from "ol/source/XYZ";
 import TileLayer from "ol/layer/Tile";
 import Control from 'ol/control/Control.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
-import { Map, View, Feature } from "ol";
-import {Stroke, Fill, Style, Icon } from "ol/style.js";
+import { Map, View, Feature, Geolocation } from "ol";
+import { Stroke, Fill, Style, Icon } from "ol/style.js";
 import VectorLayer from "ol/layer/Vector.js";
 import Point from "ol/geom/Point.js";
 import Select from "ol/interaction/Select.js";
 import WebGLPointsLayer from 'ol/layer/WebGLPoints.js';
-import WebGLVectorLayer from 'ol/layer/WebGLVector.js';
 import VectorSource from "ol/source/Vector.js";
 
 import settlementIcon from "../assets/settlement_icon.svg"
@@ -28,17 +29,20 @@ import mapMarker from "../assets/map_marker.svg"
 import farm_pond_proposed from "../assets/farm_pond_proposed.svg"
 import land_leveling_proposed from "../assets/land_leveling_proposed.svg"
 import well_mrker from "../assets/well_proposed.svg"
+import Man_icon from "../assets/Man_icon.png"
 
 
 const MapComponent = () => {
     const mapElement = useRef(null);
     const mapRef = useRef(null);
+    const viewRef = useRef(null);
     const baseLayerRef = useRef(null);
     const AdminLayerRef = useRef(null);
     const MapMarkerRef = useRef(null)
     const NregaWorkLayerRef = useRef(null);
     const ClartLayerRef = useRef(null)
     const WaterbodiesLayerRef = useRef(null)
+    const PositionFeatureRef = useRef(null)
     
     const tempSettlementFeature = useRef(null)
     const tempSettlementLayer = useRef(null)
@@ -117,6 +121,8 @@ const MapComponent = () => {
             smoothExtentConstraint: true,
             smoothResolutionConstraint: true,
         });
+        
+        viewRef.current = view
 
         const map = new Map({
             target: mapElement.current,
@@ -176,6 +182,7 @@ const MapComponent = () => {
 
             const extent = vectorSource.getExtent();
             const view = mapRef.current.getView();
+
             view.cancelAnimations();
             view.animate({
                 zoom: Math.max(view.getZoom() - 0.5, 5),
@@ -899,6 +906,99 @@ const MapComponent = () => {
             mapRef.current.addLayer(LulcLayerRefs[MainStore.lulcYearIdx].current)
         }
     }
+
+    useEffect(() => {
+        if (PositionFeatureRef.current === null && mapRef.current !== null) {
+          // Create position feature with icon
+          const positionFeature = new Feature();
+          positionFeature.setStyle(new Style({
+            image: new Icon({
+              src: Man_icon,
+              scale: 0.8,
+              anchor: [0.5, 0.5],
+              anchorXUnits: 'fraction',
+              anchorYUnits: 'fraction',
+            }),
+          }));
+          
+          // Store reference to position feature
+          PositionFeatureRef.current = positionFeature;
+      
+          // Setup geolocation
+          const geolocation = new Geolocation({
+            trackingOptions: {
+              enableHighAccuracy: true,
+            },
+            projection: viewRef.current.getProjection(),
+          });
+      
+          // Handle position changes
+          geolocation.on("change", function () {
+            const coordinates = geolocation.getPosition();
+            if (coordinates) {
+              MainStore.setGpsLocation(coordinates);
+              
+              // Animate to new position with smooth pan
+              const view = mapRef.current.getView();
+              
+              // First pan to location
+              view.animate({
+                center: coordinates,
+                duration: 1000,
+                easing: easeOut
+              });
+              
+              // Then zoom in to level 17 with animation
+              view.animate({
+                zoom: 17,
+                duration: 1200,
+                easing: easeOut
+              });
+              
+              positionFeature.setGeometry(new Point(coordinates));
+            }
+          });
+      
+          // Start tracking
+          geolocation.setTracking(true);
+      
+          // Create GPS layer
+          let gpsLayer = new VectorLayer({
+            map: mapRef.current,
+            source: new VectorSource({
+              features: [positionFeature],
+            }),
+            zIndex: 99 // Ensure it's on top
+          });
+          
+          // Store cleanup references
+          return () => {
+            geolocation.setTracking(false);
+            mapRef.current.removeLayer(gpsLayer);
+            PositionFeatureRef.current = null;
+          };
+        }
+        
+        // Handle GPS button click to center on current location
+        if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
+          const view = mapRef.current.getView();
+          
+          // Sequence of animations for smoother experience
+          // 1. First start panning
+          view.animate({
+            center: MainStore.gpsLocation,
+            duration: 800,
+            easing: easeOut
+          });
+          
+          // 2. Then always animate to zoom level 17 regardless of current zoom
+          view.animate({
+            zoom: 17,
+            duration: 1000,
+            easing: easeOut
+          });
+        }
+      }, [MainStore.isGPSClick]);
 
     useEffect(() => {
         if (!mapRef.current) {
