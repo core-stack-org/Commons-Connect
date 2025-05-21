@@ -98,7 +98,7 @@ const Agriculture = () => {
                     border: 'none',
                     backdropFilter: 'none',
                 }}
-                onClick={() => {console.log("IN Agri")}}
+                onClick={() => {MainStore.setIsGPSClick(true)}}
                 >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                     <path d="M50 20c-11 0-20 9-20 20 0 11 20 40 20 40s20-29 20-40c0-11-9-20-20-20z" 
@@ -133,7 +133,21 @@ const Agriculture = () => {
                 >
                     {getPlanLabel()}
                 </button>
-
+                  <button
+                      className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm ml-2"
+                      style={{
+                        backgroundColor: '#D6D5C9',
+                        color: '#592941',
+                        border: 'none',
+                        backdropFilter: 'none',
+                      }}
+                      onClick={() =>{
+                        MainStore.setIsLayerStore(true)
+                        MainStore.setIsOpen(true)
+                      }}
+                      >
+                      {"Layers"}
+                  </button>
                 </div>
             </div>
             </div>

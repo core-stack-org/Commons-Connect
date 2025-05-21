@@ -1,19 +1,21 @@
 import { BottomSheet } from 'react-spring-bottom-sheet'
 import 'react-spring-bottom-sheet/dist/style.css'
 import useMainStore from "../store/MainStore.jsx";
-import { useEffect } from 'react';
+import useLayersStore from '../store/LayerStore.jsx';
 
 import nregaDetails from "../assets/nregaMapping.json"
 import resourceDetails from "../assets/resource_mapping.json"
 import SurfaceWaterBodies from './analyze/SurfaceWaterbodyAnalyze.jsx';
 import GroundwaterAnalyze from './analyze/GroundwaterAnalyze.jsx';
 import AgricultureAnalyze from './analyze/AgricultureAnalyze.jsx';
+import { useState } from 'react';
 
 const Bottomsheet = () => {
 
     const MainStore = useMainStore((state) => state);
+    const LayerStore = useLayersStore((state) => state)
     let flg = false
-    
+
     const LayerNameMapping = {
         0 : "settlement_layer",
         1 : "well_layer",
@@ -30,7 +32,52 @@ const Bottomsheet = () => {
 
     const PlanningResource = {
         "Agriculture" : "plan_agri",
-        "Groundwater" : "plan_gw"
+        "Groundwater" : "plan_gw",
+        "Livelihood" : "livelihood"
+    }
+
+    const LayerStoreKeysGW = [
+        "AdminBoundary", "NregaLayer", "WellDepth", "DrainageLayer",
+        "SettlementLayer", 
+        "WellLayer", "WaterStructure",
+        "WorkGroundwater", "CLARTLayer"
+    ]
+
+    const LayerStoreKeysAgri = [
+        "AdminBoundary", "NregaLayer", "DrainageLayer",
+        "SettlementLayer", 
+        "WellLayer", "WaterStructure",
+        "WorkAgri", "CLARTLayer", "LULCLayer"
+    ] 
+
+    const layerStoreNameMapping = {
+        "AdminBoundary" : "Admin Boundary",
+        "NregaLayer" : "NREGA Layer",
+        "WellDepth" : "Well Depth",
+        "DrainageLayer" : "Drainage Layer",
+        "SettlementLayer" : "Settlement Layer",
+        "WellLayer" : "Well Layer",
+        "WaterStructure" : "Water Structures",
+        "WorkAgri" : "Irrigation Structures",
+        "WorkGroundwater" : "Recharge Structures",
+        "Livelihood" : "Livelihood",
+        "CLARTLayer" : "CLART Layer",
+        "LULCLayer" : "LULC Layer"
+    }
+
+    const layerStoreFuncMapping = {
+        "AdminBoundary" : "setAdminBoundary",
+        "NregaLayer" : "setNregaLayer",
+        "WellDepth" : "setWellDepth",
+        "DrainageLayer" : "setDrainageLayer",
+        "SettlementLayer" : "setSettlementLayer",
+        "WellLayer" : "setWellLayer",
+        "WaterStructure" : "setWaterStructure",
+        "WorkAgri" : "setWorkAgri",
+        "WorkGroundwater" : "setWorkGroundwater",
+        "Livelihood" : "setLivelihood",
+        "CLARTLayer" : "setCLARTLayer",
+        "LULCLayer" : "setLULCLayer"
     }
 
     const handleOnLoadEvent = async() => {
@@ -126,6 +173,8 @@ const Bottomsheet = () => {
         console.log(active_years)
 
         let tempFilter = ['in', ['get', 'workYear'], active_years]
+
+        console.log(tempFilter)
 
         let tempNregaStyle = {
             filter: tempFilter,
@@ -345,79 +394,147 @@ const Bottomsheet = () => {
 
     )
 
+    const LayerStoreBody = (
+        <>
+        <div className="sticky top-0 z-20 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-4">
+            Layers Store
+        </div>
+        {MainStore.currentScreen === 'Groundwater' && <div className="flex flex-wrap gap-3">
+            {LayerStoreKeysGW.map((key) => (
+            <button
+                key={key}
+                onClick={() => {
+                    LayerStore[layerStoreFuncMapping[key]](!LayerStore[key])
+                    MainStore.setLayerClicked(key)
+                    console.log("IN BOTTOM SHEET")
+                }}
+                className={`px-4 py-2 rounded-md shadow-sm text-sm transition-colors focus:outline-none
+                ${LayerStore[key]
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }
+                `}
+            >
+                {layerStoreNameMapping[key]}
+            </button>
+            ))}
+        </div>}
+
+        {MainStore.currentScreen === 'Agriculture' && <div className="flex flex-wrap gap-3">
+            {LayerStoreKeysAgri.map((key) => (
+            <button
+                key={key}
+                onClick={() => {
+                    LayerStore[layerStoreFuncMapping[key]](!LayerStore[key])
+                    MainStore.setLayerClicked(key)
+                    console.log("IN BOTTOM SHEET")
+                }}
+                className={`px-4 py-2 rounded-md shadow-sm text-sm transition-colors focus:outline-none
+                ${LayerStore[key]
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }
+                `}
+            >
+                {layerStoreNameMapping[key]}
+            </button>
+            ))}
+        </div>}
+
+        </>
+    )
+
     const onDismiss = () => {
-        if(MainStore.isForm){
-            MainStore.setIsForm(false)
-        }
-        else if(MainStore.isNregaSheet){
-            MainStore.setNregaSheet(false)
-        }
-        else if(MainStore.isMetadata){
-            MainStore.setIsMetadata(false)
-            MainStore.setMetadata(null)
-        }
-        else if(MainStore.isResource){
-            MainStore.setIsResource(true)
-            MainStore.setSelectedResource(null)
-        }
-        else if(MainStore.isWaterbody){
-            MainStore.setIsWaterBody(false)
-            MainStore.setSelectedResource(null)
-        }
-        else if(MainStore.isGroundWater){
-            MainStore.setIsGroundWater(false)
-            MainStore.setSelectedResource(null)
-        }
-        else if(MainStore.selectedMWSDrought !== null){
-            MainStore.setIsAgriculture(false)
-            MainStore.setSelectedMwsDrought(null)
-            MainStore.setSelectedResource(null)
-        }
+
+        MainStore.setIsForm(false)
+
+        MainStore.setNregaSheet(false)
+
+        MainStore.setIsMetadata(false)
+        MainStore.setMetadata(null)
+
+        MainStore.setIsResource(true)
+        //MainStore.setSelectedResource(null)
+
+        MainStore.setIsWaterBody(false)
+
+
+        MainStore.setIsGroundWater(false)
+
+
+        MainStore.setIsAgriculture(false)
+        MainStore.setSelectedMwsDrought(null)
+        MainStore.setSelectedResource(null)
+
+        MainStore.setIsLayerStore(false)
+
         MainStore.setIsOpen(false)
     }
 
+    const renderBody = () => {
+        switch (true) {
+          case MainStore.isForm && MainStore.formUrl !== "":
+            return (
+              <iframe
+                id="odk-frame"
+                src={MainStore.formUrl}
+                style={{ width: "100vw", height: "100vh" }}
+                onLoad={handleOnLoadEvent}
+              />
+            );
+    
+          case MainStore.isNregaSheet:
+            return nregaBody;
+    
+          case MainStore.isMetadata && MainStore.metadata !== null:
+            return metaDataBody;
+    
+          case MainStore.isResource && MainStore.selectedResource !== null:
+            return resourceBody;
+    
+          case MainStore.isWaterbody:
+            return <SurfaceWaterBodies />;
+    
+          case MainStore.isGroundWater:
+            return <GroundwaterAnalyze />;
+    
+          case MainStore.isAgriculture && MainStore.currentStep === 0:
+            return <AgricultureAnalyze />;
+            
+          case MainStore.isLayerStore:
+            return LayerStoreBody
+
+          default:
+            return null;
+        }
+      };
+    
+
     return (
-            <BottomSheet
-                open={MainStore.isOpen}
-                onDismiss={onDismiss}
-                snapPoints={({ maxHeight }) => [maxHeight]}
+        <BottomSheet
+        open={MainStore.isOpen}
+        onDismiss={onDismiss}
+        snapPoints={({ maxHeight }) =>
+          MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
+            }
+        >
+            <button
+            onClick={onDismiss}
+            className="
+                absolute right-3 top-3 z-10
+                w-8 h-8 flex items-center justify-center
+                rounded-full bg-gray-200 hover:bg-gray-300
+                text-gray-600 hover:text-gray-800
+                shadow-sm transition
+            "
+            aria-label="Close"
             >
-                <button
-                    onClick={onDismiss}
-                    className="
-                    absolute right-3 top-3 z-10
-                    w-8 h-8 flex items-center justify-center
-                    rounded-full bg-gray-200 hover:bg-gray-300
-                    text-gray-600 hover:text-gray-800
-                    shadow-sm transition
-                    "
-                    aria-label="Close"
-                >
-                    &times;
-                </button>
-                <div className="pt-6">
-                    {MainStore.isForm && MainStore.formUrl !== "" && <iframe
-                        id="odk-frame"
-                        src={MainStore.formUrl}
-                        style={{ width: "100vw", height: "100vh" }}
-                        onLoad={() => handleOnLoadEvent()}
-                    ></iframe>}
-
-                    {MainStore.isNregaSheet && nregaBody}
-
-                    {MainStore.isMetadata && MainStore.metadata !== null && metaDataBody}
-
-                    {MainStore.isResource && (MainStore.currentScreen === "HomeScreen" || MainStore.currentStep !== 0) && MainStore.selectedResource !== null && resourceBody}
-
-                    {MainStore.isWaterbody && <SurfaceWaterBodies/>}
-
-                    {MainStore.isGroundWater && <GroundwaterAnalyze/>}
-
-                    {MainStore.isAgriculture && MainStore.currentStep === 0 && <AgricultureAnalyze/>}
-
-                </div>
-
-            </BottomSheet>
+            &times;
+            </button>
+            <div className="pt-6">
+            {renderBody()}
+            </div>
+        </BottomSheet>
     )
 }
 

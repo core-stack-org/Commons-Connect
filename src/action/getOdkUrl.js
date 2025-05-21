@@ -20,11 +20,11 @@ export default function getOdkUrlForScreen(screen, step, latlong, settlement_nam
     }
 
     else if(screen === "Groundwater" && step === 1 && !maintain){
-        odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_BUILD_RECHARGE}` + "$kleMu$UIs3176kF$8xt2PGgIMSDp5hDIg6Db" + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name
+        odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_BUILD_RECHARGE}` + "$kleMu$UIs3176kF$8xt2PGgIMSDp5hDIg6Db" + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/corresponding_work_id]=" + "007101" + "&d[/data/meta/instanceID]="
     }
 
     else if(screen === "Groundwater" && step === 1 && maintain){
-        odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_PROVIDE_MAINTAIN}`+ "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name
+        odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_PROVIDE_MAINTAIN}`+ "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/corresponding_work_id]=" + "0001829" + "&d[/data/meta/instanceID]="
     }
 
     else if(screen === "SurfaceWater"){
@@ -37,6 +37,10 @@ export default function getOdkUrlForScreen(screen, step, latlong, settlement_nam
 
     else if(screen === "Agriculture" && maintain){
         odk_url = `${import.meta.env.VITE_ODK_AGRICULTURE_MAINTAIN}` + '$Wxl01nY6n39' + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name 
+    }
+
+    else if(screen === "Livelihood"){
+        odk_url = `${import.meta.env.VITE_ODK_ADD_LIVELIHOOD}` + "$j31oQqcbrDV5Z2u" + "&d[/data/GPS_point/point_mapappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name + "&d[/data/meta/instanceID]="
     }
 
     console.log(odk_url)

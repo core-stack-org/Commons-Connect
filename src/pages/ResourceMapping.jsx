@@ -46,7 +46,9 @@ const ResourceMapping = () => {
     const toggleFormsUrl = () =>{
       if(MainStore.markerCoords){
         MainStore.setIsForm(true)
-        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, ""))
+        
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource.id))
+        
         MainStore.setIsOpen(true)
       }
     }
@@ -74,7 +76,6 @@ const ResourceMapping = () => {
     };
 
     const handleAnalyze = () =>{
-      console.log("Reached here !")
       MainStore.setIsOpen(true)
     }
 
@@ -112,7 +113,7 @@ const ResourceMapping = () => {
                   border: 'none',
                   backdropFilter: 'none',
               }}
-              onClick={() => {}}
+              onClick={() => {MainStore.setIsGPSClick(true)}}
               >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                 <path d="M50 20c-11 0-20 9-20 20 0 11 20 40 20 40s20-29 20-40c0-11-9-20-20-20z" 
@@ -248,7 +249,7 @@ const ResourceMapping = () => {
               onClick={() => withLoading(toggleFormsUrl)}
               disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
-                backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
                 color: '#592941',
                 border: 'none',
               }}

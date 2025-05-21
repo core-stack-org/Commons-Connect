@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
+import HamburgerMenu from '../components/HamburgerMenu.jsx';
 
 const Homepage = () => {
     const [searchParams] = useSearchParams();
@@ -11,6 +12,7 @@ const Homepage = () => {
     const MainStore = useMainStore((state) => state);
     const [isPlanOpen, setIsPlanOpen] = useState(false);
     const [isPlanningOpen, setIsPlanningOpen] = useState(false);
+    const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
     const planRef = useRef(null);
 
     useEffect(() => {
@@ -69,7 +71,8 @@ const Homepage = () => {
     };
 
     return (
-        <div>
+      <div>
+        <HamburgerMenu open={isSideMenuOpen} onClose={() => setIsSideMenuOpen(false)} />
         {/* 1. Header + hamburger wrapper */}
         <div
           className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none"
@@ -78,7 +81,7 @@ const Homepage = () => {
             {/* Hamburger button: re-enable pointer events just for this */}
             <button
               className="pointer-events-auto p-2"
-              onClick={() => console.log("Clicked")}
+              onClick={() => setIsSideMenuOpen(true)}
             >
               {/* simple SVG “hamburger” icon */}
               <svg
@@ -124,7 +127,6 @@ const Homepage = () => {
                   backdropFilter: 'none',
               }}
               onClick={() => {
-                console.log("Button clicked")
                 MainStore.setIsGPSClick(true)
               }}
               >
@@ -259,8 +261,6 @@ const Homepage = () => {
           </div>
         </div>
       </div>
-      
-
     );
 };
 

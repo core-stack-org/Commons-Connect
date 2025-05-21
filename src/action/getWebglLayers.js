@@ -1,7 +1,7 @@
 import Vector from "ol/source/Vector";
 import GeoJSON from 'ol/format/GeoJSON';
 
-import WebGLPointsLayer from 'ol/layer/WebGLPoints.js';
+import WebGLVectorLayer from 'ol/layer/WebGLVector.js';
 
 const colorMapping = {
   "Household Livelihood": 1, // Maroon
@@ -36,15 +36,13 @@ export default async function getWebGlLayers(layer_store, layer_name, setAllNreg
             item.values_.itemColor = colorMapping[item.values_.WorkCatego] ? colorMapping[item.values_.WorkCatego] : colorMapping["Default"]
             
             let temp_year = new Date(Date.parse(item.values_.creation_t)).getFullYear()
-            item.values_.workYear = temp_year;
-            
+            item.values_.workYear = temp_year.toString();
+
             if (!nregaYears_temp.includes(temp_year)) {
               nregaYears_temp.push(temp_year);
-              nregaYears_temp.sort();
             }
-
+            nregaYears_temp.sort();
             //console.log(item)
-
             return item;
   
           }));
@@ -53,9 +51,10 @@ export default async function getWebGlLayers(layer_store, layer_name, setAllNreg
         });
       }
     });
-  
-    const style = {
-      filter: ['in', ['get', 'workYear'], [2018]],
+
+    let tempActiveYears = [2022]
+
+    const NregaStyle = {
       'shape-points': 12,
       'shape-radius': 6,
       'shape-fill-color': [
@@ -68,12 +67,13 @@ export default async function getWebGlLayers(layer_store, layer_name, setAllNreg
     }
     
     setAllNregaYears(nregaYears_temp);
-
-    //console.log(tempStyle)
   
-    let wmsLayer = new WebGLPointsLayer({
+    let wmsLayer = new WebGLVectorLayer({
       source : vectorSource,
-      style: style,
+      variables : {
+        activeYears : tempActiveYears
+      },
+      style: NregaStyle,
     })
   
     return wmsLayer;

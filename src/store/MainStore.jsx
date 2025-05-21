@@ -1,21 +1,27 @@
 import { create } from "zustand";
 
 const useMainStore = create((set) => ({
-    
+    //? Default Store
+    isInfoOpen : false,
+    menuOption : null,
+
+    setIsInfoOpen : (stat) => set({isInfoOpen : stat}),
+    setMenuOption : (stat) => set({menuOption : stat}),
+
     //? Location Store
     districtName : null,
     blockName : null,
     block_id : null,
-    isInfoOpen : false,
     isGPSClick : false,
     gpsLocation : null,
+    layerClicked : null,
 
     setDistrictName : (name) => set({districtName : name}),
     setBlockName : (name) => set({blockName : name}),
     setBlockId : (id) => set({block_id : id}),
-    setIsInfoOpen : (stat) => set({isInfoOpen : stat}),
     setIsGPSClick : (stat) => set({isGPSClick : stat}),
     setGpsLocation : (stat) => set({gpsLocation : stat}),
+    setLayerClicked : (stat) => set({layerClicked : stat}),
 
     //? Plans Store
     currentPlan : null,
@@ -46,6 +52,7 @@ const useMainStore = create((set) => ({
     //? Layers Hooks
     currentScreen : "HomeScreen",
     currentStep : 0,
+    settlementName : "",
     isFeatureClicked : false,
     isMarkerPlaced : false,
     markerCoords : null,
@@ -57,6 +64,7 @@ const useMainStore = create((set) => ({
     isAgriculture : false,
     selectedMWSDrought : null,
 
+    setSettlementName : (stat) => set({settlementName : stat}),
     setMarkerPlaced : (stat) => set({isMarkerPlaced : stat}),
     setFeatureStat : (stat) => set({isFeatureClicked : stat}),
     setCurrentScreen : (screen) => set({currentScreen : screen}),
@@ -106,6 +114,7 @@ const useMainStore = create((set) => ({
     isResource : false,
     resourceType : null,
     isAnalyze : false,
+    isLayerStore : false,
 
     setIsOpen : (stat) => set({isOpen : stat}),
     setIsForm : (stat) => set({isForm : stat}),
@@ -117,7 +126,7 @@ const useMainStore = create((set) => ({
     setIsLoading : (stat) => set({isLoading : stat}),
     setIsSubmissionSuccess : (stat) => set({isSubmissionSuccess : stat}),
     setIsAnalyze : (stat) => set({isAnalyze : stat}),
-
+    setIsLayerStore : (stat) => set({isLayerStore : stat}),
 }))
 
 export default useMainStore;
