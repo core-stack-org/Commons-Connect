@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import useMainStore from "../../store/MainStore";
+import { useTranslation } from "react-i18next";
 
 const YEARS = [2017, 2018, 2019, 2020, 2021, 2022];
 
@@ -12,6 +13,8 @@ const AgricultureAnalyze = () => {
   const cropChartInstanceRef = useRef(null);
   const lineChartRef = useRef(null);
   const lineChartInstanceRef = useRef(null);
+
+  const { t } = useTranslation();
 
   const selectedMWSDrought = useMainStore((state) => state.selectedMWSDrought);
   const selectedResource = useMainStore((state) => state.selectedResource);
@@ -145,11 +148,11 @@ const AgricultureAnalyze = () => {
   return (
     <>
       <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
-        Agriculture Analysis
+        {t("Agriculture Analysis")}
       </div>
 
       <div className="p-6 max-w-3xl mx-auto space-y-8">
-      <h3 className="text-lg font-semibold text-gray-800">Drought Frequency</h3>
+      <h3 className="text-lg font-semibold text-gray-800">{t("Drought Frequency")}</h3>
         {/* Drought Chart */}
         <div className="relative h-64 flex items-center justify-center">
           {(() => {
@@ -161,22 +164,21 @@ const AgricultureAnalyze = () => {
             const severeCount = drlbArray.filter((v) => v === 3).length;
             const dryspellCount = selectedMWSDrought[dryspKey] || 0;
             const totalCount = mildCount + moderateCount + severeCount + dryspellCount;
-            return totalCount > 0 ? <canvas ref={chartRef} /> : <div className="text-gray-500 font-semibold">No data available</div>;
+            return totalCount > 0 ? <canvas ref={chartRef} /> : <div className="text-gray-500 font-semibold">{t("No data available")}</div>;
           })()}
         </div>
 
         {/* Drought Description */}
         <div className="bg-gray-50 p-1 rounded-lg shadow-inner text-gray-700 leading-relaxed text-sm text-center">
           <p>
-            This shows the number of weeks during the Kharif season under various drought conditions.
-            Use the slider to change the year.
+            {t("info_agri_modal_1")}
           </p>
         </div>
 
         {/* Year Slider */}
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
-            <span className="font-medium text-gray-700">Year:</span>
+            <span className="font-medium text-gray-700">{t("Year")}:</span>
             <input
               type="range"
               min={YEARS[0]}
@@ -196,7 +198,7 @@ const AgricultureAnalyze = () => {
 
         {/* Cropping Intensity Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800">Cropping Intensity</h3>
+          <h3 className="text-lg font-semibold text-gray-800">{t("Cropping Intensity")}</h3>
           <div className="relative h-64">
             <canvas ref={cropChartRef} />
           </div>
@@ -209,7 +211,7 @@ const AgricultureAnalyze = () => {
           </div>
           <div className="bg-gray-50 p-1 rounded-lg shadow-inner text-gray-700 leading-relaxed text-sm text-center">
             <p>
-            This shows the cropping intensity in this area, as the percentage of cropping area that was under single cropping, double cropping, or triple cropping. Single cropping is mostly rainfed, whereas double cropping typically requires access to irrigation. Cropping intensity increase may suggest groundwater usage for irrigation, and cropping intensity decrease may suggest land degradation or drying up of aquifers for groundwater based irrigation. You can use the slider to move across different years.
+            {t("info_agri_modal_2")}
             </p>
           </div>
         </div>

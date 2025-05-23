@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import useMainStore from '../store/MainStore';
-
+import toast from 'react-hot-toast';
+import i18next from "i18next";
+import { useTranslation } from "react-i18next";
 
 const InfoBox = () => {
   const isInfoOpen = useMainStore((state) => state.isInfoOpen);
@@ -11,19 +13,68 @@ const InfoBox = () => {
   const currentMenuOption = useMainStore((state) => state.menuOption);
   const setMenuOption = useMainStore((state) => state.setMenuOption);
 
+  const { t } = useTranslation();
   const isHome = currentScreen === 'HomeScreen';
   const [activeTab, setActiveTab] = useState('information');
+  const [email, setEmail] = useState('');
+
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+  const [currentLanguage, setCurrentLanguage] = useState(i18next.language); // Default language
+  const [languageChangeSuccess, setLanguageChangeSuccess] = useState(false);
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   // Handlers for menu options
-  const handleLanguageSelect = (lang) => {
-    console.log('Language selected:', lang);
-    setMenuOption(null);
-    setIsInfoOpen(false);
+  const handleLanguageSelect = (langCode) => {
+    setSelectedLanguage(langCode);
+    setLanguageChangeSuccess(false);
+  };
+
+  const handleApplyLanguage = () => {
+    if (selectedLanguage) {
+      // Update current language
+      setCurrentLanguage(selectedLanguage);
+      
+      // Show success message
+      setLanguageChangeSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setLanguageChangeSuccess(false);
+        setMenuOption(null);
+        setIsInfoOpen(false)
+      }, 3000);
+      
+      i18next.changeLanguage(currentLanguage)
+      
+      // You might want to trigger a re-render of your app with the new language
+      console.log('Language changed to:', selectedLanguage);
+    }
   };
 
   const handleDownloadDPR = () => {
-    console.log('Downloading DPR...');
-    // implement download logic here
+    if(currentPlan !== null){
+      const body = { "plan_id": currentPlan.plan_id, "email_id": email }
+
+      fetch(`${import.meta.env.VITE_API_URL}generate_dpr/`, {
+        method: "POST",
+        headers: {
+            "ngrok-skip-browser-warning": "1",
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body)
+      })
+
+      toast.success("You will receive an email from contact@core-stack.org upon DPR generation.")
+    }
+    else{
+      toast.error("No Plan selected !")
+    }
+
     setMenuOption(null);
     setIsInfoOpen(false)
   };
@@ -31,15 +82,69 @@ const InfoBox = () => {
   const handleUploadKML = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log('Uploading KML:', file.name);
-      // implement upload logic here
-      setMenuOption(null);
-      setIsInfoOpen(false)
+      // Reset states
+      setUploadError(null);
+      setUploadSuccess(false);
+      setUploadProgress(0);
+      
+      // Validate file type
+      if (!file.name.toLowerCase().endsWith('.kml')) {
+        setUploadError('Please select a valid KML file');
+        setSelectedFile(null);
+        return;
+      }
+      
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        setUploadError('File size must be less than 10MB');
+        setSelectedFile(null);
+        return;
+      }
+      
+      setSelectedFile(file);
     }
   };
 
+  const handleProcessKML = async () => {
+    if (!selectedFile) return;
+  
+    setIsUploading(true);
+    setUploadError(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('kml_file', selectedFile);
+      
+      const url = `${import.meta.env.VITE_API_URL}upload_kml/`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        // Add headers if needed
+        // headers: {
+        //   'Authorization': `Bearer ${token}`, // If authentication is required
+        // },
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Upload successful:', result);
+        setUploadSuccess(true);
+        setUploadProgress(100);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setUploadError(errorData.message || `Upload failed with status: ${response.status}`);
+      }
+    } catch (error) {
+      setUploadError('Network error. Please check your connection and try again.');
+      console.error('Upload error:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
   // Content for non-home screens
-    const screenContent = {
+  const screenContent = {
       Resource_mapping: (
         <>
           <h2 className="text-lg font-bold mb-2">Resource Mapping</h2>
@@ -143,8 +248,13 @@ const InfoBox = () => {
           </p>
         </>
       ),
-    };
+  };
   
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
 
   if (!isInfoOpen) return null;
 
@@ -164,7 +274,7 @@ const InfoBox = () => {
             ? currentMenuOption === 'language'
               ? 'Choose Language'
               : currentMenuOption === 'download dpr'
-              ? 'Download DPR'
+              ? 'Generate Pre-DPR'
               : 'Upload KML'
             : 'Information'}
         </h2>
@@ -183,39 +293,355 @@ const InfoBox = () => {
         {/* Menu Option Content */}
         {currentMenuOption ? (
           <div className="text-center space-y-4">
+            
             {currentMenuOption === 'language' && (
-              <div className="space-y-2">
-                {['en', 'hi', 'mr'].map((lang) => (
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
+                {/* Header Section */}
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg font-semibold text-gray-800">{t("Select Language")}</h3>
+                  <p className="text-sm text-gray-600">{t("change_info_1")}</p>
+                </div>
+
+                {/* Language Options - Scrollable */}
+                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-3 bg-gray-50">
+                  {[
+                    { code: 'en', name: 'English', native: 'English', flag: '🇺🇸' },
+                    { code: 'hi', name: 'Hindi', native: 'हिन्दी', flag: '🇮🇳' },
+                  ].map((language) => (
+                    <button
+                      key={language.code}
+                      onClick={() => handleLanguageSelect(language.code)}
+                      className={`w-full p-4 border-2 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                        selectedLanguage === language.code
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
+                          : 'border-gray-200 hover:border-blue-300 hover:bg-white bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-4">
+                        {/* Flag */}
+                        <div className="text-2xl flex-shrink-0">
+                          {language.flag}
+                        </div>
+                        
+                        {/* Language Info */}
+                        <div className="flex-1 text-left">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-medium text-gray-900">{language.name}</h4>
+                              <p className="text-sm text-gray-600">{language.native}</p>
+                            </div>
+                            
+                            {/* Selection Indicator */}
+                            <div className={`flex-shrink-0 transition-all duration-200 ${
+                              selectedLanguage === language.code ? 'opacity-100' : 'opacity-0'
+                            }`}>
+                              <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Apply Button */}
+                <div className="pt-2">
                   <button
-                    key={lang}
-                    onClick={() => handleLanguageSelect(lang)}
-                    className="w-full py-2 border rounded-lg hover:bg-gray-100"
+                    onClick={handleApplyLanguage}
+                    disabled={!selectedLanguage}
+                    className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
                   >
-                    {lang.toUpperCase()}
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Apply Language</span>
+                    </div>
                   </button>
-                ))}
+                </div>
+
+                {/* Current Language Display */}
+                {currentLanguage && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-gray-700">
+                        <span className="font-medium">Current Language:</span> {
+                          currentLanguage === 'en' ? 'English' :
+                          currentLanguage === 'hi' ? 'Hindi (हिन्दी)' :
+                          currentLanguage === 'mr' ? 'Marathi (मराठी)' :
+                          currentLanguage === 'bn' ? 'Bengali (বাংলা)' :
+                          currentLanguage === 'te' ? 'Telugu (తెలుగు)' :
+                          currentLanguage === 'ta' ? 'Tamil (தமிழ்)' :
+                          currentLanguage === 'gu' ? 'Gujarati (ગુજરાતી)' :
+                          currentLanguage === 'kn' ? 'Kannada (ಕನ್ನಡ)' :
+                          currentLanguage === 'ml' ? 'Malayalam (മലയാളം)' :
+                          currentLanguage === 'pa' ? 'Punjabi (ਪੰਜਾਬੀ)' :
+                          currentLanguage === 'or' ? 'Odia (ଓଡ଼ିଆ)' :
+                          currentLanguage === 'as' ? 'Assamese (অসমীয়া)' :
+                          currentLanguage === 'ur' ? 'Urdu (اردو)' :
+                          currentLanguage === 'ne' ? 'Nepali (नेपाली)' :
+                          currentLanguage === 'si' ? 'Sinhala (සිංහල)' : currentLanguage
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Success Message */}
+                {languageChangeSuccess && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-green-800 font-medium">Language updated successfully!</p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
             {currentMenuOption === 'download dpr' && (
-              <button
-                onClick={handleDownloadDPR}
-                className="w-full py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-              >
-                Download DPR
-              </button>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
+                {/* Header Section */}
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-gray-600">Enter your email to receive your DPR document</p>
+                </div>
+
+                {/* Input Section */}
+                <div className="space-y-4">
+                  <div className="relative">
+                    <label htmlFor="email-input" className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                      </div>
+                      <input
+                        id="email-input"
+                        type="email"
+                        placeholder="your.email@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                      />
+                    </div>
+                    {email && !isValidEmail(email) && (
+                      <p className="mt-1 text-sm text-red-600">Please enter a valid email address</p>
+                    )}
+                  </div>
+
+                  {/* Download Button */}
+                  <button
+                    onClick={handleDownloadDPR}
+                    disabled={!email || !isValidEmail(email)}
+                    className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:transform-none disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: email && isValidEmail(email) ? '#592941' : '#D6D5C9',
+                      color: email && isValidEmail(email) ? '#FFFFFF' : '#8B7355',
+                      boxShadow: email && isValidEmail(email) ? '0 4px 12px rgba(89, 41, 65, 0.3)' : 'none',
+                    }}
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Get DPR</span>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Info Section */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-start space-x-2">
+                    <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium">What to expect:</p>
+                      <ul className="mt-1 space-y-1 text-blue-700">
+                        <li>• Document will be sent to your email</li>
+                        <li>• Processing may take 5-10 minutes</li>
+                        <li>• Check spam folder if not received</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
             {currentMenuOption === 'upload kml' && (
-              <div className="space-y-2">
-                <input
-                  type="file"
-                  accept=".kml"
-                  onChange={handleUploadKML}
-                  className="w-full"
-                />
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
+                {/* Header Section */}
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-gray-600">Select a KML file to upload and process</p>
+                </div>
+
+                {/* Upload Section */}
+                <div className="space-y-4">
+                  {/* File Upload Area */}
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".kml"
+                      onChange={handleUploadKML}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      id="kml-upload"
+                    />
+                    <label
+                      htmlFor="kml-upload"
+                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-green-400 transition-all duration-200"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="mb-1 text-sm text-gray-600 font-medium">
+                          <span className="text-green-600">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500">KML files only</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* File Status */}
+                  {selectedFile && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-green-800 truncate">
+                            {selectedFile.name}
+                          </p>
+                          <p className="text-xs text-green-600">
+                            {(selectedFile.size / 1024).toFixed(1)} KB • Ready to process
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setSelectedFile(null)}
+                          className="flex-shrink-0 text-green-600 hover:text-green-800 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Upload Progress */}
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>Uploading...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Process Button */}
+                  {selectedFile && !uploadProgress && !uploadSuccess && (
+                    <button
+                      onClick={handleProcessKML}
+                      disabled={isUploading}
+                      className="w-full py-3 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        {isUploading ? (
+                          <>
+                            <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span>Upload KML File</span>
+                          </>
+                        )}
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Success State */}
+                  {uploadSuccess && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0">
+                          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-green-800">Upload Successful!</h4>
+                          <p className="text-sm text-green-700 mt-1">Your KML file has been processed successfully.</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleReset}
+                        className="mt-3 w-full py-2 px-4 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium"
+                      >
+                        Upload Another File
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Info Section */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-start space-x-2">
+                    <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium">File Requirements:</p>
+                      <ul className="mt-1 space-y-1 text-blue-700">
+                        <li>• Only .kml files are supported</li>
+                        <li>• Maximum file size: 10MB</li>
+                        <li>• File will be processed automatically</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error State */}
+                {uploadError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-red-800">{uploadError}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
+
           </div>
           ) : isHome ? (
           <>

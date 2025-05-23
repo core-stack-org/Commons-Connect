@@ -225,67 +225,110 @@ const Bottomsheet = () => {
 
     const nregaBody = (
         <>
-            {/* Title with bottom border and shadow */}
-            <div className="text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-            NREGA Layer
+            {/* Enhanced Title with cleaner styling */}
+            <div className="text-center pt-8 pb-6 mb-8 bg-gradient-to-r border-b border-gray-200">
+                <h1 className="text-2xl font-semibold text-gray-800 tracking-wide">
+                    NREGA Layer
+                </h1>
             </div>
-
-            <div className="mt-6">
-            {/* Subtitle (left-aligned) */}
-            <div className="text-left text-md font-medium text-gray-600 mb-4 pl-3">
-                NREGA Work Categories
-            </div>
-
-            {/* Buttons (left-aligned) */}
-            <div className="flex flex-wrap justify-start gap-2 pl-2">
-                {nregaDetails.works.map((item, idx) => {
-                const color = [
-                    nregaDetails.buttonColorMapping[item],
-                    nregaDetails.buttonColorMapping.Default
-                ];
-                const isSelected = MainStore.nregaWorks.includes(nregaDetails.workToNumMapping[item]);
-                return (
-                    <button
-                    key={idx}
-                    style={{
-                        backgroundColor: isSelected
-                        ? `rgba(${color[0].join(",")})`
-                        : ""
-                    }}
-                    className="text-black py-2 px-4 rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow"
-                    onClick={() => handleWorkdAdd(item)}
-                    >
-                    {nregaDetails.properWorkNames[idx]}
-                    </button>
-                );
-                })}
-            </div>
-
-            {/* === New Section: NREGA Work Years === */}
-            <div className="mt-8">
-                {/* Subtitle for years */}
-                <div className="text-left text-md font-medium text-gray-600 mb-4 pl-3">
-                NREGA Work Years
+    
+            <div className="px-6 pb-8">
+                {/* Enhanced Work Categories Section */}
+                <div className="mb-8">
+                    <div className="flex items-center mb-6">
+                        <div className="w-1 h-6 bg-blue-500 rounded-full mr-3"></div>
+                        <h2 className="text-lg font-medium text-gray-700">
+                            NREGA Work Categories
+                        </h2>
+                    </div>
+    
+                    {/* Improved button grid layout */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {nregaDetails.works.map((item, idx) => {
+                            const color = [
+                                nregaDetails.buttonColorMapping[item],
+                                nregaDetails.buttonColorMapping.Default
+                            ];
+                            const isSelected = MainStore.nregaWorks.includes(nregaDetails.workToNumMapping[item]);
+                            return (
+                                <button
+                                    key={idx}
+                                    style={{
+                                        backgroundColor: isSelected
+                                            ? `rgba(${color[0].join(",")})`
+                                            : ""
+                                    }}
+                                    className={`
+                                        flex items-center justify-between p-4 rounded-lg border transition-all duration-200
+                                        ${isSelected 
+                                            ? 'border-gray-400 shadow-md transform scale-[1.02]' 
+                                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                                        }
+                                        bg-white text-gray-700 font-medium text-sm text-left
+                                        focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300
+                                    `}
+                                    onClick={() => handleWorkdAdd(item)}
+                                >
+                                    <div className="flex items-center">
+                                        {/* Color indicator dot */}
+                                        <div 
+                                            className="w-3 h-3 rounded-full mr-3 flex-shrink-0"
+                                            style={{ backgroundColor: `rgba(${color[0].join(",")})` }}
+                                        ></div>
+                                        <span className="leading-tight">
+                                            {nregaDetails.properWorkNames[idx]}
+                                        </span>
+                                    </div>
+                                    
+                                    {/* Selection indicator */}
+                                    {isSelected && (
+                                        <svg className="w-4 h-4 text-gray-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
-
-                {/* Toggle switches (left-aligned) */}
-                <div className="flex flex-wrap justify-start gap-4 pl-4">
-                {MainStore.allNregaYears.map((year, idx) => {
-                    const isChecked = MainStore.selectNregaYears.includes(year);
-                    return (
-                    <label key={idx} className="inline-flex items-center space-x-2">
-                        <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => handleYearAdd(year)}
-                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{year}</span>
-                    </label>
-                    );
-                })}
-                </div>
-            </div>
+    
+                {/* Enhanced NREGA Work Years Section */}
+                {/* <div className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex items-center mb-6">
+                        <div className="w-1 h-6 bg-green-500 rounded-full mr-3"></div>
+                        <h2 className="text-lg font-medium text-gray-700">
+                            NREGA Work Years
+                        </h2>
+                    </div>
+    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        {MainStore.allNregaYears.map((year, idx) => {
+                            const isChecked = MainStore.selectNregaYears.includes(year);
+                            return (
+                                <label 
+                                    key={idx} 
+                                    className={`
+                                        flex items-center p-3 rounded-lg border cursor-pointer transition-all duration-200
+                                        ${isChecked 
+                                            ? 'bg-blue-50 border-blue-200 shadow-sm' 
+                                            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        }
+                                    `}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={() => handleYearAdd(year)}
+                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3"
+                                    />
+                                    <span className={`text-sm font-medium ${isChecked ? 'text-blue-700' : 'text-gray-700'}`}>
+                                        {year}
+                                    </span>
+                                </label>
+                            );
+                        })}
+                    </div>
+                </div> */}
             </div>
         </>
     )

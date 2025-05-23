@@ -598,11 +598,18 @@ const MapComponent = () => {
                     true
                 );
 
-                settlementLayer.setStyle(
-                    new Style({
-                    image: new Icon({ src: settlementIcon, scale: 0.4 }),
+                const tol = 1e-6; 
+
+                settlementLayer.setStyle(function (feature) {
+                    const geom = feature.getGeometry();
+                    const [x, y] = geom.getCoordinates();
+                    if(Math.abs(x - MainStore.markerCoords[0]) < tol && Math.abs(y - MainStore.markerCoords[1]) < tol){
+                        MainStore.setSettlementName(feature.values_.sett_name)
+                    }
+                    return new Style({
+                        image: new Icon({ src: settlementIcon, scale: 0.4 }),
                     })
-                );
+                });
 
                 tempSettlementFeature.current.setGeometry(new Point(MainStore.markerCoords))
                 MainStore.setCurrentStep(1)
@@ -822,6 +829,7 @@ const MapComponent = () => {
                 LayersStore.setDrainageLayer(false)
             }
         }
+        
         else if(currentScreen === "Livelihood"){
             layerCollection.getArray().slice().forEach(layer => {
                 if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current) {
@@ -863,6 +871,8 @@ const MapComponent = () => {
                 }
             });
             mapRef.current.addLayer(assetsLayerRefs[currentStep].current)
+            MainStore.setFeatureStat(false)
+            MainStore.setMarkerPlaced(false)
         }
         else if(currentScreen === "Groundwater"){
             layerCollection.getArray().slice().forEach(layer => {

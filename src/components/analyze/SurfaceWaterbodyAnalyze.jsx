@@ -12,7 +12,7 @@ import useMainStore from "../../store/MainStore";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const years = ["18-19", "19-20", "20-21", "21-22", "22-23", "23-24"];
+const years = ["17-18", "18-19", "19-20", "20-21", "21-22", "22-23", "23-24"];
 
 const SurfaceWaterBodies = () => {
   const [idx, setIdx] = useState(0);

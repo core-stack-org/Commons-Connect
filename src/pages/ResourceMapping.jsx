@@ -47,7 +47,7 @@ const ResourceMapping = () => {
       if(MainStore.markerCoords){
         MainStore.setIsForm(true)
         
-        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource.id))
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource?.id))
         
         MainStore.setIsOpen(true)
       }
@@ -199,9 +199,9 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+              disabled={!MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
-                backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969',
                 color: '#592941',
                 border: 'none',
               }}
@@ -223,9 +223,9 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+              disabled={!MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
-                backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969',
                 color: '#592941',
                 border: 'none',
               }}
