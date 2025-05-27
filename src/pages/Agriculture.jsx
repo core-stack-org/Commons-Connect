@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Agriculture = () => {
   const MainStore = useMainStore((state) => state);
   const navigate  = useNavigate();
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const { t } = useTranslation();
 
 /* ─── Year‑slider setup ───────────────────────────────────── */
     const years = [
@@ -80,7 +81,7 @@ const Agriculture = () => {
       <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
         <div className="relative w-full max-w-lg mx-auto flex items-center">
           <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-            Agriculture
+            {t("Agriculture")}
           </div>
         </div>
       </div>
@@ -106,7 +107,8 @@ const Agriculture = () => {
                     <circle cx="50" cy="40" r="7" fill="white" />
                 </svg>
                 </button>
-
+                
+                {/* INFO Button */}
                 <button
                     className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
                     style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
@@ -150,11 +152,11 @@ const Agriculture = () => {
                   </button>
                 </div>
             </div>
-            </div>
+      </div>
 
-     {/* ─── Slider + popup (step 0 only) - MOVED BELOW TOP BUTTONS ─── */}
+     {/* ─── Slider + popup (step 0 only) - MOVED FURTHER DOWN TO AVOID OVERLAP ─── */}
      {MainStore.currentStep === 0 && (
-        <div className="absolute top-36 left-0 w-full px-4 z-10">
+        <div className="absolute top-44 left-0 w-full px-4 z-10">
             <div className="relative w-3/4 max-w-md mx-auto">
             <input
                 type="range"
@@ -201,14 +203,14 @@ const Agriculture = () => {
                 border: "none",
               }}
             >
-              Analyze
+              {t("Analyze")}
             </button>
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => MainStore.setCurrentStep(1)}
               style={{ backgroundColor: "#D6D5C9", color: "#592941", border: "none" }}
             >
-              Start Planning
+              {t("Start Planning")}
             </button>
           </div>
         )}
@@ -226,7 +228,7 @@ const Agriculture = () => {
                   border: "none",
                 }}
               >
-                Propose new Irrigation Work
+                {t("Propose new Irrigation Work")}
               </button>
 
               <button
@@ -239,7 +241,7 @@ const Agriculture = () => {
                 }}
                 disabled={!MainStore.isMarkerPlaced}
               >
-                Propose Maintenance
+                {t("Propose Maintainence")}
               </button>
             </div>
 
@@ -248,7 +250,7 @@ const Agriculture = () => {
               onClick={() => navigate("/")}
               style={{ backgroundColor: "#D6D5C9", color: "#592941", border: "none" }}
             >
-              Finish
+              {t("Finish")}
             </button>
           </div>
         )}

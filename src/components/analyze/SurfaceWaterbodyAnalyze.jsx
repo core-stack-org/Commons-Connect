@@ -9,6 +9,7 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
+import { useTranslation } from "react-i18next";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -18,6 +19,8 @@ const SurfaceWaterBodies = () => {
   const [idx, setIdx] = useState(0);
   const yearLabel = years[idx];
   const MainStore = useMainStore((s) => s);
+
+  const { t } = useTranslation();
 
   /* acreage (area_ored m² → acres) */
   const acreage = useMemo(() => {
@@ -35,7 +38,7 @@ const SurfaceWaterBodies = () => {
     ];
     return {
       chartData: {
-        labels: ["Kharif", "Kharif‑Rabi", "Kharif‑Rabi‑Zaid"],
+        labels: [`${t("Kharif")}`, `${t("Kharif‑Rabi")}`, `${t("Kharif‑Rabi‑Zaid")}`],
         datasets: [
           {
             label: yearLabel,
@@ -55,7 +58,7 @@ const SurfaceWaterBodies = () => {
     <>
       {/* title */}
       <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-        Waterbody Analysis
+        {t("agri_heading")}
       </div>
 
       <div className="px-4 max-w-3xl mx-auto">
@@ -92,7 +95,7 @@ const SurfaceWaterBodies = () => {
             />
           ) : (
             <span className="text-gray-500 font-bold text-lg">
-              No data available
+              {t("info_blank")}
             </span>
           )}
         </div>
@@ -131,9 +134,7 @@ const SurfaceWaterBodies = () => {
         {/* paragraph */}
         <div className="mt-8 mx-auto max-w-prose px-4 text-[#374151] leading-relaxed tracking-wide">
           <p className="text-sm sm:text-sm">
-            {
-              "This shows the area of the water body where water was present during the Kharif season coinciding with the monsoons, the area during Rabi season post‑monsoon, and the area during the Zaid summer season. Water bodies that were filling up earlier but are lately not filling up may need some repair work like desilting or cleaning up of inlet channels to collect runoff. You can use the slider to move across different years."
-            }
+            {t("info_swb_modal_1")}
           </p>
         </div>
       </div>

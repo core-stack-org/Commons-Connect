@@ -1,8 +1,10 @@
 import { X, Globe, FileText, UploadCloud, ChevronRight } from 'lucide-react';
 import useMainStore from "../store/MainStore.jsx";
+import { useTranslation } from "react-i18next";
 
 const HamburgerMenu = ({ open, onClose }) => {
     
+    const { t } = useTranslation();
     const setMenuOption = useMainStore((state) => state.setMenuOption);
     const setIsInfoOpen = useMainStore((state) => state.setIsInfoOpen);
 
@@ -42,7 +44,7 @@ const HamburgerMenu = ({ open, onClose }) => {
             >
             <div className="flex items-center gap-3">
                 <Globe size={18} style={{color: '#592941'}} />
-                <span>Choose Language [en]</span>
+                <span>{t("Choose Language")}</span>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
             </button>
@@ -57,7 +59,7 @@ const HamburgerMenu = ({ open, onClose }) => {
             >
             <div className="flex items-center gap-3">
                 <FileText size={18} style={{color: '#592941'}} />
-                <span>Generate pre-DPR</span>
+                <span>{t("Generate pre-DPR")}</span>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
             </button>
@@ -72,7 +74,7 @@ const HamburgerMenu = ({ open, onClose }) => {
             >
             <div className="flex items-center gap-3">
                 <UploadCloud size={18} style={{color: '#592941'}} />
-                <span>Upload KML</span>
+                <span>{t("Upload KML")}</span>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
             </button>

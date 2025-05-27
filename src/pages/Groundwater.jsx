@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Groundwater = () => {
 
@@ -14,6 +15,7 @@ const Groundwater = () => {
         }
     };
 
+    const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const navigate = useNavigate();
 
@@ -68,7 +70,7 @@ const Groundwater = () => {
             <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        GroundWater
+                        {t("GroundWater")}
                     </div>
                 </div>
             </div>
@@ -153,14 +155,14 @@ const Groundwater = () => {
                                 border: 'none',
                             }}
                         >
-                            Analyze
+                            {t("Analyze")}
                         </button>
                         <button
                             className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                             onClick={() => MainStore.setCurrentStep(1)}
                             style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                         >
-                            Start Planning
+                            {t("Start Planning")}
                         </button>
                     </div>
                 )}
@@ -179,7 +181,7 @@ const Groundwater = () => {
                           border: 'none',
                         }}
                       >
-                        Provide Maintenance
+                        {t("Propose Maintainence")}
                       </button>
                   
                       <button
@@ -192,7 +194,7 @@ const Groundwater = () => {
                         }}
                         disabled={!MainStore.isMarkerPlaced && !MainStore.isFeatureClicked}
                       >
-                        Build New Recharge Structure
+                        {t("Build New Recharge Structure")}
                       </button>
                     </div>
                   
@@ -202,7 +204,7 @@ const Groundwater = () => {
                       onClick={() => navigate('/')} 
                       style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                     >
-                      Finish
+                      {t("Finish")}
                     </button>
                   </div>
                   

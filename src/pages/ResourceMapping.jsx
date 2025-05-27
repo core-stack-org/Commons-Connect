@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
+import { useTranslation } from "react-i18next";
 
 const ResourceMapping = () => {
 
+    const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const navigate = useNavigate();
 
@@ -95,7 +97,7 @@ const ResourceMapping = () => {
           <div
             className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md"
           >
-            Resource Mapping
+            {t("Resource Mapping")}
           </div>
         </div>
       </div>
@@ -167,7 +169,7 @@ const ResourceMapping = () => {
                 border: 'none',
               }}
             >
-              Add Settlement
+              {t("Add Settlement")}
             </button>
           </div>
         )}
@@ -182,14 +184,14 @@ const ResourceMapping = () => {
               })}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
-              Mark Resources
+              {t("Mark Resources")}
             </button>
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
               onClick={handleAnalyze}
             >
-              Settlement Info
+              {t("Settlement Info")}
             </button>
           </div>
         )}
@@ -206,14 +208,14 @@ const ResourceMapping = () => {
                 border: 'none',
               }}
             >
-              Add Well
+              {t("Add Well")}
             </button>
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
-              {"Next ->"}
+              {t("Next") + "->"}
             </button>
           </div>
         )}
@@ -230,14 +232,14 @@ const ResourceMapping = () => {
                 border: 'none',
               }}
             >
-              Add WaterStructure
+              {t("Add WaterStructure")}
             </button>
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(() => MainStore.setCurrentStep(3))}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
-              {"Next ->"}
+              {t("Next") + "->"}
             </button>
           </div>
         )}
@@ -254,14 +256,14 @@ const ResourceMapping = () => {
                 border: 'none',
               }}
             >
-              Provide Crop Info
+              {t("Provide Crop Info")}
             </button>
             <button
               className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
               onClick={() => withLoading(() => navigate('/'))}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
-              Finish
+              {t("Finish")}
             </button>
           </div>
         )}

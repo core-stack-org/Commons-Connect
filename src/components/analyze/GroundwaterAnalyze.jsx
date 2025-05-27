@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
+import { useTranslation } from "react-i18next";
 
 ChartJS.register(
   CategoryScale,
@@ -38,6 +39,7 @@ const CAPSULE_KEYS = ["DeltaG", "Precipitation", "RunOff", "WellDepth"];
 const GroundwaterAnalyze = () => {
   const fortnightData = useMainStore((state) => state.fortnightData)
   const yearlyData = useMainStore((state) => state.selectedResource)
+  const { t } = useTranslation();
 
   /* slider index */
   const [idx, setIdx] = useState(0);
@@ -85,7 +87,7 @@ const GroundwaterAnalyze = () => {
     datasets: [
       {
         type: "bar",
-        label: "Precipitation (mm)",
+        label: `${t("Precipitation")} (mm)`,
         data: fort.prec,
         backgroundColor: "#0284c7",
         borderRadius: 3,
@@ -93,7 +95,7 @@ const GroundwaterAnalyze = () => {
       },
       {
         type: "line",
-        label: "Run‑off (mm)",
+        label: `${t("RunOff")} (mm)`,
         data: fort.run,
         borderColor: "#dc2626",
         backgroundColor: "#dc262680",
@@ -108,7 +110,7 @@ const GroundwaterAnalyze = () => {
     labels: fort.dates,
     datasets: [
       {
-        label: "Evapotranspiration (mm)",
+        label: `${t("info_gw_header_3")} (mm)`,
         data: fort.et,
         borderColor: "#16a34a",
         backgroundColor: "#16a34a55",
@@ -122,7 +124,7 @@ const GroundwaterAnalyze = () => {
     labels: fort.dates,
     datasets: [
       {
-        label: "Ground‑water Storage (mm)",
+        label: `${t("info_gw_header_4")} (mm)`,
         data: fort.gw,
         borderColor: "#7e22ce",
         backgroundColor: "#7e22ce55",
@@ -136,12 +138,12 @@ const GroundwaterAnalyze = () => {
   return (
     <>
       <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
-        Ground‑water Analysis
+        {t("gw_heading")}
       </div>
 
       <div className="p-4 max-w-6xl mx-auto space-y-8 mt-4">
         <h2 className="text-center font-extrabold text-gray-700 mb-3 text-sm">
-            Change in Ground‑water Table over the Years
+            {t("info_gw_header_1")}
         </h2>
 
         {/* year slider */}
@@ -171,7 +173,7 @@ const GroundwaterAnalyze = () => {
                 className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
               >
                 <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
-                  {k}
+                  {t(k)}
                 </div>
                 <div className="text-lg font-bold">{fmt(annual[k], 1)}</div>
               </div>
@@ -179,14 +181,14 @@ const GroundwaterAnalyze = () => {
           </div>
         ) : (
           <p className="text-center text-gray-500">
-            No annual data for {yearFour}
+            {t("info_blank")} {yearFour}
           </p>
         )}
 
         {/* Precip + Run‑off chart */}
         <section>
           <h2 className="font-bold text-gray-700 mb-2">
-            Precipitation vs. Run‑off ({yearFour})
+            {t("info_gw_header_2")} ({yearFour})
           </h2>
           {hasFort ? (
             <div className="relative h-64">
@@ -211,13 +213,13 @@ const GroundwaterAnalyze = () => {
               />
             </div>
           ) : (
-            <p className="text-center text-gray-500">No data available</p>
+            <p className="text-center text-gray-500"> {t("info_blank")}</p>
           )}
         </section>
 
         {/* ET area */}
         <section>
-          <h2 className="font-bold text-gray-700 mb-2">Evapotranspiration (ET)</h2>
+          <h2 className="font-bold text-gray-700 mb-2">{t("info_gw_header_3")} (ET)</h2>
           {hasFort ? (
             <div className="relative h-56">
               <Line
@@ -234,13 +236,13 @@ const GroundwaterAnalyze = () => {
               />
             </div>
           ) : (
-            <p className="text-center text-gray-500">No data available</p>
+            <p className="text-center text-gray-500">{t("info_blank")}</p>
           )}
         </section>
 
         {/* Ground‑water area */}
         <section>
-          <h2 className="font-bold text-gray-700 mb-2">Ground‑water Storage (G)</h2>
+          <h2 className="font-bold text-gray-700 mb-2">{t("info_gw_header_4")} (G)</h2>
           {hasFort ? (
             <div className="relative h-56">
               <Line
@@ -257,7 +259,7 @@ const GroundwaterAnalyze = () => {
               />
             </div>
           ) : (
-            <p className="text-center text-gray-500">No data available</p>
+            <p className="text-center text-gray-500">{t("info_blank")}</p>
           )}
         </section>
 
@@ -267,33 +269,32 @@ const GroundwaterAnalyze = () => {
         {/* 1.  Precipitation & Run‑off */}
         <div>
             <h3 className="font-bold mb-2">
-                Precipitation &amp; Run‑off
+              {t("info_gw_header_2")}
             </h3>
             <p>
-            The first graph shows the amount of rainfall in this area, and the portion of that rainfall lost in runoff. High runoff would typically indicate an opportunity for constructing groundwater recharge structures such as check dams, percolation tanks, and trenches and bunds.
+              {t("info_gw_modal_1")}
             </p>
         </div>
 
         {/* 2.  Ground‑water Storage */}
         <div>
             <h3 className="font-bold mb-2">
-                Evapotranspiration
+              {t("info_gw_header_3")}
             </h3>
             <p>
-            The second graph shows for the area the water lost from water bodies through evaporation, and from vegetation through transpiration. An increase in cropping intensity would typically result in an increase in evapotranspiration due to greater use of water, often obtained from groundwater. A different choice of crops and trees would change the evapotranspiration in an area.
+              {t("info_gw_modal_2")}
             </p>
         </div>
 
         {/* 3.  Evapotranspiration */}
         <div>
             <h3 className="font-bold mb-2">
-                Groundwater
+              {t("info_gw_header_4")}
             </h3>
             <p>
-            The third graph shows the drop or increase in groundwater levels. Greater evapotranspiration, greater runoff, or less rainfall, would typically lead to a drop in groundwater levels. Recharge structures to improve groundwater, or alternative cropping patterns to reduce water usage, can help improve groundwater levels.
+              {t("info_gw_modal_3")}
             </p>
         </div>
-
         </section>
       </div>
     </>

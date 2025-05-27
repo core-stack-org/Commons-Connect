@@ -35,25 +35,17 @@ const InfoBox = () => {
   };
 
   const handleApplyLanguage = () => {
-    if (selectedLanguage) {
-      // Update current language
+    if (!selectedLanguage) return;
+  
+    i18next.changeLanguage(selectedLanguage).then(() => {
       setCurrentLanguage(selectedLanguage);
-      
-      // Show success message
       setLanguageChangeSuccess(true);
-      
-      // Hide success message after 3 seconds
       setTimeout(() => {
         setLanguageChangeSuccess(false);
         setMenuOption(null);
-        setIsInfoOpen(false)
+        setIsInfoOpen(false);
       }, 3000);
-      
-      i18next.changeLanguage(currentLanguage)
-      
-      // You might want to trigger a re-render of your app with the new language
-      console.log('Language changed to:', selectedLanguage);
-    }
+    });
   };
 
   const handleDownloadDPR = () => {
@@ -149,20 +141,20 @@ const InfoBox = () => {
         <>
           <h2 className="text-lg font-bold mb-2">Resource Mapping</h2>
           <p className="text-gray-700 text-sm">
-          This is a critical step to map out different settlements in the area, their socio-economic status, and which resources such as well and water bodies and crop-lands are they dependent on. Follow the tour to provide this information in a step-by-step manner.
+          {t("info_social_1")}
           </p>
         </>
       ),
       Groundwater: (
           <>
             <p className="text-gray-700 text-sm">
-                This screen helps user track groundwater changes over the past five years and find areas in need of groundwater recharge structures.
+              {t("info_gw_1")}
             </p>
-            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">Analyze</h3>
-            <p>Under "Analyse" the user can see how the groundwater levels have gone up or down.</p>
+            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Analyze")}</h3>
+            <p>{t("info_gw_2")}</p>
     
-            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">Start Planning</h3>
-            <p>Under "start planning" tab the user can start planning the recharge structure based on a color-coded CLART map showing recharge feasibility and user can also find out what kind of treatment is needed for High, Moderate and low groundwater recharge structures and also areas suitable for regeneration.</p>
+            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Start Planning")}</h3>
+            <p>{t("info_gw_3")}</p>
     
             {currentStep === 1 ? (
                 <>
@@ -196,23 +188,23 @@ const InfoBox = () => {
                 </>
             ) : (
                 <>
-                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">Well Depth Legend</h3>
+                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Well Depth Legend")}</h3>
                 <div className="mt-2 space-y-2">
                     <div className="flex items-center">
                     <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
-                    <span>Less than -5m</span>
+                    <span>{t("Less than -5m")}</span>
                     </div>
                     <div className="flex items-center">
                     <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
-                    <span>{">-5m to -1m"}</span>
+                    <span>{t(">-5m to -1m")}</span>
                     </div>
                     <div className="flex items-center">
                     <div className="w-6 h-6 rounded bg-green-500 mr-3"></div>
-                    <span>{">-1m to 1m"}</span>
+                    <span>{t(">-1m to 1m")}</span>
                     </div>
                     <div className="flex items-center">
                     <div className="w-6 h-6 rounded bg-blue-600 mr-3"></div>
-                    <span>More than 1m</span>
+                    <span>{t("More than 1m")}</span>
                     </div>
                 </div>
                 </>
@@ -222,22 +214,90 @@ const InfoBox = () => {
       SurfaceWater: (
         <>
           <p className="text-gray-700 text-sm">
-              This screen helps user to understand the spread of surface water bodies such as rivers, lakes and reservoirs to understand variations in surface water bodies and based on the observations recorded analysis of water presence in the water bodies, the user can propose the need/demand for farm pond repair, check dam repair, canal repair and trench cum bunds to be repaired.
+            {t("info_wb_1")}
           </p>
-          <h3 className="font-extrabold mt-1 mb-1 text-lg underline">Analyze</h3>
+          <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Analyze")}</h3>
           <p>
-          Please select 'Analyze' tab to see health indicator of water bodies in terms of their % area having water; The graph helps user to assess the availability of water in surface bodies and identify the most vulnerable areas where waterbody health may be deteriorating.
+          {t("info_wb_2")}
           </p>
-          <h3 className="font-extrabold mt-1 mb-1 text-lg underline">Propose Maintenance</h3>
-          <p>By selecting 'Propose Maintenance' tab user can select the type of maintenance on existing water body.</p>
+          <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Propose Maintainence")}</h3>
+          <p>{t("info_wb_5")}</p>
         </>
       ),
       Agriculture: (
         <>
-          <h2 className="text-lg font-semibold mb-2">Agriculture Info</h2>
           <p className="text-gray-700 text-sm">
-            Crop information, soil health, and agricultural practices.
-          </p>
+              {t("info_gw_1")}
+            </p>
+            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Analyze")}</h3>
+            <p>{t("info_gw_2")}</p>
+    
+            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Start Planning")}</h3>
+            <p>{t("info_gw_3")}</p>
+
+            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("Irrigation")}</h3>
+            <p>{t("info_agri_4")}</p>
+
+            {currentStep === 0 ? (<>
+            <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("LULC Legend")}</h3>
+            <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
+              <div className="flex items-center">
+                <div className="w-6 h-6 rounded mr-3 bg-[#c6e46d]"></div>
+                <span>Single Kharif</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-6 h-6 rounded mr-3 bg-[#eee05d]"></div>
+                <span>Single Non-Kharif</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-6 h-6 rounded mr-3 bg-[#f9b249]"></div>
+                <span>Double Crop</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-6 h-6 rounded mr-3 bg-[#fb5139]"></div>
+                <span>Triple Crop</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-6 h-6 rounded mr-3 bg-[#A9A9A9]"></div>
+                <span>Barren Lands</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-6 h-6 rounded mr-3 bg-[#A9A9A9]"></div>
+                <span>Shrubs and Scrubs</span>
+              </div>
+            </div>
+            </>) : (
+              <>
+                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">{t("CLART Legend")}</h3>
+                <div className="mt-2 space-y-2">
+                    <div className="flex items-center">
+                    <div className="w-6 h-6 rounded bg-gray-100 mr-3"></div>
+                    <span>{t("Empty")}</span>
+                    </div>
+                    <div className="flex items-center">
+                    <div className="w-6 h-6 rounded bg-green-400 mr-3"></div>
+                    <span>{t("Good recharge")}</span>
+                    </div>
+                    <div className="flex items-center">
+                    <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
+                    <span>{t("Moderate recharge")}</span>
+                    </div>
+                    <div className="flex items-center">
+                    <div className="w-6 h-6 rounded bg-purple-700 mr-3"></div>
+                    <span>{t("Regeneration")}</span>
+                    </div>
+                    <div className="flex items-center">
+                    <div className="w-6 h-6 rounded bg-blue-500 mr-3"></div>
+                    <span>{t("High runoff zone")}</span>
+                    </div>
+                    <div className="flex items-center">
+                    <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
+                    <span>{t("Surface water harvesting")}</span>
+                    </div>
+                </div>
+              </>
+            )}
+
         </>
       ),
       Livelihood: (
@@ -272,11 +332,11 @@ const InfoBox = () => {
         <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
           {currentMenuOption
             ? currentMenuOption === 'language'
-              ? 'Choose Language'
+              ? t('Select Language')
               : currentMenuOption === 'download dpr'
               ? 'Generate Pre-DPR'
               : 'Upload KML'
-            : 'Information'}
+            : t('Information Box')}
         </h2>
 
         {/* Close */}
@@ -298,7 +358,6 @@ const InfoBox = () => {
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
                 {/* Header Section */}
                 <div className="text-center space-y-2">
-                  <h3 className="text-lg font-semibold text-gray-800">{t("Select Language")}</h3>
                   <p className="text-sm text-gray-600">{t("change_info_1")}</p>
                 </div>
 
@@ -359,7 +418,7 @@ const InfoBox = () => {
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span>Apply Language</span>
+                      <span>{t("Change Language")}</span>
                     </div>
                   </button>
                 </div>
@@ -372,7 +431,7 @@ const InfoBox = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <p className="text-sm text-gray-700">
-                        <span className="font-medium">Current Language:</span> {
+                        <span className="font-medium">{t("Current Language")}:</span> {
                           currentLanguage === 'en' ? 'English' :
                           currentLanguage === 'hi' ? 'Hindi (हिन्दी)' :
                           currentLanguage === 'mr' ? 'Marathi (मराठी)' :
@@ -401,7 +460,7 @@ const InfoBox = () => {
                       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <p className="text-sm text-green-800 font-medium">Language updated successfully!</p>
+                      <p className="text-sm text-green-800 font-medium">{t("change_info_2")}!</p>
                     </div>
                   </div>
                 )}
@@ -655,7 +714,7 @@ const InfoBox = () => {
                 }`}
                 onClick={() => setActiveTab('information')}
               >
-                Information
+                {t("Step Information")}
               </button>
               <button
                 className={`flex-1 text-center py-2 font-medium text-sm ${
@@ -665,7 +724,7 @@ const InfoBox = () => {
                 }`}
                 onClick={() => setActiveTab('plan')}
               >
-                Plan Information
+                {t("Plan Information")}
               </button>
             </div>
 
@@ -675,12 +734,12 @@ const InfoBox = () => {
               <div className="text-gray-800 text-sm space-y-6">
                 {/* Steps Section */}
                 <div>
-                  <h3 className="font-semibold mb-2">Steps</h3>
+                  <h3 className="font-semibold mb-2">{t("Steps")}</h3>
                   <ol className="space-y-3">
                     {[
-                        "Select a plan.",
-                        "Mark settlements and resource ownership and usage under the Resource Mapping tab.",
-                        "To start planning natural resource management work, go to these tabs under Planning:"
+                        t("info_main_1"),
+                        t("info_main_2"),
+                        t("info_main_3")
                     ].map((item, index) => (
                         <li key={index} className="flex items-start">
                         <div className="bg-blue-500 text-white rounded-full min-w-6 w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">
@@ -693,27 +752,27 @@ const InfoBox = () => {
                 </div>
                 {/* Screens Information Section */}
                 <div>
-                  <h3 className="font-bold underline mb-2">Groundwater</h3>
+                  <h3 className="font-bold underline mb-2">{t("Groundwater")}</h3>
                   <p>
-                    To understand the Groundwater stress at micro watershed level please select the 'Groundwater' tab.
+                    {t("info_main_4")}
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-bold underline mb-2">Surface Waterbodies</h3>
+                  <h3 className="font-bold underline mb-2">{t("Surface Waterbodies")}</h3>
                   <p>
-                    To understand the health of surface bodies like ponds over years, please select the 'Surface Waterbodies' tab.
+                    {t("info_main_5")}
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-bold underline mb-2">Agriculture</h3>
+                  <h3 className="font-bold underline mb-2">{t("Agriculture")}</h3>
                   <p>
-                    To understand the cropping patterns throughout the year please select the 'Agriculture' tab.
+                    {t("info_main_6")}
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-bold underline mb-2">Livelihoods</h3>
+                  <h3 className="font-bold underline mb-2">{t("Livelihood")}</h3>
                   <p>
-                    To capture other Non-NRM work demands like livestock shelters, please select the 'Livelihood' tab.
+                    {t("info_main_7")}
                   </p>
                 </div>
               </div>
@@ -722,7 +781,7 @@ const InfoBox = () => {
                 <div className="overflow-y-auto max-h-[70vh]">
               <div className="text-gray-800 text-sm">
                 {currentPlan === null ? (
-                  <p className="font-semibold">Plan not selected</p>
+                  <p className="font-semibold">{t("No Plan Selected")}</p>
                 ) : (
                   <table className="min-w-full divide-y divide-gray-200">
                     <tbody className="bg-white divide-y divide-gray-100">

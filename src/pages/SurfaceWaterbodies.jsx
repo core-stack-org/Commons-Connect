@@ -1,9 +1,11 @@
 import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
+import { useTranslation } from "react-i18next";
 
 const SurfaceWaterBodies = () => {
 
     const MainStore = useMainStore((state) => state);
+    const { t } = useTranslation();
     
     const handleAnalyze = () =>{
         MainStore.setIsOpen(true)
@@ -33,7 +35,7 @@ const SurfaceWaterBodies = () => {
             <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        Surface WaterBodies
+                        {t("Surface WaterBodies")}
                     </div>
                 </div>
             </div>
@@ -105,7 +107,7 @@ const SurfaceWaterBodies = () => {
                                 border: 'none',
                             }}
                         >
-                            Analyze
+                            {t("Analyze")}
                         </button>
                         <button
                             className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
@@ -113,7 +115,7 @@ const SurfaceWaterBodies = () => {
                             disabled={!MainStore.isMarkerPlaced}
                             style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                         >
-                            Provide Maintainence
+                            {t("Propose Maintainence")}
                         </button>
                     </div>
                 )}
