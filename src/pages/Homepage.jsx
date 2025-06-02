@@ -24,6 +24,7 @@ const Homepage = () => {
         MainStore.setBlockId?.(searchParams.get('block_id'));
         MainStore.fetchPlans(`${import.meta.env.VITE_API_URL}get_plans/?block_id=${searchParams.get('block_id')}`)
       }
+      MainStore.setIsResourceOpen(false)
       MainStore.setCurrentScreen("HomeScreen")
       MainStore.setCurrentStep(0)
     }, []);

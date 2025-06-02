@@ -100,10 +100,10 @@ const SurfaceWaterBodies = () => {
                         <button
                             className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                             onClick={() => handleAnalyze()}
-                            disabled={!MainStore.isMarkerPlaced && MainStore.isWaterbody}
+                            disabled={!MainStore.isWaterbody}
                             style={{
-                                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                backgroundColor: !MainStore.isWaterbody ? '#696969' : '#D6D5C9',
+                                color: !MainStore.isWaterbody ? '#A8A8A8' : '#592941',
                                 border: 'none',
                             }}
                         >
@@ -112,8 +112,12 @@ const SurfaceWaterBodies = () => {
                         <button
                             className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                             onClick={toggleFormsUrl}
-                            disabled={!MainStore.isMarkerPlaced}
-                            style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                            disabled={!MainStore.isWaterbody}
+                            style={{ 
+                                backgroundColor: !MainStore.isWaterbody ? '#696969' : '#D6D5C9',
+                                color: !MainStore.isWaterbody ? '#A8A8A8' : '#592941',
+                                border: 'none', 
+                            }}
                         >
                             {t("Propose Maintainence")}
                         </button>

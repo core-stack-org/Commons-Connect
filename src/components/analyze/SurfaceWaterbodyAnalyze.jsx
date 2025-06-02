@@ -58,7 +58,7 @@ const SurfaceWaterBodies = () => {
     <>
       {/* title */}
       <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-        {t("agri_heading")}
+        {t("swb_heading")}
       </div>
 
       <div className="px-4 max-w-3xl mx-auto">

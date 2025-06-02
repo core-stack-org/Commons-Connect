@@ -555,6 +555,7 @@ const MapComponent = () => {
                 tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
                 MainStore.setSettlementName(feature.values_.sett_name)
                 MainStore.setIsResource(true)
+                MainStore.setIsResourceOpen(true)
               }
               else if (layer === assetsLayerRefs[1].current) {
                 MainStore.setResourceType("Well")
@@ -562,6 +563,7 @@ const MapComponent = () => {
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
+                MainStore.setIsResourceOpen(true)
               }
               else if (layer === assetsLayerRefs[2].current) {
                 MainStore.setResourceType("Waterbody")
@@ -569,6 +571,7 @@ const MapComponent = () => {
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
+                MainStore.setIsResourceOpen(true)
               }
               else if(layer === assetsLayerRefs[3].current){
                 MainStore.setResourceType("Cropgrid")
@@ -577,8 +580,10 @@ const MapComponent = () => {
               }
               else if(layer === LivelihoodRefs[0].current){
                 MainStore.setResourceType("Livelihood")
+                mapRef.current.removeInteraction(selectSettleIcon)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
+                MainStore.setIsResource(true)
               }
             })
         });
@@ -837,8 +842,18 @@ const MapComponent = () => {
                 }
             });
 
-            mapRef.current.addLayer(assetsLayerRefs[0].current)
-            mapRef.current.addLayer(LivelihoodRefs[0].current)
+
+            if(currentStep === 0){
+                mapRef.current.addLayer(assetsLayerRefs[0].current)
+            }
+
+            MapMarkerRef.current.setVisible(false);
+            setMarkerPlaced(false)
+            
+            if(currentStep > 0){
+                mapRef.current.addLayer(LivelihoodRefs[0].current)
+                tempSettlementLayer.current.setVisible(true)
+            }
         }
     }
 

@@ -50,5 +50,19 @@
         "select_mul": "Which caste group uses the water structure",
         "select_one": "Managed By?",
         "need_maint": "Maintenance Required?"
+    },
+    "Livelihood" : {
+        "plan_id" : "Plan Id",
+        "plan_name" : "Plan Name",
+        "beneficiar" : "Settlement Name",
+        "benefici_2" : "Beneficiary Name",
+        "Plantati_1" : "Type of Plantation Crop",
+        "Plantation" : "Total Area of Plantation",
+        "longitude" : "Longitude",
+        "select_one" : "Demand for promoting livestock Development",
+        "select_o_3" : "Other Demand for livestock Development",
+        "select_o_6" : "Demands for promoting fisheries in the Settlement",
+        "select_o_4" : "Other Demand for promoting fisheries",
+        "text_recor" : "Message"
     }
 }

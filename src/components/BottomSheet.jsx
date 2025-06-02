@@ -499,7 +499,6 @@ const Bottomsheet = () => {
         MainStore.setMetadata(null)
 
         MainStore.setIsResource(true)
-        //MainStore.setSelectedResource(null)
 
         MainStore.setIsWaterBody(false)
 
@@ -513,6 +512,7 @@ const Bottomsheet = () => {
 
         MainStore.setIsLayerStore(false)
 
+        MainStore.setIsResourceOpen(false)
         MainStore.setIsOpen(false)
     }
 
@@ -557,7 +557,7 @@ const Bottomsheet = () => {
 
     return (
         <BottomSheet
-        open={MainStore.isOpen}
+        open={MainStore.isOpen || (MainStore.isResourceOpen && MainStore.currentScreen === "HomeScreen")}
         onDismiss={onDismiss}
         snapPoints={({ maxHeight }) =>
           MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
