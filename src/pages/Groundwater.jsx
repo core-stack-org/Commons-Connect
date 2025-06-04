@@ -112,7 +112,7 @@ const Groundwater = () => {
                     {/* Plan selector with dropdown */}
                 <div className="relative">
                       <button
-                          className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm"
+                          className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                           style={{
                           backgroundColor: '#D6D5C9',
                           color: '#592941',
@@ -123,7 +123,7 @@ const Groundwater = () => {
                           {getPlanLabel()}
                       </button>
                       <button
-                          className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm ml-2"
+                          className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm ml-2"
                           style={{
                             backgroundColor: '#D6D5C9',
                             color: '#592941',
@@ -146,7 +146,7 @@ const Groundwater = () => {
                 {MainStore.currentStep === 0 && (
                     <div className="flex gap-4 w-full">
                         <button
-                            className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                             onClick={() => handleAnalyze()}
                             disabled={!MainStore.isMarkerPlaced}
                             style={{
@@ -158,7 +158,7 @@ const Groundwater = () => {
                             {t("Analyze")}
                         </button>
                         <button
-                            className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                             onClick={() => MainStore.setCurrentStep(1)}
                             style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                         >
@@ -172,7 +172,7 @@ const Groundwater = () => {
                     
                     <div className="flex gap-4 w-full">
                       <button
-                        className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+                        className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                         onClick={() => toggleFormsUrl(true)}
                         disabled={!MainStore.isFeatureClicked}
                         style={{
@@ -185,7 +185,7 @@ const Groundwater = () => {
                       </button>
                   
                       <button
-                        className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+                        className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                         onClick={() => toggleFormsUrl(false)}
                         style={{  
                           backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
@@ -200,7 +200,7 @@ const Groundwater = () => {
                   
                     {/* second row – 50 % wide & centered */}
                     <button
-                      className="w-1/2 self-center px-4 py-3 rounded-md shadow-sm text-sm"
+                      className="w-1/2 self-center px-4 py-3 rounded-xl shadow-sm text-sm"
                       onClick={() => navigate('/')} 
                       style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                     >
