@@ -50,7 +50,28 @@ const Bottomsheet = () => {
         "SettlementLayer", 
         "WellLayer", "WaterStructure",
         "WorkAgri", "CLARTLayer", "LULCLayer"
-    ] 
+    ]
+    
+    const ResourceMetaKeys = {
+        "Bail" : "Livestock Census : Ox (बैल)",
+        "Cattle" : "Livestock Census : Cattle",
+        "Goats" : "Livestock Census : Goats",
+        "Piggery" : "Livestock Census : Piggery",
+        "Poultry" : "Livestock Census : Poultry",
+        "Sheep" : "Livestock Census : Sheep",
+        "big_farmers" : "Farmer Census : Big Farmers",
+        "landless_farmers" : "Farmer Census : Landless Farmers",
+        "marginal_farmers" : "Farmer Census : Marginal Farmers",
+        "medium_farmers" : "Farmer Census : Medium Farmers",
+        "small_farmers" : "Farmer Census : Small Farmers",
+        "select_one_Functional_Non_functional" : "Functional or not ?",
+        "select_one_well_used" : "Used for Irrigation or Drinking ?",
+        "select_one_well_used_other" : "Other usage",
+        "select_one_change_water_quality" : "Water Quality",
+        "select_one_maintenance" : "Requires Maintainence", 
+        "select_one_repairs_well" : "Type of Repair (if Maintainence required)",
+        "select_one_repairs_well_other" : "Other type of Repair"
+    }
 
     const layerStoreNameMapping = {
         "AdminBoundary" : "Admin Boundary",
@@ -381,56 +402,46 @@ const Bottomsheet = () => {
             <table className="w-full table-auto border-separate border-spacing-y-3">
             <tbody>
                 {MainStore.isResource && MainStore.selectedResource !== null &&
-                /* ↓ flatMap lets us return 1 … N rows for each top‑level key */
-                Object.keys(resourceDetails[MainStore.resourceType]).flatMap(
-                    (key) => {
-                    const rawValue = MainStore.selectedResource[key];
+                    Object.keys(resourceDetails[MainStore.resourceType]).flatMap(
+                        (key) => {
+                        let rawValue = MainStore.selectedResource[key];
 
-                    /* ---------- 1.  If the value is a nested object ---------- */
-                    if (
-                        rawValue &&
-                        typeof rawValue === "object" &&
-                        !Array.isArray(rawValue)
-                    ) {
-                        return Object.entries(rawValue).map(([subKey, subVal]) => {
-                        /* friendly label: use mapping if available, else prettify */
-                        const label =
-                            resourceDetails[MainStore.resourceType][subKey] ??
-                            subKey
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (c) => c.toUpperCase());
-
-                        return (
-                            <tr
-                            key={`${key}-${subKey}`}
-                            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                            >
-                            <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
-                                {label}
-                            </td>
-                            <td className="px-6 py-4 text-gray-600 break-words text-md">
-                                {subVal ?? "—"}
-                            </td>
-                            </tr>
-                        );
-                        });
-                    }
-
-                    /* ---------- 2.  Plain scalar value ---------- */
-                    return (
-                        <tr
-                        key={key}
-                        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                        >
-                        <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
-                            {resourceDetails[MainStore.resourceType][key]}
-                        </td>
-                        <td className="px-6 py-4 text-gray-600 break-words text-md">
-                            {rawValue ?? "—"}
-                        </td>
-                        </tr>
-                    );
-                    }
+                        if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
+                            const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
+                            const data = (new Function(`return (${jsonReady})`))();
+                            return Object.keys(data).map((key) => {
+                                //console.log(`${key} = ${data[key]}`)
+                                return (
+                                    <tr
+                                    key={key}
+                                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                    >
+                                    <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
+                                        {ResourceMetaKeys[key]}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600 break-words text-md">
+                                        {data[key] ?? "—"}
+                                    </td>
+                                    </tr>
+                                );
+                            })
+                        }
+                        else{
+                            return (
+                                <tr
+                                key={key}
+                                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
+                                    {resourceDetails[MainStore.resourceType][key]}
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 break-words text-md">
+                                    {rawValue ?? "—"}
+                                </td>
+                                </tr>
+                            );
+                            }
+                        }
                 )}
             </tbody>
             </table>
