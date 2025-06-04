@@ -140,7 +140,7 @@ const ResourceMapping = () => {
             {/* Plan selector with dropdown */}
             <div className="relative">
             <button
-                className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm"
+                className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                 style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -160,7 +160,7 @@ const ResourceMapping = () => {
         {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
           <div className="flex gap-4 w-full">
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
               disabled={!MainStore.isMarkerPlaced}
               style={{
@@ -177,7 +177,7 @@ const ResourceMapping = () => {
         {MainStore.currentStep === 0 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
           <div className="flex gap-4 w-full">
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(() =>{
                 MainStore.setCurrentStep(1)
                 MainStore.setIsResource(false)
@@ -187,7 +187,7 @@ const ResourceMapping = () => {
               {t("Mark Resources")}
             </button>
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
               onClick={handleAnalyze}
             >
@@ -199,7 +199,7 @@ const ResourceMapping = () => {
         {MainStore.currentStep === 1 && (
           <div className="flex gap-4 w-full">
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
               disabled={!MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
@@ -211,7 +211,7 @@ const ResourceMapping = () => {
               {t("Add Well")}
             </button>
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
@@ -223,7 +223,7 @@ const ResourceMapping = () => {
         {MainStore.currentStep === 2 && (
           <div className="flex gap-4 w-full">
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
               disabled={!MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
@@ -235,7 +235,7 @@ const ResourceMapping = () => {
               {t("Add WaterStructure")}
             </button>
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(() => MainStore.setCurrentStep(3))}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
@@ -247,7 +247,7 @@ const ResourceMapping = () => {
         {MainStore.currentStep === 3 && (
           <div className="flex gap-4 w-full">
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
               disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
@@ -259,7 +259,7 @@ const ResourceMapping = () => {
               {t("Provide Crop Info")}
             </button>
             <button
-              className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
+              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(() => navigate('/'))}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >

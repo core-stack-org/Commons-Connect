@@ -45,7 +45,7 @@ const Homepage = () => {
     }
 
     const baseBtn =
-    'w-full px-4 py-3 rounded-md shadow-sm text-sm ' +
+    'w-full px-4 py-3 rounded-xl shadow-sm text-sm ' +
     'bg-[#D6D5C9] text-[#592941] hover:bg-[#cac8bb] transition-colors';
 
     const handleSelect = (section) => {
@@ -157,7 +157,7 @@ const Homepage = () => {
             <div className="relative" ref={planRef}>
             <button
                 onClick={() => setIsPlanOpen(prev => !prev)}
-                className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm"
+                className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                 style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -171,7 +171,7 @@ const Homepage = () => {
 
                 {isPlanOpen && (
                 <div
-                    className="absolute mt-2 left-0 w-40 bg-white rounded-md shadow-lg
+                    className="absolute mt-2 left-0 w-40 bg-white rounded-xl shadow-lg
                             overflow-y-auto max-h-48"
                 >
                     {/* Replace this static list with your dynamic plans array if you have one */}
@@ -192,7 +192,7 @@ const Homepage = () => {
 
             </div>
             <button
-              className="flex-1 px-2 py-2 rounded-md shadow-sm text-sm h-9"
+              className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm h-9"
               style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
