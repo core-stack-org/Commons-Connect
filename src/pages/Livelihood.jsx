@@ -123,19 +123,29 @@ const Livelihood = () => {
                 </div>
                 )}
 
-                {MainStore.currentStep === 1 && MainStore.isMarkerPlaced && (
+                {MainStore.currentStep === 1 && (
                 <div className="flex gap-4 w-full">
                     <button
                         className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
                         onClick={toggleFormsUrl}
-                        style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                        style={{ 
+                            backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                            color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                            border: 'none', 
+                        }}
+                        disabled={MainStore.isFeatureClicked}
                     >
                     Mark Livelihood
                     </button>
                     <button
                         className="flex-1 px-4 py-3 rounded-md shadow-sm text-sm"
-                        style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                        style={{ 
+                            backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                            color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                            border: 'none', 
+                        }}
                         onClick={handleAnalyze}
+                        disabled={!MainStore.isFeatureClicked}
                     >
                     Livelihood Info
                     </button>

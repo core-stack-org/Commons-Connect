@@ -8,10 +8,12 @@ import resourceDetails from "../assets/resource_mapping.json"
 import SurfaceWaterBodies from './analyze/SurfaceWaterbodyAnalyze.jsx';
 import GroundwaterAnalyze from './analyze/GroundwaterAnalyze.jsx';
 import AgricultureAnalyze from './analyze/AgricultureAnalyze.jsx';
-import { useState } from 'react';
+import { useTranslation } from "react-i18next";
+
 
 const Bottomsheet = () => {
 
+    const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const LayerStore = useLayersStore((state) => state)
     let flg = false
@@ -228,7 +230,7 @@ const Bottomsheet = () => {
             {/* Enhanced Title with cleaner styling */}
             <div className="text-center pt-8 pb-6 mb-8 bg-gradient-to-r border-b border-gray-200">
                 <h1 className="text-2xl font-semibold text-gray-800 tracking-wide">
-                    NREGA Layer
+                    {t("NREGA Menu")}
                 </h1>
             </div>
     
@@ -238,7 +240,7 @@ const Bottomsheet = () => {
                     <div className="flex items-center mb-6">
                         <div className="w-1 h-6 bg-blue-500 rounded-full mr-3"></div>
                         <h2 className="text-lg font-medium text-gray-700">
-                            NREGA Work Categories
+                            {t("NREGA Work Categories")}
                         </h2>
                     </div>
     
@@ -276,7 +278,7 @@ const Bottomsheet = () => {
                                             style={{ backgroundColor: `rgba(${color[0].join(",")})` }}
                                         ></div>
                                         <span className="leading-tight">
-                                            {nregaDetails.properWorkNames[idx]}
+                                            {t(nregaDetails.properWorkNames[idx])}
                                         </span>
                                     </div>
                                     
@@ -336,7 +338,7 @@ const Bottomsheet = () => {
     const metaDataBody = (
         <>
             <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-            Asset Info
+            {t("Asset Info")}
             </div>
 
             <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
@@ -372,7 +374,7 @@ const Bottomsheet = () => {
     const resourceBody = (
         <>
         <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-            Asset Info
+            {t("Resource Info")}
         </div>
 
         <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
@@ -497,7 +499,6 @@ const Bottomsheet = () => {
         MainStore.setMetadata(null)
 
         MainStore.setIsResource(true)
-        //MainStore.setSelectedResource(null)
 
         MainStore.setIsWaterBody(false)
 
@@ -511,6 +512,7 @@ const Bottomsheet = () => {
 
         MainStore.setIsLayerStore(false)
 
+        MainStore.setIsResourceOpen(false)
         MainStore.setIsOpen(false)
     }
 
@@ -555,7 +557,7 @@ const Bottomsheet = () => {
 
     return (
         <BottomSheet
-        open={MainStore.isOpen}
+        open={MainStore.isOpen || (MainStore.isResourceOpen && MainStore.currentScreen === "HomeScreen")}
         onDismiss={onDismiss}
         snapPoints={({ maxHeight }) =>
           MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]

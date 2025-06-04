@@ -105,6 +105,7 @@ const useMainStore = create((set) => ({
     
     //? Bottomsheet Hooks
     isOpen : false,
+    isResourceOpen : false,
     isForm : false,
     isMetadata : false,
     metadata : null,
@@ -127,6 +128,7 @@ const useMainStore = create((set) => ({
     setIsSubmissionSuccess : (stat) => set({isSubmissionSuccess : stat}),
     setIsAnalyze : (stat) => set({isAnalyze : stat}),
     setIsLayerStore : (stat) => set({isLayerStore : stat}),
+    setIsResourceOpen : (stat) => set({isResourceOpen : stat}),
 }))
 
 export default useMainStore;

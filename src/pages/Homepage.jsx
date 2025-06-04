@@ -4,11 +4,13 @@ import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import HamburgerMenu from '../components/HamburgerMenu.jsx';
+import { useTranslation } from "react-i18next";
 
 const Homepage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
+    const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const [isPlanOpen, setIsPlanOpen] = useState(false);
     const [isPlanningOpen, setIsPlanningOpen] = useState(false);
@@ -22,12 +24,13 @@ const Homepage = () => {
         MainStore.setBlockId?.(searchParams.get('block_id'));
         MainStore.fetchPlans(`${import.meta.env.VITE_API_URL}get_plans/?block_id=${searchParams.get('block_id')}`)
       }
+      MainStore.setIsResourceOpen(false)
       MainStore.setCurrentScreen("HomeScreen")
       MainStore.setCurrentStep(0)
     }, []);
 
     const getPlanLabel = () => {
-      const plan = MainStore.currentPlan?.plan ?? "Select Plan";
+      const plan = MainStore.currentPlan?.plan ?? t("Select Plan");
     
       const words = plan.trim().split(/\s+/);
       if (words.length > 15) {
@@ -47,7 +50,7 @@ const Homepage = () => {
 
     const handleSelect = (section) => {
       if(!MainStore.currentPlan){
-        toast.error('Please Select a Plan !');
+        toast.error(t('select_plan'));
         return
       }
       setIsPlanningOpen(false);
@@ -198,7 +201,7 @@ const Homepage = () => {
               }}
               onClick={handleNregaSheet}
             >
-            NREGA Works
+            {t("NREGA Works")}
             </button>
           </div>
         </div>
@@ -221,7 +224,7 @@ const Homepage = () => {
                   }
                 }}
               >
-                Resource Mapping
+                {t("Resource Mapping")}
               </button>
             </div>
 
@@ -231,7 +234,7 @@ const Homepage = () => {
                 className={baseBtn}
                 onClick={() => setIsPlanningOpen((o) => !o)}
               >
-                Planning
+                {t("Planning")}
               </button>
 
               {isPlanningOpen && (
@@ -251,7 +254,7 @@ const Homepage = () => {
                         className={baseBtn}
                         onClick={() => handleSelect(item)}
                       >
-                        {item}
+                        {t(item)}
                       </button>
                     )
                   )}
