@@ -50,6 +50,7 @@ const Groundwater = () => {
     }
 
     const handleAnalyze = () =>{
+      MainStore.setIsGroundWater(true)
       MainStore.setIsOpen(true)
     }
 
@@ -131,6 +132,7 @@ const Groundwater = () => {
                             backdropFilter: 'none',
                           }}
                           onClick={() =>{
+                            MainStore.setIsGroundWater(false)
                             MainStore.setIsLayerStore(true)
                             MainStore.setIsOpen(true)
                           }}

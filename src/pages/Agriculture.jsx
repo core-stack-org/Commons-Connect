@@ -72,6 +72,7 @@ const Agriculture = () => {
   };
 
   const handleAnalyze = () =>{
+    MainStore.setIsAgriculture(true)
     MainStore.setIsOpen(true)
   }
 
@@ -144,6 +145,7 @@ const Agriculture = () => {
                         backdropFilter: 'none',
                       }}
                       onClick={() =>{
+                        MainStore.setIsAgriculture(false)
                         MainStore.setIsLayerStore(true)
                         MainStore.setIsOpen(true)
                       }}
