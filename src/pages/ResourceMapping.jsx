@@ -49,8 +49,8 @@ const ResourceMapping = () => {
     const toggleFormsUrl = () =>{
       if(MainStore.markerCoords){
         MainStore.setIsForm(true)
-        
-        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource?.id))
+
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource?.id, false, MainStore.gpsLocation))
         
         MainStore.setIsOpen(true)
       }
@@ -176,7 +176,10 @@ const ResourceMapping = () => {
           <div className="flex gap-4 w-full">
             <button
               className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(toggleFormsUrl)}
+              onClick={() => {
+                MainStore.setIsGPSClick(true)
+                withLoading(toggleFormsUrl)
+              }}
               disabled={!MainStore.isMarkerPlaced}
               style={{
                 backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',

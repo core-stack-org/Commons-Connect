@@ -1,10 +1,12 @@
-export default function getOdkUrlForScreen(screen, step, latlong, settlement_name, settlement_id, block_name, plan_id, plan_name, crop_id, maintain = false){
+export default function getOdkUrlForScreen(screen, step, latlong, settlement_name, settlement_id, block_name, plan_id, plan_name, crop_id, maintain = false, userLatLong){
 
     let odk_url = ""
     plan_name = encodeURIComponent(plan_name.toLowerCase());
+    console.log(latlong)
+    console.log(userLatLong)
 
     if(screen === "Resource_mapping" && step === 0){
-        odk_url = `${import.meta.env.VITE_ODK_ADD_SETTLEMENT}$zzXyj!5bZs6Q20MejPCDCdNmX7IO9MqzRB6DkJ$PEOpl`+ "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/meta/instanceID]="
+        odk_url = `${import.meta.env.VITE_ODK_ADD_SETTLEMENT}$zzXyj!5bZs6Q20MejPCDCdNmX7IO9MqzRB6DkJ$PEOpl`+ "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/user_latlon]=" + userLatLong[1].toString() + ", " + userLatLong[0].toString() + "&d[/data/meta/instanceID]="
     }
 
     else if(screen === "Resource_mapping" && step === 1){

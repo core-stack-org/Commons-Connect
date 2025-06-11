@@ -541,6 +541,7 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
+            MainStore.setSettlementName(null)
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
@@ -1138,21 +1139,21 @@ const MapComponent = () => {
               MainStore.setGpsLocation(coordinates);
               
               // Animate to new position with smooth pan
-              const view = mapRef.current.getView();
+            //   const view = mapRef.current.getView();
               
-              // First pan to location
-              view.animate({
-                center: coordinates,
-                duration: 1000,
-                easing: easeOut
-              });
+            //   // First pan to location
+            //   view.animate({
+            //     center: coordinates,
+            //     duration: 1000,
+            //     easing: easeOut
+            //   });
               
-              // Then zoom in to level 17 with animation
-              view.animate({
-                zoom: 17,
-                duration: 1200,
-                easing: easeOut
-              });
+            //   // Then zoom in to level 17 with animation
+            //   view.animate({
+            //     zoom: 17,
+            //     duration: 1200,
+            //     easing: easeOut
+            //   });
               
               positionFeature.setGeometry(new Point(coordinates));
             }
@@ -1179,24 +1180,24 @@ const MapComponent = () => {
         }
         
         // Handle GPS button click to center on current location
-        if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
-          const view = mapRef.current.getView();
+        // if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
+        //   const view = mapRef.current.getView();
           
-          // Sequence of animations for smoother experience
-          // 1. First start panning
-          view.animate({
-            center: MainStore.gpsLocation,
-            duration: 800,
-            easing: easeOut
-          });
+        //   // Sequence of animations for smoother experience
+        //   // 1. First start panning
+        //   view.animate({
+        //     center: MainStore.gpsLocation,
+        //     duration: 800,
+        //     easing: easeOut
+        //   });
           
-          // 2. Then always animate to zoom level 17 regardless of current zoom
-          view.animate({
-            zoom: 17,
-            duration: 1000,
-            easing: easeOut
-          });
-        }
+        //   // 2. Then always animate to zoom level 17 regardless of current zoom
+        //   view.animate({
+        //     zoom: 17,
+        //     duration: 1000,
+        //     easing: easeOut
+        //   });
+        // }
     }, [MainStore.isGPSClick]);
 
     useEffect(() => {
