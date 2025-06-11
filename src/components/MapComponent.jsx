@@ -44,6 +44,7 @@ const MapComponent = () => {
     const ClartLayerRef = useRef(null)
     const WaterbodiesLayerRef = useRef(null)
     const PositionFeatureRef = useRef(null)
+    const GeolocationRef = useRef(null)
     
     const tempSettlementFeature = useRef(null)
     const tempSettlementLayer = useRef(null)
@@ -146,6 +147,23 @@ const MapComponent = () => {
             view,
             loadTilesWhileAnimating: true,
             loadTilesWhileInteracting: true,
+        });
+
+        // Setup geolocation
+        const geolocation = new Geolocation({
+            trackingOptions: {
+              enableHighAccuracy: true,
+            },
+            projection: viewRef.current.getProjection(),
+        });
+
+        GeolocationRef.current = geolocation
+        
+        geolocation.on("change", function () {
+            const coordinates = geolocation.getPosition();
+            if (coordinates) {
+              MainStore.setGpsLocation(coordinates);
+            }
         });
 
         mapRef.current = map;
@@ -1124,43 +1142,35 @@ const MapComponent = () => {
           // Store reference to position feature
           PositionFeatureRef.current = positionFeature;
       
-          // Setup geolocation
-          const geolocation = new Geolocation({
-            trackingOptions: {
-              enableHighAccuracy: true,
-            },
-            projection: viewRef.current.getProjection(),
-          });
-      
           // Handle position changes
-          geolocation.on("change", function () {
-            const coordinates = geolocation.getPosition();
+          GeolocationRef.current.on("change", function () {
+            const coordinates = GeolocationRef.current.getPosition();
             if (coordinates) {
               MainStore.setGpsLocation(coordinates);
               
               // Animate to new position with smooth pan
-            //   const view = mapRef.current.getView();
+              const view = mapRef.current.getView();
               
-            //   // First pan to location
-            //   view.animate({
-            //     center: coordinates,
-            //     duration: 1000,
-            //     easing: easeOut
-            //   });
+              // First pan to location
+              view.animate({
+                center: coordinates,
+                duration: 1000,
+                easing: easeOut
+              });
               
-            //   // Then zoom in to level 17 with animation
-            //   view.animate({
-            //     zoom: 17,
-            //     duration: 1200,
-            //     easing: easeOut
-            //   });
+              // Then zoom in to level 17 with animation
+              view.animate({
+                zoom: 17,
+                duration: 1200,
+                easing: easeOut
+              });
               
               positionFeature.setGeometry(new Point(coordinates));
             }
           });
       
           // Start tracking
-          geolocation.setTracking(true);
+          GeolocationRef.current.setTracking(true);
       
           // Create GPS layer
           let gpsLayer = new VectorLayer({
@@ -1173,31 +1183,31 @@ const MapComponent = () => {
           
           // Store cleanup references
           return () => {
-            geolocation.setTracking(false);
+            GeolocationRef.current.setTracking(false);
             mapRef.current.removeLayer(gpsLayer);
             PositionFeatureRef.current = null;
           };
         }
         
         // Handle GPS button click to center on current location
-        // if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
-        //   const view = mapRef.current.getView();
+        if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
+          const view = mapRef.current.getView();
           
-        //   // Sequence of animations for smoother experience
-        //   // 1. First start panning
-        //   view.animate({
-        //     center: MainStore.gpsLocation,
-        //     duration: 800,
-        //     easing: easeOut
-        //   });
+          // Sequence of animations for smoother experience
+          // 1. First start panning
+          view.animate({
+            center: MainStore.gpsLocation,
+            duration: 800,
+            easing: easeOut
+          });
           
-        //   // 2. Then always animate to zoom level 17 regardless of current zoom
-        //   view.animate({
-        //     zoom: 17,
-        //     duration: 1000,
-        //     easing: easeOut
-        //   });
-        // }
+          // 2. Then always animate to zoom level 17 regardless of current zoom
+          view.animate({
+            zoom: 17,
+            duration: 1000,
+            easing: easeOut
+          });
+        }
     }, [MainStore.isGPSClick]);
 
     useEffect(() => {
