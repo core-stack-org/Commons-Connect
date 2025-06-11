@@ -3,6 +3,7 @@ import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
+import Floater from "../components/Floater.jsx";
 
 const ResourceMapping = () => {
 
@@ -90,6 +91,9 @@ const ResourceMapping = () => {
           <div className="w-12 h-12 border-4 border-t-4 border-white rounded-full animate-spin" />
         </div>
       )}
+
+      {/* Floater component for marker information */}
+      <Floater />
 
       {/* Title Bubble */}
       <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
