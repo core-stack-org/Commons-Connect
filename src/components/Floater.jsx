@@ -29,7 +29,7 @@ const Floater = () => {
             
             return {
                 top: rect.bottom + 4,
-                left: rect.left,
+                left: rect.left + 56,
                 width: screenWidth - rect.left - rightPadding
             };
         }
@@ -73,14 +73,14 @@ const Floater = () => {
 
     // Auto-hide after a certain time (only if not pinned)
     useEffect(() => {
-        if (isVisible && isAnimating && !isPinned) {
-            const timer = setTimeout(() => {
-                setIsAnimating(false);
-                setTimeout(() => setIsVisible(false), 300);
-            }, 4000);
+        // if (isVisible && isAnimating && !isPinned) {
+        //     const timer = setTimeout(() => {
+        //         setIsAnimating(false);
+        //         setTimeout(() => setIsVisible(false), 300);
+        //     }, 4000);
 
-            return () => clearTimeout(timer);
-        }
+        //     return () => clearTimeout(timer);
+        // }
     }, [isVisible, isAnimating, isPinned]);
 
     // Determine what information to show based on the current state
@@ -167,7 +167,7 @@ const Floater = () => {
                     isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                 }`}
                 style={{
-                    width: `${position.width}px`,
+                    width: `21em`,
                     transformOrigin: 'top left'
                 }}
             >

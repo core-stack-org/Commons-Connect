@@ -128,7 +128,8 @@ const Homepage = () => {
                   backdropFilter: 'none',
               }}
               onClick={() => {
-                MainStore.setIsGPSClick(true)
+                console.log("In Homescreen")
+                MainStore.setIsGPSClick(!MainStore.isGPSClick)
               }}
               >
                 <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">

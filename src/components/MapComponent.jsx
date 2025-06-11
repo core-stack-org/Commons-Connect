@@ -44,6 +44,7 @@ const MapComponent = () => {
     const ClartLayerRef = useRef(null)
     const WaterbodiesLayerRef = useRef(null)
     const PositionFeatureRef = useRef(null)
+    const GeolocationRef = useRef(null)
     
     const tempSettlementFeature = useRef(null)
     const tempSettlementLayer = useRef(null)
@@ -147,6 +148,26 @@ const MapComponent = () => {
             loadTilesWhileAnimating: true,
             loadTilesWhileInteracting: true,
         });
+
+        // Setup geolocation
+        const geolocation = new Geolocation({
+            trackingOptions: {
+              enableHighAccuracy: true,
+            },
+            projection: view.getProjection(),
+        });
+
+        GeolocationRef.current = geolocation
+        
+        GeolocationRef.current.on("change", function () {
+            const coordinates = GeolocationRef.current.getPosition();
+            console.log(coordinates)
+            if (coordinates) {
+              MainStore.setGpsLocation(coordinates);
+            }
+        });
+
+        GeolocationRef.current.setTracking(true);
 
         mapRef.current = map;
     };
@@ -1107,6 +1128,7 @@ const MapComponent = () => {
     }
 
     useEffect(() => {
+
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
           // Create position feature with icon
           const positionFeature = new Feature();
@@ -1123,43 +1145,32 @@ const MapComponent = () => {
           // Store reference to position feature
           PositionFeatureRef.current = positionFeature;
       
-          // Setup geolocation
-          const geolocation = new Geolocation({
-            trackingOptions: {
-              enableHighAccuracy: true,
-            },
-            projection: viewRef.current.getProjection(),
-          });
-      
           // Handle position changes
-          geolocation.on("change", function () {
-            const coordinates = geolocation.getPosition();
+          GeolocationRef.current.on("change", function () {
+            const coordinates = GeolocationRef.current.getPosition();
             if (coordinates) {
               MainStore.setGpsLocation(coordinates);
-              
-              // Animate to new position with smooth pan
-              const view = mapRef.current.getView();
-              
-              // First pan to location
-              view.animate({
-                center: coordinates,
-                duration: 1000,
-                easing: easeOut
-              });
-              
-              // Then zoom in to level 17 with animation
-              view.animate({
-                zoom: 17,
-                duration: 1200,
-                easing: easeOut
-              });
               
               positionFeature.setGeometry(new Point(coordinates));
             }
           });
-      
-          // Start tracking
-          geolocation.setTracking(true);
+        // Animate to new position with smooth pan
+        const view = mapRef.current.getView();
+        
+        // First pan to location
+        view.animate({
+          center: MainStore.gpsLocation,
+          duration: 1000,
+          easing: easeOut
+        });
+        
+        // Then zoom in to level 17 with animation
+        view.animate({
+          zoom: 17,
+          duration: 1200,
+          easing: easeOut
+        });
+        positionFeature.setGeometry(new Point(MainStore.gpsLocation));
       
           // Create GPS layer
           let gpsLayer = new VectorLayer({
@@ -1172,7 +1183,7 @@ const MapComponent = () => {
           
           // Store cleanup references
           return () => {
-            geolocation.setTracking(false);
+            GeolocationRef.current.setTracking(false);
             mapRef.current.removeLayer(gpsLayer);
             PositionFeatureRef.current = null;
           };
@@ -1231,7 +1242,6 @@ const MapComponent = () => {
     },[MainStore.lulcYearIdx])
 
     useEffect(() => {
-
         async function applyNregaStyle(){
             if(NregaWorkLayerRef.current !== null){
                 console.log(MainStore.nregaStyle)
@@ -1321,6 +1331,53 @@ const MapComponent = () => {
            }
 
     },[LayersStore])
+
+    useEffect(() => {
+        if(groundwaterRefs[0].current !== null){
+            if(MainStore.selectWellDepthYear === '2017_22'){
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor
+    
+                    if(status.Net2017_22 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -5 && status.Net2017_22 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -1 && status.Net2017_22 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+    
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                });
+            }
+            else{
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor
+    
+                    if(status.Net2018_23 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -5 && status.Net2018_23 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -1 && status.Net2018_23 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+    
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                });
+            }
+        }
+    },[MainStore.selectWellDepthYear])
 
     return (
         <div className="relative h-full w-full">
