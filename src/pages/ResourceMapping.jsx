@@ -112,7 +112,7 @@ const ResourceMapping = () => {
           <div className="flex flex-col gap-3">
               {/* GPS Button */}
               <button
-              className="flex-shrink-0 w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+              className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
               style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -136,7 +136,7 @@ const ResourceMapping = () => {
               </button>
 
               <button
-                className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
                 style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                 onClick={() => MainStore.setIsInfoOpen(true)}
               >
