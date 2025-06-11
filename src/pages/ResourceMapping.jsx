@@ -119,7 +119,9 @@ const ResourceMapping = () => {
                   border: 'none',
                   backdropFilter: 'none',
               }}
-              onClick={() => {MainStore.setIsGPSClick(true)}}
+              onClick={() => {
+                MainStore.setIsGPSClick(!MainStore.isGPSClick)}
+              }
               >
                 <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
                   <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />
@@ -177,7 +179,7 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => {
-                MainStore.setIsGPSClick(true)
+                //MainStore.setIsGPSClick(true)
                 withLoading(toggleFormsUrl)
               }}
               disabled={!MainStore.isMarkerPlaced}

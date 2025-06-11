@@ -154,17 +154,20 @@ const MapComponent = () => {
             trackingOptions: {
               enableHighAccuracy: true,
             },
-            projection: viewRef.current.getProjection(),
+            projection: view.getProjection(),
         });
 
         GeolocationRef.current = geolocation
         
-        geolocation.on("change", function () {
-            const coordinates = geolocation.getPosition();
+        GeolocationRef.current.on("change", function () {
+            const coordinates = GeolocationRef.current.getPosition();
+            console.log(coordinates)
             if (coordinates) {
               MainStore.setGpsLocation(coordinates);
             }
         });
+
+        GeolocationRef.current.setTracking(true);
 
         mapRef.current = map;
     };
@@ -1126,6 +1129,7 @@ const MapComponent = () => {
     }
 
     useEffect(() => {
+
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
           // Create position feature with icon
           const positionFeature = new Feature();
@@ -1148,29 +1152,26 @@ const MapComponent = () => {
             if (coordinates) {
               MainStore.setGpsLocation(coordinates);
               
-              // Animate to new position with smooth pan
-              const view = mapRef.current.getView();
-              
-              // First pan to location
-              view.animate({
-                center: coordinates,
-                duration: 1000,
-                easing: easeOut
-              });
-              
-              // Then zoom in to level 17 with animation
-              view.animate({
-                zoom: 17,
-                duration: 1200,
-                easing: easeOut
-              });
-              
               positionFeature.setGeometry(new Point(coordinates));
             }
           });
-      
-          // Start tracking
-          GeolocationRef.current.setTracking(true);
+        // Animate to new position with smooth pan
+        const view = mapRef.current.getView();
+        
+        // First pan to location
+        view.animate({
+          center: MainStore.gpsLocation,
+          duration: 1000,
+          easing: easeOut
+        });
+        
+        // Then zoom in to level 17 with animation
+        view.animate({
+          zoom: 17,
+          duration: 1200,
+          easing: easeOut
+        });
+        positionFeature.setGeometry(new Point(MainStore.gpsLocation));
       
           // Create GPS layer
           let gpsLayer = new VectorLayer({
