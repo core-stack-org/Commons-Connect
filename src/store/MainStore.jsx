@@ -82,18 +82,12 @@ const useMainStore = create((set) => ({
     isNregaSheet : false,
     allNregaYears : [],
     selectNregaYears : [2018],
-    nregaWorks : [4],
+    nregaWorks : [],
     nregaStyle : {
         filter: ['in', ['get', 'workYear'], [2018]],
         'shape-points': 12,
         'shape-radius': 8,
-        'shape-fill-color': [
-          'match',
-          ['get', 'itemColor'],
-          4,
-          '#6495ED',
-          '#00000000'
-        ],
+        'shape-fill-color':'#00000000',
     },
 
     setNregaSheet : (stat) => set({isNregaSheet : stat}),

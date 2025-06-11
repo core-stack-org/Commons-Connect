@@ -9,7 +9,6 @@ import getImageLayer from "../action/getImageLayer.js";
 //* OpenLayers imports
 import "ol/ol.css";
 import { easeOut } from 'ol/easing';
-import { getCenter } from 'ol/extent';
 import XYZ from "ol/source/XYZ";
 import TileLayer from "ol/layer/Tile";
 import Control from 'ol/control/Control.js';
@@ -24,6 +23,7 @@ import VectorSource from "ol/source/Vector.js";
 
 import settlementIcon from "../assets/settlement_icon.svg"
 import LargeWaterBody from "../assets/waterbodiesScreenIcon.svg"
+import RechargeIcon from "../assets/recharge_icon.svg"
 import selectedSettlementIcon from "../assets/selected_settlement.svg"
 import iconsDetails from "../assets/icons.json"
 import mapMarker from "../assets/map_marker.svg"
@@ -452,17 +452,17 @@ const MapComponent = () => {
         });
 
         GroundWaterWorkLayer.setStyle(function (feature) {
-            const status = feature.values_;
-            if(status.work_type in iconsDetails.Recharge_Icons){
+            // const status = feature.values_;
+            // if(status.work_type in iconsDetails.Recharge_Icons){
+            //     return new Style({
+            //         image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+            //     })
+            // }
+            // else{
                 return new Style({
-                    image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+                    image: new Icon({ src: RechargeIcon }),
                 })
-            }
-            else{
-                return new Style({
-                    image: new Icon({ src: LargeWaterBody }),
-                })
-            }
+            //}
         });
 
         livelihoodLayer.setStyle(
@@ -681,17 +681,17 @@ const MapComponent = () => {
                 true
             )
             GroundWaterWorkLayer.setStyle(function (feature) {
-                const status = feature.values_;
-                if(status.work_type in iconsDetails.Recharge_Icons){
+                // const status = feature.values_;
+                // if(status.work_type in iconsDetails.Recharge_Icons){
+                //     return new Style({
+                //         image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+                //     })
+                // }
+                // else{
                     return new Style({
-                        image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+                        image: new Icon({ src: RechargeIcon }),
                     })
-                }
-                else{
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
+                //}
             });
 
             mapRef.current.removeLayer(groundwaterRefs[2].current)

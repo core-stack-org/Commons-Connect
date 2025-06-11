@@ -65,10 +65,15 @@ const Livelihood = () => {
                         }}
                         onClick={() => {MainStore.setIsGPSClick(true)}}
                         >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                            <path d="M50 20c-11 0-20 9-20 20 0 11 20 40 20 40s20-29 20-40c0-11-9-20-20-20z" 
-                            fill="#592941" stroke="#592941" strokeWidth="1" />
-                            <circle cx="50" cy="40" r="7" fill="white" />
+                        <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
+                            <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />
+                            <path d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z" 
+                                    fill="#592941" 
+                                    stroke="#592941" 
+                                    strokeWidth="1.5"/>
+                            <circle cx="50" cy="55" r="16" fill="#FFFFFF" stroke="#1E40AF" strokeWidth="1.5"/>
+                            <circle cx="50" cy="55" r="6" fill="#592941"/>
+                            <ellipse cx="46" cy="38" rx="6" ry="10" fill="#FFFFFF25" />
                         </svg>
                         </button>
 
@@ -77,10 +82,16 @@ const Livelihood = () => {
                             style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                             onClick={() => MainStore.setIsInfoOpen(true)}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="30" fill="#592941" stroke="#592941" strokeWidth="2" />
-                            <circle cx="50" cy="40" r="3.5" fill="white" />
-                            <rect x="46.5" y="47" width="7" height="25" rx="2" fill="white" />
+                            <svg viewBox="-16 0 130 100" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="40" fill="#592941" stroke="#592941" strokeWidth="2"/>
+
+                                <circle cx="50" cy="50" r="36" fill="#592941"/>
+
+                                <circle cx="50" cy="35" r="4" fill="#FFFFFF"/>
+
+                                <rect x="46" y="45" width="8" height="25" rx="4" fill="#FFFFFF"/>
+
+                                <ellipse cx="42" cy="42" rx="8" ry="12" fill="#FFFFFF20"/>
                             </svg>
                         </button>
                     </div>
