@@ -25,7 +25,6 @@ const Groundwater = () => {
           let BACK = MainStore.currentStep - 1
   
           if(MainStore.currentStep){
-            console.log(BACK)
             MainStore.setCurrentStep(BACK)
           }
         }
@@ -53,6 +52,12 @@ const Groundwater = () => {
       MainStore.setIsGroundWater(true)
       MainStore.setIsOpen(true)
     }
+
+    const handleToggle = () => {
+      if (!disabled) {
+        onChange(value === leftYear ? rightYear : leftYear);
+      }
+    };
 
     const getPlanLabel = () => {
       const plan = MainStore.currentPlan?.plan ?? "Select Plan";
@@ -134,6 +139,7 @@ const Groundwater = () => {
                       >
                           {getPlanLabel()}
                       </button>
+                      
                       <button
                           className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm ml-2"
                           style={{
@@ -152,6 +158,49 @@ const Groundwater = () => {
                       </button>
                 </div>
               </div>
+            </div>
+
+            {/* 3. WellDepth Toggle button */}
+            <div className="absolute top-33 left-0 w-full px-4 z-10">
+                <div className="relative w-3/4 max-w-md mx-auto">
+                  <div 
+                    className={`inline-flex rounded-xl pb-0.5 pt-0.5 ml-2`}
+                    style={{ backgroundColor: '#D6D5C9' }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => MainStore.setSelectedWellDepthYear('2017_22')}
+                      disabled={MainStore.currentStep > 0}
+                      className={`
+                        px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200
+                        ${MainStore.selectWellDepthYear === '2017_22'
+                          ? 'bg-white shadow-sm'
+                          : 'hover:bg-white hover:bg-opacity-50'
+                        }
+                        ${MainStore.currentStep > 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                      `}
+                      style={{ color: '#592941' }}
+                    >
+                      {'2017_22'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => MainStore.setSelectedWellDepthYear('2018_23')}
+                      disabled={MainStore.currentStep > 0}
+                      className={`
+                        px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200
+                        ${MainStore.selectWellDepthYear === '2018_23'
+                          ? 'bg-white shadow-sm'
+                          : 'hover:bg-white hover:bg-opacity-50'
+                        }
+                        ${MainStore.currentStep > 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                      `}
+                      style={{ color: '#592941' }}
+                    >
+                      {'2018_23'}
+                    </button>
+                  </div>
+                </div>
             </div>
 
             {/* Bottom Controls */}

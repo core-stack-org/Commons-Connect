@@ -562,7 +562,6 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
-            MainStore.setSettlementName(null)
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
@@ -1243,7 +1242,6 @@ const MapComponent = () => {
     },[MainStore.lulcYearIdx])
 
     useEffect(() => {
-
         async function applyNregaStyle(){
             if(NregaWorkLayerRef.current !== null){
                 console.log(MainStore.nregaStyle)
@@ -1333,6 +1331,53 @@ const MapComponent = () => {
            }
 
     },[LayersStore])
+
+    useEffect(() => {
+        if(groundwaterRefs[0].current !== null){
+            if(MainStore.selectWellDepthYear === '2017_22'){
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor
+    
+                    if(status.Net2017_22 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -5 && status.Net2017_22 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -1 && status.Net2017_22 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+    
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                });
+            }
+            else{
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor
+    
+                    if(status.Net2018_23 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -5 && status.Net2018_23 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -1 && status.Net2018_23 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+    
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                });
+            }
+        }
+    },[MainStore.selectWellDepthYear])
 
     return (
         <div className="relative h-full w-full">
