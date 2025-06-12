@@ -78,7 +78,7 @@ const Homepage = () => {
         <HamburgerMenu open={isSideMenuOpen} onClose={() => setIsSideMenuOpen(false)} />
         {/* 1. Header + hamburger wrapper */}
         <div
-          className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none"
+          className="absolute top-4 left-0 w-full px-2 z-10 pointer-events-none"
         >
           <div className="relative w-full max-w-lg mx-auto flex items-center">
             {/* Hamburger button: re-enable pointer events just for this */}
@@ -120,7 +120,7 @@ const Homepage = () => {
             <div className="flex flex-col gap-3">
               {/* GPS Button */}
               <button
-              className="flex-shrink-0 w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+              className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
               style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -128,7 +128,8 @@ const Homepage = () => {
                   backdropFilter: 'none',
               }}
               onClick={() => {
-                MainStore.setIsGPSClick(true)
+                console.log("In Homescreen")
+                MainStore.setIsGPSClick(!MainStore.isGPSClick)
               }}
               >
                 <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
@@ -144,7 +145,7 @@ const Homepage = () => {
               </button>
 
               <button
-                className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
                 style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                 onClick={() => MainStore.setIsInfoOpen(true)}
               >
@@ -184,7 +185,7 @@ const Homepage = () => {
 
                 {isPlanOpen && (
                 <div
-                    className="absolute mt-2 left-0 w-40 bg-white rounded-xl shadow-lg
+                    className="absolute mt-2 left-0 w-58 bg-white rounded-xl shadow-lg
                             overflow-y-auto max-h-48"
                 >
                     {/* Replace this static list with your dynamic plans array if you have one */}
