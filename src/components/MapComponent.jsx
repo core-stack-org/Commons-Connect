@@ -31,6 +31,7 @@ import farm_pond_proposed from "../assets/farm_pond_proposed.svg"
 import land_leveling_proposed from "../assets/land_leveling_proposed.svg"
 import well_mrker from "../assets/well_proposed.svg"
 import livelihoodIcons from "../assets/livelihood_proposed.svg"
+import Man_icon from "../assets/Man_icon.png"
 
 const MapComponent = () => {
     const mapElement = useRef(null);
