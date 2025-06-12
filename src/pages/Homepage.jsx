@@ -128,7 +128,6 @@ const Homepage = () => {
                   backdropFilter: 'none',
               }}
               onClick={() => {
-                console.log("In Homescreen")
                 MainStore.setIsGPSClick(!MainStore.isGPSClick)
               }}
               >

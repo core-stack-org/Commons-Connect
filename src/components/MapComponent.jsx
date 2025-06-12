@@ -789,6 +789,18 @@ const MapComponent = () => {
             if(currentStep > 0){
                 tempSettlementLayer.current.setVisible(true)
             }
+            if(currentStep === 2){
+                if(WaterbodiesLayerRef.current === null){
+                    const waterBodyLayers = await getWebglVectorLayers(
+                        "swb",
+                        `surface_waterbodies_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                        true,
+                        true
+                    );
+                    WaterbodiesLayerRef.current = waterBodyLayers
+                }
+                mapRef.current.addLayer(WaterbodiesLayerRef.current)
+            }
         }
 
         else if(currentScreen === "Groundwater"){
@@ -1130,88 +1142,88 @@ const MapComponent = () => {
         }
     }
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     if (PositionFeatureRef.current === null && mapRef.current !== null) {
-    //       // Create position feature with icon
-    //       const positionFeature = new Feature();
-    //       positionFeature.setStyle(new Style({
-    //         image: new Icon({
-    //           src: Man_icon,
-    //           scale: 0.8,
-    //           anchor: [0.5, 0.5],
-    //           anchorXUnits: 'fraction',
-    //           anchorYUnits: 'fraction',
-    //         }),
-    //       }));
+        if (PositionFeatureRef.current === null && mapRef.current !== null) {
+          // Create position feature with icon
+          const positionFeature = new Feature();
+          positionFeature.setStyle(new Style({
+            image: new Icon({
+              src: Man_icon,
+              scale: 0.8,
+              anchor: [0.5, 0.5],
+              anchorXUnits: 'fraction',
+              anchorYUnits: 'fraction',
+            }),
+          }));
           
-    //       // Store reference to position feature
-    //       PositionFeatureRef.current = positionFeature;
+          // Store reference to position feature
+          PositionFeatureRef.current = positionFeature;
       
-    //       // Handle position changes
-    //       GeolocationRef.current.on("change", function () {
-    //         const coordinates = GeolocationRef.current.getPosition();
-    //         if (coordinates) {
-    //           MainStore.setGpsLocation(coordinates);
+          // Handle position changes
+          GeolocationRef.current.on("change", function () {
+            const coordinates = GeolocationRef.current.getPosition();
+            if (coordinates) {
+              MainStore.setGpsLocation(coordinates);
               
-    //           positionFeature.setGeometry(new Point(coordinates));
-    //         }
-    //       });
-    //     // Animate to new position with smooth pan
-    //     const view = mapRef.current.getView();
+              positionFeature.setGeometry(new Point(coordinates));
+            }
+          });
+        // Animate to new position with smooth pan
+        const view = mapRef.current.getView();
         
-    //     // First pan to location
-    //     view.animate({
-    //       center: MainStore.gpsLocation,
-    //       duration: 1000,
-    //       easing: easeOut
-    //     });
+        // First pan to location
+        view.animate({
+          center: MainStore.gpsLocation,
+          duration: 1000,
+          easing: easeOut
+        });
         
-    //     // Then zoom in to level 17 with animation
-    //     view.animate({
-    //       zoom: 17,
-    //       duration: 1200,
-    //       easing: easeOut
-    //     });
-    //     positionFeature.setGeometry(new Point(MainStore.gpsLocation));
+        // Then zoom in to level 17 with animation
+        view.animate({
+          zoom: 17,
+          duration: 1200,
+          easing: easeOut
+        });
+        positionFeature.setGeometry(new Point(MainStore.gpsLocation));
       
-    //       // Create GPS layer
-    //       let gpsLayer = new VectorLayer({
-    //         map: mapRef.current,
-    //         source: new VectorSource({
-    //           features: [positionFeature],
-    //         }),
-    //         zIndex: 99 // Ensure it's on top
-    //       });
+          // Create GPS layer
+          let gpsLayer = new VectorLayer({
+            map: mapRef.current,
+            source: new VectorSource({
+              features: [positionFeature],
+            }),
+            zIndex: 99 // Ensure it's on top
+          });
           
-    //       // Store cleanup references
-    //       return () => {
-    //         GeolocationRef.current.setTracking(false);
-    //         mapRef.current.removeLayer(gpsLayer);
-    //         PositionFeatureRef.current = null;
-    //       };
-    //     }
+          // Store cleanup references
+          return () => {
+            GeolocationRef.current.setTracking(false);
+            mapRef.current.removeLayer(gpsLayer);
+            PositionFeatureRef.current = null;
+          };
+        }
         
-    //     // Handle GPS button click to center on current location
-    //     if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
-    //       const view = mapRef.current.getView();
+        // Handle GPS button click to center on current location
+        if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
+          const view = mapRef.current.getView();
           
-    //       // Sequence of animations for smoother experience
-    //       // 1. First start panning
-    //       view.animate({
-    //         center: MainStore.gpsLocation,
-    //         duration: 800,
-    //         easing: easeOut
-    //       });
+          // Sequence of animations for smoother experience
+          // 1. First start panning
+          view.animate({
+            center: MainStore.gpsLocation,
+            duration: 800,
+            easing: easeOut
+          });
           
-    //       // 2. Then always animate to zoom level 17 regardless of current zoom
-    //       view.animate({
-    //         zoom: 17,
-    //         duration: 1000,
-    //         easing: easeOut
-    //       });
-    //     }
-    // }, [MainStore.isGPSClick]);
+          // 2. Then always animate to zoom level 17 regardless of current zoom
+          view.animate({
+            zoom: 17,
+            duration: 1000,
+            easing: easeOut
+          });
+        }
+    }, [MainStore.isGPSClick]);
 
     useEffect(() => {
         if (!mapRef.current) {
