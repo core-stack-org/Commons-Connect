@@ -161,7 +161,7 @@ const Groundwater = () => {
             </div>
 
             {/* 3. WellDepth Toggle button */}
-            <div className="absolute top-32 right-34 px-4 z-10">
+            <div className="absolute top-31.5 right-34 px-4 z-10">
                 <div className="relative w-full max-w-md mx-auto">
                   <div 
                     className={`relative inline-flex rounded-xl pb-0.5 pt-0.5 ml-2`}
@@ -209,6 +209,20 @@ const Groundwater = () => {
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
                 {MainStore.currentStep === 0 && (
                     <div className="flex gap-4 w-full">
+                        {MainStore.isFeatureClicked ? 
+                        <button
+                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                            onClick={() => handleAnalyze()}
+                            disabled={!MainStore.isMarkerPlaced}
+                            style={{
+                                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                                color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                border: 'none',
+                            }}
+                        >
+                            {t("Asset Info")}
+                        </button> 
+                        : 
                         <button
                             className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                             onClick={() => handleAnalyze()}
@@ -220,7 +234,7 @@ const Groundwater = () => {
                             }}
                         >
                             {t("Analyze")}
-                        </button>
+                        </button>}
                         <button
                             className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                             onClick={() => MainStore.setCurrentStep(1)}
