@@ -25,7 +25,6 @@ const Groundwater = () => {
           let BACK = MainStore.currentStep - 1
   
           if(MainStore.currentStep){
-            console.log(BACK)
             MainStore.setCurrentStep(BACK)
           }
         }
@@ -54,6 +53,12 @@ const Groundwater = () => {
       MainStore.setIsOpen(true)
     }
 
+    const handleToggle = () => {
+      if (!disabled) {
+        onChange(value === leftYear ? rightYear : leftYear);
+      }
+    };
+
     const getPlanLabel = () => {
       const plan = MainStore.currentPlan?.plan ?? "Select Plan";
     
@@ -81,7 +86,7 @@ const Groundwater = () => {
                 <div className="flex flex-col gap-3">
                     {/* GPS Button */}
                     <button
-                    className="flex-shrink-0 w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                    className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
                     style={{
                         backgroundColor: '#D6D5C9',
                         color: '#592941',
@@ -103,7 +108,7 @@ const Groundwater = () => {
                     </button>
 
                     <button
-                        className="w-10 h-10 rounded-md shadow-sm flex items-center justify-center"
+                        className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
                         style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                         onClick={() => MainStore.setIsInfoOpen(true)}
                     >
@@ -134,6 +139,7 @@ const Groundwater = () => {
                       >
                           {getPlanLabel()}
                       </button>
+                      
                       <button
                           className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm ml-2"
                           style={{
@@ -152,6 +158,51 @@ const Groundwater = () => {
                       </button>
                 </div>
               </div>
+            </div>
+
+            {/* 3. WellDepth Toggle button */}
+            <div className="absolute top-32 right-34 px-4 z-10">
+                <div className="relative w-full max-w-md mx-auto">
+                  <div 
+                    className={`relative inline-flex rounded-xl pb-0.5 pt-0.5 ml-2`}
+                    style={{ backgroundColor: '#D6D5C9' }}
+                  >
+                    {/* Sliding white pill background */}
+                    <div
+                      className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-in-out"
+                      style={{
+                        height: 'calc(100% - 4px)',
+                        width: '50%',
+                        transform: MainStore.selectWellDepthYear === '2018_23' ? 'translateX(100%)' : 'translateX(0%)',
+                      }}
+                    />
+                    
+                    <button
+                      type="button"
+                      onClick={() => MainStore.setSelectedWellDepthYear('2017_22')}
+                      disabled={MainStore.currentStep > 0}
+                      className={`
+                        relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200
+                        ${MainStore.currentStep > 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                      `}
+                      style={{ color: '#592941' }}
+                    >
+                      {'2017-2022'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => MainStore.setSelectedWellDepthYear('2018_23')}
+                      disabled={MainStore.currentStep > 0}
+                      className={`
+                        relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200
+                        ${MainStore.currentStep > 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                      `}
+                      style={{ color: '#592941' }}
+                    >
+                      {'2018-2023'}
+                    </button>
+                  </div>
+                </div>
             </div>
 
             {/* Bottom Controls */}
@@ -194,7 +245,7 @@ const Groundwater = () => {
                           border: 'none',
                         }}
                       >
-                        {t("Propose Maintainence")}
+                        {t("Propose Maintenance")}
                       </button>
                   
                       <button

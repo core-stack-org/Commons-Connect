@@ -1,12 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Chart from 'chart.js/auto';
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
 
 const YEARS = [2017, 2018, 2019, 2020, 2021, 2022];
 
+const CAPSULE_KEYS = ["Mild Drought", "Moderate Drought", "Severe Drought", "Dry Spells", "Cropping Intensity"];
+
+/* pretty-print */
+const fmt = (v, d = 0) =>
+  v !== undefined
+    ? Number(v).toLocaleString("en-IN", { maximumFractionDigits: d })
+    : "—";
+
 const AgricultureAnalyze = () => {
-  const [year, setYear] = useState(2017);
+  const [idx, setIdx] = useState(YEARS.length - 1);
+  const year = YEARS[idx];
+  
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const cropChartRef = useRef(null);
@@ -19,10 +29,13 @@ const AgricultureAnalyze = () => {
   const selectedMWSDrought = useMainStore((state) => state.selectedMWSDrought);
   const selectedResource = useMainStore((state) => state.selectedResource);
 
-  // Drought chart effect
-  useEffect(() => {
+  const annual = useMemo(() => {
     const drlbKey = `drlb_${year}`;
     const dryspKey = `drysp_${year}`;
+
+    if (!selectedMWSDrought || !selectedMWSDrought[drlbKey]) {
+        return {};
+    }
 
     const drlbArray = JSON.parse(selectedMWSDrought[drlbKey] || '[]');
     const mildCount = drlbArray.filter((v) => v === 1).length;
@@ -30,8 +43,26 @@ const AgricultureAnalyze = () => {
     const severeCount = drlbArray.filter((v) => v === 3).length;
     const dryspellCount = selectedMWSDrought[dryspKey] || 0;
 
-    const totalCount = mildCount + moderateCount + severeCount + dryspellCount;
-    if (totalCount === 0) {
+    const cropIntensityIdx = YEARS.indexOf(year) + 1;
+    const cropIntensity = selectedResource ? (selectedResource[`cropping_${cropIntensityIdx}`] || 0) : 0;
+
+    return {
+        "Mild Drought": mildCount,
+        "Moderate Drought": moderateCount,
+        "Severe Drought": severeCount,
+        "Dry Spells": dryspellCount,
+        "Cropping Intensity": cropIntensity,
+    };
+  }, [year, selectedMWSDrought, selectedResource]);
+
+  const hasAnnual = Object.keys(annual).length > 0;
+  const hasDroughtData = hasAnnual && (annual["Mild Drought"] > 0 || annual["Moderate Drought"] > 0 || annual["Severe Drought"] > 0 || annual["Dry Spells"] > 0);
+
+  // Drought chart effect
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    if (!hasDroughtData) {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
         chartInstanceRef.current = null;
@@ -44,8 +75,13 @@ const AgricultureAnalyze = () => {
       datasets: [
         {
           label: `Drought Frequency (${year})`,
-          data: [mildCount, moderateCount, severeCount, dryspellCount],
-          backgroundColor: ['#60A5FA', '#FBBF24', '#EF4444', '#9CA3AF'],
+          data: [
+            annual["Mild Drought"], 
+            annual["Moderate Drought"], 
+            annual["Severe Drought"], 
+            annual["Dry Spells"]
+          ],
+          backgroundColor: ['#F4D03F', '#EB984E', '#E74C3C', '#8884d8'],
           borderRadius: 6,
           borderWidth: 0,
         },
@@ -55,6 +91,7 @@ const AgricultureAnalyze = () => {
     const ctx = chartRef.current.getContext('2d');
     if (chartInstanceRef.current) {
       chartInstanceRef.current.data = data;
+      chartInstanceRef.current.options.scales.x.title.text = `Year: ${year}`;
       chartInstanceRef.current.update();
     } else {
       chartInstanceRef.current = new Chart(ctx, {
@@ -67,45 +104,50 @@ const AgricultureAnalyze = () => {
             y: { 
               beginAtZero: true, 
               ticks: { precision: 0 },
-              grid: { color: 'rgba(0,0,0,0.05)' }
+              title: { display: true, text: 'Drought Frequency (# weeks)' }
             },
             x: {
-              grid: { display: false }
+              title: { display: true, text: `Year: ${year}` }
             }
           },
           plugins: { 
             legend: { display: false },
-            tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
-              titleColor: 'white',
-              bodyColor: 'white',
-              cornerRadius: 8
-            }
           },
         },
       });
     }
-  }, [year, selectedMWSDrought]);
+  }, [year, annual, hasDroughtData]);
 
   // Cropping intensity chart effect
   useEffect(() => {
-    const idx = YEARS.indexOf(year) + 1;
+    if (!cropChartRef.current) return;
+
+    const cropIdx = YEARS.indexOf(year) + 1;
     const totalCrop = selectedResource.total_crop || 0;
-    const single = selectedResource[`single_c_${idx}`] || 0;
-    const doubled = selectedResource[`doubly_c_${idx}`] || 0;
-    const tripled = selectedResource[`triply_c_${idx}`] || 0;
-    const singlePct = totalCrop ? (single / totalCrop) * 100 : 0;
-    const doublePct = totalCrop ? (doubled / totalCrop) * 100 : 0;
-    const triplePct = totalCrop ? (tripled / totalCrop) * 100 : 0;
+    const single = selectedResource[`single_c_${cropIdx}`] || 0;
+    const doubled = selectedResource[`doubly_c_${cropIdx}`] || 0;
+    const tripled = selectedResource[`triply_c_${cropIdx}`] || 0;
+
+    if (totalCrop === 0) {
+      if (cropChartInstanceRef.current) {
+        cropChartInstanceRef.current.destroy();
+        cropChartInstanceRef.current = null;
+      }
+      return;
+    }
+
+    const singlePct = (single / totalCrop) * 100;
+    const doublePct = (doubled / totalCrop) * 100;
+    const triplePct = (tripled / totalCrop) * 100;
     const uncroppedPct = Math.max(0, 100 - (singlePct + doublePct + triplePct));
 
     const data = {
       labels: [`${year}`],
       datasets: [
-        { label: 'Single', data: [singlePct.toFixed(1)], backgroundColor: '#34D399', borderRadius: 4 },
-        { label: 'Double', data: [doublePct.toFixed(1)], backgroundColor: '#60A5FA', borderRadius: 4 },
-        { label: 'Triple', data: [triplePct.toFixed(1)], backgroundColor: '#FBBF24', borderRadius: 4 },
-        { label: 'Uncropped', data: [uncroppedPct.toFixed(1)], backgroundColor: '#9CA3AF', borderRadius: 4 },
+        { label: 'Single', data: [singlePct.toFixed(1)], backgroundColor: '#57ad2b', borderRadius: 4 },
+        { label: 'Double', data: [doublePct.toFixed(1)], backgroundColor: '#e68600', borderRadius: 4 },
+        { label: 'Triple', data: [triplePct.toFixed(1)], backgroundColor: '#b3561d', borderRadius: 4 },
+        { label: 'Uncropped', data: [uncroppedPct.toFixed(1)], backgroundColor: '#A9A9A9', borderRadius: 4 },
       ],
     };
 
@@ -123,24 +165,15 @@ const AgricultureAnalyze = () => {
           scales: {
             x: { 
               stacked: true,
-              grid: { display: false }
             },
             y: { 
               stacked: true, 
               beginAtZero: true, 
               max: 100, 
               ticks: { callback: (v) => v + '%' },
-              grid: { color: 'rgba(0,0,0,0.05)' }
+              title: { display: true, text: 'Cropping Patterns' }
             },
           },
-          plugins: {
-            tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
-              titleColor: 'white',
-              bodyColor: 'white',
-              cornerRadius: 8
-            }
-          }
         },
       });
     }
@@ -148,6 +181,7 @@ const AgricultureAnalyze = () => {
 
   // Line chart effect
   useEffect(() => {
+    if (!lineChartRef.current) return;
     const dataPoints = YEARS.map((_, i) => selectedResource[`cropping_${i + 1}`] || 0);
     const data = {
       labels: YEARS.map(String),
@@ -182,179 +216,124 @@ const AgricultureAnalyze = () => {
             y: { 
               beginAtZero: true, 
               ticks: { precision: 0 },
-              grid: { color: 'rgba(0,0,0,0.05)' }
+              title: { display: true, text: 'Cropping Intensity' }
             },
-            x: {
-              grid: { color: 'rgba(0,0,0,0.05)' }
-            }
           },
-          plugins: {
-            tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
-              titleColor: 'white',
-              bodyColor: 'white',
-              cornerRadius: 8
-            }
-          }
         },
       });
     }
   }, [selectedResource]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Enhanced Header */}
-      <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-        <div className="text-center py-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            {t("agri_heading")}
-          </h1>
-          <div className="w-16 h-0.5 bg-blue-500 mx-auto rounded-full"></div>
-        </div>
+    <>
+      <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
+        {t("agri_heading")}
       </div>
 
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
-        {/* Drought Frequency Section */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-100">
-            <div className="flex items-center">
-              <div className="w-1 h-6 bg-blue-500 rounded-full mr-3"></div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                {t("drought_header")}
-              </h2>
-            </div>
-          </div>
-          
-          <div className="p-6">
-            {/* Chart Container */}
-            <div className="relative h-72 bg-gray-50/50 rounded-xl p-4 mb-6">
-              {(() => {
-                const drlbKey = `drlb_${year}`;
-                const dryspKey = `drysp_${year}`;
-                const drlbArray = JSON.parse(selectedMWSDrought[drlbKey] || '[]');
-                const mildCount = drlbArray.filter((v) => v === 1).length;
-                const moderateCount = drlbArray.filter((v) => v === 2).length;
-                const severeCount = drlbArray.filter((v) => v === 3).length;
-                const dryspellCount = selectedMWSDrought[dryspKey] || 0;
-                const totalCount = mildCount + moderateCount + severeCount + dryspellCount;
-                
-                return totalCount > 0 ? (
-                  <canvas ref={chartRef} className="w-full h-full" />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                      </div>
-                      <p className="text-gray-500 font-medium">{t("No data available")}</p>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
+      <div className="p-4 max-w-6xl mx-auto space-y-8 mt-4">
+        <h2 className="text-center font-extrabold text-gray-700 mb-3 text-sm">
+          {t("Annual Summary")}
+        </h2>
 
-            {/* Info Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
+        {/* capsules */}
+        {hasAnnual ? (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            {CAPSULE_KEYS.map((k) => (
+              <div
+                key={k}
+                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
+              >
+                <div className="text-xs tracking-wide text-gray-500 mb-1">
+                  {t(k)}
                 </div>
-                <p className="text-blue-800 text-sm leading-relaxed">
-                  {t("info_agri_modal_1")}
-                </p>
+                <div className="text-lg font-bold">{fmt(annual[k], k === 'Cropping Intensity' ? 1 : 0)}{k === 'Cropping Intensity' ? '%' : ' weeks'}</div>
               </div>
-            </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            {t("info_blank")} {year}
+          </p>
+        )}
 
-            {/* Enhanced Year Slider */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <span className="font-semibold text-gray-700 min-w-fit">{t("Year")}:</span>
-                <div className="flex-1 relative">
-                  <input
-                    type="range"
-                    min={YEARS[0]}
-                    max={YEARS[YEARS.length - 1]}
-                    step="1"
-                    value={year}
-                    onChange={(e) => setYear(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"
-                  />
-                  <div className="flex justify-between mt-2 px-1">
-                    {YEARS.map((yr) => (
-                      <span 
-                        key={yr} 
-                        className={`text-xs font-medium transition-colors ${
-                          yr === year ? 'text-blue-600' : 'text-gray-400'
-                        }`}
-                      >
-                        {yr}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg font-bold min-w-fit">
-                  {year}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <h2 className="text-center font-bold text-gray-700 text-lg pt-4">
+          {t("Yearly Analysis")}
+        </h2>
 
-        {/* Cropping Intensity Section */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-gray-100">
-            <div className="flex items-center">
-              <div className="w-1 h-6 bg-green-500 rounded-full mr-3"></div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                {t("cropping_in_header")}
-              </h2>
+        {/* Drought chart */}
+        <section>
+          <h2 className="font-bold text-gray-700 mb-2">
+            {t("drought_header")} ({year})
+          </h2>
+          {hasDroughtData ? (
+            <div className="relative h-72">
+              <canvas ref={chartRef} />
             </div>
-          </div>
-          
-          <div className="p-6">
-            <div className="relative h-72 bg-gray-50/50 rounded-xl p-4">
-              <canvas ref={cropChartRef} className="w-full h-full" />
-            </div>
-          </div>
-        </div>
+          ) : (
+            <p className="text-center text-gray-500 py-10">{t("No data available")}</p>
+          )}
+        </section>
 
-        {/* Trend Analysis Section */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 border-b border-gray-100">
-            <div className="flex items-center">
-              <div className="w-1 h-6 bg-purple-500 rounded-full mr-3"></div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                {t("cropping_in_header")}
-              </h2>
+        {/* year slider */}
+        <div className="w-3/4 max-w-lg mx-auto pt-4 pb-8">
+            <input
+                type="range"
+                min="0"
+                max={YEARS.length - 1}
+                value={idx}
+                onChange={(e) => setIdx(Number(e.target.value))}
+                className="w-full accent-[#0f766e]"
+            />
+            <div className="flex justify-between text-sm font-bold mt-1">
+                {YEARS.map((y) => (
+                <span key={y} className="flex-1 text-center">
+                    {y}
+                </span>
+                ))}
             </div>
-          </div>
-          
-          <div className="p-6 space-y-6">
-            <div className="relative h-72 bg-gray-50/50 rounded-xl p-4">
-              <canvas ref={lineChartRef} className="w-full h-full" />
-            </div>
-            
-            {/* Info Box */}
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <p className="text-purple-800 text-sm leading-relaxed">
-                  {t("info_agri_modal_2")}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
+        
+        {/* Cropping Pattern chart */}
+        <section>
+          <h2 className="font-bold text-gray-700 mb-2">
+            {t("cropping_in_header")} ({year})
+          </h2>
+          {(selectedResource.total_crop > 0) ? (
+            <div className="relative h-72">
+              <canvas ref={cropChartRef} />
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-10">{t("No data available")}</p>
+          )}
+        </section>
+
+        {/* Cropping Intensity Trend chart */}
+        <section>
+          <h2 className="font-bold text-gray-700 mb-2">
+            {t("Cropping Intensity Trend (2017-2022)")}
+          </h2>
+          {(selectedResource.total_crop > 0) ? (
+            <div className="relative h-72">
+              <canvas ref={lineChartRef} />
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-10">{t("No data available")}</p>
+          )}
+        </section>
+
+        {/* Explanation Section */}
+        <section className="space-y-8 text-sm leading-relaxed text-gray-700 mt-8 pt-8 border-t">
+          <div>
+            <h3 className="font-bold mb-2">{t("drought_header")}</h3>
+            <p>{t("info_agri_modal_1")}</p>
+          </div>
+          <div>
+            <h3 className="font-bold mb-2">{t("cropping_in_header")}</h3>
+            <p>{t("info_agri_modal_2")}</p>
+          </div>
+        </section>
       </div>
-    </div>
+    </>
   );
 };
 
