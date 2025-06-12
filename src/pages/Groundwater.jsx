@@ -147,6 +147,8 @@ const Groundwater = () => {
                             backdropFilter: 'none',
                           }}
                           onClick={() =>{
+                            MainStore.setFeatureStat(false)
+                            MainStore.setIsResource(false)
                             MainStore.setIsGroundWater(false)
                             MainStore.setIsLayerStore(true)
                             MainStore.setIsOpen(true)
