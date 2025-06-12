@@ -161,8 +161,8 @@ const Groundwater = () => {
             </div>
 
             {/* 3. WellDepth Toggle button */}
-            <div className="absolute top-33 right-45 px-4 z-10">
-                <div className="relative w-3/4 max-w-md mx-auto">
+            <div className="absolute top-32 right-34 px-4 z-10">
+                <div className="relative w-full max-w-md mx-auto">
                   <div 
                     className={`relative inline-flex rounded-xl pb-0.5 pt-0.5 ml-2`}
                     style={{ backgroundColor: '#D6D5C9' }}
