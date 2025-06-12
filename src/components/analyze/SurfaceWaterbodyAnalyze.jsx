@@ -16,7 +16,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 const years = ["17-18", "18-19", "19-20", "20-21", "21-22", "22-23", "23-24"];
 
 const SurfaceWaterBodies = () => {
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(years.length - 1);
   const yearLabel = years[idx];
   const MainStore = useMainStore((s) => s);
 
@@ -28,7 +28,7 @@ const SurfaceWaterBodies = () => {
     return (sqMeters / 4047).toFixed(2);
   }, [MainStore.selectedResource]);
 
-  /* chart data + “hasData” flag */
+  /* chart data + "hasData" flag */
   const { chartData, hasData } = useMemo(() => {
     const safe = (k) => Number(MainStore.selectedResource?.[k] ?? 0);
     const dataArr = [
@@ -62,7 +62,7 @@ const SurfaceWaterBodies = () => {
       </div>
 
       <div className="px-4 max-w-3xl mx-auto">
-        {/* chart or “no data” banner */}
+        {/* chart or "no data" banner */}
         <div className="relative h-72 sm:h-96 flex items-center justify-center">
           {hasData ? (
             <Bar
@@ -120,15 +120,16 @@ const SurfaceWaterBodies = () => {
           </div>
         </div>
 
-        {/* acreage circle */}
+        {/* acreage chip */}
         <div className="flex justify-center mt-8">
-          <div className="w-32 h-32 rounded-full bg-sky-500 flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-lg text-center leading-tight">
-              {acreage}
-              <br />
-              acres
-            </span>
-          </div>
+            <div className="rounded-xl bg-[#f8fafc] border border-gray-200 py-2 px-6 text-center shadow-sm">
+                <div className="text-xs tracking-wide text-gray-500 mb-1">
+                    {t("Area")}
+                </div>
+                <div className="text-lg font-bold">
+                    {acreage} acres
+                </div>
+            </div>
         </div>
 
         {/* paragraph */}

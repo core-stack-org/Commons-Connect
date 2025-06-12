@@ -1,9 +1,16 @@
 {
     "Mohanpur" : "Mohanpur",
+    "Precipitation" : "Precipitations",
 
     "select_plan" : "Select a plan first!",
     "change_info_1" : "Select any Language from the List",
     "change_info_2" : "Language updated successfully",
+
+    "Precipitation" : "Precipitation (mm)",
+    "ET" : "Evapotranspiration (mm)",
+    "RunOff" : "Runoff (mm)",
+    "DeltaG" : "Change in Groundwater (mm)",
+    "WellDepth" : "Well Depth (m)",
 
     "info_main_1" : "Select a plan.",
     "info_main_2" : "Mark settlements and resource ownership and usage under the Resource Mapping tab.",
@@ -16,8 +23,8 @@
     "info_social_1" : "This is a critical step to map out different settlements in the area, their socio-economic status, and which resources such as well and water bodies and crop-lands are they dependent on. Follow the tour to provide this information in a step-by-step manner.",
 
     "info_gw_1" : "This screen helps user track groundwater changes over the past five years and find areas in need of groundwater recharge structures.",
-    "info_gw_2" : "Under “analyse” the user can see  how the groundwater levels have gone up or down.",
-    "info_gw_3" : "Under “start planning” tab the user can start planning the recharge structure based on a color-coded CLART map showing recharge feasibility and user can  also find out  what kind of treatment is needed  for High ,Moderate and low  groundwater recharge structures and also  areas suitable for regeneration.",
+    "info_gw_2" : "Under analyse the user can see  how the groundwater levels have gone up or down.",
+    "info_gw_3" : "Under start planning tab the user can start planning the recharge structure based on a color-coded CLART map showing recharge feasibility and user can  also find out  what kind of treatment is needed  for High ,Moderate and low  groundwater recharge structures and also  areas suitable for regeneration.",
 
     "info_wb_1" : "This screen helps user to understand the spread of surface water bodies such as rivers, lakes and reservoirs to understand variations in surface water bodies and based on the observations recorded analysis of water presence in the water bodies, the user can propose the need/demand for  farm pond repair, check dam repair, canal repair and trench cum bunds to be repaired.",
     "info_wb_2" : "Please select 'Water bodies' to visualize all the waterbodies identified through remote sensing. Please then click on any water body  to further analyse and propose maintenance.",
@@ -45,6 +52,7 @@
     "instruct_gw": "You can use the slider on the top to move across different years.",
     "yearly": "Yearly",
     "fortnightly": "Fortnightly",
+    "Fortnightly changes": "Fortnightly changes",
 
     "swb_heading": "Water Bodies Analysis",
     "info_swb_modal_1" : "This shows the area of the water body where water was present during the Kharif season coinciding with the monsoons, the area during Rabi season post-monsoon, and the area during the Zaid summer season. Water Bodies that were filling up earlier but are lately not filling up may need some repair work like desilting or cleaning up of inlet channels to collect runoff. You can use the slider to move across different years.",

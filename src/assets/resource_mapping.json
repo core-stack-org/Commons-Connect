@@ -4,8 +4,8 @@
         "Settleme_1": "Settlement Name",
         "block_name": "Block Name",
         "number_hou": "Number of Houses",
-        "CASTE_1": "Largest Caste",
-        "CASTE_2": "Second Largert Caste",
+        "CASTE_1": "First Largest Caste",
+        "CASTE_2": "Second Largest Caste",
         "assets": "Type of Assets",
         "Settleme_2": "Settlement Type",
         "select_one": "Demands",
@@ -30,11 +30,13 @@
         "select_one": "Well Owned By",
         "well_id": "Well Id",
         "households": "Number of Houselhold Benefitted",
-        "beneficiar": "Beneficiary Settlement Name",
+        "Benefici_1": "Beneficiary Name",
+        "beneficiar" : "Beneficiary Settlement",
         "block_name": "Block Name",
         "select_mul": "Well used by Caste",
         "select_o_1": "Well Status",
-        "select_o_2": "Maintainence Required"
+        "select_o_2": "Maintainence Required",
+        "Well_condi" : "Temp"
     },
     "Waterbody" : {
         "identified": "Waterbody is identified through",

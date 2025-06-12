@@ -63,6 +63,7 @@ const useMainStore = create((set) => ({
     isGroundWater : false,
     isAgriculture : false,
     selectedMWSDrought : null,
+    selectWellDepthYear : '2018_23',
 
     setSettlementName : (stat) => set({settlementName : stat}),
     setMarkerPlaced : (stat) => set({isMarkerPlaced : stat}),
@@ -77,23 +78,18 @@ const useMainStore = create((set) => ({
     setIsGroundWater : (stat) => set({isGroundWater : stat}),
     setSelectedMwsDrought : (stat) => set({selectedMWSDrought : stat}),
     setIsAgriculture : (stat) => set({isAgriculture : stat}),
+    setSelectedWellDepthYear : (stat) => set({selectWellDepthYear : stat}),
 
     //? NREGA Hooks
     isNregaSheet : false,
     allNregaYears : [],
     selectNregaYears : [2018],
-    nregaWorks : [4],
+    nregaWorks : [],
     nregaStyle : {
         filter: ['in', ['get', 'workYear'], [2018]],
         'shape-points': 12,
         'shape-radius': 8,
-        'shape-fill-color': [
-          'match',
-          ['get', 'itemColor'],
-          4,
-          '#6495ED',
-          '#00000000'
-        ],
+        'shape-fill-color':'#00000000',
     },
 
     setNregaSheet : (stat) => set({isNregaSheet : stat}),

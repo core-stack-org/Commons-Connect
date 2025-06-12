@@ -25,16 +25,16 @@ ChartJS.register(
   Legend
 );
 
-/* → 1.  Years are now fixed                                      */
+/* → 1.  Years are now fixed */
 const YEAR_LABELS = ["2017", "2018", "2019", "2020", "2021", "2022"];
 
-/* pretty‑print */
+/* pretty-print */
 const fmt = (v, d = 0) =>
   v !== undefined
     ? Number(v).toLocaleString("en-IN", { maximumFractionDigits: d })
     : "—";
 
-const CAPSULE_KEYS = ["DeltaG", "Precipitation", "RunOff", "WellDepth"];
+const CAPSULE_KEYS = ["DeltaG", "Precipitation", "RunOff", "ET", "WellDepth"];
 
 const GroundwaterAnalyze = () => {
   const fortnightData = useMainStore((state) => state.fortnightData)
@@ -42,8 +42,8 @@ const GroundwaterAnalyze = () => {
   const { t } = useTranslation();
 
   /* slider index */
-  const [idx, setIdx] = useState(0);
-  const yearFour = YEAR_LABELS[idx]; // "2017" … "2022"
+  const [idx, setIdx] = useState(YEAR_LABELS.length - 1);
+  const yearFour = YEAR_LABELS[idx]; // "2017" … "2022"
 
   /* 2.  annual record for that year ----------------------------- */
   const annual = useMemo(() => {
@@ -89,19 +89,22 @@ const GroundwaterAnalyze = () => {
         type: "bar",
         label: `${t("Precipitation")} (mm)`,
         data: fort.prec,
-        backgroundColor: "#0284c7",
+        backgroundColor: "#413ea0",
         borderRadius: 3,
         yAxisID: "y",
+        order: 1,
+        barPercentage: 0.3,
       },
       {
         type: "line",
         label: `${t("RunOff")} (mm)`,
         data: fort.run,
-        borderColor: "#dc2626",
-        backgroundColor: "#dc262680",
+        borderColor: "#FF6EF4",
+        backgroundColor: "#FF6EF480",
         tension: 0.3,
-        fill: false,
+        fill: true,
         yAxisID: "y1",
+        order: 2,
       },
     ],
   };
@@ -126,8 +129,8 @@ const GroundwaterAnalyze = () => {
       {
         label: `${t("info_gw_header_4")} (mm)`,
         data: fort.gw,
-        borderColor: "#7e22ce",
-        backgroundColor: "#7e22ce55",
+        borderColor: "#9F502A",
+        backgroundColor: "#C59680",
         tension: 0.3,
         fill: true,
       },
@@ -144,6 +147,31 @@ const GroundwaterAnalyze = () => {
       <div className="p-4 max-w-6xl mx-auto space-y-8 mt-4">
         <h2 className="text-center font-extrabold text-gray-700 mb-3 text-sm">
             {t("info_gw_header_1")}
+        </h2>
+
+        {/* capsules */}
+        {hasAnnual ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {CAPSULE_KEYS.map((k) => (
+              <div
+                key={k}
+                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
+              >
+                <div className="text-xs tracking-wide text-gray-500 mb-1">
+                  {t(k)}
+                </div>
+                <div className="text-lg font-bold">{fmt(annual[k], 1)}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            {t("info_blank")} {yearFour}
+          </p>
+        )}
+
+        <h2 className="text-center font-bold text-gray-700 text-lg pt-4">
+          {t("Fortnightly changes")}
         </h2>
 
         {/* year slider */}
@@ -164,28 +192,8 @@ const GroundwaterAnalyze = () => {
                 ))}
             </div>
         </div>
-        {/* capsules */}
-        {hasAnnual ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {CAPSULE_KEYS.map((k) => (
-              <div
-                key={k}
-                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
-              >
-                <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
-                  {t(k)}
-                </div>
-                <div className="text-lg font-bold">{fmt(annual[k], 1)}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">
-            {t("info_blank")} {yearFour}
-          </p>
-        )}
 
-        {/* Precip + Run‑off chart */}
+        {/* Precip + Run-off chart */}
         <section>
           <h2 className="font-bold text-gray-700 mb-2">
             {t("info_gw_header_2")} ({yearFour})
@@ -204,7 +212,7 @@ const GroundwaterAnalyze = () => {
                       beginAtZero: true,
                       position: "right",
                       grid: { drawOnChartArea: false },
-                      ticks: { color: "#dc2626" },
+                      ticks: { color: "#FF6EF4" },
                     },
                     x: { ticks: { maxRotation: 45, minRotation: 45 } },
                   },
@@ -240,7 +248,7 @@ const GroundwaterAnalyze = () => {
           )}
         </section>
 
-        {/* Ground‑water area */}
+        {/* Ground-water area */}
         <section>
           <h2 className="font-bold text-gray-700 mb-2">{t("info_gw_header_4")} (G)</h2>
           {hasFort ? (
@@ -266,7 +274,7 @@ const GroundwaterAnalyze = () => {
         {/* explanation blocks remain unchanged … */}
         <section className="space-y-8 text-sm leading-relaxed text-gray-700 mt-8">
 
-        {/* 1.  Precipitation & Run‑off */}
+        {/* 1.  Precipitation & Run-off */}
         <div>
             <h3 className="font-bold mb-2">
               {t("info_gw_header_2")}
@@ -276,7 +284,7 @@ const GroundwaterAnalyze = () => {
             </p>
         </div>
 
-        {/* 2.  Ground‑water Storage */}
+        {/* 2.  Ground-water Storage */}
         <div>
             <h3 className="font-bold mb-2">
               {t("info_gw_header_3")}

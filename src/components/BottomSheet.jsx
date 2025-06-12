@@ -50,7 +50,28 @@ const Bottomsheet = () => {
         "SettlementLayer", 
         "WellLayer", "WaterStructure",
         "WorkAgri", "CLARTLayer", "LULCLayer"
-    ] 
+    ]
+    
+    const ResourceMetaKeys = {
+        "Bail" : "Livestock Census : Ox (बैल)",
+        "Cattle" : "Livestock Census : Cattle",
+        "Goats" : "Livestock Census : Goats",
+        "Piggery" : "Livestock Census : Piggery",
+        "Poultry" : "Livestock Census : Poultry",
+        "Sheep" : "Livestock Census : Sheep",
+        "big_farmers" : "Farmer Census : Big Farmers",
+        "landless_farmers" : "Farmer Census : Landless Farmers",
+        "marginal_farmers" : "Farmer Census : Marginal Farmers",
+        "medium_farmers" : "Farmer Census : Medium Farmers",
+        "small_farmers" : "Farmer Census : Small Farmers",
+        "select_one_Functional_Non_functional" : "Functional or not ?",
+        "select_one_well_used" : "Used for Irrigation or Drinking ?",
+        "select_one_well_used_other" : "Other usage",
+        "select_one_change_water_quality" : "Water Quality",
+        "select_one_maintenance" : "Requires Maintainence", 
+        "select_one_repairs_well" : "Type of Repair (if Maintainence required)",
+        "select_one_repairs_well_other" : "Other type of Repair"
+    }
 
     const layerStoreNameMapping = {
         "AdminBoundary" : "Admin Boundary",
@@ -381,56 +402,45 @@ const Bottomsheet = () => {
             <table className="w-full table-auto border-separate border-spacing-y-3">
             <tbody>
                 {MainStore.isResource && MainStore.selectedResource !== null &&
-                /* ↓ flatMap lets us return 1 … N rows for each top‑level key */
-                Object.keys(resourceDetails[MainStore.resourceType]).flatMap(
-                    (key) => {
-                    const rawValue = MainStore.selectedResource[key];
+                    Object.keys(resourceDetails[MainStore.resourceType]).flatMap(
+                        (key) => {
+                        let rawValue = MainStore.selectedResource[key];
 
-                    /* ---------- 1.  If the value is a nested object ---------- */
-                    if (
-                        rawValue &&
-                        typeof rawValue === "object" &&
-                        !Array.isArray(rawValue)
-                    ) {
-                        return Object.entries(rawValue).map(([subKey, subVal]) => {
-                        /* friendly label: use mapping if available, else prettify */
-                        const label =
-                            resourceDetails[MainStore.resourceType][subKey] ??
-                            subKey
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (c) => c.toUpperCase());
-
-                        return (
-                            <tr
-                            key={`${key}-${subKey}`}
-                            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                            >
-                            <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
-                                {label}
-                            </td>
-                            <td className="px-6 py-4 text-gray-600 break-words text-md">
-                                {subVal ?? "—"}
-                            </td>
-                            </tr>
-                        );
-                        });
-                    }
-
-                    /* ---------- 2.  Plain scalar value ---------- */
-                    return (
-                        <tr
-                        key={key}
-                        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                        >
-                        <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
-                            {resourceDetails[MainStore.resourceType][key]}
-                        </td>
-                        <td className="px-6 py-4 text-gray-600 break-words text-md">
-                            {rawValue ?? "—"}
-                        </td>
-                        </tr>
-                    );
-                    }
+                        if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
+                            const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
+                            const data = (new Function(`return (${jsonReady})`))();
+                            return Object.keys(data).map((key) => {
+                                return (
+                                    <tr
+                                    key={key}
+                                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                    >
+                                    <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
+                                        {ResourceMetaKeys[key]}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600 break-words text-md">
+                                        {data[key] ?? "—"}
+                                    </td>
+                                    </tr>
+                                );
+                            })
+                        }
+                        else{
+                            return (
+                                <tr
+                                key={key}
+                                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
+                                    {resourceDetails[MainStore.resourceType][key]}
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 break-words text-md">
+                                    {rawValue ?? "—"}
+                                </td>
+                                </tr>
+                            );
+                            }
+                        }
                 )}
             </tbody>
             </table>
@@ -441,31 +451,41 @@ const Bottomsheet = () => {
 
     const LayerStoreBody = (
         <>
-        <div className="sticky top-0 z-20 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-4">
-            Layers Store
+        <div className="sticky top-0 z-20 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
+            <div className="text-xl font-bold text-gray-800">Layers Store</div>
+            <div className="text-sm text-gray-600 font-normal mt-1">
+                {MainStore.currentScreen === 'Groundwater' ? 'Groundwater Layers' : 'Agriculture Layers'}
+            </div>
         </div>
-        {MainStore.currentScreen === 'Groundwater' && <div className="flex flex-wrap gap-3">
+        
+        {MainStore.currentScreen === 'Groundwater' && <div className="grid grid-cols-2 gap-4 p-1">
             {LayerStoreKeysGW.map((key) => (
             <button
                 key={key}
                 onClick={() => {
                     LayerStore[layerStoreFuncMapping[key]](!LayerStore[key])
                     MainStore.setLayerClicked(key)
-                    console.log("IN BOTTOM SHEET")
                 }}
-                className={`px-4 py-2 rounded-md shadow-sm text-sm transition-colors focus:outline-none
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
                 ${LayerStore[key]
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                 }
                 `}
             >
-                {layerStoreNameMapping[key]}
+                <div className="flex items-center justify-center space-x-2">
+                    {LayerStore[key] && (
+                        <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    )}
+                    <span className="text-center leading-tight">
+                        {layerStoreNameMapping[key]}
+                    </span>
+                </div>
             </button>
             ))}
         </div>}
-
-        {MainStore.currentScreen === 'Agriculture' && <div className="flex flex-wrap gap-3">
+    
+        {MainStore.currentScreen === 'Agriculture' && <div className="grid grid-cols-2 gap-4 p-1">
             {LayerStoreKeysAgri.map((key) => (
             <button
                 key={key}
@@ -474,18 +494,25 @@ const Bottomsheet = () => {
                     MainStore.setLayerClicked(key)
                     console.log("IN BOTTOM SHEET")
                 }}
-                className={`px-4 py-2 rounded-md shadow-sm text-sm transition-colors focus:outline-none
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
                 ${LayerStore[key]
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                 }
                 `}
             >
-                {layerStoreNameMapping[key]}
+                <div className="flex items-center justify-center space-x-2">
+                    {LayerStore[key] && (
+                        <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    )}
+                    <span className="text-center leading-tight">
+                        {layerStoreNameMapping[key]}
+                    </span>
+                </div>
             </button>
             ))}
         </div>}
-
+    
         </>
     )
 
@@ -496,9 +523,8 @@ const Bottomsheet = () => {
         MainStore.setNregaSheet(false)
 
         MainStore.setIsMetadata(false)
-        MainStore.setMetadata(null)
 
-        MainStore.setIsResource(true)
+        MainStore.setIsResource(false)
 
         MainStore.setIsWaterBody(false)
 
@@ -507,8 +533,6 @@ const Bottomsheet = () => {
 
 
         MainStore.setIsAgriculture(false)
-        MainStore.setSelectedMwsDrought(null)
-        MainStore.setSelectedResource(null)
 
         MainStore.setIsLayerStore(false)
 
@@ -552,7 +576,7 @@ const Bottomsheet = () => {
           default:
             return null;
         }
-      };
+    };
     
 
     return (

@@ -173,7 +173,7 @@ const InfoBox = () => {
                     <span>Moderate recharge</span>
                     </div>
                     <div className="flex items-center">
-                    <div className="w-6 h-6 rounded bg-purple-700 mr-3"></div>
+                    <div className="w-6 h-6 rounded bg-pink-700 mr-3"></div>
                     <span>Regeneration</span>
                     </div>
                     <div className="flex items-center">
@@ -336,7 +336,7 @@ const InfoBox = () => {
               : currentMenuOption === 'download dpr'
               ? 'Generate Pre-DPR'
               : 'Upload KML'
-            : t('Information Box')}
+            : t('Information')}
         </h2>
 
         {/* Close */}
@@ -814,6 +814,7 @@ const InfoBox = () => {
             )}
           </div>
         )}
+
       </div>
     </div>
   );
