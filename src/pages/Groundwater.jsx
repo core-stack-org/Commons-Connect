@@ -53,11 +53,9 @@ const Groundwater = () => {
       MainStore.setIsOpen(true)
     }
 
-    const handleToggle = () => {
-      if (!disabled) {
-        onChange(value === leftYear ? rightYear : leftYear);
-      }
-    };
+    const handleAssetInfo = () => {
+      MainStore.setIsOpen(true)
+    }
 
     const getPlanLabel = () => {
       const plan = MainStore.currentPlan?.plan ?? "Select Plan";
@@ -212,7 +210,7 @@ const Groundwater = () => {
                         {MainStore.isFeatureClicked ? 
                         <button
                             className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={() => handleAnalyze()}
+                            onClick={handleAssetInfo}
                             disabled={!MainStore.isMarkerPlaced}
                             style={{
                                 backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
