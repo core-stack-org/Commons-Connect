@@ -410,7 +410,6 @@ const Bottomsheet = () => {
                             const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
                             const data = (new Function(`return (${jsonReady})`))();
                             return Object.keys(data).map((key) => {
-                                //console.log(`${key} = ${data[key]}`)
                                 return (
                                     <tr
                                     key={key}
@@ -452,31 +451,41 @@ const Bottomsheet = () => {
 
     const LayerStoreBody = (
         <>
-        <div className="sticky top-0 z-20 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-4">
-            Layers Store
+        <div className="sticky top-0 z-20 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
+            <div className="text-xl font-bold text-gray-800">Layers Store</div>
+            <div className="text-sm text-gray-600 font-normal mt-1">
+                {MainStore.currentScreen === 'Groundwater' ? 'Groundwater Layers' : 'Agriculture Layers'}
+            </div>
         </div>
-        {MainStore.currentScreen === 'Groundwater' && <div className="flex flex-wrap gap-3">
+        
+        {MainStore.currentScreen === 'Groundwater' && <div className="grid grid-cols-2 gap-4 p-1">
             {LayerStoreKeysGW.map((key) => (
             <button
                 key={key}
                 onClick={() => {
                     LayerStore[layerStoreFuncMapping[key]](!LayerStore[key])
                     MainStore.setLayerClicked(key)
-                    console.log("IN BOTTOM SHEET")
                 }}
-                className={`px-4 py-2 rounded-md shadow-sm text-sm transition-colors focus:outline-none
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
                 ${LayerStore[key]
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                 }
                 `}
             >
-                {layerStoreNameMapping[key]}
+                <div className="flex items-center justify-center space-x-2">
+                    {LayerStore[key] && (
+                        <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    )}
+                    <span className="text-center leading-tight">
+                        {layerStoreNameMapping[key]}
+                    </span>
+                </div>
             </button>
             ))}
         </div>}
-
-        {MainStore.currentScreen === 'Agriculture' && <div className="flex flex-wrap gap-3">
+    
+        {MainStore.currentScreen === 'Agriculture' && <div className="grid grid-cols-2 gap-4 p-1">
             {LayerStoreKeysAgri.map((key) => (
             <button
                 key={key}
@@ -485,18 +494,25 @@ const Bottomsheet = () => {
                     MainStore.setLayerClicked(key)
                     console.log("IN BOTTOM SHEET")
                 }}
-                className={`px-4 py-2 rounded-md shadow-sm text-sm transition-colors focus:outline-none
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
                 ${LayerStore[key]
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                 }
                 `}
             >
-                {layerStoreNameMapping[key]}
+                <div className="flex items-center justify-center space-x-2">
+                    {LayerStore[key] && (
+                        <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    )}
+                    <span className="text-center leading-tight">
+                        {layerStoreNameMapping[key]}
+                    </span>
+                </div>
             </button>
             ))}
         </div>}
-
+    
         </>
     )
 
@@ -507,9 +523,8 @@ const Bottomsheet = () => {
         MainStore.setNregaSheet(false)
 
         MainStore.setIsMetadata(false)
-        MainStore.setMetadata(null)
 
-        MainStore.setIsResource(true)
+        MainStore.setIsResource(false)
 
         MainStore.setIsWaterBody(false)
 
@@ -518,8 +533,6 @@ const Bottomsheet = () => {
 
 
         MainStore.setIsAgriculture(false)
-        MainStore.setSelectedMwsDrought(null)
-        MainStore.setSelectedResource(null)
 
         MainStore.setIsLayerStore(false)
 
@@ -563,7 +576,7 @@ const Bottomsheet = () => {
           default:
             return null;
         }
-      };
+    };
     
 
     return (

@@ -44,7 +44,7 @@ export default async function getWebglVectorLayers (layer_store, layer_name, set
         'stroke-width': 2,
       }
     }
-    else if(layer_store === "water_bodies"){
+    else if(layer_store === "swb"){
       style = {
         'stroke-color': '#21618c',
         'stroke-width': 3,

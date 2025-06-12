@@ -336,7 +336,7 @@ const InfoBox = () => {
               : currentMenuOption === 'download dpr'
               ? 'Generate Pre-DPR'
               : 'Upload KML'
-            : t('Information Box')}
+            : t('Information')}
         </h2>
 
         {/* Close */}
@@ -814,6 +814,7 @@ const InfoBox = () => {
             )}
           </div>
         )}
+
       </div>
     </div>
   );

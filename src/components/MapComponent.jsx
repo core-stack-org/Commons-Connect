@@ -9,7 +9,6 @@ import getImageLayer from "../action/getImageLayer.js";
 //* OpenLayers imports
 import "ol/ol.css";
 import { easeOut } from 'ol/easing';
-import { getCenter } from 'ol/extent';
 import XYZ from "ol/source/XYZ";
 import TileLayer from "ol/layer/Tile";
 import Control from 'ol/control/Control.js';
@@ -24,14 +23,15 @@ import VectorSource from "ol/source/Vector.js";
 
 import settlementIcon from "../assets/settlement_icon.svg"
 import LargeWaterBody from "../assets/waterbodiesScreenIcon.svg"
+import RechargeIcon from "../assets/recharge_icon.svg"
 import selectedSettlementIcon from "../assets/selected_settlement.svg"
 import iconsDetails from "../assets/icons.json"
 import mapMarker from "../assets/map_marker.svg"
 import farm_pond_proposed from "../assets/farm_pond_proposed.svg"
 import land_leveling_proposed from "../assets/land_leveling_proposed.svg"
 import well_mrker from "../assets/well_proposed.svg"
-import Man_icon from "../assets/Man_icon.png"
 import livelihoodIcons from "../assets/livelihood_proposed.svg"
+import Man_icon from "../assets/Man_icon.png"
 
 const MapComponent = () => {
     const mapElement = useRef(null);
@@ -44,6 +44,7 @@ const MapComponent = () => {
     const ClartLayerRef = useRef(null)
     const WaterbodiesLayerRef = useRef(null)
     const PositionFeatureRef = useRef(null)
+    const GeolocationRef = useRef(null)
     
     const tempSettlementFeature = useRef(null)
     const tempSettlementLayer = useRef(null)
@@ -148,6 +149,25 @@ const MapComponent = () => {
             loadTilesWhileInteracting: true,
         });
 
+        // Setup geolocation
+        const geolocation = new Geolocation({
+            trackingOptions: {
+              enableHighAccuracy: true,
+            },
+            projection: view.getProjection(),
+        });
+
+        GeolocationRef.current = geolocation
+        
+        GeolocationRef.current.on("change", function () {
+            const coordinates = GeolocationRef.current.getPosition();
+            if (coordinates) {
+              MainStore.setGpsLocation(coordinates);
+            }
+        });
+
+        GeolocationRef.current.setTracking(true);
+
         mapRef.current = map;
     };
 
@@ -219,6 +239,11 @@ const MapComponent = () => {
                                 setIsLoading(false);
                             }
                         }, 50);
+                        view.animate({
+                            zoom: 13, 
+                            duration: 600,
+                            easing: easeOut,
+                        });
                     }
                 });
             });
@@ -452,17 +477,17 @@ const MapComponent = () => {
         });
 
         GroundWaterWorkLayer.setStyle(function (feature) {
-            const status = feature.values_;
-            if(status.work_type in iconsDetails.Recharge_Icons){
+            // const status = feature.values_;
+            // if(status.work_type in iconsDetails.Recharge_Icons){
+            //     return new Style({
+            //         image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+            //     })
+            // }
+            // else{
                 return new Style({
-                    image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+                    image: new Icon({ src: RechargeIcon }),
                 })
-            }
-            else{
-                return new Style({
-                    image: new Icon({ src: LargeWaterBody }),
-                })
-            }
+            //}
         });
 
         livelihoodLayer.setStyle(
@@ -681,17 +706,17 @@ const MapComponent = () => {
                 true
             )
             GroundWaterWorkLayer.setStyle(function (feature) {
-                const status = feature.values_;
-                if(status.work_type in iconsDetails.Recharge_Icons){
+                // const status = feature.values_;
+                // if(status.work_type in iconsDetails.Recharge_Icons){
+                //     return new Style({
+                //         image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+                //     })
+                // }
+                // else{
                     return new Style({
-                        image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
+                        image: new Icon({ src: RechargeIcon }),
                     })
-                }
-                else{
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
+                //}
             });
 
             mapRef.current.removeLayer(groundwaterRefs[2].current)
@@ -764,6 +789,18 @@ const MapComponent = () => {
             mapRef.current.addLayer(assetsLayerRefs[currentStep].current)
             if(currentStep > 0){
                 tempSettlementLayer.current.setVisible(true)
+            }
+            if(currentStep === 2){
+                if(WaterbodiesLayerRef.current === null){
+                    const waterBodyLayers = await getWebglVectorLayers(
+                        "swb",
+                        `surface_waterbodies_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                        true,
+                        true
+                    );
+                    WaterbodiesLayerRef.current = waterBodyLayers
+                }
+                mapRef.current.addLayer(WaterbodiesLayerRef.current)
             }
         }
 
@@ -977,7 +1014,7 @@ const MapComponent = () => {
 
             if(WaterbodiesLayerRef.current === null && currentStep === 0){
                 const waterBodyLayers = await getWebglVectorLayers(
-                    "water_bodies",
+                    "swb",
                     `surface_waterbodies_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
                     true,
                     true
@@ -1107,6 +1144,7 @@ const MapComponent = () => {
     }
 
     useEffect(() => {
+
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
           // Create position feature with icon
           const positionFeature = new Feature();
@@ -1123,43 +1161,32 @@ const MapComponent = () => {
           // Store reference to position feature
           PositionFeatureRef.current = positionFeature;
       
-          // Setup geolocation
-          const geolocation = new Geolocation({
-            trackingOptions: {
-              enableHighAccuracy: true,
-            },
-            projection: viewRef.current.getProjection(),
-          });
-      
           // Handle position changes
-          geolocation.on("change", function () {
-            const coordinates = geolocation.getPosition();
+          GeolocationRef.current.on("change", function () {
+            const coordinates = GeolocationRef.current.getPosition();
             if (coordinates) {
               MainStore.setGpsLocation(coordinates);
-              
-              // Animate to new position with smooth pan
-              const view = mapRef.current.getView();
-              
-              // First pan to location
-              view.animate({
-                center: coordinates,
-                duration: 1000,
-                easing: easeOut
-              });
-              
-              // Then zoom in to level 17 with animation
-              view.animate({
-                zoom: 17,
-                duration: 1200,
-                easing: easeOut
-              });
               
               positionFeature.setGeometry(new Point(coordinates));
             }
           });
-      
-          // Start tracking
-          geolocation.setTracking(true);
+        // Animate to new position with smooth pan
+        const view = mapRef.current.getView();
+        
+        // First pan to location
+        view.animate({
+          center: MainStore.gpsLocation,
+          duration: 1000,
+          easing: easeOut
+        });
+        
+        // Then zoom in to level 17 with animation
+        view.animate({
+          zoom: 17,
+          duration: 1200,
+          easing: easeOut
+        });
+        positionFeature.setGeometry(new Point(MainStore.gpsLocation));
       
           // Create GPS layer
           let gpsLayer = new VectorLayer({
@@ -1172,7 +1199,7 @@ const MapComponent = () => {
           
           // Store cleanup references
           return () => {
-            geolocation.setTracking(false);
+            GeolocationRef.current.setTracking(false);
             mapRef.current.removeLayer(gpsLayer);
             PositionFeatureRef.current = null;
           };
@@ -1231,7 +1258,6 @@ const MapComponent = () => {
     },[MainStore.lulcYearIdx])
 
     useEffect(() => {
-
         async function applyNregaStyle(){
             if(NregaWorkLayerRef.current !== null){
                 console.log(MainStore.nregaStyle)
@@ -1321,6 +1347,53 @@ const MapComponent = () => {
            }
 
     },[LayersStore])
+
+    useEffect(() => {
+        if(groundwaterRefs[0].current !== null){
+            if(MainStore.selectWellDepthYear === '2017_22'){
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor
+    
+                    if(status.Net2017_22 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -5 && status.Net2017_22 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -1 && status.Net2017_22 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+    
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                });
+            }
+            else{
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor
+    
+                    if(status.Net2018_23 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -5 && status.Net2018_23 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -1 && status.Net2018_23 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+    
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                });
+            }
+        }
+    },[MainStore.selectWellDepthYear])
 
     return (
         <div className="relative h-full w-full">
