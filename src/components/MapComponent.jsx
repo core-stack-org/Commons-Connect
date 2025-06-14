@@ -149,12 +149,18 @@ const MapComponent = () => {
             loadTilesWhileInteracting: true,
         });
 
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => {
-                MainStore.setGpsLocation([coords.longitude, coords.latitude]);
-            },
-            (err) => console.error('Geo error:', err)
-        );
+
+        try{
+            navigator.geolocation.getCurrentPosition(
+                ({ coords }) => {
+                    MainStore.setGpsLocation([coords.longitude, coords.latitude]);
+                },
+                (err) => console.error('Geo error:', err)
+            );
+        }
+        catch(e){
+            console.log(e)
+        }
 
         mapRef.current = map;
     };
@@ -1222,20 +1228,6 @@ const MapComponent = () => {
     useEffect(() => {
         if (mapRef.current !== null) {
             let Temp_coords = null
-
-            navigator.geolocation.getCurrentPosition(
-                ({ coords }) => {
-                    Temp_coords = [coords.longitude, coords.latitude];
-                    console.log(typeof(coords.latitude))
-                },
-                (err) => console.error('Geo error:', err)
-            );
-
-            console.log(Temp_coords)
-            MainStore.setGpsLocation(Temp_coords)
-
-            // Create position feature with icon
-            console.log(MainStore.gpsLocation)
             
             const positionFeature = new Feature();
             
@@ -1251,9 +1243,20 @@ const MapComponent = () => {
             
             // Store reference to position feature
             PositionFeatureRef.current = positionFeature;
-        
-            positionFeature.setGeometry(new Point(Temp_coords));
-      
+
+            navigator.geolocation.getCurrentPosition(
+                ({ coords }) => {
+                    Temp_coords = [coords.longitude, coords.latitude];
+                    positionFeature.setGeometry(new Point([coords.longitude, coords.latitude]));
+                },
+                (err) => console.error('Geo error:', err)
+            );
+
+            MainStore.setGpsLocation(Temp_coords)
+
+            // Create position feature with icon
+            console.log(MainStore.gpsLocation)
+
             // Create GPS layer
             let gpsLayer = new VectorLayer({
                     map: mapRef.current,

@@ -22,10 +22,10 @@ const SurfaceWaterBodies = () => {
 
   const { t } = useTranslation();
 
-  /* acreage (area_ored m² → acres) */
+  /* acreage (area_ored hectares → acres) */
   const acreage = useMemo(() => {
-    const sqMeters = Number(MainStore.selectedResource?.area_ored ?? 0);
-    return (sqMeters / 4047).toFixed(2);
+    const hectare = Number(MainStore.selectedResource?.area_ored ?? 0);
+    return (hectare * 2.47105).toFixed(2);
   }, [MainStore.selectedResource]);
 
   /* chart data + "hasData" flag */

@@ -28,7 +28,7 @@ const Livelihood = () => {
 
     const toggleFormsUrl = () =>{
 
-        let gpsCoords = MainStore.gpsLocation
+      let gpsCoords = MainStore.gpsLocation
 
       if(gpsCoords === null){
         navigator.geolocation.getCurrentPosition(
