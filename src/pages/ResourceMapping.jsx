@@ -59,23 +59,14 @@ const ResourceMapping = () => {
             (err) => console.error('Geo error:', err)
           );
         }catch(e){
-          const geolocation = new Geolocation({
-            trackingOptions: {
-              enableHighAccuracy: true,
+          navigator.geolocation.getCurrentPosition(
+            ( coords ) => {
+              gpsCoords = [coords.longitude, coords.latitude];
             },
-            projection: view.getProjection(),
-          });
-          
-      
-            geolocation.on("change", function () {
-              const coordinates = geolocation.getPosition();
-              if (coordinates) {
-                gpsCoords = coordinates;
-              }
-          });
-        
-          geolocation.setTracking(true);
+            (err) => console.error('Geo error:', err)
+          );
         }
+        MainStore.setGpsLocation(gpsCoords)
       }
 
       if(MainStore.markerCoords){

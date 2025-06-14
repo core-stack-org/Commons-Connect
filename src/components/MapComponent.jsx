@@ -158,23 +158,12 @@ const MapComponent = () => {
             );
         }
         catch(e){
-            const geolocation = new Geolocation({
-                trackingOptions: {
-                    enableHighAccuracy: true,
+            navigator.geolocation.getCurrentPosition(
+                ( coords ) => {
+                    MainStore.setGpsLocation([coords.longitude, coords.latitude]);
                 },
-                projection: view.getProjection(),
-            });
-          
-            GeolocationRef.current = geolocation;
-
-            GeolocationRef.current.on("change", function () {
-                const coordinates = GeolocationRef.current.getPosition();
-                if (coordinates) {
-                    Temp_coords = coordinates;
-                }
-            });
-          
-            GeolocationRef.current.setTracking(true);
+                (err) => console.error('Geo error:', err)
+            );
         }
 
         mapRef.current = map;
@@ -1153,11 +1142,9 @@ const MapComponent = () => {
     }
 
     useEffect(() => {
-        
-
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
             
-            let Temp_coords = null
+            let Temp_coords = []
 
             try{
                 navigator.geolocation.getCurrentPosition(
@@ -1167,25 +1154,12 @@ const MapComponent = () => {
                     (err) => console.error('Geo error:', err)
                 );
             }catch(e){
-                if(GeolocationRef.current === null){
-                    const geolocation = new Geolocation({
-                        trackingOptions: {
-                        enableHighAccuracy: true,
-                        },
-                        projection: view.getProjection(),
-                    });
-              
-                    GeolocationRef.current = geolocation;
-                }
-              
-                GeolocationRef.current.on("change", function () {
-                    const coordinates = GeolocationRef.current.getPosition();
-                    if (coordinates) {
-                        Temp_coords = coordinates;
-                    }
-                });
-              
-                GeolocationRef.current.setTracking(true);
+                navigator.geolocation.getCurrentPosition(
+                    ( coords ) => {
+                        Temp_coords = [coords.longitude, coords.latitude];
+                    },
+                    (err) => console.error('Geo error:', err)
+                );
             }
 
             console.log(Temp_coords)
