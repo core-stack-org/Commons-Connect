@@ -28,6 +28,16 @@ const Agriculture = () => {
   
 
   const toggleFormsUrl = (toggle) => {
+    let gpsCoords = MainStore.gpsLocation
+
+      if(gpsCoords === null){
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            gpsCoords = [coords.longitude, coords.latitude];
+          },
+          (err) => console.error('Geo error:', err)
+      );
+      }
     if (MainStore.markerCoords) {
       MainStore.setIsForm(true);
       MainStore.setFormUrl(
@@ -41,21 +51,10 @@ const Agriculture = () => {
           MainStore.currentPlan.plan_id,
           MainStore.currentPlan.plan,
           "",
-          toggle
+          toggle,
+          gpsCoords
         )
       );
-      console.log(getOdkUrlForScreen(
-        MainStore.currentScreen,
-        MainStore.currentStep,
-        MainStore.markerCoords,
-        "",
-        "",
-        MainStore.blockName,
-        MainStore.currentPlan.plan_id,
-        MainStore.currentPlan.plan,
-        "",
-        toggle
-      ))
       MainStore.setIsOpen(true);
     }
   };
