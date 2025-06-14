@@ -179,7 +179,6 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => {
-                //MainStore.setIsGPSClick(true)
                 withLoading(toggleFormsUrl)
               }}
               disabled={!MainStore.isMarkerPlaced}
