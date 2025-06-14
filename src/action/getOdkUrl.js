@@ -1,5 +1,9 @@
 export default function getOdkUrlForScreen(screen, step, latlong, settlement_name, settlement_id, block_name, plan_id, plan_name, crop_id, maintain = false, userLatLong){
 
+    if(userLatLong === null){
+        userLatLong = [0,0]
+    }
+
     let odk_url = ""
     plan_name = encodeURIComponent(plan_name.toLowerCase());
 
