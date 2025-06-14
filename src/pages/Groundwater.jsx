@@ -57,7 +57,7 @@ const Groundwater = () => {
                 timeout: 5000,            
                 maximumAge: 0             
               };
-            navigator.geolocation.getCurrentPosition(
+            window.navigator.geolocation.getCurrentPosition(
                 ({ coords }) => {
                   gpsCoords = [coords.longitude, coords.latitude];
                 },

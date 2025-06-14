@@ -149,7 +149,6 @@ const MapComponent = () => {
             loadTilesWhileInteracting: true,
         });
 
-
         try{
             navigator.geolocation.getCurrentPosition(
                 ({ coords }) => {
@@ -1138,11 +1137,12 @@ const MapComponent = () => {
     }
 
     useEffect(() => {
+        
 
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
             
             let Temp_coords = null
-            
+
             try{
                 navigator.geolocation.getCurrentPosition(
                     ({ coords }) => {
@@ -1156,7 +1156,7 @@ const MapComponent = () => {
                     timeout: 5000,            
                     maximumAge: 0             
                   };
-                navigator.geolocation.getCurrentPosition(
+                  window.navigator.geolocation.getCurrentPosition(
                     ({ coords }) => {
                         Temp_coords = [coords.longitude, coords.latitude];
                     },
