@@ -14,14 +14,29 @@ const SurfaceWaterBodies = () => {
     const toggleFormsUrl = () =>{
         let gpsCoords = MainStore.gpsLocation
 
-      if(gpsCoords === null){
-        navigator.geolocation.getCurrentPosition(
-          ({ coords }) => {
-            gpsCoords = [coords.longitude, coords.latitude];
-          },
-          (err) => console.error('Geo error:', err)
-      );
-      }
+        if(gpsCoords === null){
+            try{
+              navigator.geolocation.getCurrentPosition(
+                ({ coords }) => {
+                  gpsCoords = [coords.longitude, coords.latitude];
+                },
+                (err) => console.error('Geo error:', err)
+              );
+            }catch(e){
+                const options = {
+                    enableHighAccuracy: true, 
+                    timeout: 5000,            
+                    maximumAge: 0             
+                  };
+                navigator.geolocation.getCurrentPosition(
+                    ({ coords }) => {
+                      gpsCoords = [coords.longitude, coords.latitude];
+                    },
+                    (err) => setError(err.message),
+                    options
+                );
+            }
+          }
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
           MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", false, gpsCoords))

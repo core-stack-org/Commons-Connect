@@ -1142,14 +1142,28 @@ const MapComponent = () => {
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
             
             let Temp_coords = null
-
-            navigator.geolocation.getCurrentPosition(
-                ({ coords }) => {
-                    Temp_coords = [coords.longitude, coords.latitude];
-                    console.log(typeof(coords.latitude))
-                },
-                (err) => console.error('Geo error:', err)
-            );
+            
+            try{
+                navigator.geolocation.getCurrentPosition(
+                    ({ coords }) => {
+                        Temp_coords = [coords.longitude, coords.latitude];
+                    },
+                    (err) => console.error('Geo error:', err)
+                );
+            }catch(e){
+                const options = {
+                    enableHighAccuracy: true, 
+                    timeout: 5000,            
+                    maximumAge: 0             
+                  };
+                navigator.geolocation.getCurrentPosition(
+                    ({ coords }) => {
+                        Temp_coords = [coords.longitude, coords.latitude];
+                    },
+                    (err) => setError(err.message),
+                    options
+                );
+            }
 
             console.log(Temp_coords)
             MainStore.setGpsLocation(Temp_coords)
