@@ -41,9 +41,19 @@ const Groundwater = () => {
     },[MainStore.currentStep])
 
     const toggleFormsUrl = (toggle) =>{
+      let gpsCoords = MainStore.gpsLocation
+
+      if(gpsCoords === null){
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            gpsCoords = [coords.longitude, coords.latitude];
+          },
+          (err) => console.error('Geo error:', err)
+      );
+      }
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
-          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle))
+          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle, gpsCoords))
           MainStore.setIsOpen(true)
         }
     }
