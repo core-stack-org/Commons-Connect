@@ -158,7 +158,23 @@ const MapComponent = () => {
             );
         }
         catch(e){
-            console.log(e)
+            const geolocation = new Geolocation({
+                trackingOptions: {
+                    enableHighAccuracy: true,
+                },
+                projection: view.getProjection(),
+            });
+          
+            GeolocationRef.current = geolocation;
+
+            GeolocationRef.current.on("change", function () {
+                const coordinates = GeolocationRef.current.getPosition();
+                if (coordinates) {
+                    Temp_coords = coordinates;
+                }
+            });
+          
+            GeolocationRef.current.setTracking(true);
         }
 
         mapRef.current = map;
@@ -1151,18 +1167,25 @@ const MapComponent = () => {
                     (err) => console.error('Geo error:', err)
                 );
             }catch(e){
-                const options = {
-                    enableHighAccuracy: true, 
-                    timeout: 5000,            
-                    maximumAge: 0             
-                  };
-                  window.navigator.geolocation.getCurrentPosition(
-                    ({ coords }) => {
-                        Temp_coords = [coords.longitude, coords.latitude];
-                    },
-                    (err) => setError(err.message),
-                    options
-                );
+                if(GeolocationRef.current === null){
+                    const geolocation = new Geolocation({
+                        trackingOptions: {
+                        enableHighAccuracy: true,
+                        },
+                        projection: view.getProjection(),
+                    });
+              
+                    GeolocationRef.current = geolocation;
+                }
+              
+                GeolocationRef.current.on("change", function () {
+                    const coordinates = GeolocationRef.current.getPosition();
+                    if (coordinates) {
+                        Temp_coords = coordinates;
+                    }
+                });
+              
+                GeolocationRef.current.setTracking(true);
             }
 
             console.log(Temp_coords)

@@ -59,18 +59,22 @@ const ResourceMapping = () => {
             (err) => console.error('Geo error:', err)
           );
         }catch(e){
-            const options = {
-                enableHighAccuracy: true, 
-                timeout: 5000,            
-                maximumAge: 0             
-              };
-            window.navigator.geolocation.getCurrentPosition(
-                ({ coords }) => {
-                  gpsCoords = [coords.longitude, coords.latitude];
-                },
-                (err) => setError(err.message),
-                options
-            );
+          const geolocation = new Geolocation({
+            trackingOptions: {
+              enableHighAccuracy: true,
+            },
+            projection: view.getProjection(),
+          });
+          
+      
+            geolocation.on("change", function () {
+              const coordinates = geolocation.getPosition();
+              if (coordinates) {
+                gpsCoords = coordinates;
+              }
+          });
+        
+          geolocation.setTracking(true);
         }
       }
 
