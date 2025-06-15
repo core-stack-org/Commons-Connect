@@ -1172,30 +1172,31 @@ const MapComponent = () => {
           // Store reference to position feature
           PositionFeatureRef.current = positionFeature;
           
-          let tempCoords = null
-          
-          try{
-                navigator.geolocation.getCurrentPosition(
-                    ({ coords }) => {
-                        tempCoords = [coords.longitude, coords.latitude]
-                        MainStore.setGpsLocation(tempCoords);
-                    },
-                    (err) => console.error('Geo error:', err)
-                );
+          let tempCoords = MainStore.gpsLocation
+          if(tempCoords === null){
+            try{
+                    navigator.geolocation.getCurrentPosition(
+                        ({ coords }) => {
+                            tempCoords = [coords.longitude, coords.latitude]
+                            MainStore.setGpsLocation(tempCoords);
+                        },
+                        (err) => console.error('Geo error:', err)
+                    );
 
-                if(tempCoords === null){
-                    throw new Error('User Location missing');
+                    if(tempCoords === null){
+                        throw new Error('User Location missing');
+                    }
+                }catch(err){
+                // Handle position changes
+                    GeolocationRef.current.on("change:position", function () {
+                            const coordinates = GeolocationRef.current.getPosition();
+                            if (coordinates) {
+                            MainStore.setGpsLocation(coordinates);
+                            
+                            positionFeature.setGeometry(new Point(coordinates));
+                        }
+                    });
                 }
-            }catch(err){
-            // Handle position changes
-                GeolocationRef.current.on("change:position", function () {
-                    const coordinates = GeolocationRef.current.getPosition();
-                    if (coordinates) {
-                    MainStore.setGpsLocation(coordinates);
-                    
-                    positionFeature.setGeometry(new Point(coordinates));
-                }
-            });
             }
         // Animate to new position with smooth pan
         const view = mapRef.current.getView();
