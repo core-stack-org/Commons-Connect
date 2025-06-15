@@ -70,30 +70,6 @@ const ResourceMapping = () => {
           }
         }catch(e){
           console.log("In the catch ")
-          // navigator.geolocation.getCurrentPosition(
-          //   ( coords ) => {
-          //     gpsCoords = [coords.longitude, coords.latitude];
-          //     toast.success(coords)
-          //   }
-          // );
-          // const geolocation = new Geolocation({
-          //   trackingOptions: {
-          //     enableHighAccuracy: true,
-          //   },
-          //   projection: view.getProjection(),
-          // });
-
-          // geolocation.on("change", function () {
-          //     const coordinates = geolocation.getPosition();
-          //     console.log(coordinates)
-          //     if (coordinates) {
-          //       tempCoords = coordinates
-          //       MainStore.setGpsLocation(coordinates);
-          //       console.log(coordinates)
-          //     }
-          // });
-
-          //geolocation.setTracking(true);
         }
         MainStore.setGpsLocation(gpsCoords)
       }
