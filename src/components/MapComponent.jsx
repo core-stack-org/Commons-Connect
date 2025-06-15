@@ -1189,15 +1189,7 @@ const MapComponent = () => {
                 //     },
                 //     (err) => console.error('Geo1 error:', err)
                 // );
-                const geolocation = new Geolocation({
-                    trackingOptions: {
-                      enableHighAccuracy: true,
-                    },
-                    projection: view.getProjection(),
-                });
-    
-                GeolocationRef.current = geolocation
-    
+
                 GeolocationRef.current.on("change", function () {
                     const coordinates = GeolocationRef.current.getPosition();
                     console.log(coordinates)
