@@ -149,21 +149,47 @@ const MapComponent = () => {
             loadTilesWhileInteracting: true,
         });
 
+        let tempCoords = null
+
         try{
             navigator.geolocation.getCurrentPosition(
                 ({ coords }) => {
-                    MainStore.setGpsLocation([coords.longitude, coords.latitude]);
+                    tempCoords = [coords.longitude, coords.latitude]
+                    MainStore.setGpsLocation(tempCoords);
                 },
                 (err) => console.error('Geo error:', err)
             );
+
+            if(tempCoords === null){
+                throw new Error('User Location missing');
+            }
         }
         catch(e){
-            navigator.geolocation.getCurrentPosition(
-                ( coords ) => {
-                    MainStore.setGpsLocation([coords.longitude, coords.latitude]);
+            // navigator.geolocation.getCurrentPosition(
+            //     ( coords ) => {
+            //         MainStore.setGpsLocation([coords.longitude, coords.latitude]);
+            //     },
+            //     (err) => console.error('Geo1 error:', err)
+            // );
+            const geolocation = new Geolocation({
+                trackingOptions: {
+                  enableHighAccuracy: true,
                 },
-                (err) => console.error('Geo1 error:', err)
-            );
+                projection: view.getProjection(),
+            });
+
+            GeolocationRef.current = geolocation
+
+            GeolocationRef.current.on("change", function () {
+                const coordinates = GeolocationRef.current.getPosition();
+                console.log(coordinates)
+                if (coordinates) {
+                  tempCoords = coordinates
+                  MainStore.setGpsLocation(coordinates);
+                }
+            });
+
+            GeolocationRef.current.setTracking(true);
         }
 
         mapRef.current = map;
@@ -1144,7 +1170,7 @@ const MapComponent = () => {
     useEffect(() => {
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
             
-            let Temp_coords = []
+            let Temp_coords = null
 
             try{
                 navigator.geolocation.getCurrentPosition(
@@ -1153,13 +1179,34 @@ const MapComponent = () => {
                     },
                     (err) => console.error('Geo error:', err)
                 );
+                if(Temp_coords === null){
+                    throw new Error('User Location missing');
+                }
             }catch(e){
-                navigator.geolocation.getCurrentPosition(
-                    ( coords ) => {
-                        Temp_coords = [coords.longitude, coords.latitude];
+                // navigator.geolocation.getCurrentPosition(
+                //     ( coords ) => {
+                //         Temp_coords = [coords.longitude, coords.latitude];
+                //     },
+                //     (err) => console.error('Geo1 error:', err)
+                // );
+                const geolocation = new Geolocation({
+                    trackingOptions: {
+                      enableHighAccuracy: true,
                     },
-                    (err) => console.error('Geo1 error:', err)
-                );
+                    projection: view.getProjection(),
+                });
+    
+                GeolocationRef.current = geolocation
+    
+                GeolocationRef.current.on("change", function () {
+                    const coordinates = GeolocationRef.current.getPosition();
+                    console.log(coordinates)
+                    if (coordinates) {
+                        Temp_coords = coordinates
+                      MainStore.setGpsLocation(coordinates);
+                    }
+                });
+                GeolocationRef.current.setTracking(true);
             }
 
             console.log(Temp_coords)
