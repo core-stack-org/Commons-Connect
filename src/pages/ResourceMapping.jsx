@@ -1,23 +1,10 @@
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
 import toast from 'react-hot-toast';
-
-const requestPosition = (opts) =>
-  new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation not supported'));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => resolve([coords.longitude, coords.latitude]),
-      reject,
-      opts
-    );
-  });
 
 const ResourceMapping = () => {
 
@@ -60,68 +47,46 @@ const ResourceMapping = () => {
 
     },[MainStore.currentStep])
 
-    const toggleFormsUrl = useCallback(async () => {
-      let gpsCoords = MainStore.gpsLocation;
-  
-      // ────── 1. Obtain GPS if we don't have it yet ──────
-      if (!gpsCoords) {
-        try {
-          // first try: accurate, longer timeout
-          gpsCoords = await requestPosition({
-            enableHighAccuracy: true,
-            timeout: 20_000,
-            maximumAge: 0,
-          });
-          toast.success('Location acquired!');
-        } catch (err) {
-          if (err.code === 2) {
-            // POSITION_UNAVAILABLE → retry with coarse settings
-            try {
-              gpsCoords = await requestPosition({
-                enableHighAccuracy: false,
-                timeout: 10_000,
-                maximumAge: 600_000,
-              });
-              toast.info('Using coarse location.');
-            } catch (err2) {
-              console.error('Geo error (retry):', err2);
-              toast.error('Could not determine your location.');
+    const toggleFormsUrl = () =>{
+      
+      let gpsCoords = MainStore.gpsLocation
+
+      if(gpsCoords === null){
+        try{
+          let flg = false
+          navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+              gpsCoords = [coords.longitude, coords.latitude];
+              toast.success("in geolocation")
+            },
+            (err) => {
+              console.log("In first err : ", err)
             }
-          } else if (err.code === 1) {
-            toast.error('Please allow location access in your browser.');
-          } else {
-            toast.error(err.message);
+          );
+          toast.error("In the try ")
+          if(gpsCoords === null){
+            throw new Error('User object missing');
           }
+        }catch(e){
+          console.log("In the catch ")
+          navigator.geolocation.getCurrentPosition(
+            ( coords ) => {
+              gpsCoords = [coords.longitude, coords.latitude];
+              toast.success(coords)
+            }
+          );
         }
-  
-        if (gpsCoords) {
-          MainStore.setGpsLocation(gpsCoords);
-        }
+        MainStore.setGpsLocation(gpsCoords)
       }
-  
-      // ────── 2. Build URL & open form if a marker is selected ──────
-      if (MainStore.markerCoords) {
-        MainStore.setIsForm(true);
-  
-        MainStore.setFormUrl(
-          getOdkUrlForScreen(
-            MainStore.currentScreen,
-            MainStore.currentStep,
-            MainStore.markerCoords,
-            MainStore.settlementName,
-            '',
-            MainStore.blockName,
-            MainStore.currentPlan.plan_id,
-            MainStore.currentPlan.plan,
-            MainStore.selectedResource?.id,
-            false,
-            gpsCoords // may still be undefined if location failed
-          )
-        );
-  
-        MainStore.setIsOpen(true);
+
+      if(MainStore.markerCoords){
+        MainStore.setIsForm(true)
+
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource?.id, false, gpsCoords))
+        
+        MainStore.setIsOpen(true)
       }
-    }, []);
+    }
 
     // Wrapper to handle async actions with loading state
     const withLoading = async (action) => {

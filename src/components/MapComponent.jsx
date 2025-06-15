@@ -162,7 +162,7 @@ const MapComponent = () => {
                 ( coords ) => {
                     MainStore.setGpsLocation([coords.longitude, coords.latitude]);
                 },
-                (err) => console.error('Geo error:', err)
+                (err) => console.error('Geo1 error:', err)
             );
         }
 
@@ -1158,7 +1158,7 @@ const MapComponent = () => {
                     ( coords ) => {
                         Temp_coords = [coords.longitude, coords.latitude];
                     },
-                    (err) => console.error('Geo error:', err)
+                    (err) => console.error('Geo1 error:', err)
                 );
             }
 
