@@ -35,7 +35,6 @@ const Agriculture = () => {
         navigator.geolocation.getCurrentPosition(
           ({ coords }) => {
             gpsCoords = [coords.longitude, coords.latitude];
-            toast.success("in geolocation")
           },
           (err) => {
             console.log("In first err : ", err)
