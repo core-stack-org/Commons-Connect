@@ -49,7 +49,7 @@ export default async function getWebglVectorLayers (layer_store, layer_name, set
       style = {
         'stroke-color': '#21618c',
         'stroke-width': 3,
-        'fill-color' : "rgba(33, 97, 140, 0.5)"
+        'fill-color' : "rgba(76, 171, 235, 0.7)"
       }
     }
     else if(layer_store === "cropping_intensity"){

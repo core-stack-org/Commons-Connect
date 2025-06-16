@@ -32,11 +32,18 @@ const Homepage = () => {
     const getPlanLabel = () => {
       const plan = MainStore.currentPlan?.plan ?? t("Select Plan");
     
+      // Helper function to capitalize each word
+      const capitalizeWords = (str) => {
+        return str.split(' ').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
+      };
+    
       const words = plan.trim().split(/\s+/);
       if (words.length > 15) {
-        return words.slice(0, 15).join(' ') + '…';
+        return capitalizeWords(words.slice(0, 15).join(' ') + '…');
       }
-      return plan;
+      return capitalizeWords(plan);
     };
 
     const handleNregaSheet = () => {
@@ -86,7 +93,7 @@ const Homepage = () => {
               className="pointer-events-auto p-2"
               onClick={() => setIsSideMenuOpen(true)}
             >
-              {/* simple SVG “hamburger” icon */}
+              {/* simple SVG "hamburger" icon */}
               <svg
                 className="h-10 w-10 text-white"
                 xmlns="http://www.w3.org/2000/svg"
@@ -197,7 +204,9 @@ const Homepage = () => {
                         MainStore.setCurrentPlan(plan)
                         }}
                     >
-                        {plan.plan}
+                        {plan.plan.split(' ').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                        ).join(' ')}
                     </button>
                     ))}
                 </div>

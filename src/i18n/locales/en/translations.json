@@ -38,7 +38,7 @@
 
     "info_liveli_1" : "The other Non-NRM work requirements are captured under the livelihood section.",
 
-    "info_blank": "No annual data for",
+    "info_blank": "No annual data found for the selected year",
 
     "gw_heading": "GroundWater Analysis",
     "info_gw_header_1": "Change in Groundwater table over the years",
