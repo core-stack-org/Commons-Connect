@@ -63,7 +63,7 @@ const useMainStore = create((set) => ({
     isGroundWater : false,
     isAgriculture : false,
     selectedMWSDrought : null,
-    selectWellDepthYear : '2018_23',
+    selectWellDepthYear : '2017_22',
 
     setSettlementName : (stat) => set({settlementName : stat}),
     setMarkerPlaced : (stat) => set({isMarkerPlaced : stat}),

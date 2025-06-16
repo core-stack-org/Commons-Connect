@@ -81,7 +81,7 @@ const Floater = () => {
         const lon = formatCoordinate(coords[0]);
 
         const baseContent = {
-            title: t("Marked Location"),
+            title: t("Pin Location"),
             lat: lat,
             lon: lon
         };
@@ -131,7 +131,6 @@ const Floater = () => {
     };
 
     const handlecopy = () => {
-        console.log("Reached here !")
         if (navigator.clipboard?.writeText) {
             navigator.clipboard.writeText(MainStore.markerCoords).then(
                 () => toast.success("Copied ✔︎"),
@@ -158,11 +157,10 @@ const Floater = () => {
         >
             {/* Main floater content with glassy effect */}
             <div 
-                className={`bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl shadow-black/20 transition-all duration-300 ease-out relative overflow-hidden pointer-events-auto ${
+                className={`bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl shadow-black/20 transition-all duration-300 ease-out relative overflow-hidden pointer-events-auto w-full ${
                     isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                 }`}
                 style={{
-                    width: `21em`,
                     transformOrigin: 'top left'
                 }}
             >
