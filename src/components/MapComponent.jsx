@@ -1019,7 +1019,7 @@ const MapComponent = () => {
 
             if(WaterbodiesLayerRef.current === null && currentStep === 0){
                 const waterBodyLayers = await getWebglVectorLayers(
-                    "water_bodies",
+                    "swb",
                     `surface_waterbodies_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
                     true,
                     true
@@ -1319,6 +1319,47 @@ const MapComponent = () => {
         }
 
     },[MainStore.isSubmissionSuccess])
+
+    useEffect(() => {
+        if(groundwaterRefs[0].current !== null){
+            groundwaterRefs[0].current.setStyle(function (feature) {
+                const status = feature.values_;
+                let tempColor
+
+                if(MainStore.selectWellDepthYear === '2018_23'){
+                    if(status.Net2018_23 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -5 && status.Net2018_23 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2018_23 >= -1 && status.Net2018_23 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                } else{
+                    if(status.Net2017_22 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -5 && status.Net2017_22 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                    else if(status.Net2017_22 >= -1 && status.Net2017_22 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                    else {tempColor = "rgba(0, 0, 255, 0.5)"}
+
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        })
+                    });
+                }
+            });
+        }
+    },[MainStore.selectWellDepthYear])
 
     useEffect(() => {
         const layerCollection = mapRef.current.getLayers();
