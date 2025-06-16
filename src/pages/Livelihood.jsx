@@ -1,5 +1,6 @@
 import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
+import Floater from "../components/Floater.jsx";
 
 const Livelihood = () => {
 
@@ -35,23 +36,19 @@ const Livelihood = () => {
           navigator.geolocation.getCurrentPosition(
             ({ coords }) => {
               gpsCoords = [coords.longitude, coords.latitude];
+              toast.success("in geolocation")
             },
-            (err) => console.error('Geo error:', err)
+            (err) => {
+              console.log("In first err : ", err)
+            }
           );
+          if(gpsCoords === null){
+            throw new Error('User object missing');
+          }
         }catch(e){
-            const options = {
-                enableHighAccuracy: true, 
-                timeout: 5000,            
-                maximumAge: 0             
-              };
-            window.navigator.geolocation.getCurrentPosition(
-                ({ coords }) => {
-                  gpsCoords = [coords.longitude, coords.latitude];
-                },
-                (err) => setError(err.message),
-                options
-            );
+          console.log("In the catch ")
         }
+        MainStore.setGpsLocation(gpsCoords)
       }
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
@@ -75,6 +72,9 @@ const Livelihood = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Floater component for marker information */}
+            <Floater />
 
             {/* 2. Top-left buttons */}
             <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
@@ -148,10 +148,10 @@ const Livelihood = () => {
                         onClick={() => withLoading(() =>{
                             MainStore.setCurrentStep(1)
                         })}
-                        disabled={!MainStore.isMarkerPlaced}
+                        disabled={!MainStore.isFeatureClicked}
                         style={{
-                            backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                            color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                            backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                            color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
                             border: 'none',
                         }}
                     >

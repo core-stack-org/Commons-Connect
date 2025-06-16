@@ -399,51 +399,47 @@ const Bottomsheet = () => {
         </div>
 
         <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
-            <table className="w-full table-auto border-separate border-spacing-y-3">
-            <tbody>
-                {MainStore.isResource && MainStore.selectedResource !== null &&
-                    Object.keys(resourceDetails[MainStore.resourceType]).flatMap(
-                        (key) => {
-                        let rawValue = MainStore.selectedResource[key];
+        <tbody>
+            {MainStore.isResource && MainStore.selectedResource !== null &&
+                Object.keys(resourceDetails[MainStore.resourceType]).flatMap(key => {
+                let rawValue = MainStore.selectedResource[key];
 
-                        if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
-                            const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
-                            const data = (new Function(`return (${jsonReady})`))();
-                            return Object.keys(data).map((key) => {
-                                return (
-                                    <tr
-                                    key={key}
-                                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                                    >
-                                    <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
-                                        {ResourceMetaKeys[key]}
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-600 break-words text-md">
-                                        {data[key] ?? "—"}
-                                    </td>
-                                    </tr>
-                                );
-                            })
-                        }
-                        else{
-                            return (
-                                <tr
-                                key={key}
-                                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                                >
-                                <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
-                                    {resourceDetails[MainStore.resourceType][key]}
-                                </td>
-                                <td className="px-6 py-4 text-gray-600 break-words text-md">
-                                    {rawValue ?? "—"}
-                                </td>
-                                </tr>
-                            );
-                            }
-                        }
-                )}
+                if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
+                    const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
+                    const data = (new Function(`return (${jsonReady})`))();
+
+                    return Object.keys(data).map(innerKey => (
+                    <tr
+                        key={innerKey}
+                        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                    >
+                        {/* ⬇️ add grey background to the leftmost cell */}
+                        <td className="px-6 py-4 font-bold text-gray-900 break-words text-md bg-gray-50 rounded-l-lg">
+                        {ResourceMetaKeys[innerKey]}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600 break-words text-md">
+                        {data[innerKey] ?? "—"}
+                        </td>
+                    </tr>
+                    ));
+                }
+
+                return (
+                    <tr
+                    key={key}
+                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                    >
+                    {/* ⬇️ same tweak here */}
+                    <td className="px-6 py-4 font-bold text-gray-900 break-words text-md bg-gray-50 rounded-l-lg">
+                        {resourceDetails[MainStore.resourceType][key]}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 break-words text-md">
+                        {rawValue ?? "—"}
+                    </td>
+                    </tr>
+                );
+                })}
             </tbody>
-            </table>
         </div>
         </>
 

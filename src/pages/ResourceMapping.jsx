@@ -5,7 +5,6 @@ import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
 import toast from 'react-hot-toast';
-import { Geolocation } from "ol";
 
 const ResourceMapping = () => {
 
@@ -54,7 +53,6 @@ const ResourceMapping = () => {
 
       if(gpsCoords === null){
         try{
-          let flg = false
           navigator.geolocation.getCurrentPosition(
             ({ coords }) => {
               gpsCoords = [coords.longitude, coords.latitude];
@@ -64,7 +62,6 @@ const ResourceMapping = () => {
               console.log("In first err : ", err)
             }
           );
-          toast.error("In the try ")
           if(gpsCoords === null){
             throw new Error('User object missing');
           }
@@ -306,7 +303,7 @@ const ResourceMapping = () => {
             </button>
             <button
               className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(() => navigate('/'))}
+              onClick={() => withLoading(() => navigate('/maps'))}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
               {t("Finish")}

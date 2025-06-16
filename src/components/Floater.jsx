@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import { useTranslation } from "react-i18next";
+import toast from 'react-hot-toast';
 
 const Floater = () => {
     const { t } = useTranslation();
@@ -28,8 +29,8 @@ const Floater = () => {
             const rightPadding = leftPadding;
             
             return {
-                top: rect.bottom + 4,
-                left: rect.left + 56,
+                top: rect.bottom + 8,
+                left: rect.left + 55,
                 width: screenWidth - rect.left - rightPadding
             };
         }
@@ -71,18 +72,6 @@ const Floater = () => {
         }
     }, [isVisible]);
 
-    // Auto-hide after a certain time (only if not pinned)
-    useEffect(() => {
-        // if (isVisible && isAnimating && !isPinned) {
-        //     const timer = setTimeout(() => {
-        //         setIsAnimating(false);
-        //         setTimeout(() => setIsVisible(false), 300);
-        //     }, 4000);
-
-        //     return () => clearTimeout(timer);
-        // }
-    }, [isVisible, isAnimating, isPinned]);
-
     // Determine what information to show based on the current state
     const getFloaterContent = () => {
         const coords = MainStore.markerCoords;
@@ -115,7 +104,7 @@ const Floater = () => {
                 const resourceName = MainStore.selectedResource.well_id ||
                                    MainStore.selectedResource.wb_id ||
                                    MainStore.selectedResource.name ||
-                                   MainStore.resourceType;
+                                   MainStore.selectedResource?.id;
 
                 currentResource = {
                     type: resourceTypeMap[MainStore.resourceType] || t("Selected Resource"),
@@ -141,8 +130,14 @@ const Floater = () => {
         setTimeout(() => setIsVisible(false), 300);
     };
 
-    const handlePin = () => {
-        setIsPinned(!isPinned);
+    const handlecopy = () => {
+        console.log("Reached here !")
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(MainStore.markerCoords).then(
+                () => toast.success("Copied ✔︎"),
+                () => toast.error("Failed ✖︎")
+            )
+        }
     };
 
     const content = getFloaterContent();
@@ -176,33 +171,21 @@ const Floater = () => {
                     {/* Header with buttons on the right */}
                     <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                            <div className="text-sm font-semibold text-white mb-1 drop-shadow-sm">
+                            <div className="text-md font-semibold text-white mb-1 drop-shadow-sm">
                                 {content.title}
                             </div>
-                            <div className="text-xs text-white/90 drop-shadow-sm">
+                            <div className="text-sm text-white/90 drop-shadow-sm">
                                 Lat: {content.lat} Lon: {content.lon}
                             </div>
                         </div>
                         
                         {/* Action buttons */}
-                        <div className="flex gap-2 ml-4">
+                        <div className="flex ml-4">
                             <button
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 backdrop-blur-sm ${
-                                    isPinned 
-                                        ? 'bg-white/40 text-white border border-white/50 shadow-md' 
-                                        : 'bg-white/20 text-white/80 border border-white/30 hover:bg-white/30'
-                                }`}
-                                onClick={handlePin}
-                                aria-label={isPinned ? "Unpin" : "Pin"}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 backdrop-blur-sm bg-white/40 text-white border border-white/50 shadow-md`} 
+                                onClick={handlecopy}
                             >
-                                📌
-                            </button>
-                            <button
-                                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white/80 hover:text-white text-lg leading-none flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/30"
-                                onClick={handleClose}
-                                aria-label="Close"
-                            >
-                                ×
+                                📋
                             </button>
                         </div>
                     </div>
@@ -212,8 +195,8 @@ const Floater = () => {
                         <div className="border-t border-white/30 pt-2 space-y-2">
                             {/* Persistent Settlement Info */}
                             {content.settlementInfo && (
-                                <div className="text-xs text-white/90 drop-shadow-sm">
-                                    <div className="font-medium text-white">
+                                <div className="text-sm text-white/90 drop-shadow-sm">
+                                    <div className="font-semibold text-white">
                                         {content.settlementInfo.type}: {content.settlementInfo.name}
                                     </div>
                                 </div>
@@ -221,7 +204,7 @@ const Floater = () => {
                             
                             {/* Current Resource Info */}
                             {content.currentResource && (
-                                <div className="text-xs text-white/90 drop-shadow-sm">
+                                <div className="text-sm text-white/90 drop-shadow-sm">
                                     <div className="font-medium text-white">
                                         {content.currentResource.type}: {content.currentResource.name}
                                     </div>

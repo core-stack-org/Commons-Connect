@@ -1,0 +1,437 @@
+{
+    "title": "Add Settlement Form",
+    "logoFit": "none",
+    "logoPosition": "right",
+    "completedHtml": "<h3>Resource has been Marked !!</h3>",
+    "loadingHtml": "<h3>Loading Form...</h3>",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "html",
+            "name": "question39",
+            "title": "Settlements ID",
+            "html": "  <span style=\"color: red;\">\n    To calculate the total days of work, add up the workdays provided to all households with job cards as recorded in the MGNREGA database\n  </span>"
+          },
+          {
+            "type": "text",
+            "name": "Settlements_id",
+            "title": "Settlements ID",
+            "readOnly": true
+          },
+          {
+            "type": "text",
+            "name": "Settlements_name",
+            "title": "Settlements name",
+            "isRequired": true
+          },
+          {
+            "type": "radiogroup",
+            "name": "select_one_type",
+            "title": "Settlement Type",
+            "choices": [
+              "Single Caste group",
+              "Mixed Caste group"
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "caste_group_single",
+            "visibleIf": "{select_one_type} = 'Single Caste group'",
+            "title": "Select the caste group",
+            "choices": [
+              "GC",
+              "SC",
+              "ST",
+              "OBC"
+            ]
+          },
+          {
+            "type": "checkbox",
+            "name": "caste_group_mixed",
+            "visibleIf": "{select_one_type} = 'Mixed Caste group'",
+            "title": "For which caste group are you filling the survey in the multi caste settlement ?",
+            "choices": [
+              "GC",
+              "SC",
+              "ST",
+              "OBC"
+            ]
+          },
+          {
+            "type": "text",
+            "name": "number_households",
+            "title": "How many households are there in this settlement ?",
+            "inputType": "number"
+          },
+          {
+            "type": "text",
+            "name": "BPL_households",
+            "title": "Total number of households with BPL cards in this settlement\n(Note : Cannot exceed the total number of households).",
+            "inputType": "number"
+          },
+          {
+            "type": "text",
+            "name": "distance_settlement_block",
+            "title": "Distance of the settlement from the block headquarters (in kilometers)",
+            "inputType": "number"
+          },
+          {
+            "type": "radiogroup",
+            "name": "road_connected",
+            "title": "Is the settlement connected by road throughout the year ?",
+            "choices": [
+              "Yes",
+              "No"
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "settlement_electricity",
+            "title": "Does the settlement have access to electricity ?",
+            "choices": [
+              "Yes",
+              "No"
+            ]
+          },
+          {
+            "type": "panel",
+            "name": "farmer_family",
+            "title": "Number of farmer families based on land ownership in this settlement",
+            "elements": [
+              {
+                "type": "text",
+                "name": "landless_farmers",
+                "title": "Landless farmers",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "marginal_farmers",
+                "title": "Marginal farmers(<2.5 acres)",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "small_farmers",
+                "title": "Small farmers(2.5 to 5 acres)",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "medium_farmers",
+                "title": "Medium farmers(5 to 10 acres)",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "big_farmers",
+                "title": "Big farmers(>10 acres)",
+                "inputType": "number"
+              }
+            ]
+          },
+          {
+            "type": "panel",
+            "name": "Livestock_Census",
+            "title": "Livestock Census in this settlement",
+            "elements": [
+              {
+                "type": "text",
+                "name": "Cattle",
+                "title": "Cattle",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "Goats",
+                "title": "Goats",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "Sheep",
+                "title": "Sheep",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "Poultry",
+                "title": "Poultry",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "Piggery",
+                "title": "Piggery",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "Bail",
+                "title": "Ox",
+                "inputType": "number"
+              }
+            ]
+          },
+          {
+            "type": "panel",
+            "name": "MNREGA_INFORMATION",
+            "title": "MGNREGA INFORMATION",
+            "elements": [
+              {
+                "type": "text",
+                "name": "NREGA_applied",
+                "title": "How many households have applied for NREGA Job cards in this settlement?",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "NREGA_have_job_card",
+                "title": "How many households have NREGA job cards in this settlement?",
+                "inputType": "number"
+              },
+              {
+                "type": "text",
+                "name": "NREGA_work_days",
+                "title": "How many days of work did households receive under NREGA in the previous year in this settlement?",
+                "inputType": "number"
+              },
+              {
+                "type": "html",
+                "name": "question2",
+                "title": "To calculate the total days of work, add up the workdays provided to all households with job cards as recorded in the MGNREGA database",
+                "html": " <span style=\"color: red;\">\n    To calculate the total days of work, add up the workdays provided to all households with job cards as recorded in the MGNREGA database\n  </span>"
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_demands",
+                "title": "Were the households involved in the demand planning and were demands put up for new NRM works in this settlement?",
+                "isRequired": true,
+                "choices": [
+                  "Yes, and many demands were fulfilled",
+                  "Yes, but most of demands were not met",
+                  "No, did not make demands"
+                ],
+                "otherText": "Other"
+              },
+              {
+                "type": "checkbox",
+                "name": "work_demands",
+                "visibleIf": "({select_one_demands} = 'Yes, and many demands were fulfilled') or ({select_one_demands} = 'Yes, but most of demands were not met')",
+                "title": "What kind of work demands did the settlement proposed in the past ?",
+                "isRequired": true,
+                "choices": [
+                  {
+                    "value": "Farm_pond",
+                    "text": "Farm pond"
+                  },
+                  "Canal",
+                  {
+                    "value": "Check_dam",
+                    "text": " Check dam"
+                  },
+                  {
+                    "value": "Percolation_tank",
+                    "text": "Percolation Tank"
+                  },
+                  {
+                    "value": "Earthern_gully_plugs",
+                    "text": "Earthern Gully plugs"
+                  },
+                  {
+                    "value": "Tree_plantations",
+                    "text": "Tree plantations"
+                  },
+                  {
+                    "value": "goat_and_cow_shelters",
+                    "text": "Goat and Cow shelters"
+                  },
+                  {
+                    "value": "Drainage_Soakage_channels",
+                    "text": "Drainage/ Soakage channels"
+                  },
+                  {
+                    "value": "Recharge_pits",
+                    "text": "Recharge pits"
+                  },
+                  {
+                    "value": "Sokage_pits",
+                    "text": "Sokage pits"
+                  },
+                  {
+                    "value": "Trench_cum_bund_network",
+                    "text": "Trench cum bund Network"
+                  },
+                  {
+                    "value": "Large_water_bodies",
+                    "text": "Large Water bodies"
+                  },
+                  {
+                    "value": "Irrigation_channel",
+                    "text": "Irrigation Channel"
+                  },
+                  {
+                    "value": "Continuous_contour_trenches",
+                    "text": "Continuous contour trenches (CCT)"
+                  },
+                  {
+                    "value": "Staggered_contour_trenches(SCT)",
+                    "text": "Staggered Contour trenches(SCT)"
+                  },
+                  {
+                    "value": "Water_absorption_trenches(WAT)",
+                    "text": "Water absorption trenches(WAT)"
+                  },
+                  {
+                    "value": "Rock_fill_dam",
+                    "text": "Rock fill Dam"
+                  },
+                  {
+                    "value": "Loose_boulder_structure",
+                    "text": "Loose Boulder Structure"
+                  },
+                  {
+                    "value": "Stone_bunding",
+                    "text": "Stone bunding"
+                  },
+                  {
+                    "value": "Diversion_drains",
+                    "text": " Diversion drains"
+                  },
+                  {
+                    "value": "Bunding",
+                    "text": " Bunding:Contour bunds/ graded bunds"
+                  },
+                  {
+                    "value": "Farm_bund",
+                    "text": "Farm bund"
+                  },
+                  "Well",
+                  {
+                    "value": "5%_Model",
+                    "text": "5% Model"
+                  },
+                  {
+                    "value": "30-40_Model",
+                    "text": "30-40 Model"
+                  },
+                  {
+                    "value": "other",
+                    "text": "Other"
+                  }
+                ],
+                "otherText": "Other"
+              },
+              {
+                "type": "text",
+                "name": "work_demands_other",
+                "visibleIf": "{work_demands} = ['other']",
+                "title": "Specify other.",
+                "isRequired": true
+              },
+              {
+                "type": "checkbox",
+                "name": "select_multiple_issues",
+                "title": "What are the three main issues with NREGA?",
+                "choices": [
+                  {
+                    "value": "Delayed_reimbursements_for_expenses_made",
+                    "text": " Delayed reimbursements for expenses made"
+                  },
+                  {
+                    "value": "finding_labour_for_NREGA",
+                    "text": "Finding labour for NREGA"
+                  },
+                  {
+                    "value": "demands_for_new_works_are_not_met",
+                    "text": "Demands for new works are not met"
+                  },
+                  {
+                    "value": "not_aware_of_NREGA_details_and_how_to_get_work",
+                    "text": "Not aware of NREGA details and how to get work"
+                  },
+                  {
+                    "value": "want_work_but_do_not_get_support_to_register_demands",
+                    "text": " Want work but do not get support to register demands"
+                  },
+                  {
+                    "value": "Mismatch_in_the_online_attendance_due_to_lack_of_internet_or_no_smart_phones",
+                    "text": " Mismatch in the online attendance due to lack of internet or no smart phones"
+                  }
+                ],
+                "showNoneItem": true,
+                "noneText": "Other",
+                "otherText": "Mismatch_in_the_online_attendance_due_to_lack_of_internet_or_no_smart_phones"
+              },
+              {
+                "type": "text",
+                "name": "select_multiple_issues_other",
+                "visibleIf": "{select_multiple_issues} = ['none']",
+                "title": "Specify other.",
+                "isRequired": true
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_contributions",
+                "title": "Is the community willing to come together collectively to raise the work demands such as water structures",
+                "isRequired": true,
+                "choices": [
+                  {
+                    "value": "yes,almost all",
+                    "text": " Yes, almost all"
+                  },
+                  {
+                    "value": "some",
+                    "text": "Some"
+                  },
+                  {
+                    "value": "Mostly none",
+                    "text": " Mostly none"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "multipletext",
+            "name": "GPS_point",
+            "title": "GPS point to be marked of the area",
+            "description": "Take a GPS point",
+            "isRequired": true,
+            "readOnly": true,
+            "items": [
+              {
+                "name": "latitude",
+                "title": "latitude (x.y °)"
+              },
+              {
+                "name": "longitude",
+                "title": "longitude (x.y °)"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "plan_id",
+            "title": "Plan Id",
+            "readOnly": true,
+            "inputType": "number"
+          },
+          {
+            "type": "text",
+            "name": "block_name",
+            "title": "Block name"
+          },
+          {
+            "type": "text",
+            "name": "plan_name",
+            "title": "Plan name",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "widthMode": "responsive"
+  }

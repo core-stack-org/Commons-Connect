@@ -162,11 +162,9 @@ const MapComponent = () => {
             );
 
             if(tempCoords === null){
-                toast.error("not able to get geolocation !")
                 throw new Error('User Location missing');
             }
         }catch(e){
-            toast.error("Initialize Geolocation Openlayer !")
             // Setup geolocation
             const geolocation = new Geolocation({
                 trackingOptions: {
@@ -179,8 +177,6 @@ const MapComponent = () => {
             
             GeolocationRef.current.on("change:position", function () {
                 const coordinates = GeolocationRef.current.getPosition();
-                console.log(coordinates)
-                toast.error(coordinates)
                 if (coordinates) {
                     MainStore.setGpsLocation(coordinates);
                 }
@@ -538,7 +534,6 @@ const MapComponent = () => {
         const TempSource = settlementLayer.getSource();
         TempSource.once('featuresloadend', () => {
             const feats = TempSource.getFeatures();
-            console.log(feats)
             if (feats.length) {
               zoomToFeature(feats[0]);
             }
@@ -587,7 +582,7 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
-            MainStore.setSettlementName(null)
+            //MainStore.setSettlementName(null)
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
@@ -1156,25 +1151,25 @@ const MapComponent = () => {
     useEffect(() => {
 
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
-          // Create position feature with icon
-          const positionFeature = new Feature();
+            // Create position feature with icon
+            const positionFeature = new Feature();
 
-          positionFeature.setStyle(new Style({
-            image: new Icon({
-              src: Man_icon,
-              scale: 0.8,
-              anchor: [0.5, 0.5],
-              anchorXUnits: 'fraction',
-              anchorYUnits: 'fraction',
-            }),
-          }));
-          
-          // Store reference to position feature
-          PositionFeatureRef.current = positionFeature;
-          
-          let tempCoords = MainStore.gpsLocation
-          if(tempCoords === null){
-            try{
+            positionFeature.setStyle(new Style({
+                image: new Icon({
+                    src: Man_icon,
+                    scale: 0.8,
+                    anchor: [0.5, 0.5],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+            }));
+            
+            // Store reference to position feature
+            PositionFeatureRef.current = positionFeature;
+            
+            let tempCoords = MainStore.gpsLocation
+            if(tempCoords === null){
+                try{
                     navigator.geolocation.getCurrentPosition(
                         ({ coords }) => {
                             tempCoords = [coords.longitude, coords.latitude]
@@ -1183,11 +1178,11 @@ const MapComponent = () => {
                         (err) => console.error('Geo error:', err)
                     );
 
-                    if(tempCoords === null){
-                        throw new Error('User Location missing');
-                    }
+                        if(tempCoords === null){
+                            throw new Error('User Location missing');
+                        }
                 }catch(err){
-                // Handle position changes
+                    // Handle position changes
                     GeolocationRef.current.on("change:position", function () {
                             const coordinates = GeolocationRef.current.getPosition();
                             if (coordinates) {
@@ -1198,70 +1193,70 @@ const MapComponent = () => {
                     });
                 }
             }
-        // Animate to new position with smooth pan
-        const view = mapRef.current.getView();
+            // Animate to new position with smooth pan
+            const view = mapRef.current.getView();
 
-        if(tempCoords === null){
-            toast.loading("Getting GPS !");
-            return
-        }
+            if(tempCoords === null){
+                toast("Getting GPS !");
+                return
+            }
+            
+            // First pan to location
+            view.animate({
+                center: tempCoords,
+                duration: 1000,
+                easing: easeOut
+            });
+            
+            // Then zoom in to level 17 with animation
+            view.animate({
+                zoom: 17,
+                duration: 1200,
+                easing: easeOut
+            });
+            
+            positionFeature.setGeometry(new Point(tempCoords));
         
-        // First pan to location
-        view.animate({
-          center: tempCoords,
-          duration: 1000,
-          easing: easeOut
-        });
-        
-        // Then zoom in to level 17 with animation
-        view.animate({
-          zoom: 17,
-          duration: 1200,
-          easing: easeOut
-        });
-        
-        positionFeature.setGeometry(new Point(tempCoords));
-      
-          // Create GPS layer
-          let gpsLayer = new VectorLayer({
-            map: mapRef.current,
-            source: new VectorSource({
-              features: [positionFeature],
-            }),
-            zIndex: 99 // Ensure it's on top
-          });
-          
-          // Store cleanup references
-          return () => {
-            GeolocationRef.current.setTracking(false);
-            mapRef.current.removeLayer(gpsLayer);
-            PositionFeatureRef.current = null;
-          };
+            // Create GPS layer
+            let gpsLayer = new VectorLayer({
+                    map: mapRef.current,
+                    source: new VectorSource({
+                    features: [positionFeature],
+                }),
+                zIndex: 99 // Ensure it's on top
+            });
+            
+            // Store cleanup references
+            return () => {
+                GeolocationRef.current.setTracking(false);
+                mapRef.current.removeLayer(gpsLayer);
+                PositionFeatureRef.current = null;
+            };
         }
         
         // Handle GPS button click to center on current location
         if (PositionFeatureRef.current !== null && MainStore.gpsLocation !== null && MainStore.isGPSClick) {
-          const view = mapRef.current.getView();
-            
-          if(MainStore.gpsLocation === null){
-            toast.error("Not able to get Location !");
-            return
-          }
+            const view = mapRef.current.getView();
+                
+            if(MainStore.gpsLocation === null){
+                toast.error("Not able to get Location !");
+                return
+            }
 
-          // Sequence of animations for smoother experience
-          // 1. First start panning
-          view.animate({
-            center: MainStore.gpsLocation,
-            duration: 800,
-            easing: easeOut
-          });
-          
-          // 2. Then always animate to zoom level 17 regardless of current zoom
-          view.animate({
-            zoom: 17,
-            duration: 1000,
-            easing: easeOut
-          });
+            // Sequence of animations for smoother experience
+            // 1. First start panning
+            view.animate({
+                center: MainStore.gpsLocation,
+                duration: 800,
+                easing: easeOut
+            });
+            
+            // 2. Then always animate to zoom level 17 regardless of current zoom
+            view.animate({
+                zoom: 17,
+                duration: 1000,
+                easing: easeOut
+            });
         }
     }, [MainStore.isGPSClick]);
 
@@ -1300,7 +1295,6 @@ const MapComponent = () => {
 
         async function applyNregaStyle(){
             if(NregaWorkLayerRef.current !== null){
-                console.log(MainStore.nregaStyle)
                 const nregaVectorSource = await NregaWorkLayerRef.current.getSource();
                 mapRef.current.removeLayer(NregaWorkLayerRef.current);
 

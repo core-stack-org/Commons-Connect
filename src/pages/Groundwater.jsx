@@ -48,23 +48,19 @@ const Groundwater = () => {
           navigator.geolocation.getCurrentPosition(
             ({ coords }) => {
               gpsCoords = [coords.longitude, coords.latitude];
+              toast.success("in geolocation")
             },
-            (err) => console.error('Geo error:', err)
+            (err) => {
+              console.log("In first err : ", err)
+            }
           );
+          if(gpsCoords === null){
+            throw new Error('User object missing');
+          }
         }catch(e){
-            const options = {
-                enableHighAccuracy: true, 
-                timeout: 5000,            
-                maximumAge: 0             
-              };
-            window.navigator.geolocation.getCurrentPosition(
-                ({ coords }) => {
-                  gpsCoords = [coords.longitude, coords.latitude];
-                },
-                (err) => setError(err.message),
-                options
-            );
+          console.log("In the catch ")
         }
+        MainStore.setGpsLocation(gpsCoords)
       }
       
       if(MainStore.markerCoords){
@@ -305,7 +301,7 @@ const Groundwater = () => {
                     {/* second row – 50 % wide & centered */}
                     <button
                       className="w-1/2 self-center px-4 py-3 rounded-xl shadow-sm text-sm"
-                      onClick={() => navigate('/')} 
+                      onClick={() => navigate('/maps')} 
                       style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                     >
                       {t("Finish")}

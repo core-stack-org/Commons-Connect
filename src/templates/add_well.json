@@ -1,0 +1,314 @@
+{
+    "title": "Add Well Form",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "well_id",
+            "title": "Well ID",
+            "isRequired": true,
+            "readOnly": true
+          },
+          {
+            "type": "text",
+            "name": "beneficiary_settlement",
+            "title": "Name of Beneficiary's Settlement",
+            "readOnly": true
+          },
+          {
+            "type": "text",
+            "name": "Beneficiary_name",
+            "title": "Beneficiary's name"
+          },
+          {
+            "type": "text",
+            "name": "Beneficiary_contact_number",
+            "title": "Beneficiary's contact number",
+            "validators": [
+              {
+                "type": "regex",
+                "text": "Enter a valid 10-digit mobile number",
+                "regex": "^(?:(?:\\\\+?91[\\\\-\\\\s]?)|0)?[6-9]\\\\d{9}$"
+              }
+            ],
+            "inputType": "tel"
+          },
+          {
+            "type": "text",
+            "name": "ben_father",
+            "title": "Beneficiary's father's name"
+          },
+          {
+            "type": "radiogroup",
+            "name": "select_one_well_type",
+            "title": "Well type :",
+            "choices": [
+              "Hand pump",
+              "Borewell",
+              "Open well",
+              {
+                "value": "other",
+                "text": "Other"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "select_one_well_type_other",
+            "visibleIf": "{select_one_well_type} = ['other']",
+            "title": "Specify other.",
+            "isRequired": true
+          },
+          {
+            "type": "radiogroup",
+            "name": "select_one_y_n",
+            "visibleIf": "{select_one_well_type} = 'Borewell'",
+            "title": "Is the bore well electrified",
+            "choices": [
+              "Yes",
+              "No"
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "select_one_owns",
+            "title": "Who owns the well ?",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "Public well",
+                "text": "Public Well"
+              },
+              "Privately owned",
+              "Shared amongst families",
+              "Don't know"
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "select_one_scheme",
+            "title": "Under which scheme were funds made available for the construction of this well in this settlement ?",
+            "choices": [
+              "MGNREGA",
+              "PM-KUSUM",
+              "PMGSY",
+              "NRLM",
+              "Self funded",
+              {
+                "value": "other",
+                "text": "Other"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "select_one_scheme_other",
+            "visibleIf": "{select_one_scheme} = 'other'",
+            "title": "Specify Other."
+          },
+          {
+            "type": "radiogroup",
+            "name": "select_one_year",
+            "title": "Until which month of the year is water available in the well, with July as the reference?",
+            "choices": [
+              "July",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "June"
+            ]
+          },
+          {
+            "type": "text",
+            "name": "households_benefited",
+            "title": "Total number of households benefited ?",
+            "inputType": "number"
+          },
+          {
+            "type": "checkbox",
+            "name": "select_multiple_caste_use",
+            "title": "Which caste groups use the well ?",
+            "choices": [
+              "GC",
+              "SC",
+              "ST",
+              "OBC"
+            ]
+          },
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                "type": "html",
+                "name": "question1",
+                "html": "<span style=\"color:#0047ab; font-weight:bold;\">\n  Well Usage\n</span>"
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_Functional_Non_functional",
+                "title": "Is the well funtional or non-functional?",
+                "choices": [
+                  "Functional",
+                  "Non functional"
+                ]
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_well_used",
+                "visibleIf": "{select_one_Functional_Non_functional} = 'Functional'",
+                "title": "Well used for",
+                "choices": [
+                  "Irrigation",
+                  "Drinking",
+                  "Both",
+                  "Other"
+                ]
+              },
+              {
+                "type": "text",
+                "name": "select_one_well_used_other",
+                "visibleIf": "{select_one_well_used} = 'Other'",
+                "title": "Specify Other"
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_water_structure_near_you",
+                "title": "Are there any rainwater harvesting or groundwater recharge structures (e.g., ponds, check dams) near your wells?",
+                "choices": [
+                  "Yes",
+                  "No"
+                ]
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_change_water_quality",
+                "title": "Have you observed any changes in the water quality (clarity, taste, color) in the past five years?",
+                "choices": [
+                  "Significant deterioration (e.g., murky, bad taste, discoloration)",
+                  "Minor deterioration (e.g., slight change in clarity or taste)",
+                  "No noticeable change",
+                  "Minor improvement (e.g., clearer water, better taste)",
+                  "Significant improvement (e.g., clear water, restored natural color and taste)"
+                ]
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_pollutants_groundwater",
+                "title": "Are there any noticeable pollutants or contamination in the groundwater?",
+                "choices": [
+                  "Yes, visible pollutants (e.g., oil slick)",
+                  "Yes, chemical contamination (e.g., unpleasant odor, unusual color)",
+                  "Yes, agricultural runoff (e.g., fertilizers, pesticides)",
+                  "No, no noticeable pollutants or contamination",
+                  "Unsure/Not sure"
+                ]
+              }
+            ]
+          },
+          {
+            "type": "panel",
+            "name": "panel2",
+            "elements": [
+              {
+                "type": "html",
+                "name": "question3",
+                "html": "<span style=\"color:#0047ab; font-weight:bold;\">\n  Well Condition\n</span>"
+              },
+              {
+                "type": "radiogroup",
+                "name": "select_one_maintenance",
+                "title": "Does the well require maintenance ?",
+                "choices": [
+                  "Yes",
+                  "No"
+                ]
+              },
+              {
+                "type": "checkbox",
+                "name": "select_one_repairs_well",
+                "visibleIf": "{select_one_maintenance} = 'Yes'",
+                "title": "Type of repairs in well",
+                "choices": [
+                  "Repairing cracks or damage to the surface seal around the well casing",
+                  "Well rehabilitation like Chemical treatment , removing material that clogs the Well",
+                  "Repairing handpumps or other pumping devices",
+                  "Constructing soil bunds around the well to prevent surface runoff",
+                  {
+                    "value": "Item 1",
+                    "text": "Other"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "name": "select_one_repairs_well_other",
+                "visibleIf": "{select_one_repairs_well} allof ['Item 1']",
+                "title": "Specify other.",
+                "isRequired": true
+              }
+            ]
+          },
+          {
+            "type": "imagepicker",
+            "name": "question14",
+            "title": "Photo of the area",
+            "imageFit": "cover"
+          },
+          {
+            "type": "comment",
+            "name": "text_record",
+            "title": "Record a message justifying the need for the maintainance recharge structure at this location"
+          },
+          {
+            "type": "multipletext",
+            "name": "GPS_point",
+            "title": "GPS point to be marked of the area",
+            "description": "Take a GPS point",
+            "isRequired": true,
+            "readOnly": true,
+            "items": [
+              {
+                "name": "latitude",
+                "title": "latitude (x.y °)"
+              },
+              {
+                "name": "longitude",
+                "title": "longitude (x.y °)"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "plan_id",
+            "title": "Plan Id",
+            "readOnly": true,
+            "inputType": "number"
+          },
+          {
+            "type": "text",
+            "name": "block_name",
+            "title": "Block name",
+            "readOnly": true
+          },
+          {
+            "type": "text",
+            "name": "plan_name",
+            "title": "Plan name",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "allowResizeComment": false,
+    "widthMode": "responsive"
+  }

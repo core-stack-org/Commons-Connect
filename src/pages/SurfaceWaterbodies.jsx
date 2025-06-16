@@ -19,24 +19,20 @@ const SurfaceWaterBodies = () => {
               navigator.geolocation.getCurrentPosition(
                 ({ coords }) => {
                   gpsCoords = [coords.longitude, coords.latitude];
+                  toast.success("in geolocation")
                 },
-                (err) => console.error('Geo error:', err)
+                (err) => {
+                  console.log("In first err : ", err)
+                }
               );
+              if(gpsCoords === null){
+                throw new Error('User object missing');
+              }
             }catch(e){
-                const options = {
-                    enableHighAccuracy: true, 
-                    timeout: 5000,            
-                    maximumAge: 0             
-                  };
-                window.navigator.geolocation.getCurrentPosition(
-                    ({ coords }) => {
-                      gpsCoords = [coords.longitude, coords.latitude];
-                    },
-                    (err) => setError(err.message),
-                    options
-                );
+              console.log("In the catch ")
             }
-          }
+            MainStore.setGpsLocation(gpsCoords)
+        }
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
           MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", false, gpsCoords))
