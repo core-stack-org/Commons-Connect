@@ -9,12 +9,19 @@ const Livelihood = () => {
     const getPlanLabel = () => {
         const plan = MainStore.currentPlan?.plan ?? "Select Plan";
       
+        // Helper function to capitalize each word
+        const capitalizeWords = (str) => {
+          return str.split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' ');
+        };
+      
         const words = plan.trim().split(/\s+/);
         if (words.length > 15) {
-          return words.slice(0, 15).join(' ') + '…';
+          return capitalizeWords(words.slice(0, 15).join(' ') + '…');
         }
-        return plan;
-    };
+        return capitalizeWords(plan);
+      };
 
     const withLoading = async (action) => {
         MainStore.setIsLoading(true);
