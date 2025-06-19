@@ -19,8 +19,16 @@ const Homepage = () => {
 
     useEffect(() => {
       if(MainStore.blockName === null){
-        MainStore.setDistrictName(searchParams.get('dist_name'));
-        MainStore.setBlockName(searchParams.get('block_name'));
+        const transformName = (name) => {
+          if (!name) return name;
+          return name
+            .replace(/\s*\(\s*/g, '_')  // Replace " (" with "_"
+            .replace(/\s*\)\s*/g, '')   // Remove ")"
+            .replace(/\s+/g, '_');      // Replace remaining spaces with "_"
+        };
+
+        MainStore.setDistrictName(transformName(searchParams.get('dist_name')));
+        MainStore.setBlockName(transformName(searchParams.get('block_name')));
         MainStore.setBlockId?.(searchParams.get('block_id'));
         MainStore.fetchPlans(`${import.meta.env.VITE_API_URL}get_plans/?block_id=${searchParams.get('block_id')}`)
       }
