@@ -28,8 +28,8 @@ const SurfaceWaterBodies = () => {
     return (hectare * 2.47105).toFixed(2);
   }, [MainStore.selectedResource]);
 
-  /* chart data + "hasData" flag */
-  const { chartData, hasData } = useMemo(() => {
+  /* chart data */
+  const chartData = useMemo(() => {
     const safe = (k) => Number(MainStore.selectedResource?.[k] ?? 0);
     const dataArr = [
       safe(`k_${yearLabel}`),
@@ -37,18 +37,15 @@ const SurfaceWaterBodies = () => {
       safe(`krz_${yearLabel}`),
     ];
     return {
-      chartData: {
-        labels: [`${t("Kharif")}`, `${t("Kharif‑Rabi")}`, `${t("Kharif‑Rabi‑Zaid")}`],
-        datasets: [
-          {
-            label: yearLabel,
-            backgroundColor: ["#E38627", "#C13C37", "#6A2135"],
-            borderRadius: 4,
-            data: dataArr,
-          },
-        ],
-      },
-      hasData: dataArr.some((v) => v > 0),
+      labels: [`${t("Kharif")}`, `${t("Kharif‑Rabi")}`, `${t("Kharif‑Rabi‑Zaid")}`],
+      datasets: [
+        {
+          label: yearLabel,
+          backgroundColor: ["#E38627", "#C13C37", "#6A2135"],
+          borderRadius: 4,
+          data: dataArr,
+        },
+      ],
     };
   }, [idx, MainStore.selectedResource, yearLabel]);
 
@@ -62,42 +59,36 @@ const SurfaceWaterBodies = () => {
       </div>
 
       <div className="px-4 max-w-3xl mx-auto">
-        {/* chart or "no data" banner */}
+        {/* chart */}
         <div className="relative h-72 sm:h-96 flex items-center justify-center">
-          {hasData ? (
-            <Bar
-              data={chartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false, labels: { font: boldFont } },
-                  tooltip: {
-                    mode: "index",
-                    intersect: false,
-                    titleFont: boldFont,
-                    bodyFont: boldFont,
+          <Bar
+            data={chartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false, labels: { font: boldFont } },
+                tooltip: {
+                  mode: "index",
+                  intersect: false,
+                  titleFont: boldFont,
+                  bodyFont: boldFont,
+                },
+              },
+              scales: {
+                x: { ticks: { font: boldFont } },
+                y: {
+                  beginAtZero: true,
+                  ticks: { stepSize: 25, font: boldFont },
+                  title: {
+                    display: true,
+                    text: "% area with water",
+                    font: boldFont,
                   },
                 },
-                scales: {
-                  x: { ticks: { font: boldFont } },
-                  y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 25, font: boldFont },
-                    title: {
-                      display: true,
-                      text: "% area with water",
-                      font: boldFont,
-                    },
-                  },
-                },
-              }}
-            />
-          ) : (
-            <span className="text-gray-500 font-bold text-lg">
-              {t("info_blank")}
-            </span>
-          )}
+              },
+            }}
+          />
         </div>
 
         {/* year slider */}
