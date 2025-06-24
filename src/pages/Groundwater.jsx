@@ -266,7 +266,12 @@ const Groundwater = () => {
                         <button
                             className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                             onClick={() => MainStore.setCurrentStep(1)}
-                            style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                            disabled={!MainStore.isFeatureClicked}
+                            style={{
+                              backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                              color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                              border: 'none',
+                            }}
                         >
                             {t("Start Planning")}
                         </button>
@@ -289,19 +294,32 @@ const Groundwater = () => {
                       >
                         {t("Propose Maintenance")}
                       </button>
-                  
-                      <button
-                        className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                        onClick={() => toggleFormsUrl(false)}
-                        style={{  
-                          backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                          color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
-                          border: 'none', 
-                        }}
-                        disabled={MainStore.isFeatureClicked}
-                      >
-                        {t("Build New Recharge Structure")}
-                      </button>
+                      
+                      {MainStore.isFeatureClicked ? <button
+                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                            onClick={handleAssetInfo}
+                            disabled={!MainStore.isMarkerPlaced}
+                            style={{
+                                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                                color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                border: 'none',
+                            }}
+                        >
+                            {t("Asset Info")}
+                        </button>  
+                        : 
+                        <button
+                          className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                          onClick={() => toggleFormsUrl(false)}
+                          style={{  
+                            backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                            color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                            border: 'none', 
+                          }}
+                          disabled={MainStore.isFeatureClicked}
+                        >
+                          {t("Build New Recharge Structure")}
+                        </button>}
                     </div>
                   
                     {/* second row – 50 % wide & centered */}
