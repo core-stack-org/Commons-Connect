@@ -64,7 +64,7 @@ const Groundwater = () => {
       
       if(MainStore.markerCoords){
         MainStore.setIsForm(true)
-        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle, gpsCoords))
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle, gpsCoords))
         MainStore.setIsOpen(true)
       }
     }
@@ -119,7 +119,8 @@ const Groundwater = () => {
                         border: 'none',
                         backdropFilter: 'none',
                     }}
-                    onClick={() => {}}
+                    onClick={() => {
+                      MainStore.setIsGPSClick(!MainStore.isGPSClick)}}
                     >
                     <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
                       <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />

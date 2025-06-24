@@ -1001,8 +1001,8 @@ const MapComponent = () => {
             mapRef.current.addLayer(groundwaterRefs[2].current)
             mapRef.current.addLayer(groundwaterRefs[currentStep].current)
             mapRef.current.addLayer(assetsLayerRefs[0].current)
-            mapRef.current.addLayer(assetsLayerRefs[2].current)
-            mapRef.current.addLayer(groundwaterRefs[3].current)
+            //mapRef.current.addLayer(assetsLayerRefs[2].current)
+            //mapRef.current.addLayer(groundwaterRefs[3].current)
 
             LayersStore.setAdminBoundary(true)
             LayersStore.setWellDepth(true)
@@ -1103,7 +1103,8 @@ const MapComponent = () => {
             mapRef.current.addLayer(LulcLayerRefs[0].current)
             mapRef.current.addLayer(AgriLayersRefs[0].current)
             mapRef.current.addLayer(AgriLayersRefs[1].current)
-            mapRef.current.addLayer(AgriLayersRefs[2].current)
+            //mapRef.current.addLayer(AgriLayersRefs[2].current)
+            mapRef.current.addLayer(assetsLayerRefs[0].current)
 
             LayersStore.setAdminBoundary(true)
             LayersStore.setLULCLayer(true)
