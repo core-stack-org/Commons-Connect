@@ -79,7 +79,8 @@ const SurfaceWaterBodies = () => {
                         border: 'none',
                         backdropFilter: 'none',
                     }}
-                    onClick={() => {}}
+                    onClick={() => {
+                        MainStore.setIsGPSClick(!MainStore.isGPSClick)}}
                     >
                         <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
                             <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />
