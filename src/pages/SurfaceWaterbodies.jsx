@@ -34,7 +34,7 @@ const SurfaceWaterBodies = () => {
         }
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
-          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", false, gpsCoords))
+          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", MainStore.isResource, gpsCoords))
           MainStore.setIsOpen(true)
         }
     }
@@ -151,10 +151,10 @@ const SurfaceWaterBodies = () => {
                         <button
                             className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                             onClick={toggleFormsUrl}
-                            disabled={!MainStore.isWaterbody}
+                            disabled={!MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource)}
                             style={{ 
-                                backgroundColor: !MainStore.isWaterbody ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isWaterbody ? '#A8A8A8' : '#592941',
+                                backgroundColor: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#696969' : '#D6D5C9',
+                                color: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#A8A8A8' : '#592941',
                                 border: 'none', 
                             }}
                         >

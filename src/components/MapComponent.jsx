@@ -832,8 +832,11 @@ const MapComponent = () => {
                 mapRef.current.addLayer(ClartLayerRef.current)
             }
             
+            if(currentStep === 0){
+                mapRef.current.addLayer(assetsLayerRefs[0].current)
+            }
+
             mapRef.current.addLayer(groundwaterRefs[1].current)
-            mapRef.current.addLayer(assetsLayerRefs[0].current)
             mapRef.current.addLayer(assetsLayerRefs[2].current)
 
             if(!LayersStore["CLARTLayer"] && layerCollection.getArray().some(layer => layer === ClartLayerRef.current)){
