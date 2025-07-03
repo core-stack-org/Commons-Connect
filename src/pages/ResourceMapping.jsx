@@ -36,8 +36,12 @@ const ResourceMapping = () => {
         }
       }
 
-      if(MainStore.currentStep > 1)
-        window.history.pushState(null, "", `#${STATE_MACHINE[MainStore.currentStep].Screen}`)
+      if(MainStore.currentStep > 0) {
+        const screen = STATE_MACHINE[MainStore.currentStep].Screen;
+        if (window.location.hash !== `#${screen}`) {
+          window.history.pushState(null, "", `#${screen}`)
+        }
+      }
 
       window.addEventListener("popstate", handleBackButton);
 
