@@ -249,7 +249,7 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={!MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
                 backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969',
                 color: '#592941',
@@ -273,7 +273,7 @@ const ResourceMapping = () => {
             <button
               className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={!MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
               style={{
                 backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969',
                 color: '#592941',
