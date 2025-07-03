@@ -255,10 +255,10 @@ const Agriculture = () => {
                 <button
                   className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                   onClick={() => MainStore.setCurrentStep(1)}
-                  disabled={!MainStore.isFeatureClicked}
+                  disabled={!MainStore.isMarkerPlaced}
                   style={{
-                    backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                    color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                     border: 'none'
                    }}
                 >
@@ -270,7 +270,7 @@ const Agriculture = () => {
         {MainStore.currentStep === 1 && (
           <div className="flex flex-col gap-4 w-full">
             <div className="flex gap-4 w-full">
-            {MainStore.isFeatureClicked ?
+            {/* {MainStore.isFeatureClicked ?
               <button
                   className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                   onClick={handleAssetInfo}
@@ -295,7 +295,19 @@ const Agriculture = () => {
               >
                 {t("Propose new Irrigation Work")}
               </button>
-              }
+              } */}
+              <button
+                className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                onClick={() => toggleFormsUrl(false)}
+                style={{  
+                  backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                  color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                  border: 'none', 
+                }}
+                disabled={MainStore.isFeatureClicked}
+              >
+                {t("Propose new Irrigation Work")}
+              </button>
 
               <button
                 className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
