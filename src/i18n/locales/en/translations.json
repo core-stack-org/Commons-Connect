@@ -30,6 +30,7 @@
     "info_wb_3" : "NOTE: The community resource person can add new waterbodies/wells by selecting the desired location in the selected hamlet.",
     "info_wb_4" : "Please select 'Analyze' tab to see health indicator of water bodies in terms of their % area having water; The graph helps user to assess the availability of water  in surface bodies and  identify the most vulnerable areas where waterbody health may be deteriorating.",
     "info_wb_5" : "By selecting 'Propose Maintenance' tab user can select the  type of maintenance on existing water body. ",
+    "swb_no_data" : "The data for this year is zero",
 
     "info_agri_1" : "This Screen helps user to understand changes in the land use pattern over the years and enable stakeholders in this region to be conscious about rapid development and changes taking place in the cropping intensity.",
     "info_agri_2" : "By selecting the 'Analyze tab' the user can examine changes in the cropping intensity.  user can see if  single cropping areas may have transitioned to double or triple cropping and vice versa. This helps user to  understand drought incidents in the area, allowing user to take appropriate actions based on observations.",
