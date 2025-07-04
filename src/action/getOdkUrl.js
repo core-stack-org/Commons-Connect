@@ -35,7 +35,7 @@ export default function getOdkUrlForScreen(screen, step, latlong, settlement_nam
     }
 
     else if(screen === "SurfaceWater" && maintain){
-        odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_PROVIDE_MAINTAIN}` + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/beneficiary_settlement]=" + settlement_name
+        odk_url = `https://odk.core-stack.org/-/single/6LuxBpV2ohTtxJSnFcwhGS399vAJwe0?st=jCR5wJ!ZjU5!yrQt0e7KoV9eOmvHgKiLwRIiL40IuoZ53yQ8VNH4yb!N7k0Of7Tp` + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/beneficiary_settlement]=" + settlement_name
     }
 
     else if(screen === "Agriculture" && !maintain){
