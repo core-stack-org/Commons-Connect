@@ -42,7 +42,7 @@
     "info_blank": "No annual data found for the selected year",
 
     "gw_heading": "GroundWater Analysis",
-    "info_gw_header_1": "Change in Groundwater table over the years",
+    "info_gw_header_1": "Change in Groundwater table in the year:",
     "info_gw_header_2": "Precipitation and RunOff",
     "info_gw_header_3": "Evapotranspiration",
     "info_gw_header_4": "Groundwater",

@@ -146,7 +146,7 @@ const GroundwaterAnalyze = () => {
 
       <div className="p-4 max-w-6xl mx-auto space-y-8 mt-4">
         <h2 className="text-center font-extrabold text-gray-700 mb-3 text-sm">
-            {t("info_gw_header_1")}
+            {t("info_gw_header_1")} {yearFour}
         </h2>
 
         {/* capsules */}
@@ -176,21 +176,63 @@ const GroundwaterAnalyze = () => {
 
         {/* year slider */}
         <div className="w-3/4 max-w-lg mx-auto">
+            {/* Year marks above slider */}
+            <div className="relative mb-2">
+                <div className="flex justify-between relative">
+                    {YEAR_LABELS.map((year, index) => (
+                        <div key={year} className="flex flex-col items-center relative">
+                            {/* Tick mark */}
+                            <div 
+                                className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
+                                    index === idx ? 'bg-[#0f766e]' : 'bg-gray-400'
+                                }`}
+                            />
+                            {/* Year label */}
+                            <span 
+                                className={`text-xs font-semibold transition-colors duration-200 ${
+                                    index === idx ? 'text-[#0f766e]' : 'text-gray-600'
+                                }`}
+                            >
+                                {year}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            
+            {/* Slider */}
             <input
                 type="range"
                 min="0"
                 max={YEAR_LABELS.length - 1}
                 value={idx}
                 onChange={(e) => setIdx(Number(e.target.value))}
-                className="w-full accent-[#0f766e]"
+                className="w-full accent-[#0f766e] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
             />
-            <div className="flex justify-between text-sm font-bold mt-1">
-                {YEAR_LABELS.map((y) => (
-                <span key={y} className="flex-1 text-center">
-                    {y}
-                </span>
-                ))}
-            </div>
+            
+            {/* Add custom slider styles */}
+            <style jsx>{`
+                .slider-custom::-webkit-slider-thumb {
+                    appearance: none;
+                    height: 20px;
+                    width: 20px;
+                    border-radius: 50%;
+                    background: #0f766e;
+                    cursor: pointer;
+                    border: 2px solid white;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+                
+                .slider-custom::-moz-range-thumb {
+                    height: 20px;
+                    width: 20px;
+                    border-radius: 50%;
+                    background: #0f766e;
+                    cursor: pointer;
+                    border: 2px solid white;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+            `}</style>
         </div>
 
         {/* Precip + Run-off chart */}

@@ -135,31 +135,101 @@ const SurfaceWaterBodies = () => {
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
                 {MainStore.currentStep === 0 && (
-                    <div className="flex gap-4 w-full">
-                        <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={() => handleAnalyze()}
-                            disabled={!MainStore.isWaterbody}
-                            style={{
-                                backgroundColor: !MainStore.isWaterbody ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isWaterbody ? '#A8A8A8' : '#592941',
-                                border: 'none',
-                            }}
-                        >
-                            {t("Analyze")}
-                        </button>
-                        <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={toggleFormsUrl}
-                            disabled={!MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource)}
-                            style={{ 
-                                backgroundColor: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#A8A8A8' : '#592941',
-                                border: 'none', 
-                            }}
-                        >
-                            {t("Propose Maintenance")}
-                        </button>
+                    <div className="flex flex-col items-center justify-center w-full gap-3">
+                        {/* Analyze Button - Top pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => handleAnalyze()}
+                                disabled={!MainStore.isWaterbody}
+                                style={{
+                                    backgroundColor: !MainStore.isWaterbody ? '#696969' : '#D6D5C9',
+                                    color: !MainStore.isWaterbody ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '280px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !MainStore.isWaterbody ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Analyze")}
+                            </button>
+                        </div>
+
+                        {/* Propose Maintenance Button Container - Bottom pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <div 
+                                className="flex items-center justify-between px-4 py-3"
+                                style={{
+                                    backgroundColor: '#D6D5C9',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '320px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {/* Back Button */}
+                                <button
+                                    className="flex items-center justify-center"
+                                    onClick={() => window.history.back()}
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        borderRadius: '18px',
+                                        color: '#592941',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 200ms'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                                </button>
+
+                                {/* Propose Maintenance Button */}
+                                <button
+                                    className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                                    onClick={toggleFormsUrl}
+                                    disabled={!MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource)}
+                                    style={{
+                                        backgroundColor: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#D6D5C9' : '#D6D5C9',
+                                        color: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#A8A8A8' : '#592941',
+                                        border: 'none',
+                                        borderRadius: '16px',
+                                        height: '32px',
+                                        cursor: (!MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource)) ? 'not-allowed' : 'pointer',
+                                        transition: 'all 200ms'
+                                    }}
+                                >
+                                    {t("Propose Maintenance")}
+                                </button>
+
+                                {/* Finish Button */}
+                                <button
+                                    className="flex items-center justify-center"
+                                    onClick={() => window.history.back()}
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        borderRadius: '18px',
+                                        color: '#592941',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 200ms'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>✓</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

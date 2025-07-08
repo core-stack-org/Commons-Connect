@@ -236,115 +236,204 @@ const Groundwater = () => {
 
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
-                {MainStore.currentStep === 0 && (
-                    <div className="flex gap-4 w-full">
-                        {MainStore.isFeatureClicked ? 
-                        <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={handleAssetInfo}
-                            disabled={!MainStore.isMarkerPlaced}
-                            style={{
-                                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                                border: 'none',
-                            }}
-                        >
-                            {t("Asset Info")}
-                        </button> 
-                        : 
-                        <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={() => handleAnalyze()}
-                            disabled={!MainStore.isMarkerPlaced}
-                            style={{
-                                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                                border: 'none',
-                            }}
-                        >
-                            {t("Analyze")}
-                        </button>}
-                        <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={() => MainStore.setCurrentStep(1)}
-                            disabled={!MainStore.isMarkerPlaced}
-                            style={{
-                              backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                              color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                              border: 'none',
-                            }}
-                        >
-                            {t("Start Planning")}
-                        </button>
+                {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
+                    <div className="flex flex-col items-center justify-center w-full gap-3">
+                        {/* Analyze Button - Top pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => handleAnalyze()}
+                                disabled={!MainStore.isMarkerPlaced}
+                                style={{
+                                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '280px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Analyze")}
+                            </button>
+                        </div>
+
+                        {/* Start Planning Button - Bottom pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => MainStore.setCurrentStep(1)}
+                                disabled={!MainStore.isMarkerPlaced}
+                                style={{
+                                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '280px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Start Planning")}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {MainStore.currentStep === 0 && MainStore.isFeatureClicked && (
+                    <div className="flex flex-col items-center justify-center w-full gap-3">
+                        {/* Asset Info Button - Top pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={handleAssetInfo}
+                                disabled={!MainStore.isMarkerPlaced}
+                                style={{
+                                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '280px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Asset Info")}
+                            </button>
+                        </div>
+
+                        {/* Start Planning Button - Bottom pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => MainStore.setCurrentStep(1)}
+                                disabled={!MainStore.isMarkerPlaced}
+                                style={{
+                                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '280px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Start Planning")}
+                            </button>
+                        </div>
                     </div>
                 )}
 
                 {MainStore.currentStep === 1 && (
                     <div className="flex flex-col gap-4 w-full">
-                    
-                    <div className="flex gap-4 w-full">
-                      <button
-                        className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                        onClick={() => toggleFormsUrl(true)}
-                        disabled={!MainStore.isFeatureClicked}
-                        style={{
-                          backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                          color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
-                          border: 'none',
-                        }}
-                      >
-                        {t("Propose Maintenance")}
-                      </button>
-                      
-                      {/* {MainStore.isFeatureClicked ? <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={handleAssetInfo}
-                            disabled={!MainStore.isMarkerPlaced}
-                            style={{
-                                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                                border: 'none',
-                            }}
-                        >
-                            {t("Asset Info")}
-                        </button>  
-                        : 
-                        <button
-                          className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                          onClick={() => toggleFormsUrl(false)}
-                          style={{  
-                            backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                            color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
-                            border: 'none', 
-                          }}
-                          disabled={MainStore.isFeatureClicked}
-                        >
-                          {t("Build New Recharge Structure")}
-                        </button>} */}
-                        <button
-                          className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                          onClick={() => toggleFormsUrl(false)}
-                          style={{  
-                            backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                            color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
-                            border: 'none', 
-                          }}
-                          disabled={MainStore.isFeatureClicked}
-                        >
-                          {t("Build New Recharge Structure")}
-                        </button>
+                        {/* Propose Maintenance Button - Top pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => toggleFormsUrl(true)}
+                                disabled={!MainStore.isFeatureClicked}
+                                style={{
+                                    backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                                    color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '320px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !MainStore.isFeatureClicked ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Propose Maintenance")}
+                            </button>
+                        </div>
+
+                        {/* Bottom pill with back, Build New Recharge Structure, and finish */}
+                        <div className="flex items-center justify-center w-full">
+                            <div 
+                                className="flex items-center justify-between px-4 py-3"
+                                style={{
+                                    backgroundColor: '#D6D5C9',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '320px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {/* Back Button */}
+                                <button
+                                    className="flex items-center justify-center"
+                                    onClick={() => {
+                                        let BACK = MainStore.currentStep - 1;
+                                        if(MainStore.currentStep) {
+                                            MainStore.setCurrentStep(BACK);
+                                        }
+                                    }}
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        borderRadius: '18px',
+                                        color: '#592941',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 200ms'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                                </button>
+
+                                {/* Build New Recharge Structure Button */}
+                                <button
+                                    className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                                    onClick={() => toggleFormsUrl(false)}
+                                    disabled={MainStore.isFeatureClicked}
+                                    style={{
+                                        backgroundColor: MainStore.isFeatureClicked ? '#D6D5C9' : '#D6D5C9',
+                                        color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                                        border: 'none',
+                                        borderRadius: '16px',
+                                        height: '32px',
+                                        cursor: MainStore.isFeatureClicked ? 'not-allowed' : 'pointer',
+                                        transition: 'all 200ms'
+                                    }}
+                                >
+                                    {t("Recharge Structure")}
+                                </button>
+
+                                {/* Finish Button */}
+                                <button
+                                    className="flex items-center justify-center"
+                                    onClick={() => navigate('/maps')}
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        borderRadius: '18px',
+                                        color: '#592941',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 200ms'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>✓</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                  
-                    {/* second row – 50 % wide & centered */}
-                    <button
-                      className="w-1/2 self-center px-4 py-3 rounded-xl shadow-sm text-sm"
-                      onClick={() => navigate('/maps')} 
-                      style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-                    >
-                      {t("Finish")}
-                    </button>
-                  </div>
-                  
                 )}
             </div>
         </>
