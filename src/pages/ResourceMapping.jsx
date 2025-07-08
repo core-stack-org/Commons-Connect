@@ -312,7 +312,7 @@ const ResourceMapping = () => {
           </div>
         )}
 
-        {MainStore.currentStep === 1 && (
+        {MainStore.currentStep === 1 && !MainStore.isFeatureClicked && (
           <div className="flex items-center justify-center w-full">
             <div 
               className="flex items-center justify-between px-4 py-3"
@@ -354,14 +354,14 @@ const ResourceMapping = () => {
               <button
                 className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
                 onClick={() => withLoading(toggleFormsUrl)}
-                disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+                disabled={!MainStore.isMarkerPlaced}
                 style={{
-                  backgroundColor: (!MainStore.isFeatureClicked && MainStore.isMarkerPlaced) ? '#D6D5C9' : '#D6D5C9',
-                  color: (!MainStore.isFeatureClicked && MainStore.isMarkerPlaced) ? '#592941' : 'rgba(139, 139, 139, 0.6)',
+                  backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                   border: 'none',
                   borderRadius: '16px',
                   height: '32px',
-                  cursor: (!MainStore.isFeatureClicked && MainStore.isMarkerPlaced) ? 'pointer' : 'not-allowed',
+                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                   transition: 'all 200ms'
                 }}
               >
@@ -391,7 +391,110 @@ const ResourceMapping = () => {
           </div>
         )}
 
-        {MainStore.currentStep === 2 && (
+        {MainStore.currentStep === 1 && MainStore.isFeatureClicked && MainStore.resourceType === "Well" && (
+          <div className="flex flex-col items-center justify-center w-full gap-3">
+            {/* Well Info Button - Top pill */}
+            <div className="flex items-center justify-center w-full">
+              <button
+                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                onClick={handleAnalyze}
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {t("Well Info")}
+              </button>
+            </div>
+
+            {/* Add Well Button Container - Bottom pill */}
+            <div className="flex items-center justify-center w-full">
+              <div 
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {/* Back Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => {
+                    let BACK = MainStore.currentStep - 1;
+                    if(MainStore.currentStep) {
+                      MainStore.setCurrentStep(BACK);
+                    }
+                  })}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                </button>
+
+                {/* Add Well Button */}
+                <button
+                  className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                  onClick={() => withLoading(toggleFormsUrl)}
+                  disabled={!MainStore.isMarkerPlaced}
+                  style={{
+                    backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                    border: 'none',
+                    borderRadius: '16px',
+                    height: '32px',
+                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                    transition: 'all 200ms'
+                  }}
+                >
+                  {t("Add Well")}
+                </button>
+
+                {/* Next Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>›</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {MainStore.currentStep === 2 && !MainStore.isFeatureClicked && (
           <div className="flex items-center justify-center w-full">
             <div 
               className="flex items-center justify-between px-4 py-3"
@@ -433,14 +536,14 @@ const ResourceMapping = () => {
               <button
                 className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
                 onClick={() => withLoading(toggleFormsUrl)}
-                disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+                disabled={!MainStore.isMarkerPlaced}
                 style={{
-                  backgroundColor: (!MainStore.isFeatureClicked && MainStore.isMarkerPlaced) ? '#D6D5C9' : '#D6D5C9',
-                  color: (!MainStore.isFeatureClicked && MainStore.isMarkerPlaced) ? '#592941' : 'rgba(139, 139, 139, 0.6)',
+                  backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                   border: 'none',
                   borderRadius: '16px',
                   height: '32px',
-                  cursor: (!MainStore.isFeatureClicked && MainStore.isMarkerPlaced) ? 'pointer' : 'not-allowed',
+                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                   transition: 'all 200ms'
                 }}
               >
@@ -466,6 +569,109 @@ const ResourceMapping = () => {
               >
                 <span style={{ fontSize: '18px', fontWeight: 'bold' }}>›</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {MainStore.currentStep === 2 && MainStore.isFeatureClicked && MainStore.resourceType === "Waterbody" && (
+          <div className="flex flex-col items-center justify-center w-full gap-3">
+            {/* Water Structure Info Button - Top pill */}
+            <div className="flex items-center justify-center w-full">
+              <button
+                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                onClick={handleAnalyze}
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {t("Water Structure Info")}
+              </button>
+            </div>
+
+            {/* Add Water Structure Button Container - Bottom pill */}
+            <div className="flex items-center justify-center w-full">
+              <div 
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {/* Back Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => {
+                    let BACK = MainStore.currentStep - 1;
+                    if(MainStore.currentStep) {
+                      MainStore.setCurrentStep(BACK);
+                    }
+                  })}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                </button>
+
+                {/* Add Water Structure Button */}
+                <button
+                  className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                  onClick={() => withLoading(toggleFormsUrl)}
+                  disabled={!MainStore.isMarkerPlaced}
+                  style={{
+                    backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                    border: 'none',
+                    borderRadius: '16px',
+                    height: '32px',
+                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                    transition: 'all 200ms'
+                  }}
+                >
+                  {t("Add Water Structure")}
+                </button>
+
+                {/* Next Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => MainStore.setCurrentStep(3))}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>›</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
