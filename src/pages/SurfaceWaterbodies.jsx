@@ -34,7 +34,9 @@ const SurfaceWaterBodies = () => {
         }
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
-          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", MainStore.isResource, gpsCoords))
+          
+          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, gpsCoords))
+
           MainStore.setIsOpen(true)
         }
     }
@@ -196,10 +198,10 @@ const SurfaceWaterBodies = () => {
                                 <button
                                     className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
                                     onClick={toggleFormsUrl}
-                                    disabled={!MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource)}
+                                    disabled={!(MainStore.isWaterbody || MainStore.isResource)}
                                     style={{
-                                        backgroundColor: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#D6D5C9' : '#D6D5C9',
-                                        color: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#A8A8A8' : '#592941',
+                                        backgroundColor: !(MainStore.isWaterbody || MainStore.isResource) ? '#D6D5C9' : '#D6D5C9',
+                                        color: !(MainStore.isWaterbody || MainStore.isResource) ? '#A8A8A8' : '#592941',
                                         border: 'none',
                                         borderRadius: '16px',
                                         height: '32px',

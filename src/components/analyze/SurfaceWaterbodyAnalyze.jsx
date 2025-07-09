@@ -10,6 +10,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
+import getOdkUrlForScreen from "../../action/getOdkUrl"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -51,6 +52,11 @@ const SurfaceWaterBodies = () => {
     };
   }, [idx, MainStore.selectedResource, yearLabel, t]);
 
+  const toggleFormsUrl = () => {
+    MainStore.setIsForm(true)
+    MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, [0,0], true))
+  }
+
   const boldFont = { weight: "bold" };
 
   return (
@@ -65,7 +71,7 @@ const SurfaceWaterBodies = () => {
         <div className="relative h-72 sm:h-96 flex items-center justify-center">
           {isZero ? (
             <span className="text-gray-500 font-semibold">
-              {t("swb_no_data") || "The data for this year is Zero"}
+              {t("swb_no_data") || t("The data for this year is Zero")}
             </span>
           ) : (
             <Bar
@@ -182,6 +188,22 @@ const SurfaceWaterBodies = () => {
         {/* paragraph */}
         <div className="mt-8 mx-auto max-w-prose px-4 text-[#374151] leading-relaxed tracking-wide">
           <p className="text-sm sm:text-sm">{t("info_swb_modal_1")}</p>
+        </div>
+
+        {/* Provide Feedback */}
+        <div className="flex justify-center mt-6">
+          <button
+            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-md"
+            onClick={toggleFormsUrl}
+            style={{ 
+                backgroundColor: '#D6D5C9',
+                color: '#592941',
+                border: 'none', 
+            }}
+            disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+          >
+          {t("Provide Feedback")}
+          </button>
         </div>
       </div>
     </>
