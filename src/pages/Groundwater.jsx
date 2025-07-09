@@ -3,6 +3,7 @@ import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import toast from 'react-hot-toast';
 
 const Groundwater = () => {
 
@@ -77,6 +78,24 @@ const Groundwater = () => {
     const handleAssetInfo = () => {
       MainStore.setIsOpen(true)
     }
+
+    const handleStartPlanning = () => {
+        MainStore.setCurrentStep(1);
+        toast('Tap anywhere on the map to raise demand for "New Recharge Structure"', {
+            duration: 5000,
+            style: {
+                background: '#ffffff',
+                color: '#000000',
+                borderRadius: '20px',
+                padding: '10px',
+                fontSize: '14px',
+                fontFamily: 'Inter',
+                fontWeight: '400',
+                textAlign: 'left',
+                lineHeight: '1.5',
+            },
+        });
+    };
 
     const getPlanLabel = () => {
       const plan = MainStore.currentPlan?.plan ?? "Select Plan";
@@ -158,9 +177,9 @@ const Groundwater = () => {
                       <button
                           className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                           style={{
-                          backgroundColor: '#D6D5C9',
+                          backgroundColor: '#808080',
                           color: '#592941',
-                          border: 'none',
+                          border: '1px solid #D6D5C9',
                           backdropFilter: 'none',
                           }}
                       >
@@ -189,50 +208,44 @@ const Groundwater = () => {
               </div>
             </div>
 
-            {/* 3. WellDepth Toggle button */}
-            <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
-                <div className="flex gap-4 max-w-lg">
-                  <div 
-                    className={`relative inline-flex rounded-xl pb-0.5 pt-0.5`}
-                    style={{ backgroundColor: '#D6D5C9' }}
-                  >
-                    {/* Sliding white pill background */}
-                    <div
-                      className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-in-out"
-                      style={{
-                        height: 'calc(100% - 4px)',
-                        width: '50%',
-                        transform: MainStore.selectWellDepthYear === '2018_23' ? 'translateX(100%)' : 'translateX(0%)',
-                      }}
-                    />
-                    
-                    <button
-                      type="button"
-                      onClick={() => MainStore.setSelectedWellDepthYear('2017_22')}
-                      disabled={MainStore.currentStep > 0}
-                      className={`
-                        relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200
-                        ${MainStore.currentStep > 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-                      `}
-                      style={{ color: '#592941' }}
-                    >
-                      {'2017-2022'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => MainStore.setSelectedWellDepthYear('2018_23')}
-                      disabled={MainStore.currentStep > 0}
-                      className={`
-                        relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200
-                        ${MainStore.currentStep > 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-                      `}
-                      style={{ color: '#592941' }}
-                    >
-                      {'2018-2023'}
-                    </button>
-                  </div>
+            {/* 3. WellDepth Toggle button - Hide when planning starts */}
+            {MainStore.currentStep === 0 && (
+                <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
+                    <div className="flex gap-4 max-w-lg">
+                      <div 
+                        className={`relative inline-flex rounded-xl pb-0.5 pt-0.5`}
+                        style={{ backgroundColor: '#D6D5C9' }}
+                      >
+                        {/* Sliding white pill background */}
+                        <div
+                          className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-in-out"
+                          style={{
+                            height: 'calc(100% - 4px)',
+                            width: '50%',
+                            transform: MainStore.selectWellDepthYear === '2018_23' ? 'translateX(100%)' : 'translateX(0%)',
+                          }}
+                        />
+                        
+                        <button
+                          type="button"
+                          onClick={() => MainStore.setSelectedWellDepthYear('2017_22')}
+                          className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                          style={{ color: '#592941' }}
+                        >
+                          {'2017-2022'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => MainStore.setSelectedWellDepthYear('2018_23')}
+                          className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                          style={{ color: '#592941' }}
+                        >
+                          {'2018-2023'}
+                        </button>
+                      </div>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
@@ -264,7 +277,7 @@ const Groundwater = () => {
                         <div className="flex items-center justify-center w-full">
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => MainStore.setCurrentStep(1)}
+                                onClick={handleStartPlanning}
                                 disabled={!MainStore.isMarkerPlaced}
                                 style={{
                                     backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
@@ -312,7 +325,7 @@ const Groundwater = () => {
                         <div className="flex items-center justify-center w-full">
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => MainStore.setCurrentStep(1)}
+                                onClick={handleStartPlanning}
                                 disabled={!MainStore.isMarkerPlaced}
                                 style={{
                                     backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',

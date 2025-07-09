@@ -3,6 +3,7 @@ import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import toast from 'react-hot-toast';
 
 const Agriculture = () => {
   const MainStore = useMainStore((state) => state);
@@ -95,6 +96,24 @@ const Agriculture = () => {
     MainStore.setIsOpen(true)
   }
 
+  const handleStartPlanning = () => {
+    MainStore.setCurrentStep(1);
+    toast('Tap anywhere on the map to raise demand for "New Irrigation Work"', {
+        duration: 5000,
+        style: {
+            background: '#ffffff',
+            color: '#000000',
+            borderRadius: '20px',
+            padding: '10px',
+            fontSize: '14px',
+            fontFamily: 'Inter',
+            fontWeight: '400',
+            textAlign: 'left',
+            lineHeight: '1.5',
+        },
+    });
+  };
+
   return (
     <>
       {/* Title Bubble (UNCHANGED) */}
@@ -159,9 +178,9 @@ const Agriculture = () => {
                 <button
                     className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                     style={{
-                    backgroundColor: '#D6D5C9',
+                    backgroundColor: '#808080',
                     color: '#592941',
-                    border: 'none',
+                    border: '1px solid #D6D5C9',
                     backdropFilter: 'none',
                     }}
                 >
@@ -252,7 +271,7 @@ const Agriculture = () => {
             <div className="flex items-center justify-center w-full">
               <button
                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => MainStore.setCurrentStep(1)}
+                onClick={handleStartPlanning}
                 disabled={!MainStore.isMarkerPlaced}
                 style={{
                   backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
@@ -300,7 +319,7 @@ const Agriculture = () => {
             <div className="flex items-center justify-center w-full">
               <button
                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => MainStore.setCurrentStep(1)}
+                onClick={handleStartPlanning}
                 disabled={!MainStore.isMarkerPlaced}
                 style={{
                   backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
