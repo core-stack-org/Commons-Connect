@@ -357,7 +357,7 @@ const Bottomsheet = () => {
                 {/* NREGA Works Information */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
                     <p className="text-sm text-blue-800 text-left font-medium">
-                        NOTE: NREGA works are shown for the years 2016 through 2024.
+                        {t("nrega_works_info")}
                     </p>
                 </div>
             </div>
