@@ -58,7 +58,8 @@ const SurfaceWaterBodies = () => {
 
 
     return(
-        <>{/* Title Bubble */}
+        <>
+            {/* Title Bubble */}
             <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
@@ -118,9 +119,9 @@ const SurfaceWaterBodies = () => {
                     <button
                         className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                         style={{
-                        backgroundColor: '#D6D5C9',
+                        backgroundColor: '#808080',
                         color: '#592941',
-                        border: 'none',
+                        border: '1px solid #D6D5C9',
                         backdropFilter: 'none',
                         }}
                     >
@@ -148,7 +149,7 @@ const SurfaceWaterBodies = () => {
                                     border: 'none',
                                     borderRadius: '22px',
                                     height: '44px',
-                                    width: '280px',
+                                    width: '320px',
                                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                                     cursor: !MainStore.isWaterbody ? 'not-allowed' : 'pointer',
                                     transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
