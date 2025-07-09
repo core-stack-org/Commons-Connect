@@ -13,6 +13,7 @@ import {
 import { Bar, Line } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
+import getOdkUrlForScreen from "../../action/getOdkUrl"
 
 ChartJS.register(
   CategoryScale,
@@ -40,12 +41,13 @@ const GroundwaterAnalyze = () => {
   const fortnightData = useMainStore((state) => state.fortnightData)
   const yearlyData = useMainStore((state) => state.selectedResource)
   const { t } = useTranslation();
+  const MainStore = useMainStore((s) => s);
 
   /* slider index */
   const [idx, setIdx] = useState(YEAR_LABELS.length - 1);
   const yearFour = YEAR_LABELS[idx]; // "2017" … "2022"
 
-  /* 2.  annual record for that year ----------------------------- */
+
   const annual = useMemo(() => {
     const k = Object.keys(yearlyData || {}).find((key) =>
       key.startsWith(yearFour)
@@ -57,7 +59,7 @@ const GroundwaterAnalyze = () => {
     }
   }, [yearFour, yearlyData]);
 
-  /* 3.  slice fortnight data ------------------------------------ */
+
   const fort = useMemo(() => {
     if (!fortnightData) return { dates: [] };
     const out = { dates: [], prec: [], run: [], et: [], gw: [] };
@@ -81,7 +83,7 @@ const GroundwaterAnalyze = () => {
   const hasAnnual = Object.keys(annual).length > 0;
   const hasFort   = fort.dates.length > 0;
 
-  /* 4.  chart data (unchanged) ---------------------------------- */
+
   const barLine = {
     labels: fort.dates,
     datasets: [
@@ -137,7 +139,12 @@ const GroundwaterAnalyze = () => {
     ],
   };
 
-  /* 5.  UI ------------------------------------------------------ */
+  const toggleFormsUrl = () => {
+    MainStore.setIsForm(true)
+    MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, [0,0], true))
+  }
+
+
   return (
     <>
       <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
@@ -303,6 +310,22 @@ const GroundwaterAnalyze = () => {
               {t("info_gw_modal_3")}
             </p>
         </div>
+
+        {/* Provide Feedback */}
+        <div className="flex justify-center mt-6">
+          <button
+            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-md"
+            onClick={toggleFormsUrl}
+            style={{ 
+                backgroundColor: '#D6D5C9',
+                color: '#592941',
+                border: 'none', 
+            }}
+            disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+          >
+          {t("Provide Feedback")}
+          </button>
+        </div>  
         </section>
       </div>
     </>

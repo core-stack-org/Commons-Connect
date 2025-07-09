@@ -59,7 +59,7 @@ const Livelihood = () => {
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
           
-          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource.id, false, gpsCoords))
+          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, MainStore.selectedResource?.id, false, gpsCoords))
           
           MainStore.setIsOpen(true)
         }
@@ -147,7 +147,7 @@ const Livelihood = () => {
             
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
-                {MainStore.currentStep === 0 && (
+                {/* {MainStore.currentStep === 0 && (
                 <div className="flex gap-4 w-full">
                     <button
                         className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
@@ -164,19 +164,19 @@ const Livelihood = () => {
                     Select Settlement
                     </button>
                 </div>
-                )}
+                )} */}
 
-                {MainStore.currentStep === 1 && (
+                {MainStore.currentStep === 0 && (
                 <div className="flex gap-4 w-full">
                     <button
                         className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                         onClick={toggleFormsUrl}
                         style={{ 
-                            backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                            color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                            backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969' ,
+                            color: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#592941' : '#A8A8A8',
                             border: 'none', 
                         }}
-                        disabled={MainStore.isFeatureClicked}
+                        disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
                     >
                     Mark Livelihood
                     </button>
@@ -190,7 +190,7 @@ const Livelihood = () => {
                         onClick={handleAnalyze}
                         disabled={!MainStore.isFeatureClicked}
                     >
-                    Livelihood Info
+                    Asset Info
                     </button>
                 </div>
                 )}

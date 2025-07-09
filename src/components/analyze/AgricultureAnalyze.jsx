@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Chart from 'chart.js/auto';
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
+import getOdkUrlForScreen from "../../action/getOdkUrl"
 
 const YEARS = [2017, 2018, 2019, 2020, 2021, 2022];
 
@@ -25,6 +26,7 @@ const AgricultureAnalyze = () => {
   const lineChartInstanceRef = useRef(null);
 
   const { t } = useTranslation();
+  const MainStore = useMainStore((s) => s);
 
   const selectedMWSDrought = useMainStore((state) => state.selectedMWSDrought);
   const selectedResource = useMainStore((state) => state.selectedResource);
@@ -224,6 +226,12 @@ const AgricultureAnalyze = () => {
     }
   }, [selectedResource]);
 
+  const toggleFormsUrl = () => {
+    MainStore.setIsForm(true)
+    MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, [0,0], true))
+  }
+
+
   return (
     <>
       <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
@@ -332,6 +340,22 @@ const AgricultureAnalyze = () => {
             <p>{t("info_agri_modal_2")}</p>
           </div>
         </section>
+
+        {/* Provide Feedback */}
+        <div className="flex justify-center mt-6">
+          <button
+            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-md"
+            onClick={toggleFormsUrl}
+            style={{ 
+                backgroundColor: '#D6D5C9',
+                color: '#592941',
+                border: 'none', 
+            }}
+            disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+          >
+          {t("Provide Feedback")}
+          </button>
+        </div>  
       </div>
     </>
   );
