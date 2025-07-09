@@ -252,7 +252,7 @@ const Bottomsheet = () => {
             {/* Enhanced Title with cleaner styling */}
             <div className="text-center pt-8 pb-6 mb-8 bg-gradient-to-r border-b border-gray-200">
                 <h1 className="text-2xl font-semibold text-gray-800 tracking-wide">
-                    {t("NREGA Menu")}
+                    {t("NREGA Assets")}
                 </h1>
             </div>
     
@@ -353,6 +353,13 @@ const Bottomsheet = () => {
                         })}
                     </div>
                 </div> */}
+
+                {/* NREGA Works Information */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                    <p className="text-sm text-blue-800 text-left font-medium">
+                        NOTE: NREGA works are shown for the years 2016 through 2024.
+                    </p>
+                </div>
             </div>
         </>
     )
@@ -584,19 +591,60 @@ const Bottomsheet = () => {
           MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
             }
         >
-            <button
-            onClick={onDismiss}
-            className="
-                absolute right-3 top-3 z-10
-                w-8 h-8 flex items-center justify-center
-                rounded-full bg-gray-200 hover:bg-gray-300
-                text-gray-600 hover:text-gray-800
-                shadow-sm transition
-            "
-            aria-label="Close"
-            >
-            &times;
-            </button>
+            {/* Conditional header buttons based on content type */}
+            {MainStore.isNregaSheet ? (
+                <>
+                    {/* Cancel button for NREGA sheet */}
+                    <button
+                    onClick={onDismiss}
+                    className="
+                        absolute left-3 top-3 z-10
+                        px-4 py-2 rounded-lg
+                        bg-gray-100 hover:bg-gray-200
+                        text-gray-700 hover:text-gray-800
+                        text-sm font-medium
+                        shadow-sm transition
+                        border border-gray-300
+                    "
+                    aria-label="Cancel"
+                    >
+                    Cancel
+                    </button>
+                    
+                    {/* Done button for NREGA sheet */}
+                    <button
+                    onClick={onDismiss}
+                    className="
+                        absolute right-3 top-3 z-10
+                        px-4 py-2 rounded-lg
+                        bg-blue-600 hover:bg-blue-700
+                        text-white
+                        text-sm font-medium
+                        shadow-sm transition
+                    "
+                    aria-label="Done"
+                    >
+                    Done
+                    </button>
+                </>
+            ) : (
+                /* Cancel button for other sheets */
+                <button
+                onClick={onDismiss}
+                className="
+                    absolute left-3 top-3 z-10
+                    px-4 py-2 rounded-lg
+                    bg-gray-100 hover:bg-gray-200
+                    text-gray-700 hover:text-gray-800
+                    text-sm font-medium
+                    shadow-sm transition
+                    border border-gray-300
+                "
+                aria-label="Cancel"
+                >
+                Cancel
+                </button>
+            )}
             <div className="pt-6">
             {renderBody()}
             </div>

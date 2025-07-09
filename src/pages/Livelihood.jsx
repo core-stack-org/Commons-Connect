@@ -133,9 +133,9 @@ const Livelihood = () => {
                         <button
                             className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                             style={{
-                            backgroundColor: '#D6D5C9',
+                            backgroundColor: '#808080',
                             color: '#592941',
-                            border: 'none',
+                            border: '1px solid #D6D5C9',
                             backdropFilter: 'none',
                             }}
                         >

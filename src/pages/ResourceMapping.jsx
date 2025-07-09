@@ -192,9 +192,9 @@ const ResourceMapping = () => {
             <button
                 className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                 style={{
-                  backgroundColor: '#D6D5C9',
+                  backgroundColor: '#808080',
                   color: '#592941',
-                  border: 'none',
+                  border: '1px solid #D6D5C9',
                   backdropFilter: 'none',
                 }}
               >
@@ -208,115 +208,550 @@ const ResourceMapping = () => {
       {/* Bottom Controls */}
       <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
         {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
-          <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => {
-                withLoading(toggleFormsUrl)
-              }}
-              disabled={!MainStore.isMarkerPlaced}
+          <div className="flex items-center justify-center w-full">
+            <div 
+              className="flex items-center justify-between px-4 py-3"
               style={{
-                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                border: 'none',
+                backgroundColor: '#D6D5C9',
+                borderRadius: '22px',
+                height: '44px',
+                width: '280px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {t("Add Settlement")}
-            </button>
+              {/* Back Button - goes to homepage */}
+              <button
+                className="flex items-center justify-center"
+                onClick={() => navigate('/maps')}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '18px',
+                  color: '#592941',
+                  cursor: 'pointer',
+                  transition: 'background-color 200ms'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+              </button>
+
+              {/* Add Settlement Button */}
+              <button
+                className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                onClick={() => {
+                  withLoading(toggleFormsUrl)
+                }}
+                disabled={!MainStore.isMarkerPlaced}
+                style={{
+                  backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                  border: 'none',
+                  borderRadius: '16px',
+                  height: '32px',
+                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                  transition: 'all 200ms'
+                }}
+              >
+                {t("Add Settlement")}
+              </button>
+            </div>
           </div>
         )}
 
         {MainStore.currentStep === 0 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
-          <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(() =>{
-                MainStore.setCurrentStep(1)
-                MainStore.setIsResource(false)
-              })}
-              style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-            >
-              {t("Mark Resources")}
-            </button>
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-              onClick={handleAnalyze}
-            >
-              {t("Settlement Info")}
-            </button>
+          <div className="flex flex-col items-center justify-center w-full gap-3">
+            {/* Settlement Info Button - Top pill */}
+            <div className="flex items-center justify-center w-full">
+              <button
+                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                onClick={handleAnalyze}
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '280px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {t("Settlement Info")}
+              </button>
+            </div>
+
+            {/* Mark Resources Button - Bottom pill */}
+            <div className="flex items-center justify-center w-full">
+              <button
+                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                onClick={() => withLoading(() =>{
+                  MainStore.setCurrentStep(1)
+                  MainStore.setIsResource(false)
+                })}
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '280px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {t("Mark Resources")}
+              </button>
+            </div>
           </div>
         )}
 
-        {MainStore.currentStep === 1 && (
-          <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+        {MainStore.currentStep === 1 && !MainStore.isFeatureClicked && (
+          <div className="flex items-center justify-center w-full">
+            <div 
+              className="flex items-center justify-between px-4 py-3"
               style={{
-                backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969',
-                color: '#592941',
-                border: 'none',
+                backgroundColor: '#D6D5C9',
+                borderRadius: '22px',
+                height: '44px',
+                width: '320px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {t("Add Well")}
-            </button>
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
-              style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-            >
-              {t("Next") + "->"}
-            </button>
+              {/* Back Button */}
+              <button
+                className="flex items-center justify-center"
+                onClick={() => withLoading(() => {
+                  let BACK = MainStore.currentStep - 1;
+                  if(MainStore.currentStep) {
+                    MainStore.setCurrentStep(BACK);
+                  }
+                })}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '18px',
+                  color: '#592941',
+                  cursor: 'pointer',
+                  transition: 'background-color 200ms'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+              </button>
+
+              {/* Add Well Button */}
+              <button
+                className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                onClick={() => withLoading(toggleFormsUrl)}
+                disabled={!MainStore.isMarkerPlaced}
+                style={{
+                  backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                  border: 'none',
+                  borderRadius: '16px',
+                  height: '32px',
+                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                  transition: 'all 200ms'
+                }}
+              >
+                {t("Add Well")}
+              </button>
+
+              {/* Next Button */}
+              <button
+                className="flex items-center justify-center"
+                onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '18px',
+                  color: '#592941',
+                  cursor: 'pointer',
+                  transition: 'background-color 200ms'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>›</span>
+              </button>
+            </div>
           </div>
         )}
 
-        {MainStore.currentStep === 2 && (
-          <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+        {MainStore.currentStep === 1 && MainStore.isFeatureClicked && MainStore.resourceType === "Well" && (
+          <div className="flex flex-col items-center justify-center w-full gap-3">
+            {/* Well Info Button - Top pill */}
+            <div className="flex items-center justify-center w-full">
+              <button
+                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                onClick={handleAnalyze}
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {t("Well Info")}
+              </button>
+            </div>
+
+            {/* Add Well Button Container - Bottom pill */}
+            <div className="flex items-center justify-center w-full">
+              <div 
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {/* Back Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => {
+                    let BACK = MainStore.currentStep - 1;
+                    if(MainStore.currentStep) {
+                      MainStore.setCurrentStep(BACK);
+                    }
+                  })}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                </button>
+
+                {/* Add Well Button */}
+                <button
+                  className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                  onClick={() => withLoading(toggleFormsUrl)}
+                  disabled={!MainStore.isMarkerPlaced}
+                  style={{
+                    backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                    border: 'none',
+                    borderRadius: '16px',
+                    height: '32px',
+                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                    transition: 'all 200ms'
+                  }}
+                >
+                  {t("Add Well")}
+                </button>
+
+                {/* Next Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>›</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {MainStore.currentStep === 2 && !MainStore.isFeatureClicked && (
+          <div className="flex items-center justify-center w-full">
+            <div 
+              className="flex items-center justify-between px-4 py-3"
               style={{
-                backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969',
-                color: '#592941',
-                border: 'none',
+                backgroundColor: '#D6D5C9',
+                borderRadius: '22px',
+                height: '44px',
+                width: '320px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {t("Add WaterStructure")}
-            </button>
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(() => MainStore.setCurrentStep(3))}
-              style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-            >
-              {t("Next") + "->"}
-            </button>
+              {/* Back Button */}
+              <button
+                className="flex items-center justify-center"
+                onClick={() => withLoading(() => {
+                  let BACK = MainStore.currentStep - 1;
+                  if(MainStore.currentStep) {
+                    MainStore.setCurrentStep(BACK);
+                  }
+                })}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '18px',
+                  color: '#592941',
+                  cursor: 'pointer',
+                  transition: 'background-color 200ms'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+              </button>
+
+              {/* Add WaterStructure Button */}
+              <button
+                className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                onClick={() => withLoading(toggleFormsUrl)}
+                disabled={!MainStore.isMarkerPlaced}
+                style={{
+                  backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                  border: 'none',
+                  borderRadius: '16px',
+                  height: '32px',
+                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                  transition: 'all 200ms'
+                }}
+              >
+                {t("Add Water Structure")}
+              </button>
+
+              {/* Next Button */}
+              <button
+                className="flex items-center justify-center"
+                onClick={() => withLoading(() => MainStore.setCurrentStep(3))}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '18px',
+                  color: '#592941',
+                  cursor: 'pointer',
+                  transition: 'background-color 200ms'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>›</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {MainStore.currentStep === 2 && MainStore.isFeatureClicked && MainStore.resourceType === "Waterbody" && (
+          <div className="flex flex-col items-center justify-center w-full gap-3">
+            {/* Water Structure Info Button - Top pill */}
+            <div className="flex items-center justify-center w-full">
+              <button
+                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                onClick={handleAnalyze}
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {t("Water Structure Info")}
+              </button>
+            </div>
+
+            {/* Add Water Structure Button Container - Bottom pill */}
+            <div className="flex items-center justify-center w-full">
+              <div 
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  borderRadius: '22px',
+                  height: '44px',
+                  width: '320px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {/* Back Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => {
+                    let BACK = MainStore.currentStep - 1;
+                    if(MainStore.currentStep) {
+                      MainStore.setCurrentStep(BACK);
+                    }
+                  })}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                </button>
+
+                {/* Add Water Structure Button */}
+                <button
+                  className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                  onClick={() => withLoading(toggleFormsUrl)}
+                  disabled={!MainStore.isMarkerPlaced}
+                  style={{
+                    backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                    border: 'none',
+                    borderRadius: '16px',
+                    height: '32px',
+                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                    transition: 'all 200ms'
+                  }}
+                >
+                  {t("Add Water Structure")}
+                </button>
+
+                {/* Next Button */}
+                <button
+                  className="flex items-center justify-center"
+                  onClick={() => withLoading(() => MainStore.setCurrentStep(3))}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderRadius: '18px',
+                    color: '#592941',
+                    cursor: 'pointer',
+                    transition: 'background-color 200ms'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>›</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
         {MainStore.currentStep === 3 && (
-          <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+          <div className="flex items-center justify-center w-full">
+            <div 
+              className="flex items-center justify-between px-4 py-3"
               style={{
-                backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                color: '#592941',
-                border: 'none',
+                backgroundColor: '#D6D5C9',
+                borderRadius: '22px',
+                height: '44px',
+                width: '320px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {t("Provide Crop Info")}
-            </button>
-            <button
-              className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(() => navigate('/maps'))}
-              style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
-            >
-              {t("Finish")}
-            </button>
+              {/* Back Button */}
+              <button
+                className="flex items-center justify-center"
+                onClick={() => withLoading(() => {
+                  let BACK = MainStore.currentStep - 1;
+                  if(MainStore.currentStep) {
+                    MainStore.setCurrentStep(BACK);
+                  }
+                })}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '18px',
+                  color: '#592941',
+                  cursor: 'pointer',
+                  transition: 'background-color 200ms'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+              </button>
+
+              {/* Provide Crop Info Button */}
+              <button
+                className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                onClick={() => withLoading(toggleFormsUrl)}
+                disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+                style={{
+                  backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  borderRadius: '16px',
+                  height: '32px',
+                  cursor: (MainStore.isFeatureClicked && !MainStore.isMarkerPlaced) ? 'not-allowed' : 'pointer',
+                  transition: 'all 200ms'
+                }}
+              >
+                {t("Provide Crop Info")}
+              </button>
+
+              {/* Finish Button */}
+              <button
+                className="flex items-center justify-center"
+                onClick={() => withLoading(() => navigate('/maps'))}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '18px',
+                  color: '#592941',
+                  cursor: 'pointer',
+                  transition: 'background-color 200ms'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>✓</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
