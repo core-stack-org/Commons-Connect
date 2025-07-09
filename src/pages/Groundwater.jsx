@@ -81,7 +81,7 @@ const Groundwater = () => {
 
     const handleStartPlanning = () => {
         MainStore.setCurrentStep(1);
-        toast('Tap anywhere on the map to raise demand for "New Recharge Structure"', {
+        toast(t("toast_groundwater"), {
             duration: 5000,
             style: {
                 background: '#ffffff',
@@ -263,7 +263,7 @@ const Groundwater = () => {
                                     border: 'none',
                                     borderRadius: '22px',
                                     height: '44px',
-                                    width: '280px',
+                                    width: '320px',
                                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                                     cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                                     transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -273,26 +273,60 @@ const Groundwater = () => {
                             </button>
                         </div>
 
-                        {/* Start Planning Button - Bottom pill */}
+                        {/* Start Planning Button Container - Bottom pill */}
                         <div className="flex items-center justify-center w-full">
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={handleStartPlanning}
-                                disabled={!MainStore.isMarkerPlaced}
+                            <div 
+                                className="flex items-center justify-between px-4 py-3"
                                 style={{
-                                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                                    border: 'none',
+                                    backgroundColor: '#D6D5C9',
                                     borderRadius: '22px',
                                     height: '44px',
-                                    width: '280px',
+                                    width: '320px',
                                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                                     transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
                                 }}
                             >
-                                {t("Start Planning")}
-                            </button>
+                                {/* Back Button */}
+                                <button
+                                    className="flex items-center justify-center"
+                                    onClick={() => navigate('/maps')}
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        borderRadius: '18px',
+                                        color: '#592941',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 200ms'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                                </button>
+
+                                {/* Start Planning Button - Centered */}
+                                <div className="flex-1 flex items-center justify-center">
+                                    <button
+                                        className="px-4 text-sm font-medium flex items-center justify-center"
+                                        onClick={handleStartPlanning}
+                                        disabled={!MainStore.isMarkerPlaced}
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                            border: 'none',
+                                            cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                                            transition: 'all 200ms'
+                                        }}
+                                    >
+                                        {t("Start Planning")}
+                                    </button>
+                                </div>
+
+                                {/* Invisible spacer to balance the back button */}
+                                <div style={{ width: '36px', height: '36px' }}></div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -311,7 +345,7 @@ const Groundwater = () => {
                                     border: 'none',
                                     borderRadius: '22px',
                                     height: '44px',
-                                    width: '280px',
+                                    width: '320px',
                                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                                     cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                                     transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -321,26 +355,60 @@ const Groundwater = () => {
                             </button>
                         </div>
 
-                        {/* Start Planning Button - Bottom pill */}
+                        {/* Start Planning Button Container - Bottom pill */}
                         <div className="flex items-center justify-center w-full">
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={handleStartPlanning}
-                                disabled={!MainStore.isMarkerPlaced}
+                            <div 
+                                className="flex items-center justify-between px-4 py-3"
                                 style={{
-                                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                                    border: 'none',
+                                    backgroundColor: '#D6D5C9',
                                     borderRadius: '22px',
                                     height: '44px',
-                                    width: '280px',
+                                    width: '320px',
                                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                                     transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
                                 }}
                             >
-                                {t("Start Planning")}
-                            </button>
+                                {/* Back Button */}
+                                <button
+                                    className="flex items-center justify-center"
+                                    onClick={() => navigate('/maps')}
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        borderRadius: '18px',
+                                        color: '#592941',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 200ms'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                                </button>
+
+                                {/* Start Planning Button - Centered */}
+                                <div className="flex-1 flex items-center justify-center">
+                                    <button
+                                        className="px-4 text-sm font-medium flex items-center justify-center"
+                                        onClick={handleStartPlanning}
+                                        disabled={!MainStore.isMarkerPlaced}
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                            border: 'none',
+                                            cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                                            transition: 'all 200ms'
+                                        }}
+                                    >
+                                        {t("Start Planning")}
+                                    </button>
+                                </div>
+
+                                {/* Invisible spacer to balance the back button */}
+                                <div style={{ width: '36px', height: '36px' }}></div>
+                            </div>
                         </div>
                     </div>
                 )}

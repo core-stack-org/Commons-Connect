@@ -13,7 +13,7 @@ const InfoBox = () => {
   const currentMenuOption = useMainStore((state) => state.menuOption);
   const setMenuOption = useMainStore((state) => state.setMenuOption);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isHome = currentScreen === 'HomeScreen';
   const [activeTab, setActiveTab] = useState('information');
   const [email, setEmail] = useState('');
@@ -30,22 +30,19 @@ const InfoBox = () => {
 
   // Handlers for menu options
   const handleLanguageSelect = (langCode) => {
+    // Instead of allowing selection, show info about URL-based language
     setSelectedLanguage(langCode);
     setLanguageChangeSuccess(false);
   };
 
   const handleApplyLanguage = () => {
-    if (!selectedLanguage) return;
-  
-    i18next.changeLanguage(selectedLanguage).then(() => {
-      setCurrentLanguage(selectedLanguage);
-      setLanguageChangeSuccess(true);
-      setTimeout(() => {
-        setLanguageChangeSuccess(false);
-        setMenuOption(null);
-        setIsInfoOpen(false);
-      }, 3000);
-    });
+    // Show message that language is set via URL parameters
+    setLanguageChangeSuccess(true);
+    setTimeout(() => {
+      setLanguageChangeSuccess(false);
+      setMenuOption(null);
+      setIsInfoOpen(false);
+    }, 3000);
   };
 
   const handleDownloadDPR = () => {
@@ -315,6 +312,12 @@ const InfoBox = () => {
     return emailRegex.test(email);
   };
 
+  // Get current language from URL parameters
+  const getCurrentLanguageFromURL = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('language') || 'en';
+  };
+
 
   if (!isInfoOpen) return null;
 
@@ -358,112 +361,53 @@ const InfoBox = () => {
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
                 {/* Header Section */}
                 <div className="text-center space-y-2">
-                  <p className="text-sm text-gray-600">{t("change_info_1")}</p>
-                </div>
-
-                {/* Language Options - Scrollable */}
-                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-3 bg-gray-50">
-                  {[
-                    { code: 'en', name: 'English', native: 'English', flag: '🇺🇸' },
-                    { code: 'hi', name: 'Hindi', native: 'हिन्दी', flag: '🇮🇳' },
-                  ].map((language) => (
-                    <button
-                      key={language.code}
-                      onClick={() => handleLanguageSelect(language.code)}
-                      className={`w-full p-4 border-2 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                        selectedLanguage === language.code
-                          ? 'border-blue-500 bg-blue-50 shadow-md'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-white bg-white'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-4">
-                        {/* Flag */}
-                        <div className="text-2xl flex-shrink-0">
-                          {language.flag}
-                        </div>
-                        
-                        {/* Language Info */}
-                        <div className="flex-1 text-left">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h4 className="font-medium text-gray-900">{language.name}</h4>
-                              <p className="text-sm text-gray-600">{language.native}</p>
-                            </div>
-                            
-                            {/* Selection Indicator */}
-                            <div className={`flex-shrink-0 transition-all duration-200 ${
-                              selectedLanguage === language.code ? 'opacity-100' : 'opacity-0'
-                            }`}>
-                              <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                </svg>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Apply Button */}
-                <div className="pt-2">
-                  <button
-                    onClick={handleApplyLanguage}
-                    disabled={!selectedLanguage}
-                    className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
-                  >
-                    <div className="flex items-center justify-center space-x-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{t("Change Language")}</span>
-                    </div>
-                  </button>
+                  <p className="text-sm text-gray-600">{t("Language is set via URL parameters")}</p>
                 </div>
 
                 {/* Current Language Display */}
-                {currentLanguage && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p className="text-sm text-gray-700">
-                        <span className="font-medium">{t("Current Language")}:</span> {
-                          currentLanguage === 'en' ? 'English' :
-                          currentLanguage === 'hi' ? 'Hindi (हिन्दी)' :
-                          currentLanguage === 'mr' ? 'Marathi (मराठी)' :
-                          currentLanguage === 'bn' ? 'Bengali (বাংলা)' :
-                          currentLanguage === 'te' ? 'Telugu (తెలుగు)' :
-                          currentLanguage === 'ta' ? 'Tamil (தமிழ்)' :
-                          currentLanguage === 'gu' ? 'Gujarati (ગુજરાતી)' :
-                          currentLanguage === 'kn' ? 'Kannada (ಕನ್ನಡ)' :
-                          currentLanguage === 'ml' ? 'Malayalam (മലയാളം)' :
-                          currentLanguage === 'pa' ? 'Punjabi (ਪੰਜਾਬੀ)' :
-                          currentLanguage === 'or' ? 'Odia (ଓଡ଼ିଆ)' :
-                          currentLanguage === 'as' ? 'Assamese (অসমীয়া)' :
-                          currentLanguage === 'ur' ? 'Urdu (اردو)' :
-                          currentLanguage === 'ne' ? 'Nepali (नेपाली)' :
-                          currentLanguage === 'si' ? 'Sinhala (සිංහල)' : currentLanguage
-                        }
-                      </p>
-                    </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-blue-700">
+                      <span className="font-medium">{t("Current Language")}:</span> {
+                        getCurrentLanguageFromURL() === 'en' ? 'English' :
+                        getCurrentLanguageFromURL() === 'hi' ? 'Hindi (हिन्दी)' :
+                        getCurrentLanguageFromURL()
+                      }
+                    </p>
                   </div>
-                )}
+                </div>
 
-                {/* Success Message */}
-                {languageChangeSuccess && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p className="text-sm text-green-800 font-medium">{t("change_info_2")}!</p>
+                {/* Information about URL-based language setting */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-2">
+                    <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="text-sm text-gray-700">
+                      <p className="font-medium mb-1">Language Configuration:</p>
+                      <p>The language is automatically set from the URL parameter 'language'.</p>
+                      <p className="mt-1">Supported values: 'en' (English), 'hi' (Hindi)</p>
                     </div>
                   </div>
-                )}
+                </div>
+
+                {/* Close Button */}
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      setMenuOption(null);
+                      setIsInfoOpen(false);
+                    }}
+                    className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <span>{t("Close")}</span>
+                    </div>
+                  </button>
+                </div>
               </div>
             )}
 

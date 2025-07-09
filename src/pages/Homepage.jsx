@@ -10,7 +10,7 @@ const Homepage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const [isPlanOpen, setIsPlanOpen] = useState(false);
     const [isPlanningOpen, setIsPlanningOpen] = useState(false);
@@ -30,6 +30,12 @@ const Homepage = () => {
         MainStore.setDistrictName(transformName(searchParams.get('dist_name')));
         MainStore.setBlockName(transformName(searchParams.get('block_name')));
         MainStore.setBlockId?.(searchParams.get('block_id'));
+        
+        const language = searchParams.get('language');
+        if (language && ['en', 'hi'].includes(language)) {
+          i18n.changeLanguage(language);
+        }
+        
         MainStore.fetchPlans(`${import.meta.env.VITE_API_URL}get_plans/?block_id=${searchParams.get('block_id')}`)
       }
       MainStore.setIsResourceOpen(false)

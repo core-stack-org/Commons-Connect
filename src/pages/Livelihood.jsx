@@ -147,51 +147,86 @@ const Livelihood = () => {
             
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
-                {/* {MainStore.currentStep === 0 && (
-                <div className="flex gap-4 w-full">
-                    <button
-                        className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                        onClick={() => withLoading(() =>{
-                            MainStore.setCurrentStep(1)
-                        })}
-                        disabled={!MainStore.isFeatureClicked}
-                        style={{
-                            backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                            color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
-                            border: 'none',
-                        }}
-                    >
-                    Select Settlement
-                    </button>
-                </div>
-                )} */}
-
                 {MainStore.currentStep === 0 && (
-                <div className="flex gap-4 w-full">
-                    <button
-                        className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                        onClick={toggleFormsUrl}
-                        style={{ 
-                            backgroundColor: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#D6D5C9' : '#696969' ,
-                            color: !MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#592941' : '#A8A8A8',
-                            border: 'none', 
-                        }}
-                        disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
-                    >
-                    Mark Livelihood
-                    </button>
-                    <button
-                        className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                        style={{ 
-                            backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                            color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
-                            border: 'none', 
-                        }}
-                        onClick={handleAnalyze}
-                        disabled={!MainStore.isFeatureClicked}
-                    >
-                    Asset Info
-                    </button>
+                <div className="flex flex-col items-center justify-center w-full gap-3">
+                    {/* Asset Info Button - Top pill */}
+                    <div className="flex items-center justify-center w-full">
+                        <button
+                            className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                            onClick={handleAnalyze}
+                            disabled={!MainStore.isFeatureClicked}
+                            style={{
+                                backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                                color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                                border: 'none',
+                                borderRadius: '22px',
+                                height: '44px',
+                                width: '320px',
+                                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                cursor: !MainStore.isFeatureClicked ? 'not-allowed' : 'pointer',
+                                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                            }}
+                        >
+                        Asset Info
+                        </button>
+                    </div>
+
+                    {/* Mark Livelihood Button Container - Bottom pill */}
+                    <div className="flex items-center justify-center w-full">
+                        <div 
+                            className="flex items-center justify-between px-4 py-3"
+                            style={{
+                                backgroundColor: '#D6D5C9',
+                                borderRadius: '22px',
+                                height: '44px',
+                                width: '320px',
+                                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                            }}
+                        >
+                            {/* Back Button */}
+                            <button
+                                className="flex items-center justify-center"
+                                onClick={() => withLoading(() => {
+                                    // Navigate back to homepage or previous screen
+                                    // You can adjust this navigation as needed
+                                    window.history.back();
+                                })}
+                                style={{
+                                    width: '36px',
+                                    height: '36px',
+                                    backgroundColor: 'transparent',
+                                    border: 'none',
+                                    borderRadius: '18px',
+                                    color: '#592941',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 200ms'
+                                }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                            >
+                                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>‹</span>
+                            </button>
+
+                            {/* Mark Livelihood Button */}
+                            <button
+                                className="flex-1 mx-3 px-4 text-sm font-medium flex items-center justify-center"
+                                onClick={toggleFormsUrl}
+                                disabled={!MainStore.isMarkerPlaced}
+                                style={{
+                                    backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '16px',
+                                    height: '32px',
+                                    cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
+                                    transition: 'all 200ms'
+                                }}
+                            >
+                            Mark Livelihood
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 )}
             </div>

@@ -34,7 +34,7 @@ const HamburgerMenu = ({ open, onClose }) => {
 
         {/* Menu items */}
         <div className="p-4 space-y-3">
-            <button
+            {/* <button
             onClick={() => {
                 setMenuOption("language")
                 onClose()
@@ -47,7 +47,7 @@ const HamburgerMenu = ({ open, onClose }) => {
                 <span>{t("Choose Language")}</span>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
-            </button>
+            </button> */}
 
             <button
             onClick={() => {
