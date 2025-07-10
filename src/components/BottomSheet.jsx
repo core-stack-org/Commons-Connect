@@ -366,88 +366,106 @@ const Bottomsheet = () => {
 
     const metaDataBody = (
         <>
-            <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
+            <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
             {t("Asset Info")}
             </div>
 
-            <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
-                <table className="w-full table-auto border-separate border-spacing-y-3">
-                    <tbody>
-                    {MainStore.isMetadata && MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key) => {
-                        const rawValue = MainStore.metadata[key];
-                        const formattedValue =
-                        key === 'Material' || key === 'Total_Expe'
-                            ? `₹${rawValue}`
-                            : rawValue;
+            <div className="pt-8 px-4 pb-6">
+                <div className="w-full max-w-4xl mx-auto">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        {MainStore.isMetadata && MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key, index) => {
+                            const rawValue = MainStore.metadata[key];
+                            const formattedValue =
+                            key === 'Material' || key === 'Total_Expe'
+                                ? `₹${rawValue}`
+                                : rawValue;
 
-                        return (
-                        <tr
-                            key={key}
-                            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                        >
-                            <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
-                            {nregaDetails.NameDisplayMapping[key]}
-                            </td>
-                            <td className="px-6 py-4 text-gray-600 break-words text-md">
-                            {formattedValue}
-                            </td>
-                        </tr>
-                        );
-                    })}
-                    </tbody>
-                </table>
+                            return (
+                            <div
+                                key={key}
+                                className={`flex items-center min-h-[3rem] ${
+                                    index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                            >
+                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                        {nregaDetails.NameDisplayMapping[key]}
+                                    </span>
+                                </div>
+                                <div className="flex-1 px-4 py-3">
+                                    <span className="text-sm text-gray-800 font-medium">
+                                        {formattedValue}
+                                    </span>
+                                </div>
+                            </div>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
         </>
     )
 
     const resourceBody = (
         <>
-        <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
+        <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
             {t("Resource Info")}
         </div>
 
-        <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
-        <tbody>
-            {MainStore.isResource && MainStore.selectedResource !== null &&
-                Object.keys(resourceDetails[MainStore.resourceType]).flatMap(key => {
-                let rawValue = MainStore.selectedResource[key];
+        <div className="pt-8 px-4 pb-6">
+            <div className="w-full max-w-4xl mx-auto">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    {MainStore.isResource && MainStore.selectedResource !== null &&
+                        Object.keys(resourceDetails[MainStore.resourceType]).flatMap((key, index) => {
+                        let rawValue = MainStore.selectedResource[key];
 
-                if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
-                    const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
-                    const data = (new Function(`return (${jsonReady})`))();
+                        if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
+                            const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
+                            const data = (new Function(`return (${jsonReady})`))();
 
-                    return Object.keys(data).map(innerKey => (
-                    <tr
-                        key={innerKey}
-                        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                    >
-                        {/* ⬇️ add grey background to the leftmost cell */}
-                        <td className="px-6 py-4 font-bold text-gray-900 break-words text-md bg-gray-50 rounded-l-lg">
-                        {ResourceMetaKeys[innerKey]}
-                        </td>
-                        <td className="px-6 py-4 text-gray-600 break-words text-md">
-                        {data[innerKey] ?? "—"}
-                        </td>
-                    </tr>
-                    ));
-                }
+                            return Object.keys(data).map((innerKey, innerIndex) => (
+                            <div
+                                key={innerKey}
+                                className={`flex items-center min-h-[3rem] ${
+                                    (index + innerIndex) % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                            >
+                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                        {ResourceMetaKeys[innerKey]}
+                                    </span>
+                                </div>
+                                <div className="flex-1 px-4 py-3">
+                                    <span className="text-sm text-gray-800 font-medium">
+                                        {data[innerKey] ?? "—"}
+                                    </span>
+                                </div>
+                            </div>
+                            ));
+                        }
 
-                return (
-                    <tr
-                    key={key}
-                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                    >
-                    {/* ⬇️ same tweak here */}
-                    <td className="px-6 py-4 font-bold text-gray-900 break-words text-md bg-gray-50 rounded-l-lg">
-                        {resourceDetails[MainStore.resourceType][key]}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 break-words text-md">
-                        {rawValue ?? "—"}
-                    </td>
-                    </tr>
-                );
-                })}
-            </tbody>
+                        return (
+                            <div
+                            key={key}
+                            className={`flex items-center min-h-[3rem] ${
+                                index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                            } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                            >
+                            <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                    {resourceDetails[MainStore.resourceType][key]}
+                                </span>
+                            </div>
+                            <div className="flex-1 px-4 py-3">
+                                <span className="text-sm text-gray-800 font-medium">
+                                    {rawValue ?? "—"}
+                                </span>
+                            </div>
+                            </div>
+                        );
+                        })}
+                </div>
+            </div>
         </div>
         </>
 
@@ -455,7 +473,7 @@ const Bottomsheet = () => {
 
     const LayerStoreBody = (
         <>
-        <div className="sticky top-0 z-20 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
+        <div className="sticky top-12 z-10 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
             <div className="text-xl font-bold text-gray-800">Layers Store</div>
             <div className="text-sm text-gray-600 font-normal mt-1">
                 {MainStore.currentScreen === 'Groundwater' ? 'Groundwater Layers' : 'Agriculture Layers'}
