@@ -643,16 +643,16 @@ const ResourceMapping = () => {
             <button
               className="px-6 py-3 text-sm font-medium flex items-center justify-center"
               onClick={() => withLoading(toggleFormsUrl)}
-              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced || !MainStore.isFeatureClicked}
               style={{
                 backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                color: '#592941',
+                color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
                 border: 'none',
                 borderRadius: '22px',
                 height: '44px',
                 width: '180px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                cursor: (MainStore.isFeatureClicked && !MainStore.isMarkerPlaced) ? 'not-allowed' : 'pointer',
+                cursor: (MainStore.isFeatureClicked && !MainStore.isMarkerPlaced) || !MainStore.isFeatureClicked ? 'not-allowed' : 'pointer',
                 transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
