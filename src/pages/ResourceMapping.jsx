@@ -28,6 +28,23 @@ const ResourceMapping = () => {
     };
 
     useEffect(() =>{
+      toast("Please place the pin anywhere on the map to add a settlement or select a settlement to mark resources for that settlement.", {
+        duration: 7000,
+        style: {
+          background: '#ffffff',
+          color: '#000000',
+          borderRadius: '20px',
+          padding: '10px',
+          fontSize: '14px',
+          fontFamily: 'Inter',
+          fontWeight: '400',
+          textAlign: 'left',
+          lineHeight: '1.5',
+        },
+      });
+    }, []);
+
+    useEffect(() =>{
       const handleBackButton = () => {
         let BACK = MainStore.currentStep - 1
 
@@ -235,7 +252,7 @@ const ResourceMapping = () => {
               }}
               disabled={!MainStore.isMarkerPlaced}
               style={{
-                backgroundColor: !MainStore.isMarkerPlaced ? '#D6D5C9' : '#D6D5C9',
+                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
                 color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                 border: 'none',
                 borderRadius: '22px',
@@ -264,7 +281,7 @@ const ResourceMapping = () => {
                   border: 'none',
                   borderRadius: '22px',
                   height: '44px',
-                  width: '220px',
+                  width: '350px',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                   cursor: 'pointer',
                   transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -289,7 +306,7 @@ const ResourceMapping = () => {
                   border: 'none',
                   borderRadius: '22px',
                   height: '44px',
-                  width: '220px',
+                  width: '350px',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                   cursor: 'pointer',
                   transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -332,12 +349,12 @@ const ResourceMapping = () => {
               onClick={() => withLoading(toggleFormsUrl)}
               disabled={!MainStore.isMarkerPlaced}
               style={{
-                backgroundColor: '#D6D5C9',
+                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
                 color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                 border: 'none',
                 borderRadius: '22px',
                 height: '44px',
-                width: '160px',
+                width: '200px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                 cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                 transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -421,7 +438,7 @@ const ResourceMapping = () => {
                 onClick={() => withLoading(toggleFormsUrl)}
                 disabled={!MainStore.isMarkerPlaced}
                 style={{
-                  backgroundColor: '#D6D5C9',
+                  backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
                   color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                   border: 'none',
                   borderRadius: '22px',
@@ -490,7 +507,7 @@ const ResourceMapping = () => {
               onClick={() => withLoading(toggleFormsUrl)}
               disabled={!MainStore.isMarkerPlaced}
               style={{
-                backgroundColor: '#D6D5C9',
+                backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
                 color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                 border: 'none',
                 borderRadius: '22px',
@@ -579,7 +596,7 @@ const ResourceMapping = () => {
                 onClick={() => withLoading(toggleFormsUrl)}
                 disabled={!MainStore.isMarkerPlaced}
                 style={{
-                  backgroundColor: '#D6D5C9',
+                  backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
                   color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
                   border: 'none',
                   borderRadius: '22px',
@@ -623,6 +640,7 @@ const ResourceMapping = () => {
                 let BACK = MainStore.currentStep - 1;
                 if(MainStore.currentStep) {
                   MainStore.setCurrentStep(BACK);
+                  MainStore.setFeatureStat(false);  
                 }
               })}
               style={{
