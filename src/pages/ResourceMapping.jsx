@@ -379,7 +379,7 @@ const ResourceMapping = () => {
                   border: 'none',
                   borderRadius: '22px',
                   height: '44px',
-                  width: '320px',
+                  width: '350px',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                   cursor: 'pointer',
                   transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -398,6 +398,7 @@ const ResourceMapping = () => {
                   let BACK = MainStore.currentStep - 1;
                   if(MainStore.currentStep) {
                     MainStore.setCurrentStep(BACK);
+                    MainStore.setFeatureStat(false);
                   }
                 })}
                 style={{
@@ -425,7 +426,7 @@ const ResourceMapping = () => {
                   border: 'none',
                   borderRadius: '22px',
                   height: '44px',
-                  width: '160px',
+                  width: '200px',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                   cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                   transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -437,7 +438,10 @@ const ResourceMapping = () => {
               {/* Separate Next Button */}
               <button
                 className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => withLoading(() => MainStore.setCurrentStep(2))}
+                onClick={() => withLoading(() => {
+                  MainStore.setCurrentStep(2)
+                  MainStore.setFeatureStat(false)
+                })}
                 style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -533,7 +537,7 @@ const ResourceMapping = () => {
                   border: 'none',
                   borderRadius: '22px',
                   height: '44px',
-                  width: '320px',
+                  width: '350px',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                   cursor: 'pointer',
                   transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -552,6 +556,7 @@ const ResourceMapping = () => {
                   let BACK = MainStore.currentStep - 1;
                   if(MainStore.currentStep) {
                     MainStore.setCurrentStep(BACK);
+                    MainStore.setFeatureStat(false);  
                   }
                 })}
                 style={{

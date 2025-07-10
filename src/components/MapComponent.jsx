@@ -594,7 +594,8 @@ const MapComponent = () => {
                 mapRef.current.removeInteraction(selectSettleIcon)
                 mapRef.current.addInteraction(selectSettleIcon)
                 setSelectedResource(feature.values_)
-                tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
+                // FIX: Use the actual settlement geometry instead of click coordinate
+                tempSettlementFeature.current.setGeometry(feature.getGeometry().clone())  // Changed this line
                 MainStore.setSettlementName(feature.values_.sett_name)
                 MainStore.setIsResource(true)
                 MainStore.setIsResourceOpen(true)
