@@ -31,9 +31,11 @@ import iconsDetails from "../assets/icons.json"
 import mapMarker from "../assets/map_marker.svg"
 import farm_pond_proposed from "../assets/farm_pond_proposed.svg"
 import land_leveling_proposed from "../assets/land_leveling_proposed.svg"
-import well_mrker from "../assets/well_proposed.svg"
+import well_mrker from "../assets/well_icon.svg"
 import Man_icon from "../assets/Man_icon.png"
-import livelihoodIcons from "../assets/livelihood_proposed.svg"
+import livelihoodIcon from "../assets/livelihood_proposed.svg"
+import fisheriesIcon from "../assets/Fisheries.svg"
+import plantationsIcon from "../assets/Plantation.svg"
 
 const MapComponent = () => {
     const mapElement = useRef(null);
@@ -228,7 +230,7 @@ const MapComponent = () => {
                         });
                         setTimeout(() => {
                             vectorSource.getFeatures().length > 0 ? resolve() : reject(new Error('Timeout loading features'));
-                        }, 10000);
+                        }, 8000);
                     }
                 };
                 checkFeatures();
@@ -511,11 +513,23 @@ const MapComponent = () => {
             //}
         });
 
-        livelihoodLayer.setStyle(
-            new Style({
-              image: new Icon({ src: livelihoodIcons}),
-            })
-        );
+        livelihoodLayer.setStyle(function (feature) {
+            if(feature.values_.select_o_3 === "Yes"){
+                return new Style({
+                    image: new Icon({ src: livelihoodIcon}),
+                })
+            }
+            else if(feature.values_.select_one === "Yes"){
+                return new Style({
+                    image: new Icon({ src: fisheriesIcon}),
+                })
+            }
+            else {
+                return new Style({
+                    image: new Icon({ src: plantationsIcon}),
+                })
+            }
+        });
 
         if(assetsLayerRefs[0].current !== null){mapRef.current.removeLayer(assetsLayerRefs[0].current)}
         if(assetsLayerRefs[1].current !== null){mapRef.current.removeLayer(assetsLayerRefs[1].current)}
@@ -790,11 +804,23 @@ const MapComponent = () => {
                 true,
                 true
             )
-            livelihoodLayer.setStyle(
-                new Style({
-                  image: new Icon({ src: livelihoodIcons}),
-                })
-            );
+            livelihoodLayer.setStyle(function (feature) {
+                if(feature.values_.select_o_3 === "Yes"){
+                    return new Style({
+                        image: new Icon({ src: livelihoodIcon}),
+                    })
+                }
+                else if(feature.values_.select_one === "Yes"){
+                    return new Style({
+                        image: new Icon({ src: fisheriesIcon}),
+                    })
+                }
+                else {
+                    return new Style({
+                        image: new Icon({ src: plantationsIcon}),
+                    })
+                }
+            });
             mapRef.current.removeLayer(LivelihoodRefs[0].current)
             LivelihoodRefs[0].current = livelihoodLayer
             mapRef.current.addLayer(LivelihoodRefs[0].current)
@@ -1151,6 +1177,7 @@ const MapComponent = () => {
             });
 
             mapRef.current.addLayer(assetsLayerRefs[0].current)
+            mapRef.current.addLayer(LivelihoodRefs[0].current)
         }
     }
     
