@@ -583,7 +583,8 @@ const MapComponent = () => {
             source : new VectorSource({
                 features : [markerFeature]
             }),
-            style : iconStyle
+            style : iconStyle,
+            zIndex: 100  
         })
 
         //? Interactions
@@ -600,7 +601,8 @@ const MapComponent = () => {
             source : new VectorSource({
                 features : [tempSettlementFeature.current]
             }),
-            style : settle_style
+            style : settle_style,
+            zIndex: 50  // low z-index than marker so that it is below the marker
         })
         tempSettlementLayer.current.setVisible(false)
 
@@ -610,13 +612,13 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
-            //MainStore.setSettlementName(null)
+            tempSettlementLayer.current.setVisible(false)
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
 
 
-
+            // MARK: Select settlement on click
             mapRef.current.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
               if (layer === assetsLayerRefs[0].current) {
                 MainStore.setResourceType("Settlement")
@@ -624,8 +626,8 @@ const MapComponent = () => {
                 mapRef.current.removeInteraction(selectSettleIcon)
                 mapRef.current.addInteraction(selectSettleIcon)
                 setSelectedResource(feature.values_)
-                // FIX: Use the actual settlement geometry instead of click coordinate
-                tempSettlementFeature.current.setGeometry(feature.getGeometry().clone())  // Changed this line
+                tempSettlementFeature.current.setGeometry(feature.getGeometry().clone())
+                tempSettlementLayer.current.setVisible(true)
                 MainStore.setSettlementName(feature.values_.sett_name)
                 MainStore.setIsResource(true)
                 MainStore.setIsResourceOpen(true)
@@ -633,6 +635,7 @@ const MapComponent = () => {
               else if (layer === assetsLayerRefs[1].current) {
                 MainStore.setResourceType("Well")
                 mapRef.current.removeInteraction(selectSettleIcon)
+                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
@@ -641,6 +644,7 @@ const MapComponent = () => {
               else if (layer === assetsLayerRefs[2].current) {
                 MainStore.setResourceType("Waterbody")
                 mapRef.current.removeInteraction(selectSettleIcon)
+                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
@@ -648,12 +652,14 @@ const MapComponent = () => {
               }
               else if(layer === assetsLayerRefs[3].current){
                 MainStore.setResourceType("Cropgrid")
+                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
               }
               else if(layer === LivelihoodRefs[0].current){
                 MainStore.setResourceType("Livelihood")
                 mapRef.current.removeInteraction(selectSettleIcon)
+                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)

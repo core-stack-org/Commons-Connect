@@ -250,12 +250,12 @@ const Homepage = () => {
             {/* ─── RESOURCE MAPPING ───────────────────────────────────────────── */}
             <div className="relative flex-1">
               <button
-                className="w-full px-6 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95"
+                className="w-full px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95 whitespace-nowrap"
                 style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
                   border: 'none',
-                  height: '44px',
+                  minHeight: '44px',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
                 }}
                 onClick={() => {
