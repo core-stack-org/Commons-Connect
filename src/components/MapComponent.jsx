@@ -25,6 +25,7 @@ import VectorSource from "ol/source/Vector.js";
 import settlementIcon from "../assets/settlement_icon.svg"
 import LargeWaterBody from "../assets/waterbodiesScreenIcon.svg"
 import RechargeIcon from "../assets/recharge_icon.svg"
+import IrrigationIcon from "../assets/irrigation_icon.svg"
 import selectedSettlementIcon from "../assets/selected_settlement.svg"
 import iconsDetails from "../assets/icons.json"
 import mapMarker from "../assets/map_marker.svg"
@@ -46,6 +47,7 @@ const MapComponent = () => {
     const WaterbodiesLayerRef = useRef(null)
     const PositionFeatureRef = useRef(null)
     const GeolocationRef = useRef(null)
+    const GpsLayerRef = useRef(null)
     
     const tempSettlementFeature = useRef(null)
     const tempSettlementLayer = useRef(null)
@@ -326,38 +328,40 @@ const MapComponent = () => {
                     setSelectedResource(deltaGFeature.values_)
                     MainStore.setIsGroundWater(true)
                     const clickedMwsId = deltaGFeature.get("uid");
+
                     groundwaterRefs[0].current.setStyle((feature) => {
                         if(feature.values_.uid === clickedMwsId){
-                            return new Style({
-                                stroke: new Stroke({
-                                    color: "#1AA7EC",
-                                    width: 1,
-                                }),
-                                fill: new Fill({
-                                    color: "rgba(255, 0, 0, 0.0)",
-                                })
-                            });
+                                return new Style({
+                                    stroke: new Stroke({
+                                        color: "#1AA7EC",
+                                        width: 1,
+                                    }),
+                                    fill: new Fill({
+                                        color: "rgba(255, 0, 0, 0.0)",
+                                    })
+                                });
                         }
                         else{
-                            const status = feature.values_;
-                            let tempColor
+                                const status = feature.values_;
+                                let tempColor
 
-                            if(status.Net2018_23 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
-                            else if(status.Net2018_23 >= -5 && status.Net2018_23 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
-                            else if(status.Net2018_23 >= -1 && status.Net2018_23 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
-                            else {tempColor = "rgba(0, 0, 255, 0.5)"}
+                                if(status.Net2018_23 < -5){tempColor = "rgba(255, 0, 0, 0.5)"}
+                                else if(status.Net2018_23 >= -5 && status.Net2018_23 < -1){tempColor = "rgba(255, 255, 0, 0.5)"}
+                                else if(status.Net2018_23 >= -1 && status.Net2018_23 <= 1){tempColor = "rgba(0, 255, 0, 0.5)"}
+                                else {tempColor = "rgba(0, 0, 255, 0.5)"}
 
-                            return new Style({
-                                stroke: new Stroke({
-                                    color: "#1AA7EC",
-                                    width: 1,
-                                }),
-                                fill: new Fill({
-                                    color: tempColor,
-                                })
-                            });
+                                return new Style({
+                                    stroke: new Stroke({
+                                        color: "#1AA7EC",
+                                        width: 1,
+                                    }),
+                                    fill: new Fill({
+                                        color: tempColor,
+                                    })
+                                });
                         }
                     });
+    
                 }
 
                 if(fortnightFeature !== undefined){
@@ -488,7 +492,7 @@ const MapComponent = () => {
                 });
               } else {
                 return new Style({
-                  image: new Icon({ src: LargeWaterBody }),
+                  image: new Icon({ src: IrrigationIcon }),
                 });
               }
         });
@@ -587,6 +591,8 @@ const MapComponent = () => {
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
 
+
+
             mapRef.current.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
               if (layer === assetsLayerRefs[0].current) {
                 MainStore.setResourceType("Settlement")
@@ -627,6 +633,10 @@ const MapComponent = () => {
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
+              }
+
+              if(feature.geometryChangeKey_.target.flatCoordinates[0] === GeolocationRef.current.position_[0] && feature.geometryChangeKey_.target.flatCoordinates[1] === GeolocationRef.current.position_[1]){
+                mapRef.current.removeInteraction(selectSettleIcon)
               }
             })
         });
@@ -764,7 +774,7 @@ const MapComponent = () => {
                     });
                   } else {
                     return new Style({
-                      image: new Icon({ src: LargeWaterBody }),
+                      image: new Icon({ src: IrrigationIcon }),
                     });
                   }
             });
@@ -892,6 +902,8 @@ const MapComponent = () => {
             else{
                 LayersStore.setDrainageLayer(false)
             }
+
+            mapRef.current.addLayer(AgriLayersRefs[2].current)
         }
         
         else if(currentScreen === "Livelihood"){
@@ -1243,6 +1255,8 @@ const MapComponent = () => {
                 }),
                 zIndex: 99 // Ensure it's on top
             });
+
+            GpsLayerRef.current = gpsLayer
             
             // Store cleanup references
             return () => {
