@@ -727,6 +727,7 @@ const MapComponent = () => {
 
                 waterStructureLayer.setStyle(function (feature) {
                     const status = feature.values_;
+                    console.log("Water structure: ", status);
                     if(status.status_re in iconsDetails.WB_Icons){
                         return new Style({
                             image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type] }),
