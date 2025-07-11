@@ -1,11 +1,13 @@
 import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 const SurfaceWaterBodies = () => {
 
     const MainStore = useMainStore((state) => state);
     const { t } = useTranslation();
+    const navigate = useNavigate();
     
     const handleAnalyze = () =>{
         MainStore.setIsOpen(true)
@@ -34,7 +36,9 @@ const SurfaceWaterBodies = () => {
         }
         if(MainStore.markerCoords){
           MainStore.setIsForm(true)
-          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", MainStore.isResource, gpsCoords))
+          
+          MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, gpsCoords))
+
           MainStore.setIsOpen(true)
         }
     }
@@ -58,7 +62,8 @@ const SurfaceWaterBodies = () => {
 
 
     return(
-        <>{/* Title Bubble */}
+        <>
+            {/* Title Bubble */}
             <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
@@ -118,9 +123,9 @@ const SurfaceWaterBodies = () => {
                     <button
                         className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                         style={{
-                        backgroundColor: '#D6D5C9',
+                        backgroundColor: '#808080',
                         color: '#592941',
-                        border: 'none',
+                        border: '1px solid #D6D5C9',
                         backdropFilter: 'none',
                         }}
                     >
@@ -135,31 +140,87 @@ const SurfaceWaterBodies = () => {
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
                 {MainStore.currentStep === 0 && (
-                    <div className="flex gap-4 w-full">
-                        <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={() => handleAnalyze()}
-                            disabled={!MainStore.isWaterbody}
-                            style={{
-                                backgroundColor: !MainStore.isWaterbody ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isWaterbody ? '#A8A8A8' : '#592941',
-                                border: 'none',
-                            }}
-                        >
-                            {t("Analyze")}
-                        </button>
-                        <button
-                            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                            onClick={toggleFormsUrl}
-                            disabled={!MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource)}
-                            style={{ 
-                                backgroundColor: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#696969' : '#D6D5C9',
-                                color: !MainStore.isMarkerPlaced && (!MainStore.isWaterbody || !MainStore.isResource) ? '#A8A8A8' : '#592941',
-                                border: 'none', 
-                            }}
-                        >
-                            {t("Propose Maintenance")}
-                        </button>
+                    <div className="flex flex-col items-center justify-center w-full gap-3">
+                        {/* Analyze Button - Top pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => handleAnalyze()}
+                                disabled={!MainStore.isWaterbody}
+                                style={{
+                                    backgroundColor: !MainStore.isWaterbody ? '#696969' : '#D6D5C9',
+                                    color: !MainStore.isWaterbody ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '350px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !MainStore.isWaterbody ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Analyze")}
+                            </button>
+                        </div>
+
+                        {/* Separate Back, Propose Maintenance, and Finish Buttons - Bottom section */}
+                        <div className="flex items-center justify-center w-full gap-3">
+                            {/* Separate Back Button */}
+                            <button
+                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => navigate('/maps')}
+                                style={{
+                                    backgroundColor: '#D6D5C9',
+                                    color: '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    cursor: 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                                }}
+                            >
+                                {t("Back")}
+                            </button>
+                            
+                            {/* Propose Maintenance Button */}
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={toggleFormsUrl}
+                                disabled={!(MainStore.isWaterbody || MainStore.isResource)}
+                                style={{
+                                    backgroundColor: !(MainStore.isWaterbody || MainStore.isResource) ? '#696969' : '#D6D5C9',
+                                    color: !(MainStore.isWaterbody || MainStore.isResource) ? '#A8A8A8' : '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    width: '190px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                                    cursor: !(MainStore.isWaterbody || MainStore.isResource) ? 'not-allowed' : 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
+                            >
+                                {t("Propose Maintenance")}
+                            </button>
+
+                            {/* Separate Finish Button */}
+                            <button
+                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => navigate('/maps')}
+                                style={{
+                                    backgroundColor: '#D6D5C9',
+                                    color: '#592941',
+                                    border: 'none',
+                                    borderRadius: '22px',
+                                    height: '44px',
+                                    cursor: 'pointer',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                                }}
+                            >
+                                {t("Finish")}
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

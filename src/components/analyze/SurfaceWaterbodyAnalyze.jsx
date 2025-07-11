@@ -10,6 +10,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
+import getOdkUrlForScreen from "../../action/getOdkUrl"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -51,12 +52,17 @@ const SurfaceWaterBodies = () => {
     };
   }, [idx, MainStore.selectedResource, yearLabel, t]);
 
+  const toggleFormsUrl = () => {
+    MainStore.setIsForm(true)
+    MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, [0,0], true))
+  }
+
   const boldFont = { weight: "bold" };
 
   return (
     <>
       {/* title */}
-      <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
+      <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
         {t("swb_heading")}
       </div>
 
@@ -65,7 +71,7 @@ const SurfaceWaterBodies = () => {
         <div className="relative h-72 sm:h-96 flex items-center justify-center">
           {isZero ? (
             <span className="text-gray-500 font-semibold">
-              {t("swb_no_data") || "The data for this year is Zero"}
+              {t("swb_no_data") || t("The data for this year is Zero")}
             </span>
           ) : (
             <Bar
@@ -86,7 +92,15 @@ const SurfaceWaterBodies = () => {
                   x: { ticks: { font: boldFont } },
                   y: {
                     beginAtZero: true,
-                    ticks: { stepSize: 25, font: boldFont },
+                    min: 0,
+                    max: 100,
+                    ticks: { 
+                      stepSize: 25,
+                      font: boldFont,
+                      callback: function(value) {
+                        return value + '%';
+                      }
+                    },
                     title: {
                       display: true,
                       text: "% area with water",
@@ -101,6 +115,31 @@ const SurfaceWaterBodies = () => {
 
         {/* year slider */}
         <div className="mt-6 w-3/4 max-w-lg mx-auto">
+          {/* Year marks above slider */}
+          <div className="relative mb-2">
+            <div className="flex justify-between relative">
+              {years.map((year, index) => (
+                <div key={year} className="flex flex-col items-center relative">
+                  {/* Tick mark */}
+                  <div 
+                    className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
+                      index === idx ? 'bg-[#592941]' : 'bg-gray-400'
+                    }`}
+                  />
+                  {/* Year label */}
+                  <span 
+                    className={`text-xs font-bold transition-colors duration-200 ${
+                      index === idx ? 'text-[#592941]' : 'text-gray-700'
+                    }`}
+                  >
+                    {year}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Slider */}
           <input
             type="range"
             min="0"
@@ -108,15 +147,32 @@ const SurfaceWaterBodies = () => {
             step="1"
             value={idx}
             onChange={(e) => setIdx(Number(e.target.value))}
-            className="w-full accent-[#592941]"
+            className="w-full accent-[#592941] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
           />
-          <div className="flex justify-between text-gray-700 text-xs mt-1 px-1 font-bold">
-            {years.map((y, i) => (
-              <span key={y} className={`flex-1 text-center ${i === idx ? "text-[#592941]" : ""}`}>
-                {y}
-              </span>
-            ))}
-          </div>
+          
+          {/* Add custom slider styles */}
+          <style jsx>{`
+            .slider-custom::-webkit-slider-thumb {
+              appearance: none;
+              height: 20px;
+              width: 20px;
+              border-radius: 50%;
+              background: #592941;
+              cursor: pointer;
+              border: 2px solid white;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            
+            .slider-custom::-moz-range-thumb {
+              height: 20px;
+              width: 20px;
+              border-radius: 50%;
+              background: #592941;
+              cursor: pointer;
+              border: 2px solid white;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+          `}</style>
         </div>
 
         {/* acreage chip */}
@@ -132,6 +188,22 @@ const SurfaceWaterBodies = () => {
         {/* paragraph */}
         <div className="mt-8 mx-auto max-w-prose px-4 text-[#374151] leading-relaxed tracking-wide">
           <p className="text-sm sm:text-sm">{t("info_swb_modal_1")}</p>
+        </div>
+
+        {/* Provide Feedback */}
+        <div className="flex justify-center mt-6">
+          <button
+            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-md"
+            onClick={toggleFormsUrl}
+            style={{ 
+                backgroundColor: '#D6D5C9',
+                color: '#592941',
+                border: 'none', 
+            }}
+            disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+          >
+          {t("Provide Feedback")}
+          </button>
         </div>
       </div>
     </>

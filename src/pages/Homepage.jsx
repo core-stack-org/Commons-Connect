@@ -10,7 +10,7 @@ const Homepage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const [isPlanOpen, setIsPlanOpen] = useState(false);
     const [isPlanningOpen, setIsPlanningOpen] = useState(false);
@@ -30,6 +30,12 @@ const Homepage = () => {
         MainStore.setDistrictName(transformName(searchParams.get('dist_name')));
         MainStore.setBlockName(transformName(searchParams.get('block_name')));
         MainStore.setBlockId?.(searchParams.get('block_id'));
+        
+        const language = searchParams.get('language');
+        if (language && ['en', 'hi'].includes(language)) {
+          i18n.changeLanguage(language);
+        }
+        
         MainStore.fetchPlans(`${import.meta.env.VITE_API_URL}get_plans/?block_id=${searchParams.get('block_id')}`)
       }
       MainStore.setIsResourceOpen(false)
@@ -60,8 +66,8 @@ const Homepage = () => {
     }
 
     const baseBtn =
-    'w-full px-4 py-3 rounded-xl shadow-sm text-sm ' +
-    'bg-[#D6D5C9] text-[#592941] hover:bg-[#cac8bb] transition-colors';
+  'w-full px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center justify-center ' +
+  'transition-all duration-300 ease-in-out transform hover:scale-105';
 
     const handleSelect = (section) => {
       if(!MainStore.currentPlan){
@@ -244,7 +250,14 @@ const Homepage = () => {
             {/* ─── RESOURCE MAPPING ───────────────────────────────────────────── */}
             <div className="relative flex-1">
               <button
-                className={baseBtn}
+                className="w-full px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform hover:scale-105"
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  height: '44px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                }}
                 onClick={() => {
                   if (MainStore.currentPlan) {
                     MainStore.setCurrentScreen('Resource_mapping');
@@ -261,7 +274,14 @@ const Homepage = () => {
             {/* ─── PLANNING + MENU ────────────────────────────────────────────── */}
             <div className="relative flex-1">
               <button
-                className={baseBtn}
+                className="w-full px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform hover:scale-105"
+                style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  height: '44px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                }}
                 onClick={() => setIsPlanningOpen((o) => !o)}
               >
                 {t("Planning")}
@@ -270,18 +290,25 @@ const Homepage = () => {
               {isPlanningOpen && (
                 <div
                   className="
-                    absolute bottom-full mb-2 left-1/2 -translate-x-1/2
-                    w-full max-w-xs
-                    space-y-2 p-2
-                    rounded-xl bg-white/20 backdrop-blur-lg border border-white/30
-                    shadow-lg
+                    absolute bottom-full mb-4 left-1/2 -translate-x-1/2
+                    w-full max-w-sm
+                    space-y-4 p-6
+                    rounded-2xl bg-white/20 backdrop-blur-lg border border-white/30
+                    shadow-xl
                   "
                 >
                   {['Groundwater', 'Surface Waterbodies', 'Agriculture', 'Livelihood'].map(
                     (item) => (
                       <button
                         key={item}
-                        className={baseBtn}
+                        className="w-full px-8 py-2 rounded-full shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform hover:scale-105"
+                        style={{
+                          backgroundColor: '#D6D5C9',
+                          color: '#592941',
+                          border: 'none',
+                          height: '48px',
+                          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                        }}
                         onClick={() => handleSelect(item)}
                       >
                         {t(item)}

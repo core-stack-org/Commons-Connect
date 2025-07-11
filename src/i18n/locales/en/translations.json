@@ -42,7 +42,7 @@
     "info_blank": "No annual data found for the selected year",
 
     "gw_heading": "GroundWater Analysis",
-    "info_gw_header_1": "Change in Groundwater table over the years",
+    "info_gw_header_1": "Change in Groundwater table in the year:",
     "info_gw_header_2": "Precipitation and RunOff",
     "info_gw_header_3": "Evapotranspiration",
     "info_gw_header_4": "Groundwater",
@@ -61,5 +61,10 @@
     "drought_header": "Drought Frequency",
     "cropping_in_header": "Cropping Intensity",
     "info_agri_modal_1" : "This shows the number of weeks during the Kharif season that this area was under mild drought conditions, medium drought conditions, or severe drought conditions. The Government of India definition of mild/medium/severe drought is based on dry spells and visible decrease in greenness. Areas under drought may benefit from farm ponds for protective irrigation. You can use the slider to move across different years.",
-    "info_agri_modal_2" : "This shows the cropping intensity in this area, as the percentage of cropping area that was under single cropping, double cropping, or triple cropping. Single cropping is mostly rainfed, whereas double cropping typically requires access to irrigation. Cropping intensity increase may suggest groundwater usage for irrigation, and cropping intensity decrease may suggest land degradation or drying up of aquifers for groundwater based irrigation. You can use the slider to move across different years."
+    "info_agri_modal_2" : "This shows the cropping intensity in this area, as the percentage of cropping area that was under single cropping, double cropping, or triple cropping. Single cropping is mostly rainfed, whereas double cropping typically requires access to irrigation. Cropping intensity increase may suggest groundwater usage for irrigation, and cropping intensity decrease may suggest land degradation or drying up of aquifers for groundwater based irrigation. You can use the slider to move across different years.",
+
+    "toast_groundwater" : "Tap anywhere on the map to raise demand for 'New Recharge Structure'",
+    "toast_agri" : "Tap anywhere on the map to raise demand for 'New Irrigation work'",
+
+    "nrega_works_info" : "NOTE: NREGA works are shown for the years 2016 to 2024."
 }
