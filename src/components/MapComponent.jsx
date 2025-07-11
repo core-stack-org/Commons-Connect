@@ -452,11 +452,21 @@ const MapComponent = () => {
 
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
+            const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
+            const wellMaintenance = wellConditionData.select_one_maintenance || "";
+           
             if(status.status_re in iconsDetails.socialMapping_icons.well){
                 return new Style({
                     image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
                 })
             }
+
+            else if(wellMaintenance === "Yes"){
+                return new Style({
+                    image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
+                })
+            }
+
             else{
                 return new Style({
                     image: new Icon({ src: iconsDetails.socialMapping_icons.well["proposed"] }),
@@ -698,9 +708,17 @@ const MapComponent = () => {
 
                 wellLayer.setStyle(function (feature) {
                     const status = feature.values_;
+                    const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
+                    const wellMaintenance = wellConditionData.select_one_maintenance || "";
+
                     if(status.status_re in iconsDetails.socialMapping_icons.well){
                         return new Style({
                             image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
+                        })
+                    }
+                    else if(wellMaintenance === "Yes"){
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
                         })
                     }
                     else{
