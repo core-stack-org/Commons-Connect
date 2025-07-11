@@ -600,8 +600,7 @@ const MapComponent = () => {
                 mapRef.current.removeInteraction(selectSettleIcon)
                 mapRef.current.addInteraction(selectSettleIcon)
                 setSelectedResource(feature.values_)
-                // FIX: Use the actual settlement geometry instead of click coordinate
-                tempSettlementFeature.current.setGeometry(feature.getGeometry().clone())  // Changed this line
+                tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
                 MainStore.setSettlementName(feature.values_.sett_name)
                 MainStore.setIsResource(true)
                 MainStore.setIsResourceOpen(true)
@@ -831,8 +830,7 @@ const MapComponent = () => {
                 mapRef.current.addLayer(WaterbodiesLayerRef.current)
             }
         }
-        
-        // MARK: Groundwater Layers
+
         else if(currentScreen === "Groundwater"){
             layerCollection.getArray().slice().forEach(layer => {
                 if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
@@ -840,43 +838,44 @@ const MapComponent = () => {
                 }
             });
 
-            // Step 0
-            if(currentStep === 0){
-                mapRef.current.addLayer(assetsLayerRefs[0].current) // Settlement layer
-                if(groundwaterRefs[2].current !== null){
-                    mapRef.current.addLayer(groundwaterRefs[2].current) // Fortnight layer
-                }
-                if(groundwaterRefs[0].current !== null){
-                    mapRef.current.addLayer(groundwaterRefs[0].current) // Well depth layer
-                }
-                
-                LayersStore.setSettlementLayer(true)
-                LayersStore.setWellDepth(true)
-                LayersStore.setDrainageLayer(false)
-                LayersStore.setCLARTLayer(false)
-                LayersStore.setWaterStructure(false)
-                LayersStore.setWorkGroundwater(true)
+            if(currentStep === 1 && !layerCollection.getArray().some(layer => layer === ClartLayerRef.current)){
+                mapRef.current.addLayer(ClartLayerRef.current)
             }
             
-            // Step 1: In the planning step
-            // TODO: Should I show works layer in both the steps?
-            else if(currentStep === 1){
-                if(ClartLayerRef.current !== null){
-                    mapRef.current.addLayer(ClartLayerRef.current) // CLART layer
-                }
-                if(groundwaterRefs[1].current !== null){
-                    mapRef.current.addLayer(groundwaterRefs[1].current) // Drainage layer
-                }
-                if(groundwaterRefs[3].current !== null){
-                    mapRef.current.addLayer(groundwaterRefs[3].current) // Works layer
-                }
-                
-                LayersStore.setSettlementLayer(true)
-                LayersStore.setWellDepth(false)
-                LayersStore.setDrainageLayer(true)
+            if(currentStep === 0){
+                mapRef.current.addLayer(assetsLayerRefs[0].current)
+            }
+
+            mapRef.current.addLayer(groundwaterRefs[1].current)
+            mapRef.current.addLayer(groundwaterRefs[3].current)
+            mapRef.current.addLayer(assetsLayerRefs[2].current)
+
+            if(!LayersStore["CLARTLayer"] && layerCollection.getArray().some(layer => layer === ClartLayerRef.current)){
                 LayersStore.setCLARTLayer(true)
+            }
+            else{
+                LayersStore.setCLARTLayer(false)
+            }
+
+            if(!LayersStore["DrainageLayer"] && layerCollection.getArray().some(layer => layer === groundwaterRefs[1].current)){
+                LayersStore.setDrainageLayer(true)
+            }
+            else{
+                LayersStore.setDrainageLayer(false)
+            }
+
+            if(!LayersStore["SettlementLayer"] && layerCollection.getArray().some(layer => layer === assetsLayerRefs[0].current)){
+                LayersStore.setSettlementLayer(true)
+            }
+            else{
+                LayersStore.setSettlementLayer(false)
+            }
+
+            if(!LayersStore["WaterStructure"] && layerCollection.getArray().some(layer => layer === assetsLayerRefs[2].current)){
+                LayersStore.setWaterStructure(true)
+            }
+            else{
                 LayersStore.setWaterStructure(false)
-                LayersStore.setWorkGroundwater(true)
             }
         }
         

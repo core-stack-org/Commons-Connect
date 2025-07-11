@@ -81,7 +81,7 @@ const Floater = () => {
         const lon = formatCoordinate(coords[0]);
 
         const baseContent = {
-            title: t("Marked Pin Location"),
+            title: t("Pin Location"),
             lat: lat,
             lon: lon
         };

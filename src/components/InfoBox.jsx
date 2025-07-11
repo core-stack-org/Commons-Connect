@@ -13,7 +13,7 @@ const InfoBox = () => {
   const currentMenuOption = useMainStore((state) => state.menuOption);
   const setMenuOption = useMainStore((state) => state.setMenuOption);
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const isHome = currentScreen === 'HomeScreen';
   const [activeTab, setActiveTab] = useState('information');
   const [email, setEmail] = useState('');
@@ -35,26 +35,17 @@ const InfoBox = () => {
   };
 
   const handleApplyLanguage = () => {
-    if (selectedLanguage) {
-      // Actually change the language using i18n
-      i18n.changeLanguage(selectedLanguage);
-      
-      // Update the current language state
+    if (!selectedLanguage) return;
+  
+    i18next.changeLanguage(selectedLanguage).then(() => {
       setCurrentLanguage(selectedLanguage);
-      
-      // Optionally update URL parameter to keep consistency
-      const url = new URL(window.location);
-      url.searchParams.set('language', selectedLanguage);
-      window.history.pushState({}, '', url);
-      
-      // Show success message
       setLanguageChangeSuccess(true);
       setTimeout(() => {
         setLanguageChangeSuccess(false);
         setMenuOption(null);
         setIsInfoOpen(false);
       }, 3000);
-    }
+    });
   };
 
   const handleDownloadDPR = () => {
@@ -144,15 +135,6 @@ const InfoBox = () => {
     }
   };
   
-  // Add this new helper function for KML upload reset
-  const handleReset = () => {
-    setSelectedFile(null);
-    setUploadProgress(0);
-    setUploadError(null);
-    setUploadSuccess(false);
-    setIsUploading(false);
-  };
-
   // Content for non-home screens
   const screenContent = {
       Resource_mapping: (
@@ -333,12 +315,6 @@ const InfoBox = () => {
     return emailRegex.test(email);
   };
 
-  // MARK: Language Selection
-  const getCurrentLanguageFromURL = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('language') || 'en';
-  };
-
 
   if (!isInfoOpen) return null;
 
@@ -496,9 +472,6 @@ const InfoBox = () => {
                 {/* Header Section */}
                 <div className="text-center space-y-2">
                   <p className="text-sm text-gray-600">Enter your email to receive your DPR document</p>
-                  {!currentPlan && (
-                    <p className="text-sm text-red-600 font-medium">Please select a plan first</p>
-                  )}
                 </div>
 
                 {/* Input Section */}
@@ -516,16 +489,13 @@ const InfoBox = () => {
                       <input
                         id="email-input"
                         type="email"
-                        placeholder={currentPlan ? "your.email@example.com" : "Please select a plan first"}
+                        placeholder="your.email@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        disabled={!currentPlan}
-                        className={`w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${
-                          !currentPlan ? 'bg-gray-100 cursor-not-allowed opacity-60' : ''
-                        }`}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
                       />
                     </div>
-                    {email && !isValidEmail(email) && currentPlan && (
+                    {email && !isValidEmail(email) && (
                       <p className="mt-1 text-sm text-red-600">Please enter a valid email address</p>
                     )}
                   </div>
@@ -533,42 +503,36 @@ const InfoBox = () => {
                   {/* Download Button */}
                   <button
                     onClick={handleDownloadDPR}
-                    disabled={!email || !isValidEmail(email) || !currentPlan}
+                    disabled={!email || !isValidEmail(email)}
                     className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:transform-none disabled:opacity-60 disabled:cursor-not-allowed"
                     style={{
-                      backgroundColor: email && isValidEmail(email) && currentPlan ? '#592941' : '#D6D5C9',
-                      color: email && isValidEmail(email) && currentPlan ? '#FFFFFF' : '#8B7355',
-                      boxShadow: email && isValidEmail(email) && currentPlan ? '0 4px 12px rgba(89, 41, 65, 0.3)' : 'none',
+                      backgroundColor: email && isValidEmail(email) ? '#592941' : '#D6D5C9',
+                      color: email && isValidEmail(email) ? '#FFFFFF' : '#8B7355',
+                      boxShadow: email && isValidEmail(email) ? '0 4px 12px rgba(89, 41, 65, 0.3)' : 'none',
                     }}
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <span>{currentPlan ? 'Get DPR' : 'Select Plan First'}</span>
+                      <span>Get DPR</span>
                     </div>
                   </button>
                 </div>
 
                 {/* Info Section */}
-                <div className={`border rounded-lg p-3 ${currentPlan ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <div className="flex items-start space-x-2">
-                    <svg className={`w-5 h-5 mt-0.5 flex-shrink-0 ${currentPlan ? 'text-blue-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <div className={`text-sm ${currentPlan ? 'text-blue-800' : 'text-gray-600'}`}>
-                      {currentPlan ? (
-                        <>
-                          <p className="font-medium">What to expect:</p>
-                          <ul className={`mt-1 space-y-1 ${currentPlan ? 'text-blue-700' : 'text-gray-600'}`}>
-                            <li>• Document will be sent to your email</li>
-                            <li>• Processing may take 5-10 minutes</li>
-                            <li>• Check spam folder if not received</li>
-                          </ul>
-                        </>
-                      ) : (
-                        <p className="font-medium">Please select a plan from the dropdown to generate DPR</p>
-                      )}
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium">What to expect:</p>
+                      <ul className="mt-1 space-y-1 text-blue-700">
+                        <li>• Document will be sent to your email</li>
+                        <li>• Processing may take 5-10 minutes</li>
+                        <li>• Check spam folder if not received</li>
+                      </ul>
                     </div>
                   </div>
                 </div>

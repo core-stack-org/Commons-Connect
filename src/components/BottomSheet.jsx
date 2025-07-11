@@ -176,7 +176,6 @@ const Bottomsheet = () => {
             flg = false;
         }
         else{
-            console.log("Came here!")
             flg = true
         }
     }
@@ -252,7 +251,7 @@ const Bottomsheet = () => {
             {/* Enhanced Title with cleaner styling */}
             <div className="text-center pt-8 pb-6 mb-8 bg-gradient-to-r border-b border-gray-200">
                 <h1 className="text-2xl font-semibold text-gray-800 tracking-wide">
-                    {t("NREGA Assets")}
+                    {t("NREGA Menu")}
                 </h1>
             </div>
     
@@ -353,119 +352,94 @@ const Bottomsheet = () => {
                         })}
                     </div>
                 </div> */}
-
-                {/* NREGA Works Information */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                    <p className="text-sm text-blue-800 text-left font-medium">
-                        {t("nrega_works_info")}
-                    </p>
-                </div>
             </div>
         </>
     )
 
     const metaDataBody = (
         <>
-            <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
+            <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
             {t("Asset Info")}
             </div>
 
-            <div className="pt-8 px-4 pb-6">
-                <div className="w-full max-w-4xl mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        {MainStore.isMetadata && MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key, index) => {
-                            const rawValue = MainStore.metadata[key];
-                            const formattedValue =
-                            key === 'Material' || key === 'Total_Expe'
-                                ? `₹${rawValue}`
-                                : rawValue;
+            <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
+                <table className="w-full table-auto border-separate border-spacing-y-3">
+                    <tbody>
+                    {MainStore.isMetadata && MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key) => {
+                        const rawValue = MainStore.metadata[key];
+                        const formattedValue =
+                        key === 'Material' || key === 'Total_Expe'
+                            ? `₹${rawValue}`
+                            : rawValue;
 
-                            return (
-                            <div
-                                key={key}
-                                className={`flex items-center min-h-[3rem] ${
-                                    index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                            >
-                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                        {nregaDetails.NameDisplayMapping[key]}
-                                    </span>
-                                </div>
-                                <div className="flex-1 px-4 py-3">
-                                    <span className="text-sm text-gray-800 font-medium">
-                                        {formattedValue}
-                                    </span>
-                                </div>
-                            </div>
-                            );
-                        })}
-                    </div>
-                </div>
+                        return (
+                        <tr
+                            key={key}
+                            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                        >
+                            <td className="px-6 py-4 font-bold text-gray-900 break-words text-md">
+                            {nregaDetails.NameDisplayMapping[key]}
+                            </td>
+                            <td className="px-6 py-4 text-gray-600 break-words text-md">
+                            {formattedValue}
+                            </td>
+                        </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
             </div>
         </>
     )
 
     const resourceBody = (
         <>
-        <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
+        <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
             {t("Resource Info")}
         </div>
 
-        <div className="pt-8 px-4 pb-6">
-            <div className="w-full max-w-4xl mx-auto">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    {MainStore.isResource && MainStore.selectedResource !== null &&
-                        Object.keys(resourceDetails[MainStore.resourceType]).flatMap((key, index) => {
-                        let rawValue = MainStore.selectedResource[key];
+        <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg ring-1 ring-gray-200">
+        <tbody>
+            {MainStore.isResource && MainStore.selectedResource !== null &&
+                Object.keys(resourceDetails[MainStore.resourceType]).flatMap(key => {
+                let rawValue = MainStore.selectedResource[key];
 
-                        if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
-                            const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
-                            const data = (new Function(`return (${jsonReady})`))();
+                if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
+                    const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
+                    const data = (new Function(`return (${jsonReady})`))();
 
-                            return Object.keys(data).map((innerKey, innerIndex) => (
-                            <div
-                                key={innerKey}
-                                className={`flex items-center min-h-[3rem] ${
-                                    (index + innerIndex) % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                            >
-                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                        {ResourceMetaKeys[innerKey]}
-                                    </span>
-                                </div>
-                                <div className="flex-1 px-4 py-3">
-                                    <span className="text-sm text-gray-800 font-medium">
-                                        {data[innerKey] ?? "—"}
-                                    </span>
-                                </div>
-                            </div>
-                            ));
-                        }
+                    return Object.keys(data).map(innerKey => (
+                    <tr
+                        key={innerKey}
+                        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                    >
+                        {/* ⬇️ add grey background to the leftmost cell */}
+                        <td className="px-6 py-4 font-bold text-gray-900 break-words text-md bg-gray-50 rounded-l-lg">
+                        {ResourceMetaKeys[innerKey]}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600 break-words text-md">
+                        {data[innerKey] ?? "—"}
+                        </td>
+                    </tr>
+                    ));
+                }
 
-                        return (
-                            <div
-                            key={key}
-                            className={`flex items-center min-h-[3rem] ${
-                                index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                            } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                            >
-                            <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                    {resourceDetails[MainStore.resourceType][key]}
-                                </span>
-                            </div>
-                            <div className="flex-1 px-4 py-3">
-                                <span className="text-sm text-gray-800 font-medium">
-                                    {rawValue ?? "—"}
-                                </span>
-                            </div>
-                            </div>
-                        );
-                        })}
-                </div>
-            </div>
+                return (
+                    <tr
+                    key={key}
+                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                    >
+                    {/* ⬇️ same tweak here */}
+                    <td className="px-6 py-4 font-bold text-gray-900 break-words text-md bg-gray-50 rounded-l-lg">
+                        {resourceDetails[MainStore.resourceType][key]}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 break-words text-md">
+                        {rawValue ?? "—"}
+                    </td>
+                    </tr>
+                );
+                })}
+            </tbody>
         </div>
         </>
 
@@ -473,7 +447,7 @@ const Bottomsheet = () => {
 
     const LayerStoreBody = (
         <>
-        <div className="sticky top-12 z-10 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
+        <div className="sticky top-0 z-20 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
             <div className="text-xl font-bold text-gray-800">Layers Store</div>
             <div className="text-sm text-gray-600 font-normal mt-1">
                 {MainStore.currentScreen === 'Groundwater' ? 'Groundwater Layers' : 'Agriculture Layers'}
@@ -609,60 +583,19 @@ const Bottomsheet = () => {
           MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
             }
         >
-            {/* Conditional header buttons based on content type */}
-            {MainStore.isNregaSheet ? (
-                <>
-                    {/* Cancel button for NREGA sheet */}
-                    <button
-                    onClick={onDismiss}
-                    className="
-                        absolute left-3 top-3 z-10
-                        px-4 py-2 rounded-lg
-                        bg-gray-100 hover:bg-gray-200
-                        text-gray-700 hover:text-gray-800
-                        text-sm font-medium
-                        shadow-sm transition
-                        border border-gray-300
-                    "
-                    aria-label="Cancel"
-                    >
-                    Cancel
-                    </button>
-                    
-                    {/* Done button for NREGA sheet */}
-                    <button
-                    onClick={onDismiss}
-                    className="
-                        absolute right-3 top-3 z-10
-                        px-4 py-2 rounded-lg
-                        bg-blue-600 hover:bg-blue-700
-                        text-white
-                        text-sm font-medium
-                        shadow-sm transition
-                    "
-                    aria-label="Done"
-                    >
-                    Done
-                    </button>
-                </>
-            ) : (
-                /* Cancel button for other sheets */
-                <button
-                onClick={onDismiss}
-                className="
-                    absolute left-3 top-3 z-10
-                    px-4 py-2 rounded-lg
-                    bg-gray-100 hover:bg-gray-200
-                    text-gray-700 hover:text-gray-800
-                    text-sm font-medium
-                    shadow-sm transition
-                    border border-gray-300
-                "
-                aria-label="Cancel"
-                >
-                Cancel
-                </button>
-            )}
+            <button
+            onClick={onDismiss}
+            className="
+                absolute right-3 top-3 z-10
+                w-8 h-8 flex items-center justify-center
+                rounded-full bg-gray-200 hover:bg-gray-300
+                text-gray-600 hover:text-gray-800
+                shadow-sm transition
+            "
+            aria-label="Close"
+            >
+            &times;
+            </button>
             <div className="pt-6">
             {renderBody()}
             </div>
