@@ -13,7 +13,6 @@ import {
 import { Bar, Line } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
-import getOdkUrlForScreen from "../../action/getOdkUrl"
 
 ChartJS.register(
   CategoryScale,
@@ -41,13 +40,12 @@ const GroundwaterAnalyze = () => {
   const fortnightData = useMainStore((state) => state.fortnightData)
   const yearlyData = useMainStore((state) => state.selectedResource)
   const { t } = useTranslation();
-  const MainStore = useMainStore((s) => s);
 
   /* slider index */
   const [idx, setIdx] = useState(YEAR_LABELS.length - 1);
   const yearFour = YEAR_LABELS[idx]; // "2017" … "2022"
 
-
+  /* 2.  annual record for that year ----------------------------- */
   const annual = useMemo(() => {
     const k = Object.keys(yearlyData || {}).find((key) =>
       key.startsWith(yearFour)
@@ -59,7 +57,7 @@ const GroundwaterAnalyze = () => {
     }
   }, [yearFour, yearlyData]);
 
-
+  /* 3.  slice fortnight data ------------------------------------ */
   const fort = useMemo(() => {
     if (!fortnightData) return { dates: [] };
     const out = { dates: [], prec: [], run: [], et: [], gw: [] };
@@ -83,7 +81,7 @@ const GroundwaterAnalyze = () => {
   const hasAnnual = Object.keys(annual).length > 0;
   const hasFort   = fort.dates.length > 0;
 
-
+  /* 4.  chart data (unchanged) ---------------------------------- */
   const barLine = {
     labels: fort.dates,
     datasets: [
@@ -139,21 +137,16 @@ const GroundwaterAnalyze = () => {
     ],
   };
 
-  const toggleFormsUrl = () => {
-    MainStore.setIsForm(true)
-    MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, [0,0], true))
-  }
-
-
+  /* 5.  UI ------------------------------------------------------ */
   return (
     <>
-      <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
+      <div className="sticky top-0 z-20 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
         {t("gw_heading")}
       </div>
 
       <div className="p-4 max-w-6xl mx-auto space-y-8 mt-4">
         <h2 className="text-center font-extrabold text-gray-700 mb-3 text-sm">
-            {t("info_gw_header_1")} {yearFour}
+            {t("info_gw_header_1")}
         </h2>
 
         {/* capsules */}
@@ -183,63 +176,21 @@ const GroundwaterAnalyze = () => {
 
         {/* year slider */}
         <div className="w-3/4 max-w-lg mx-auto">
-            {/* Year marks above slider */}
-            <div className="relative mb-2">
-                <div className="flex justify-between relative">
-                    {YEAR_LABELS.map((year, index) => (
-                        <div key={year} className="flex flex-col items-center relative">
-                            {/* Tick mark */}
-                            <div 
-                                className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
-                                    index === idx ? 'bg-[#0f766e]' : 'bg-gray-400'
-                                }`}
-                            />
-                            {/* Year label */}
-                            <span 
-                                className={`text-xs font-semibold transition-colors duration-200 ${
-                                    index === idx ? 'text-[#0f766e]' : 'text-gray-600'
-                                }`}
-                            >
-                                {year}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            
-            {/* Slider */}
             <input
                 type="range"
                 min="0"
                 max={YEAR_LABELS.length - 1}
                 value={idx}
                 onChange={(e) => setIdx(Number(e.target.value))}
-                className="w-full accent-[#0f766e] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
+                className="w-full accent-[#0f766e]"
             />
-            
-            {/* Add custom slider styles */}
-            <style jsx>{`
-                .slider-custom::-webkit-slider-thumb {
-                    appearance: none;
-                    height: 20px;
-                    width: 20px;
-                    border-radius: 50%;
-                    background: #0f766e;
-                    cursor: pointer;
-                    border: 2px solid white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                }
-                
-                .slider-custom::-moz-range-thumb {
-                    height: 20px;
-                    width: 20px;
-                    border-radius: 50%;
-                    background: #0f766e;
-                    cursor: pointer;
-                    border: 2px solid white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                }
-            `}</style>
+            <div className="flex justify-between text-sm font-bold mt-1">
+                {YEAR_LABELS.map((y) => (
+                <span key={y} className="flex-1 text-center">
+                    {y}
+                </span>
+                ))}
+            </div>
         </div>
 
         {/* Precip + Run-off chart */}
@@ -352,22 +303,6 @@ const GroundwaterAnalyze = () => {
               {t("info_gw_modal_3")}
             </p>
         </div>
-
-        {/* Provide Feedback */}
-        <div className="flex justify-center mt-6">
-          <button
-            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-md"
-            onClick={toggleFormsUrl}
-            style={{ 
-                backgroundColor: '#D6D5C9',
-                color: '#592941',
-                border: 'none', 
-            }}
-            disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
-          >
-          {t("Provide Feedback")}
-          </button>
-        </div>  
         </section>
       </div>
     </>

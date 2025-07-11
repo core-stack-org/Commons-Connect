@@ -3,7 +3,6 @@ import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import toast from 'react-hot-toast';
 
 const Agriculture = () => {
   const MainStore = useMainStore((state) => state);
@@ -96,24 +95,6 @@ const Agriculture = () => {
     MainStore.setIsOpen(true)
   }
 
-  const handleStartPlanning = () => {
-    MainStore.setCurrentStep(1);
-    toast(t("toast_agri"), {
-        duration: 5000,
-        style: {
-            background: '#ffffff',
-            color: '#000000',
-            borderRadius: '20px',
-            padding: '10px',
-            fontSize: '14px',
-            fontFamily: 'Inter',
-            fontWeight: '400',
-            textAlign: 'left',
-            lineHeight: '1.5',
-        },
-    });
-  };
-
   return (
     <>
       {/* Title Bubble (UNCHANGED) */}
@@ -178,9 +159,9 @@ const Agriculture = () => {
                 <button
                     className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                     style={{
-                    backgroundColor: '#808080',
+                    backgroundColor: '#D6D5C9',
                     color: '#592941',
-                    border: '1px solid #D6D5C9',
+                    border: 'none',
                     backdropFilter: 'none',
                     }}
                 >
@@ -243,227 +224,112 @@ const Agriculture = () => {
 
       {/* Bottom Controls (UNCHANGED) */}
       <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
-        {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
-          <div className="flex flex-col items-center justify-center w-full gap-3">
-            {/* Analyze Button - Top pill */}
-            <div className="flex items-center justify-center w-full">
-              <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => handleAnalyze()}
-                disabled={!MainStore.isMarkerPlaced}
-                style={{
-                  backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '350px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {t("Analyze")}
-              </button>
-            </div>
-
-            {/* Separate Back and Start Planning Buttons - Bottom section */}
-            <div className="flex items-center justify-center w-full gap-3">
-              {/* Separate Back Button */}
-              <button
-                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => navigate('/maps')}
-                style={{
-                  backgroundColor: '#D6D5C9',
-                  color: '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  cursor: 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                }}
-              >
-                {t("Back")}
-              </button>
-              
-              {/* Start Planning Button */}
-              <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={handleStartPlanning}
-                disabled={!MainStore.isMarkerPlaced}
-                style={{
-                  backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '270px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {t("Start Planning")}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {MainStore.currentStep === 0 && MainStore.isFeatureClicked && (
-          <div className="flex flex-col items-center justify-center w-full gap-3">
-            {/* Asset Info Button - Top pill */}
-            <div className="flex items-center justify-center w-full">
-              <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={handleAssetInfo}
-                disabled={!MainStore.isMarkerPlaced}
-                style={{
-                  backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '350px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {t("Asset Info")}
-              </button>
-            </div>
-
-            {/* Separate Back and Start Planning Buttons - Bottom section */}
-            <div className="flex items-center justify-center w-full gap-3">
-              {/* Separate Back Button */}
-              <button
-                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => navigate('/maps')}
-                style={{
-                  backgroundColor: '#D6D5C9',
-                  color: '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  cursor: 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                }}
-              >
-                {t("Back")}
-              </button>
-              
-              {/* Start Planning Button */}
-              <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={handleStartPlanning}
-                disabled={!MainStore.isMarkerPlaced}
-                style={{
-                  backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                  color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '270px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {t("Start Planning")}
-              </button>
-            </div>
-          </div>
+        {MainStore.currentStep === 0 && (
+          <div className="flex gap-4 w-full">
+            {MainStore.isFeatureClicked ? 
+                <button
+                    className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                    onClick={handleAssetInfo}
+                    disabled={!MainStore.isMarkerPlaced}
+                    style={{
+                        backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                        color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                        border: 'none',
+                    }}
+                >
+                    {t("Asset Info")}
+                </button> 
+                : 
+                <button
+                  className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                  onClick={() => handleAnalyze()}
+                  disabled={!MainStore.isMarkerPlaced}
+                  style={{
+                    backgroundColor: !MainStore.isMarkerPlaced ? "#696969" : "#D6D5C9",
+                    color: !MainStore.isMarkerPlaced ? "#A8A8A8" : "#592941",
+                    border: "none",
+                  }}
+                >
+                  {t("Analyze")}
+                </button>}
+                <button
+                  className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                  onClick={() => MainStore.setCurrentStep(1)}
+                  disabled={!MainStore.isMarkerPlaced}
+                  style={{
+                    backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                    color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                    border: 'none'
+                   }}
+                >
+                  {t("Start Planning")}
+                </button>
+              </div>
         )}
 
         {MainStore.currentStep === 1 && (
-          <div className="flex flex-col items-center justify-center w-full gap-3">
-            {/* Propose Maintenance Button - Top pill */}
-            <div className="flex items-center justify-center w-full">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex gap-4 w-full">
+            {/* {MainStore.isFeatureClicked ?
               <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                  className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                  onClick={handleAssetInfo}
+                  disabled={!MainStore.isMarkerPlaced}
+                  style={{
+                      backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
+                      color: !MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                      border: 'none',
+                  }}
+              >
+                  {t("Asset Info")}
+              </button> :
+              <button
+                className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                onClick={() => toggleFormsUrl(false)}
+                style={{  
+                  backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                  color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                  border: 'none', 
+                }}
+                disabled={MainStore.isFeatureClicked}
+              >
+                {t("Propose new Irrigation Work")}
+              </button>
+              } */}
+              <button
+                className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
+                onClick={() => toggleFormsUrl(false)}
+                style={{  
+                  backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                  color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
+                  border: 'none', 
+                }}
+                disabled={MainStore.isFeatureClicked}
+              >
+                {t("Propose new Irrigation Work")}
+              </button>
+
+              <button
+                className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
                 onClick={() => toggleFormsUrl(true)}
                 disabled={!MainStore.isFeatureClicked}
                 style={{
                   backgroundColor: !MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
                   color: !MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
                   border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '350px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: !MainStore.isFeatureClicked ? 'not-allowed' : 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >
                 {t("Propose Maintenance")}
               </button>
             </div>
 
-            {/* Separate Back, New Irrigation Work, and Finish Buttons - Bottom section */}
-            <div className="flex items-center justify-center w-full gap-3">
-              {/* Separate Back Button */}
-              <button
-                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => {
-                  let BACK = MainStore.currentStep - 1;
-                  if(MainStore.currentStep) {
-                    MainStore.setCurrentStep(BACK);
-                  }
-                }}
-                style={{
-                  backgroundColor: '#D6D5C9',
-                  color: '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  cursor: 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                }}
-              >
-                {t("Back")}
-              </button>
-              
-              {/* New Irrigation Work Button */}
-              <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => toggleFormsUrl(false)}
-                disabled={MainStore.isFeatureClicked}
-                style={{
-                  backgroundColor: MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
-                  color: MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '190px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: MainStore.isFeatureClicked ? 'not-allowed' : 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {t("New Irrigation Work")}
-              </button>
-
-              {/* Separate Finish Button */}
-              <button
-                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => navigate('/maps')}
-                style={{
-                  backgroundColor: '#D6D5C9',
-                  color: '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  cursor: 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                }}
-              >
-                {t("Finish")}
-              </button>
-            </div>
+            <button
+              className="w-1/2 self-center px-4 py-3 rounded-xl shadow-sm text-sm"
+              onClick={() => navigate("/maps")}
+              style={{ backgroundColor: "#D6D5C9", color: "#592941", border: "none" }}
+            >
+              {t("Finish")}
+            </button>
           </div>
         )}
       </div>
