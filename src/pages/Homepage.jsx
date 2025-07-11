@@ -250,7 +250,7 @@ const Homepage = () => {
             {/* ─── RESOURCE MAPPING ───────────────────────────────────────────── */}
             <div className="relative flex-1">
               <button
-                className="w-full px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform hover:scale-105"
+                className="w-full px-6 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95"
                 style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -266,6 +266,21 @@ const Homepage = () => {
                     toast.error('Please Select a Plan !');
                   }
                 }}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
               >
                 {t("Resource Mapping")}
               </button>
@@ -274,7 +289,7 @@ const Homepage = () => {
             {/* ─── PLANNING + MENU ────────────────────────────────────────────── */}
             <div className="relative flex-1">
               <button
-                className="w-full px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform hover:scale-105"
+                className="w-full px-6 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95"
                 style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -283,6 +298,21 @@ const Homepage = () => {
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
                 }}
                 onClick={() => setIsPlanningOpen((o) => !o)}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
               >
                 {t("Planning")}
               </button>
@@ -291,17 +321,18 @@ const Homepage = () => {
                 <div
                   className="
                     absolute bottom-full mb-4 left-1/2 -translate-x-1/2
-                    w-full max-w-sm
+                    w-54 max-w-sm
                     space-y-4 p-6
                     rounded-2xl bg-white/20 backdrop-blur-lg border border-white/30
                     shadow-xl
+                    flex flex-col items-center
                   "
                 >
                   {['Groundwater', 'Surface Waterbodies', 'Agriculture', 'Livelihood'].map(
                     (item) => (
                       <button
                         key={item}
-                        className="w-full px-8 py-2 rounded-full shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform hover:scale-105"
+                        className="w-48 px-2 py-2 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95"
                         style={{
                           backgroundColor: '#D6D5C9',
                           color: '#592941',
@@ -310,6 +341,21 @@ const Homepage = () => {
                           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
                         }}
                         onClick={() => handleSelect(item)}
+                        onTouchStart={(e) => {
+                          e.currentTarget.style.transform = 'scale(0.95)';
+                        }}
+                        onTouchEnd={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                        onMouseDown={(e) => {
+                          e.currentTarget.style.transform = 'scale(0.95)';
+                        }}
+                        onMouseUp={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
                       >
                         {t(item)}
                       </button>
