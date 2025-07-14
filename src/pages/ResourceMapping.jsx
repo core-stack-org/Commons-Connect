@@ -226,7 +226,7 @@ const ResourceMapping = () => {
       {/* MARK: Bottom Controls */}
       <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
         {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
-          <div className="flex items-center justify-center w-full gap-3">
+          <div key="step0-no-feature" className="flex items-center justify-center w-full gap-3">
             {/* Separate Back Button */}
             <button
               className="px-4 py-3 text-sm font-medium flex items-center justify-center"
@@ -249,6 +249,7 @@ const ResourceMapping = () => {
             <button
               className="px-6 py-3 text-sm font-medium flex items-center justify-center"
               onClick={() => {
+                console.log("Add Settlement clicked");
                 withLoading(toggleFormsUrl)
               }}
               disabled={!MainStore.isMarkerPlaced}
@@ -270,7 +271,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 0 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
-          <div className="flex flex-col items-center justify-center w-full gap-3">
+          <div key="step0-feature-clicked" className="flex flex-col items-center justify-center w-full gap-3">
             {/* Settlement Info Button - Top pill */}
             <div className="flex items-center justify-center w-full">
               <button
@@ -300,11 +301,14 @@ const ResourceMapping = () => {
                   e.stopPropagation(); 
                   e.preventDefault();  
                   console.log("Mark Resources clicked - going to step 1"); 
-                  withLoading(() =>{
-                    MainStore.setCurrentStep(1)
-                    MainStore.setIsResource(false)
-                    MainStore.setFeatureStat(false)
-                  })
+                  // Add a small delay to ensure clean state transition
+                  setTimeout(() => {
+                    withLoading(() =>{
+                      MainStore.setCurrentStep(1)
+                      MainStore.setIsResource(false)
+                      MainStore.setFeatureStat(false)
+                    })
+                  }, 100);
                 }}
                 style={{
                   backgroundColor: '#D6D5C9',
@@ -327,7 +331,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 1 && !MainStore.isFeatureClicked && (
-          <div className="flex items-center justify-center w-full gap-3">
+          <div key="step1-no-feature" className="flex items-center justify-center w-full gap-3">
             {/* Separate Back Button */}
             <button
               className="px-4 py-3 text-sm font-medium flex items-center justify-center"
@@ -354,7 +358,10 @@ const ResourceMapping = () => {
             {/* Add Well Button - Always visible */}
             <button
               className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-              onClick={() => withLoading(toggleFormsUrl)}
+              onClick={() => {
+                console.log("Add Well clicked");
+                withLoading(toggleFormsUrl)
+              }}
               disabled={!MainStore.isMarkerPlaced}
               style={{
                 backgroundColor: !MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
