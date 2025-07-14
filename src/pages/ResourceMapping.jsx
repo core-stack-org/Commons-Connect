@@ -301,14 +301,13 @@ const ResourceMapping = () => {
                   e.stopPropagation(); 
                   e.preventDefault();  
                   console.log("Mark Resources clicked - going to step 1"); 
-                  // Add a small delay to ensure clean state transition
                   setTimeout(() => {
                     withLoading(() =>{
                       MainStore.setCurrentStep(1)
                       MainStore.setIsResource(false)
                       MainStore.setFeatureStat(false)
                     })
-                  }, 100);
+                  }, 700);
                 }}
                 style={{
                   backgroundColor: '#D6D5C9',
