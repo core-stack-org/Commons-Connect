@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
+import SettlementBottomSheet from "../components/SettlementBottomSheet.jsx";
 import toast from 'react-hot-toast';
 
 const ResourceMapping = () => {
@@ -146,6 +147,9 @@ const ResourceMapping = () => {
       {/* Floater component for marker information */}
       <Floater />
 
+      {/* Settlement Bottom Sheet */}
+      <SettlementBottomSheet />
+
       {/* Title Bubble */}
       <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
         <div className="relative w-full max-w-lg mx-auto flex items-center">
@@ -267,56 +271,6 @@ const ResourceMapping = () => {
             >
               {t("Add Settlement")}
             </button>
-          </div>
-        )}
-
-        {MainStore.currentStep === 0 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
-          <div key="state-settlement-selected" className="flex flex-col items-center justify-center w-full gap-3">
-            {/* Settlement Info Button - Top pill */}
-            <div className="flex items-center justify-center w-full">
-              <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={handleAnalyze}
-                style={{
-                  backgroundColor: '#D6D5C9',
-                  color: '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '350px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {t("Settlement Info")}
-              </button>
-            </div>
-
-            {/* Mark Resources Button - Bottom pill */}
-            <div className="flex items-center justify-center w-full">
-              <button
-                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={() => withLoading(() =>{
-                  MainStore.setCurrentStep(1)
-                  MainStore.setIsResource(false)
-                  MainStore.setFeatureStat(false)
-                })}
-                style={{
-                  backgroundColor: '#D6D5C9',
-                  color: '#592941',
-                  border: 'none',
-                  borderRadius: '22px',
-                  height: '44px',
-                  width: '350px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              >
-                {t("Mark Resources")}
-              </button>
-            </div>
           </div>
         )}
 

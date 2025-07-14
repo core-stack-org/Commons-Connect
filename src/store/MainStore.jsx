@@ -22,6 +22,16 @@ const useMainStore = create((set) => ({
     setIsGPSClick : (stat) => set({isGPSClick : stat}),
     setGpsLocation : (stat) => set({gpsLocation : stat}),
     setLayerClicked : (stat) => set({layerClicked : stat}),
+    
+    // Temporary Store
+    startResourceMarking: () => set({ 
+        currentStep: 1, 
+        isResource: false, 
+        isFeatureClicked: false 
+    }),
+
+    isLayerBox: false,
+    setIsLayerBox: (val) => set({ isLayerBox: val }),
 
     //? Plans Store
     currentPlan : null,

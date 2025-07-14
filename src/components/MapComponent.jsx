@@ -618,7 +618,11 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
-            tempSettlementLayer.current.setVisible(false)
+            
+            const { currentScreen, currentStep } = useMainStore.getState();
+            if (currentScreen !== "Resource_mapping" || currentStep === 0) {
+              tempSettlementLayer.current.setVisible(false)
+            }
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
