@@ -474,9 +474,15 @@ const MapComponent = () => {
 
         waterStructureLayer.setStyle(function (feature) {
             const status = feature.values_;
-            if(status.status_re in iconsDetails.WB_Icons){
+
+            if (status.need_maint === "Yes"){
                 return new Style({
-                    image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type] }),
+                    image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.9 }),
+                })
+            }
+            else if (status.wbs_type in iconsDetails.WB_Icons) {
+                return new Style({
+                    image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type], scale: 0.5 }),
                 })
             }
             else{
@@ -733,10 +739,15 @@ const MapComponent = () => {
 
                 waterStructureLayer.setStyle(function (feature) {
                     const status = feature.values_;
-                    console.log("Water structure: ", status);
-                    if(status.status_re in iconsDetails.WB_Icons){
+                    
+                    if (status.need_maint === "Yes"){
                         return new Style({
-                            image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type] }),
+                            image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.9 }),
+                        })
+                    }
+                    else if (status.wbs_type in iconsDetails.WB_Icons) {
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type], scale: 0.5 }),
                         })
                     }
                     else{
