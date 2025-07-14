@@ -226,7 +226,7 @@ const ResourceMapping = () => {
       {/* MARK: Bottom Controls */}
       <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
         {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
-          <div key="step0-no-feature" className="flex items-center justify-center w-full gap-3">
+          <div key="state-initial" className="flex items-center justify-center w-full gap-3">
             {/* Separate Back Button */}
             <button
               className="px-4 py-3 text-sm font-medium flex items-center justify-center"
@@ -271,7 +271,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 0 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
-          <div key="step0-feature-clicked" className="flex flex-col items-center justify-center w-full gap-3">
+          <div key="state-settlement-selected" className="flex flex-col items-center justify-center w-full gap-3">
             {/* Settlement Info Button - Top pill */}
             <div className="flex items-center justify-center w-full">
               <button
@@ -307,7 +307,7 @@ const ResourceMapping = () => {
                       MainStore.setIsResource(false)
                       MainStore.setFeatureStat(false)
                     })
-                  }, 700);
+                  }, 500);
                 }}
                 style={{
                   backgroundColor: '#D6D5C9',
@@ -330,7 +330,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 1 && !MainStore.isFeatureClicked && (
-          <div key="step1-no-feature" className="flex items-center justify-center w-full gap-3">
+          <div key="state-add-well" className="flex items-center justify-center w-full gap-3">
             {/* Separate Back Button */}
             <button
               className="px-4 py-3 text-sm font-medium flex items-center justify-center"
@@ -398,7 +398,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 1 && MainStore.isFeatureClicked && MainStore.resourceType === "Well" && (
-          <div className="flex flex-col items-center justify-center w-full gap-3">
+          <div key="state-well-info" className="flex flex-col items-center justify-center w-full gap-3">
             {/* Well Info Button - Top pill */}
             <div className="flex items-center justify-center w-full">
               <button
@@ -491,7 +491,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 2 && !MainStore.isFeatureClicked && (
-          <div className="flex items-center justify-center w-full gap-3">
+          <div key="state-add-waterbody" className="flex items-center justify-center w-full gap-3">
             {/* Separate Back Button */}
             <button
               className="px-4 py-3 text-sm font-medium flex items-center justify-center"
@@ -556,7 +556,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 2 && MainStore.isFeatureClicked && MainStore.resourceType === "Waterbody" && (
-          <div className="flex flex-col items-center justify-center w-full gap-3">
+          <div key="state-waterbody-info" className="flex flex-col items-center justify-center w-full gap-3">
             {/* Water Structure Info Button - Top pill */}
             <div className="flex items-center justify-center w-full">
               <button
@@ -646,7 +646,7 @@ const ResourceMapping = () => {
         )}
 
         {MainStore.currentStep === 3 && (
-          <div className="flex items-center justify-center w-full gap-3">
+          <div key="state-add-crop" className="flex items-center justify-center w-full gap-3">
             {/* Separate Back Button */}
             <button
               className="px-4 py-3 text-sm font-medium flex items-center justify-center"
