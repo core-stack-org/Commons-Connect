@@ -590,10 +590,10 @@ const MapComponent = () => {
                 features : [markerFeature]
             }),
             style : iconStyle,
-            zIndex: 100  
+            // zIndex: 100  
         })
 
-        //? Interactions
+        // MARK: Interactions
         const settle_style = new Style({
             image: new Icon({ src: selectedSettlementIcon}),
         })
@@ -608,7 +608,7 @@ const MapComponent = () => {
                 features : [tempSettlementFeature.current]
             }),
             style : settle_style,
-            zIndex: 50  // low z-index than marker so that it is below the marker
+            // zIndex: 50  // low z-index than marker so that it is below the marker
         })
         tempSettlementLayer.current.setVisible(false)
 
