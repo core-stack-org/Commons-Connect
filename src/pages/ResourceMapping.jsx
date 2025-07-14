@@ -138,7 +138,7 @@ const ResourceMapping = () => {
       <>
       {/* Loader overlay */}
       {MainStore.isLoading && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 pointer-events-none">
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
           <div className="w-12 h-12 border-4 border-t-4 border-white rounded-full animate-spin" />
         </div>
       )}
@@ -297,18 +297,11 @@ const ResourceMapping = () => {
             <div className="flex items-center justify-center w-full">
               <button
                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                onClick={(e) => {
-                  e.stopPropagation(); 
-                  e.preventDefault();  
-                  console.log("Mark Resources clicked - going to step 1"); 
-                  setTimeout(() => {
-                    withLoading(() =>{
-                      MainStore.setCurrentStep(1)
-                      MainStore.setIsResource(false)
-                      MainStore.setFeatureStat(false)
-                    })
-                  }, 500);
-                }}
+                onClick={() => withLoading(() =>{
+                  MainStore.setCurrentStep(1)
+                  MainStore.setIsResource(false)
+                  MainStore.setFeatureStat(false)
+                })}
                 style={{
                   backgroundColor: '#D6D5C9',
                   color: '#592941',
@@ -319,8 +312,6 @@ const ResourceMapping = () => {
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                   cursor: 'pointer',
                   transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  position: 'relative',
-                  zIndex: 999 
                 }}
               >
                 {t("Mark Resources")}
