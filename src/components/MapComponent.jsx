@@ -467,9 +467,15 @@ const MapComponent = () => {
 
             if (status.need_maint === "Yes"){
                 try{
-                    return new Style({
-                        image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
-                    })
+                    if(status.wbs_type === "Trench cum bund network"){
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.6}),
+                        })
+                    }else{
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
+                        })
+                    }
                 }catch(err){
                     console.log(status.wbs_type)
                 }
