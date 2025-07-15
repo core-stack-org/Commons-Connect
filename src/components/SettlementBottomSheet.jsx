@@ -31,6 +31,16 @@ const SettlementBottomSheet = () => {
         MainStore.setFeatureStat(false);
     };
 
+    const handleCancel = () => {
+        // Clear the MainStore flags that control bottom sheet visibility
+        MainStore.setFeatureStat(false);
+        MainStore.setIsResource(false);
+        MainStore.setResourceType(null);
+        MainStore.setSelectedResource(null);
+        setIsAnimating(false);
+        setTimeout(() => setIsVisible(false), 300);
+    };
+
     if (!isVisible) {
         return null;
     }
@@ -42,6 +52,11 @@ const SettlementBottomSheet = () => {
                     isAnimating ? 'opacity-100' : 'opacity-0'
                 }`}
                 onClick={() => {
+                    // Clear the MainStore flags that control bottom sheet visibility
+                    MainStore.setFeatureStat(false);
+                    MainStore.setIsResource(false);
+                    MainStore.setResourceType(null);
+                    MainStore.setSelectedResource(null);
                     setIsAnimating(false);
                     setTimeout(() => setIsVisible(false), 300);
                 }}
@@ -49,7 +64,7 @@ const SettlementBottomSheet = () => {
             
             {/* Bottom sheet content */}
             <div 
-                className={`relative bg-white/20 backdrop-blur-md border-t border-white/30 rounded-t-3xl shadow-xl shadow-black/20 transition-all duration-300 ease-out pointer-events-auto overflow-hidden ${
+                className={`relative bg-white/20 backdrop-blur-sm border-t border-white/30 rounded-t-3xl shadow-xl shadow-black/20 transition-all duration-300 ease-out pointer-events-auto overflow-hidden ${
                     isAnimating ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
                 }`}
                 style={{
@@ -58,6 +73,27 @@ const SettlementBottomSheet = () => {
             >
                 <div className="flex justify-center pt-3 pb-2">
                     <div className="w-12 h-1 bg-white/40 rounded-full" />
+                </div>
+                
+                {/* Cancel Button - Top left corner */}
+                <div className="absolute top-4 left-4">
+                    <button
+                        className="px-3 py-1 text-sm font-medium flex items-center justify-center"
+                        onClick={handleCancel}
+                        style={{
+                            backgroundColor: 'transparent',
+                            color: '#fff',
+                            border: '1px solid rgba(255, 255, 255, 0.6)',
+                            borderRadius: '16px',
+                            height: '32px',
+                            minWidth: '60px',
+                            cursor: 'pointer',
+                            transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                        }}
+                    >
+                        {t("Cancel")}
+                    </button>
                 </div>
                 
                 {/* Content */}
@@ -113,6 +149,8 @@ const SettlementBottomSheet = () => {
                                 {t("Mark Resources")}
                             </button>
                         </div>
+
+
                     </div>
                 </div>
             </div>
