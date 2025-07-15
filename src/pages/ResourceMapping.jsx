@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
-import SettlementBottomSheet from "../components/SettlementBottomSheet.jsx";
 import toast from 'react-hot-toast';
 
 const ResourceMapping = () => {
