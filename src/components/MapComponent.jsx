@@ -95,18 +95,6 @@ const MapComponent = () => {
 
     let LivelihoodRefs = [useRef(null)]
 
-    //? Helper Function
-    function zoomToFeature(feature) {
-        const geom   = feature.getGeometry();
-        const extent = geom.getExtent();
-        mapRef.current.getView().fit(extent, {
-          size:    mapRef.current.getSize(),
-          padding: [50,50,50,50],
-          duration: 1000,
-          maxZoom: 18
-        });
-    }
-
     const initializeMap = async () => {
         const baseLayer = new TileLayer({
             source: new XYZ({
@@ -230,7 +218,7 @@ const MapComponent = () => {
                         });
                         setTimeout(() => {
                             vectorSource.getFeatures().length > 0 ? resolve() : reject(new Error('Timeout loading features'));
-                        }, 8000);
+                        }, 7000);
                     }
                 };
                 checkFeatures();
@@ -452,8 +440,8 @@ const MapComponent = () => {
 
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
-            //const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
-            //const wellMaintenance = wellConditionData.select_one_maintenance || "";
+            const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
+            const wellMaintenance = wellConditionData.select_one_maintenance || "";
            
             if(status.status_re in iconsDetails.socialMapping_icons.well){
                 return new Style({
@@ -461,11 +449,11 @@ const MapComponent = () => {
                 })
             }
 
-            // else if(wellMaintenance === "Yes"){
-            //     return new Style({
-            //         image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
-            //     })
-            // }
+            else if(wellMaintenance === "Yes"){
+                return new Style({
+                    image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
+                })
+            }
 
             else{
                 return new Style({
@@ -484,7 +472,7 @@ const MapComponent = () => {
             }
             else if (status.wbs_type in iconsDetails.WB_Icons) {
                 return new Style({
-                    image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type], scale: 0.5 }),
+                    image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type], scale: 0.8 }),
                 })
             }
             else{
@@ -564,15 +552,6 @@ const MapComponent = () => {
         mapRef.current.addLayer(assetsLayerRefs[1].current)
         mapRef.current.addLayer(assetsLayerRefs[2].current)
 
-        //? Zooming to first feature if present when changing plans
-        const TempSource = settlementLayer.getSource();
-        TempSource.once('featuresloadend', () => {
-            const feats = TempSource.getFeatures();
-            if (feats.length) {
-              zoomToFeature(feats[0]);
-            }
-        });
-
 
         //? Adding Marker to the Map on Click
         const markerFeature = new Feature()
@@ -589,11 +568,10 @@ const MapComponent = () => {
             source : new VectorSource({
                 features : [markerFeature]
             }),
-            style : iconStyle,
-            zIndex : 100,
+            style : iconStyle
         })
 
-        // MARK: Interactions
+        //? Interactions
         const settle_style = new Style({
             image: new Icon({ src: selectedSettlementIcon}),
         })
@@ -607,8 +585,7 @@ const MapComponent = () => {
             source : new VectorSource({
                 features : [tempSettlementFeature.current]
             }),
-            style : settle_style,
-            zIndex : 50,
+            style : settle_style
         })
         tempSettlementLayer.current.setVisible(false)
 
@@ -618,17 +595,11 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
-            
-            const { currentScreen, currentStep } = useMainStore.getState();
-            if (currentScreen !== "Resource_mapping" || currentStep === 0) {
-              tempSettlementLayer.current.setVisible(false)
-            }
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
 
 
-            // MARK: Select settlement on click
             mapRef.current.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
               if (layer === assetsLayerRefs[0].current) {
                 MainStore.setResourceType("Settlement")
@@ -636,8 +607,7 @@ const MapComponent = () => {
                 mapRef.current.removeInteraction(selectSettleIcon)
                 mapRef.current.addInteraction(selectSettleIcon)
                 setSelectedResource(feature.values_)
-                tempSettlementFeature.current.setGeometry(feature.getGeometry().clone())
-                tempSettlementLayer.current.setVisible(true)
+                tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
                 MainStore.setSettlementName(feature.values_.sett_name)
                 MainStore.setIsResource(true)
                 MainStore.setIsResourceOpen(true)
@@ -645,7 +615,6 @@ const MapComponent = () => {
               else if (layer === assetsLayerRefs[1].current) {
                 MainStore.setResourceType("Well")
                 mapRef.current.removeInteraction(selectSettleIcon)
-                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
@@ -654,7 +623,6 @@ const MapComponent = () => {
               else if (layer === assetsLayerRefs[2].current) {
                 MainStore.setResourceType("Waterbody")
                 mapRef.current.removeInteraction(selectSettleIcon)
-                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
@@ -662,14 +630,12 @@ const MapComponent = () => {
               }
               else if(layer === assetsLayerRefs[3].current){
                 MainStore.setResourceType("Cropgrid")
-                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
               }
               else if(layer === LivelihoodRefs[0].current){
                 MainStore.setResourceType("Livelihood")
                 mapRef.current.removeInteraction(selectSettleIcon)
-                tempSettlementLayer.current.setVisible(false)
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
@@ -795,17 +761,9 @@ const MapComponent = () => {
                 true
             )
             GroundWaterWorkLayer.setStyle(function (feature) {
-                // const status = feature.values_;
-                // if(status.work_type in iconsDetails.Recharge_Icons){
-                //     return new Style({
-                //         image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
-                //     })
-                // }
-                // else{
-                    return new Style({
-                        image: new Icon({ src: RechargeIcon }),
-                    })
-                //}
+                return new Style({
+                    image: new Icon({ src: RechargeIcon }),
+                })
             });
 
             mapRef.current.removeLayer(groundwaterRefs[2].current)
@@ -904,8 +862,7 @@ const MapComponent = () => {
                 mapRef.current.addLayer(WaterbodiesLayerRef.current)
             }
         }
-        
-        // MARK: Groundwater Layers
+
         else if(currentScreen === "Groundwater"){
             layerCollection.getArray().slice().forEach(layer => {
                 if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {

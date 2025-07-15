@@ -271,10 +271,10 @@ const ResourceMapping = () => {
           <div className="flex gap-4 w-full">
             <button
               className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-              onClick={() => withLoading(() =>{
+              onClick={() => {
                 MainStore.setCurrentStep(1)
                 MainStore.setIsResource(false)
-              })}
+              }}
               style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
             >
               {t("Mark Resources")}
