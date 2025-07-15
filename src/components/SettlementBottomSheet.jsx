@@ -103,7 +103,7 @@ const SettlementBottomSheet = () => {
                             {MainStore.settlementName || t("Selected Settlement")}
                         </h3>
                         <p className="text-sm text-white/80 drop-shadow-sm mt-1">
-                            {t("Choose an action for this settlement")}
+                            {t("settlement_action_text")}
                         </p>
                     </div>
                     

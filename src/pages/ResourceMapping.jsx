@@ -29,7 +29,7 @@ const ResourceMapping = () => {
     };
 
     useEffect(() =>{
-      toast("Please place the pin anywhere on the map to add a settlement or select a settlement to mark resources for that settlement.", {
+      toast(t("add_settlement_toast"), {
         duration: 5000,
         dismissible: true,
         style: {
@@ -263,7 +263,7 @@ const ResourceMapping = () => {
                 border: 'none',
                 borderRadius: '22px',
                 height: '44px',
-                width: '220px',
+                width: '270px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                 cursor: !MainStore.isMarkerPlaced ? 'not-allowed' : 'pointer',
                 transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
