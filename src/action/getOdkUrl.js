@@ -62,7 +62,5 @@ export default function getOdkUrlForScreen(screen, step, latlong, settlement_nam
         odk_url = `${import.meta.env.VITE_ODK_ADD_LIVELIHOOD}` + "&d[/data/GPS_point/point_mapappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/beneficiary_settlement]=" + settlement_name + "&d[/data/meta/instanceID]="
     }
 
-    console.log(odk_url)
-
     return odk_url;
 }
