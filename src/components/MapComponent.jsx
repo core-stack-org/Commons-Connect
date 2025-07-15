@@ -1004,6 +1004,35 @@ const MapComponent = () => {
             if(assetsLayerRefs[0].current !== null){
                 mapRef.current.addLayer(assetsLayerRefs[0].current)
                 mapRef.current.addLayer(assetsLayerRefs[1].current)
+                assetsLayerRefs[2].current.setStyle(function (feature) {
+                    const status = feature.values_;
+
+                    if (status.need_maint === "Yes"){
+                        try{
+                            if(status.wbs_type === "Trench cum bund network"){
+                                return new Style({
+                                    image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.6}),
+                                })
+                            }else{
+                                return new Style({
+                                    image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
+                                })
+                            }
+                        }catch(err){
+                            console.log(status.wbs_type)
+                        }
+                    }
+                    else if (status.wbs_type in iconsDetails.WB_Icons) {
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type]}),
+                        })
+                    }
+                    else{
+                        return new Style({
+                            image: new Icon({ src: LargeWaterBody }),
+                        })
+                    }
+                });
                 mapRef.current.addLayer(assetsLayerRefs[2].current)
             }
             if(MapMarkerRef.current !== null){
