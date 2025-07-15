@@ -215,7 +215,7 @@ const Agriculture = () => {
                 >
                     {getPlanLabel()}
                 </button>
-                  <button
+                  {/* <button
                       className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm ml-2"
                       style={{
                         backgroundColor: '#D6D5C9',
@@ -230,7 +230,7 @@ const Agriculture = () => {
                       }}
                       >
                       {"Layers"}
-                  </button>
+                  </button> */}
                 </div>
             </div>
       </div>

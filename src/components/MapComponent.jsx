@@ -440,18 +440,18 @@ const MapComponent = () => {
 
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
-            const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
-            const wellMaintenance = wellConditionData.select_one_maintenance || "";
-           
+            const m = status.Well_condi.match(/'select_one_maintenance'\s*:\s*'([^']*)'/i);
+            const wellMaintenance = m ? m[1].toLowerCase() === 'yes' : null;
+
             if(status.status_re in iconsDetails.socialMapping_icons.well){
                 return new Style({
                     image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
                 })
             }
 
-            else if(wellMaintenance === "Yes"){
+            else if(wellMaintenance){
                 return new Style({
-                    image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
+                    image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale : 0.5 }),
                 })
             }
 
@@ -466,13 +466,17 @@ const MapComponent = () => {
             const status = feature.values_;
 
             if (status.need_maint === "Yes"){
-                return new Style({
-                    image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.9 }),
-                })
+                try{
+                    return new Style({
+                        image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
+                    })
+                }catch(err){
+                    console.log(status.wbs_type)
+                }
             }
             else if (status.wbs_type in iconsDetails.WB_Icons) {
                 return new Style({
-                    image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type], scale: 0.8 }),
+                    image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type]}),
                 })
             }
             else{
@@ -604,7 +608,6 @@ const MapComponent = () => {
               if (layer === assetsLayerRefs[0].current) {
                 MainStore.setResourceType("Settlement")
                 setFeatureStat(true)
-                mapRef.current.removeInteraction(selectSettleIcon)
                 mapRef.current.addInteraction(selectSettleIcon)
                 setSelectedResource(feature.values_)
                 tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
@@ -697,19 +700,19 @@ const MapComponent = () => {
 
                 wellLayer.setStyle(function (feature) {
                     const status = feature.values_;
-                    const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
-                    const wellMaintenance = wellConditionData.select_one_maintenance || "";
+                    //const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
+                    //const wellMaintenance = wellConditionData.select_one_maintenance || "";
 
                     if(status.status_re in iconsDetails.socialMapping_icons.well){
                         return new Style({
                             image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
                         })
                     }
-                    else if(wellMaintenance === "Yes"){
-                        return new Style({
-                            image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
-                        })
-                    }
+                    // else if(wellMaintenance === "Yes"){
+                    //     return new Style({
+                    //         image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
+                    //     })
+                    // }
                     else{
                         return new Style({
                             image: new Icon({ src: iconsDetails.socialMapping_icons.well["proposed"] }),
@@ -732,9 +735,13 @@ const MapComponent = () => {
                     const status = feature.values_;
                     
                     if (status.need_maint === "Yes"){
-                        return new Style({
-                            image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.9 }),
-                        })
+                        try{
+                            return new Style({
+                                image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
+                            })
+                        }catch(err){
+                            console.log(status.wbs_type)
+                        }
                     }
                     else if (status.wbs_type in iconsDetails.WB_Icons) {
                         return new Style({
@@ -948,7 +955,7 @@ const MapComponent = () => {
                 else{
                     LayersStore.setDrainageLayer(false)
                 }
-                mapRef.current.addLayer(assetsLayerRefs[1].current)
+                //mapRef.current.addLayer(assetsLayerRefs[1].current)
                 mapRef.current.addLayer(assetsLayerRefs[2].current)
                 mapRef.current.addLayer(AgriLayersRefs[2].current)
             }
