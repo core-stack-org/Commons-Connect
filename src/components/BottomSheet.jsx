@@ -626,7 +626,7 @@ const Bottomsheet = () => {
                     "
                     aria-label="Cancel"
                     >
-                    Cancel
+                    {t("Cancel")}
                     </button>
                     
                     {/* Done button for NREGA sheet */}
@@ -642,7 +642,7 @@ const Bottomsheet = () => {
                     "
                     aria-label="Done"
                     >
-                    Done
+                    {t("Done")}
                     </button>
                 </>
             ) : (
@@ -660,7 +660,7 @@ const Bottomsheet = () => {
                 "
                 aria-label="Cancel"
                 >
-                Cancel
+                {t("Cancel")}
                 </button>
             )}
             <div className="pt-6">

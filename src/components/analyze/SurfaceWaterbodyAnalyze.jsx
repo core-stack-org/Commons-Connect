@@ -103,7 +103,7 @@ const SurfaceWaterBodies = () => {
                     },
                     title: {
                       display: true,
-                      text: "% area with water",
+                      text: t("swb_chart_title"),
                       font: boldFont,
                     },
                   },
