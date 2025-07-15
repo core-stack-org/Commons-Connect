@@ -37,6 +37,103 @@ import livelihoodIcon from "../assets/livelihood_proposed.svg"
 import fisheriesIcon from "../assets/Fisheries.svg"
 import plantationsIcon from "../assets/Plantation.svg"
 
+const WATER_STRUCTURE_MAPPING = {
+  GROUNDWATER: [
+    'check dam',
+    'percolation tank', 
+    'earthern gully plugs',
+    'drainage/soakage channels',
+    'recharge pits',
+    'sokage pits', // should be "soakage pits"
+    'trench cum bund network',
+    'continuous contour trenches (cct)',
+    'staggered contour trenches(sct)',
+    'water absorption trenches(wat)',
+    'rock fill dam',
+    'loose boulder structure',
+    'stone bunding',
+    'diversion drains',
+    'contour bunds/graded bunds',
+    'bunding:contour bunds/ graded bunds',
+    '5% model structure',
+    '30-40 model structure'
+  ],
+
+  SURFACE_WATERBODIES: [
+    'farm pond',
+    'canal',
+    'check dam',
+    'percolation tank',
+    'large water bodies',
+    'large water body',
+    'irrigation channel',
+    'rock fill dam',
+    'loose boulder structure', 
+    'community pond'
+  ],
+
+  AGRICULTURE: [
+    'farm pond',
+    'canal', 
+    'farm bund',
+    'community pond',
+    'well'
+  ]
+};
+
+function getWaterStructureStyle(feature) {
+  const status = feature.values_;
+  const wbsType = status.wbs_type?.toLowerCase() || '';
+  
+  if (status.need_maint === "Yes") {
+    try {
+      if (wbsType === "trench cum bund network") {
+        return new Style({
+          image: new Icon({ 
+            src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], 
+            scale: 0.6 
+          }),
+        });
+      } else {
+        return new Style({
+          image: new Icon({ 
+            src: iconsDetails.WB_Icons_Maintenance[status.wbs_type] 
+          }),
+        });
+      }
+    } catch(err) {
+      console.log('Maintenance icon not found for:', status.wbs_type);
+    }
+  }
+  
+  if (status.wbs_type in iconsDetails.WB_Icons) {
+    return new Style({
+      image: new Icon({ 
+        src: iconsDetails.WB_Icons[status.wbs_type] 
+      }),
+    });
+  }
+  
+  return new Style({
+    image: new Icon({ src: LargeWaterBody }),
+  });
+}
+
+function shouldShowWaterStructure(wbsType, screen) {
+  const normalizedType = wbsType?.toLowerCase() || '';
+  
+  switch(screen) {
+    case 'Groundwater':
+      return WATER_STRUCTURE_MAPPING.GROUNDWATER.includes(normalizedType);
+    case 'SurfaceWater':
+      return WATER_STRUCTURE_MAPPING.SURFACE_WATERBODIES.includes(normalizedType);
+    case 'Agriculture':
+      return WATER_STRUCTURE_MAPPING.AGRICULTURE.includes(normalizedType);
+    default:
+      return true; // Show all on homepage/default
+  }
+}
+
 const MapComponent = () => {
     const mapElement = useRef(null);
     const mapRef = useRef(null);
@@ -467,9 +564,15 @@ const MapComponent = () => {
 
             if (status.need_maint === "Yes"){
                 try{
-                    return new Style({
-                        image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
-                    })
+                    if(status.wbs_type === "Trench cum bund network"){
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.6}),
+                        })
+                    }else{
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
+                        })
+                    }
                 }catch(err){
                     console.log(status.wbs_type)
                 }
@@ -998,6 +1101,7 @@ const MapComponent = () => {
             if(assetsLayerRefs[0].current !== null){
                 mapRef.current.addLayer(assetsLayerRefs[0].current)
                 mapRef.current.addLayer(assetsLayerRefs[1].current)
+                assetsLayerRefs[2].current.setStyle(getWaterStructureStyle);
                 mapRef.current.addLayer(assetsLayerRefs[2].current)
             }
             if(MapMarkerRef.current !== null){
@@ -1087,98 +1191,10 @@ const MapComponent = () => {
             mapRef.current.addLayer(assetsLayerRefs[0].current)
             mapRef.current.addLayer(groundwaterRefs[3].current)
             assetsLayerRefs[2].current.setStyle(function (feature) {
-                const status = feature.values_;
-
-                if(status.wbs_type === "Check dam"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
+                if (shouldShowWaterStructure(feature.get('wbs_type'), 'Groundwater')) {
+                    return getWaterStructureStyle(feature);
                 }
-                else if(status.wbs_type === "Percolation Tank"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Earthern Gully plugs"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Drainage/Soakage channels"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Recharge pits"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Sokage pits"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Trench cum bund Network"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Continuous contour trenches (CCT)"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Staggered Contour trenches(SCT)"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Water absorption trenches(WAT)"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Rock fill Dam"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Loose Boulder Structure"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Stone bunding"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Diversion drains"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Contour bunds/graded bunds"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Bunding:Contour bunds/ graded bunds"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "5% model structure"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "30-40 model structure"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
+                return null;
             });
             mapRef.current.addLayer(assetsLayerRefs[2].current)
 
@@ -1215,58 +1231,10 @@ const MapComponent = () => {
             }
 
             assetsLayerRefs[2].current.setStyle(function (feature) {
-                const status = feature.values_;
-
-                if(status.wbs_type === "Farm pond"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
+                if (shouldShowWaterStructure(feature.get('wbs_type'), 'SurfaceWater')) {
+                    return getWaterStructureStyle(feature);
                 }
-                else if(status.wbs_type === "Canal"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Check dam"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Percolation Tank"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Large Water bodies"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Large Water Body"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Irrigation Channel"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Rock fill Dam"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Loose Boulder Structure"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Community pond"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
+                return null;
             });
 
             mapRef.current.addLayer(NregaWorkLayerRef.current)
@@ -1341,33 +1309,10 @@ const MapComponent = () => {
             mapRef.current.addLayer(assetsLayerRefs[1].current)
 
             assetsLayerRefs[2].current.setStyle(function (feature) {
-                const status = feature.values_;
-
-                if(status.wbs_type === "Farm pond"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
+                if (shouldShowWaterStructure(feature.get('wbs_type'), 'Agriculture')) {
+                    return getWaterStructureStyle(feature);
                 }
-                else if(status.wbs_type === "Canal"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Farm bund"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Community pond"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
-                else if(status.wbs_type === "Well"){
-                    return new Style({
-                        image: new Icon({ src: LargeWaterBody }),
-                    })
-                }
+                return null;
             });
 
             mapRef.current.addLayer(assetsLayerRefs[2].current)
@@ -1419,7 +1364,6 @@ const MapComponent = () => {
     useEffect(() => {
 
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
-            // Create position feature with icon
             const positionFeature = new Feature();
 
             positionFeature.setStyle(new Style({
@@ -1432,7 +1376,6 @@ const MapComponent = () => {
                 }),
             }));
             
-            // Store reference to position feature
             PositionFeatureRef.current = positionFeature;
             
             let tempCoords = MainStore.gpsLocation
@@ -1450,7 +1393,6 @@ const MapComponent = () => {
                             throw new Error('User Location missing');
                         }
                 }catch(err){
-                    // Handle position changes
                     GeolocationRef.current.on("change:position", function () {
                             const coordinates = GeolocationRef.current.getPosition();
                             if (coordinates) {

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
-import SettlementBottomSheet from "../components/SettlementBottomSheet.jsx";
 import toast from 'react-hot-toast';
 
 const ResourceMapping = () => {
@@ -342,8 +341,8 @@ const ResourceMapping = () => {
                 onClick={() => withLoading(toggleFormsUrl)}
                 disabled={!MainStore.isMarkerPlaced || MainStore.isFeatureClicked}
                 style={{
-                  backgroundColor: MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                  color: MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                  backgroundColor: !MainStore.isMarkerPlaced || MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                  color: !MainStore.isMarkerPlaced || MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
                   border: 'none',
                   borderRadius: '22px',
                   height: '44px',
@@ -431,8 +430,8 @@ const ResourceMapping = () => {
                 onClick={() => withLoading(toggleFormsUrl)}
                 disabled={!MainStore.isMarkerPlaced || MainStore.isFeatureClicked}
                 style={{
-                  backgroundColor: MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#696969' : '#D6D5C9',
-                  color: MainStore.isFeatureClicked && MainStore.isMarkerPlaced ? '#A8A8A8' : '#592941',
+                  backgroundColor: !MainStore.isMarkerPlaced || MainStore.isFeatureClicked ? '#696969' : '#D6D5C9',
+                  color: !MainStore.isMarkerPlaced || MainStore.isFeatureClicked ? '#A8A8A8' : '#592941',
                   border: 'none',
                   borderRadius: '22px',
                   height: '44px',
@@ -481,8 +480,6 @@ const ResourceMapping = () => {
                 border: 'none',
                 borderRadius: '22px',
                 height: '44px',
-                cursor: 'pointer',
-                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
               }}
             >
@@ -502,8 +499,6 @@ const ResourceMapping = () => {
                 height: '44px',
                 width: '180px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-                cursor: (MainStore.isFeatureClicked && !MainStore.isMarkerPlaced) || !MainStore.isFeatureClicked ? 'not-allowed' : 'pointer',
-                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
               {t("Provide Crop Info")}
