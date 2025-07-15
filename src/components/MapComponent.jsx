@@ -452,8 +452,8 @@ const MapComponent = () => {
 
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
-            const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
-            const wellMaintenance = wellConditionData.select_one_maintenance || "";
+            //const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
+            //const wellMaintenance = wellConditionData.select_one_maintenance || "";
            
             if(status.status_re in iconsDetails.socialMapping_icons.well){
                 return new Style({
@@ -461,11 +461,11 @@ const MapComponent = () => {
                 })
             }
 
-            else if(wellMaintenance === "Yes"){
-                return new Style({
-                    image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
-                })
-            }
+            // else if(wellMaintenance === "Yes"){
+            //     return new Style({
+            //         image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
+            //     })
+            // }
 
             else{
                 return new Style({
@@ -530,12 +530,12 @@ const MapComponent = () => {
         });
 
         livelihoodLayer.setStyle(function (feature) {
-            if(feature.values_.select_o_3 === "Yes"){
+            if(feature.values_.select_o_5 === "Yes"){
                 return new Style({
                     image: new Icon({ src: livelihoodIcon}),
                 })
             }
-            else if(feature.values_.select_one === "Yes"){
+            else if(feature.values_.select_o_6 === "Yes"){
                 return new Style({
                     image: new Icon({ src: fisheriesIcon}),
                 })
@@ -674,7 +674,14 @@ const MapComponent = () => {
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
               }
-
+              else if(layer === groundwaterRefs[3].current){
+                MainStore.setResourceType("Recharge")
+                mapRef.current.removeInteraction(selectSettleIcon)
+                tempSettlementLayer.current.setVisible(false)
+                setSelectedResource(feature.values_)
+                setFeatureStat(true)
+                MainStore.setIsResource(true)
+              }
               if(feature.geometryChangeKey_.target.flatCoordinates[0] === GeolocationRef.current.position_[0] && feature.geometryChangeKey_.target.flatCoordinates[1] === GeolocationRef.current.position_[1]){
                 mapRef.current.removeInteraction(selectSettleIcon)
               }
@@ -908,14 +915,18 @@ const MapComponent = () => {
 
             // Step 0
             if(currentStep === 0){
-                mapRef.current.addLayer(assetsLayerRefs[0].current) // Settlement layer
+
                 if(groundwaterRefs[2].current !== null){
                     mapRef.current.addLayer(groundwaterRefs[2].current) // Fortnight layer
                 }
                 if(groundwaterRefs[0].current !== null){
                     mapRef.current.addLayer(groundwaterRefs[0].current) // Well depth layer
                 }
-                
+
+                mapRef.current.addLayer(assetsLayerRefs[0].current) // Settlement layer
+                mapRef.current.addLayer(assetsLayerRefs[2].current)
+                mapRef.current.addLayer(groundwaterRefs[3].current) // Works layer
+
                 LayersStore.setSettlementLayer(true)
                 LayersStore.setWellDepth(true)
                 LayersStore.setDrainageLayer(false)
@@ -926,8 +937,9 @@ const MapComponent = () => {
             
             // Step 1: In the planning step
             // TODO: Should I show works layer in both the steps?
-            else if(currentStep === 1){
+            if(currentStep === 1){
                 if(ClartLayerRef.current !== null){
+                    ClartLayerRef.current.setOpacity(0.4)
                     mapRef.current.addLayer(ClartLayerRef.current) // CLART layer
                 }
                 if(groundwaterRefs[1].current !== null){
@@ -936,6 +948,7 @@ const MapComponent = () => {
                 if(groundwaterRefs[3].current !== null){
                     mapRef.current.addLayer(groundwaterRefs[3].current) // Works layer
                 }
+                mapRef.current.addLayer(assetsLayerRefs[2].current)
                 
                 LayersStore.setSettlementLayer(true)
                 LayersStore.setWellDepth(false)
@@ -953,23 +966,35 @@ const MapComponent = () => {
                 }
             });
 
-            if(!layerCollection.getArray().some(layer => layer === ClartLayerRef.current)){
-                mapRef.current.addLayer(ClartLayerRef.current)
-                LayersStore.setCLARTLayer(true)
+            if(currentStep === 0){
+                mapRef.current.addLayer(LulcLayerRefs[0].current)
+                mapRef.current.addLayer(AgriLayersRefs[0].current)
+                mapRef.current.addLayer(AgriLayersRefs[1].current)
+                mapRef.current.addLayer(AgriLayersRefs[2].current)
+                mapRef.current.addLayer(assetsLayerRefs[0].current)
+                mapRef.current.addLayer(assetsLayerRefs[1].current)
+                mapRef.current.addLayer(assetsLayerRefs[2].current)
             }
-            else{
-                LayersStore.setCLARTLayer(false)
+            if(currentStep === 1){
+                if(!layerCollection.getArray().some(layer => layer === ClartLayerRef.current)){
+                    mapRef.current.addLayer(ClartLayerRef.current)
+                    LayersStore.setCLARTLayer(true)
+                }
+                else{
+                    LayersStore.setCLARTLayer(false)
+                }
+    
+                if(!layerCollection.getArray().some(layer => layer === groundwaterRefs[1].current)){
+                    mapRef.current.addLayer(groundwaterRefs[1].current)
+                    LayersStore.setDrainageLayer(true)
+                }
+                else{
+                    LayersStore.setDrainageLayer(false)
+                }
+                mapRef.current.addLayer(assetsLayerRefs[1].current)
+                mapRef.current.addLayer(assetsLayerRefs[2].current)
+                mapRef.current.addLayer(AgriLayersRefs[2].current)
             }
-
-            if(!layerCollection.getArray().some(layer => layer === groundwaterRefs[1].current)){
-                mapRef.current.addLayer(groundwaterRefs[1].current)
-                LayersStore.setDrainageLayer(true)
-            }
-            else{
-                LayersStore.setDrainageLayer(false)
-            }
-
-            mapRef.current.addLayer(AgriLayersRefs[2].current)
         }
         
         else if(currentScreen === "Livelihood"){
@@ -1070,7 +1095,7 @@ const MapComponent = () => {
                     true,
                     ""
                 )
-                ClartLayer.setOpacity(0.6)
+                ClartLayer.setOpacity(0.4)
                 ClartLayerRef.current = ClartLayer
             }
 
@@ -1096,8 +1121,102 @@ const MapComponent = () => {
             mapRef.current.addLayer(groundwaterRefs[2].current)
             mapRef.current.addLayer(groundwaterRefs[currentStep].current)
             mapRef.current.addLayer(assetsLayerRefs[0].current)
-            //mapRef.current.addLayer(assetsLayerRefs[2].current)
-            //mapRef.current.addLayer(groundwaterRefs[3].current)
+            mapRef.current.addLayer(groundwaterRefs[3].current)
+            assetsLayerRefs[2].current.setStyle(function (feature) {
+                const status = feature.values_;
+
+                if(status.wbs_type === "Check dam"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Percolation Tank"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Earthern Gully plugs"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Drainage/Soakage channels"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Recharge pits"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Sokage pits"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Trench cum bund Network"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Continuous contour trenches (CCT)"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Staggered Contour trenches(SCT)"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Water absorption trenches(WAT)"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Rock fill Dam"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Loose Boulder Structure"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Stone bunding"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Diversion drains"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Contour bunds/graded bunds"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Bunding:Contour bunds/ graded bunds"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "5% model structure"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "30-40 model structure"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+            });
+            mapRef.current.addLayer(assetsLayerRefs[2].current)
 
             LayersStore.setAdminBoundary(true)
             LayersStore.setWellDepth(true)
@@ -1130,6 +1249,61 @@ const MapComponent = () => {
                 );
                 groundwaterRefs[1].current = drainageLayer
             }
+
+            assetsLayerRefs[2].current.setStyle(function (feature) {
+                const status = feature.values_;
+
+                if(status.wbs_type === "Farm pond"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Canal"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Check dam"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Percolation Tank"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Large Water bodies"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Large Water Body"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Irrigation Channel"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Rock fill Dam"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Loose Boulder Structure"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Community pond"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+            });
 
             mapRef.current.addLayer(NregaWorkLayerRef.current)
             mapRef.current.addLayer(WaterbodiesLayerRef.current)
@@ -1198,8 +1372,41 @@ const MapComponent = () => {
             mapRef.current.addLayer(LulcLayerRefs[0].current)
             mapRef.current.addLayer(AgriLayersRefs[0].current)
             mapRef.current.addLayer(AgriLayersRefs[1].current)
-            //mapRef.current.addLayer(AgriLayersRefs[2].current)
+            mapRef.current.addLayer(AgriLayersRefs[2].current)
             mapRef.current.addLayer(assetsLayerRefs[0].current)
+            mapRef.current.addLayer(assetsLayerRefs[1].current)
+
+            assetsLayerRefs[2].current.setStyle(function (feature) {
+                const status = feature.values_;
+
+                if(status.wbs_type === "Farm pond"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Canal"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Farm bund"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Community pond"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+                else if(status.wbs_type === "Well"){
+                    return new Style({
+                        image: new Icon({ src: LargeWaterBody }),
+                    })
+                }
+            });
+
+            mapRef.current.addLayer(assetsLayerRefs[2].current)
 
             LayersStore.setAdminBoundary(true)
             LayersStore.setLULCLayer(true)

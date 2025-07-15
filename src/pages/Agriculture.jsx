@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
@@ -10,22 +10,51 @@ const Agriculture = () => {
   const navigate  = useNavigate();
   const { t } = useTranslation();
 
-/* ─── Year‑slider setup ───────────────────────────────────── */
-    const years = [
-        "17-18",
-        "18-19",
-        "19-20",
-        "20-21",
-        "21-22",
-        "22-23",
-        "23-24",
-    ];
-    const [dragging, setDrag] = useState(false);
-    
-    const handleYearChange = (e) => {
-        MainStore.setLulcYearIdx(Number(e.target.value));
+  const STATE_MACHINE = {
+    1: {
+      Screen : "analyze",
+    },
+    2: {
+      Screen : "add_maintain"
     }
-    const percent = (MainStore.lulcYearIdx / (years.length - 1)) * 100;    // 0 – 100 %
+  };
+
+  useEffect(() =>{
+    MainStore.setMarkerPlaced(false)
+      const handleBackButton = () => {
+        let BACK = MainStore.currentStep - 1
+
+        if(MainStore.currentStep){
+          MainStore.setCurrentStep(BACK)
+        }
+      }
+
+      if(MainStore.currentStep > 0)
+        window.history.pushState(null, "", `#${STATE_MACHINE[MainStore.currentStep].Screen}`)
+
+      window.addEventListener("popstate", handleBackButton);
+
+      return () => {
+        window.removeEventListener("popstate", handleBackButton);
+      };
+
+  },[MainStore.currentStep])
+
+  const years = [
+      "17-18",
+      "18-19",
+      "19-20",
+      "20-21",
+      "21-22",
+      "22-23",
+      "23-24",
+  ];
+  const [dragging, setDrag] = useState(false);
+  
+  const handleYearChange = (e) => {
+      MainStore.setLulcYearIdx(Number(e.target.value));
+  }
+  const percent = (MainStore.lulcYearIdx / (years.length - 1)) * 100;    // 0 – 100 %
   
 
   const toggleFormsUrl = (toggle) => {
