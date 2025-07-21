@@ -564,7 +564,7 @@ const MapComponent = () => {
 
             if (status.need_maint === "Yes"){
                 try{
-                    if(status.wbs_type === "Trench cum bund network"){
+                    if(status.wbs_type === "Trench cum bund network" || status.wbs_type === "Water absorption trenches(WAT)" || status.wbs_type === "Staggered Contour trenches(SCT)"){
                         return new Style({
                             image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.6}),
                         })
@@ -789,7 +789,6 @@ const MapComponent = () => {
                 });
 
                 tempSettlementFeature.current.setGeometry(new Point(MainStore.markerCoords))
-                MainStore.setCurrentStep(1)
                 assetsLayerRefs[0].current = settlementLayer
             }
 
@@ -803,19 +802,21 @@ const MapComponent = () => {
 
                 wellLayer.setStyle(function (feature) {
                     const status = feature.values_;
-                    //const wellConditionData = JSON.parse(status.Well_condi.replace(/'/g, '"').replace(/None/g, 'null'));
-                    //const wellMaintenance = wellConditionData.select_one_maintenance || "";
+                    const m = status.Well_condi.match(/'select_one_maintenance'\s*:\s*'([^']*)'/i);
+                    const wellMaintenance = m ? m[1].toLowerCase() === 'yes' : null;
 
                     if(status.status_re in iconsDetails.socialMapping_icons.well){
                         return new Style({
                             image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
                         })
                     }
-                    // else if(wellMaintenance === "Yes"){
-                    //     return new Style({
-                    //         image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5 }),
-                    //     })
-                    // }
+
+                    else if(wellMaintenance){
+                        return new Style({
+                            image: new Icon({ src: iconsDetails.socialMapping_icons.well["maintenance"], scale : 0.5 }),
+                        })
+                    }
+
                     else{
                         return new Style({
                             image: new Icon({ src: iconsDetails.socialMapping_icons.well["proposed"] }),
@@ -979,7 +980,8 @@ const MapComponent = () => {
                     layerCollection.remove(layer);
                 }
             });
-
+            
+            //? Code has been changed here from previous ones, the previous was working fine, check previous commit and match the changes, the offline has the code in the commit before this
             // Step 0
             if(currentStep === 0){
 
