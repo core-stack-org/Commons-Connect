@@ -1,10 +1,16 @@
-export default function getOdkUrlForScreen(screen, step, latlong, settlement_name, settlement_id, block_name, plan_id, plan_name, crop_id, maintain = false, userLatLong, isFeedback = false){
+export default function getOdkUrlForScreen(screen, step, 
+    latlong, settlement_name, settlement_id, block_name, plan_id, plan_name, crop_id, 
+    maintain = false, userLatLong, isFeedback = false, isRecharge = false){
 
     if(userLatLong === null){
         userLatLong = [0,0]
     }
     let odk_url = ""
     plan_name = encodeURIComponent(plan_name.toLowerCase());
+
+    console.log(maintain)
+    console.log(isRecharge)
+    console.log(isFeedback)
 
     if(screen === "Resource_mapping" && step === 0){
         odk_url = `${import.meta.env.VITE_ODK_ADD_SETTLEMENT}$zzXyj!5bZs6Q20MejPCDCdNmX7IO9MqzRB6DkJ$PEOpl`+ "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/meta/instanceID]="
@@ -22,11 +28,15 @@ export default function getOdkUrlForScreen(screen, step, latlong, settlement_nam
         odk_url = `${import.meta.env.VITE_ODK_CROP_GRID}$smauFD3` + "&d[/data/hamlet_id]=" + settlement_id + "&d[/data/crop_Grid_id]=" + crop_id + "&d[/data/beneficiary_settlement]=" + settlement_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/plan_name]=" + plan_name + "&d[/data/meta/instanceID]="
     }
 
-    else if(screen === "Groundwater" && step === 1 && !maintain && !isFeedback){
+    else if(screen === "Groundwater" && step === 1 && !maintain && !isRecharge && !isFeedback){
         odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_BUILD_RECHARGE}$seU5QjKkgGjdav$pga66iH972V93scb8BxwvuBuQVxIUxLo$gf8F` + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name +"&d[/data/corresponding_work_id]=" + "007101" + "&d[/data/meta/instanceID]="
     }
+    
+    else if(screen === "Groundwater" && step === 1 && maintain && isRecharge && !isFeedback){
+        odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_PROVIDE_MAINTAIN_RECHARGE}` + "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/plan_name]=" + plan_name + "&d[/data/beneficiary_settlement]=" + settlement_name +"&d[/data/corresponding_work_id]=" + "007101" + "&d[/data/meta/instanceID]="
+    }
 
-    else if(screen === "Groundwater" && step === 1 && maintain && !isFeedback){
+    else if(screen === "Groundwater" && step === 1 && maintain && !isRecharge && !isFeedback){
         odk_url = `${import.meta.env.VITE_ODK_GROUNDWATER_PROVIDE_MAINTAIN}`+ "&d[/data/GPS_point/point_mapsappearance]=" + latlong[1].toString() + "%20" + latlong[0].toString() + "&d[/data/block_name]=" + block_name + "&d[/data/plan_id]=" + plan_id + "&d[/data/plan_name]=" + plan_name + "&d[/data/user_latlon]=" + userLatLong[0].toString() + "," + userLatLong[1].toString() + "&d[/data/beneficiary_settlement]=" + settlement_name + "&d[/data/corresponding_work_id]=" + "0001829" + "&d[/data/meta/instanceID]="
     }
 
