@@ -702,7 +702,7 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
-            MainStore.setIsWaterStructure(false)
+            MainStore.setIsRecharge(false)
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
@@ -734,7 +734,6 @@ const MapComponent = () => {
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
                 MainStore.setIsResourceOpen(true)
-                MainStore.setIsWaterStructure(true)
               }
               else if(layer === assetsLayerRefs[3].current){
                 MainStore.setResourceType("Cropgrid")
@@ -755,15 +754,7 @@ const MapComponent = () => {
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
-              }
-              else if(layer === AgriLayersRefs[2].current){
-                setFeatureStat(true)
-                setSelectedResource(feature.values_)
-                console.log(feature)
-               MainStore.setResourceType("Irrigation")
-                mapRef.current.removeInteraction(selectSettleIcon)
-                MainStore.setIsResource(true)
-                tempSettlementLayer.current.setVisible(false)
+                MainStore.setIsRecharge(true)
               }
               if(feature.geometryChangeKey_.target.flatCoordinates[0] === GeolocationRef.current.position_[0] && feature.geometryChangeKey_.target.flatCoordinates[1] === GeolocationRef.current.position_[1]){
                 mapRef.current.removeInteraction(selectSettleIcon)
