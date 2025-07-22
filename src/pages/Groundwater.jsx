@@ -65,7 +65,7 @@ const Groundwater = () => {
       
       if(MainStore.markerCoords){
         MainStore.setIsForm(true)
-        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle, gpsCoords, false, MainStore.isRecharge))
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle, gpsCoords, false, MainStore.isWaterStructure))
         MainStore.setIsOpen(true)
       }
     }
