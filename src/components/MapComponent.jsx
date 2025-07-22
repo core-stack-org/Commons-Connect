@@ -702,6 +702,7 @@ const MapComponent = () => {
             setMarkerPlaced(true)
             setMarkerCoords(e.coordinate)
             MainStore.setIsResource(false)
+            MainStore.setIsRecharge(false)
 
             markerFeature.setGeometry(new Point(e.coordinate))
             MapMarkerRef.current.setVisible(true);
@@ -753,6 +754,7 @@ const MapComponent = () => {
                 setSelectedResource(feature.values_)
                 setFeatureStat(true)
                 MainStore.setIsResource(true)
+                MainStore.setIsRecharge(true)
               }
               if(feature.geometryChangeKey_.target.flatCoordinates[0] === GeolocationRef.current.position_[0] && feature.geometryChangeKey_.target.flatCoordinates[1] === GeolocationRef.current.position_[1]){
                 mapRef.current.removeInteraction(selectSettleIcon)
