@@ -92,9 +92,7 @@ const Agriculture = () => {
           MainStore.currentPlan.plan,
           "",
           toggle,
-          gpsCoords,
-          false,
-          MainStore.isWaterStructure
+          gpsCoords
         )
       );
       MainStore.setIsOpen(true);

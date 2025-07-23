@@ -167,6 +167,8 @@ const Bottomsheet = () => {
 
                     MainStore.setIsLoading(false)
 
+                    console.log(res)
+
                     if (res.message === "Success") {
                         MainStore.setIsSubmissionSuccess(true)
                     }
