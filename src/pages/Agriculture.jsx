@@ -126,7 +126,6 @@ const Agriculture = () => {
   }
 
   const handleStartPlanning = () => {
-    toast("Reached here")
     MainStore.setCurrentStep(1);
     toast(t("toast_agri"), {
         duration: 5000,
