@@ -760,7 +760,7 @@ const MapComponent = () => {
                 setFeatureStat(true)
                 setSelectedResource(feature.values_)
                 console.log(feature)
-               MainStore.setResourceType("Irrigation")
+                MainStore.setResourceType("Irrigation")
                 mapRef.current.removeInteraction(selectSettleIcon)
                 MainStore.setIsResource(true)
                 tempSettlementLayer.current.setVisible(false)
