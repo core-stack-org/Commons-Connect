@@ -215,22 +215,6 @@ const Agriculture = () => {
                 >
                     {getPlanLabel()}
                 </button>
-                  {/* <button
-                      className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm ml-2"
-                      style={{
-                        backgroundColor: '#D6D5C9',
-                        color: '#592941',
-                        border: 'none',
-                        backdropFilter: 'none',
-                      }}
-                      onClick={() =>{
-                        MainStore.setIsAgriculture(false)
-                        MainStore.setIsLayerStore(true)
-                        MainStore.setIsOpen(true)
-                      }}
-                      >
-                      {"Layers"}
-                  </button> */}
                 </div>
             </div>
       </div>
