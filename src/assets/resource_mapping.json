@@ -115,5 +115,19 @@
          
         "Sokage_p_2" : "Width",
         "Sokage_p_3" : "Depth"
+    },
+    "Irrigation" : {
+        "plan_id": "Plan Id",
+        "plan_name": "Plan Name",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "Benefici_1": "Beneficiary Name",
+        "Benefici_2" : "Beneficiary's contact number",
+        "beneficiar" : "Beneficiary Settlement",
+        "block_name" : "Block Name",
+        "khasra" : "khasra number",
+        "TYPE_OF_WO" : "Type of Irrigation work in this settlement",
+        "select_one" : "Type of cropping pattern practiced",
+        "select_m_1" : "Type of crops grown in Kharif"
     }
 }

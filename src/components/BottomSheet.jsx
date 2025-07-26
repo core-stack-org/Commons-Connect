@@ -423,7 +423,7 @@ const Bottomsheet = () => {
                     {MainStore.isResource && MainStore.selectedResource !== null &&
                         Object.keys(resourceDetails[MainStore.resourceType]).flatMap((key, index) => {
                         let rawValue = MainStore.selectedResource[key];
-                        
+                        console.log(key)
                         if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
                             const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
                             const data = (new Function(`return (${jsonReady})`))();

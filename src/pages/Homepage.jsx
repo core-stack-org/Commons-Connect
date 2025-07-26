@@ -76,10 +76,6 @@ const Homepage = () => {
         MainStore.setIsOpen(true);
     };
 
-    const baseBtn =
-        "w-full px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center justify-center " +
-        "transition-all duration-300 ease-in-out transform hover:scale-105";
-
     const handleSelect = (section) => {
         if (!MainStore.currentPlan) {
             toast.error(t("select_plan"));
