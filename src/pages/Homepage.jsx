@@ -64,11 +64,11 @@ const Homepage = () => {
                 .join(" ");
         };
 
-        const words = plan.trim().split(/\s+/);
-        if (words.length > 15) {
-            return capitalizeWords(words.slice(0, 15).join(" ") + "…");
+        const capitalizedPlan = capitalizeWords(plan);
+        if (capitalizedPlan.length > 15) {
+            return capitalizedPlan.slice(0, 13) + "..";
         }
-        return capitalizeWords(plan);
+        return capitalizedPlan;
     };
 
     const handleNregaSheet = () => {
