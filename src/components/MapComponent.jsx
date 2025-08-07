@@ -15,7 +15,7 @@ import TileLayer from "ol/layer/Tile";
 import Control from 'ol/control/Control.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
 import { Map, View, Feature, Geolocation } from "ol";
-import { Stroke, Fill, Style, Icon } from "ol/style.js";
+import { Stroke, Fill, Style, Icon, Text } from "ol/style.js";
 import VectorLayer from "ol/layer/Vector.js";
 import Point from "ol/geom/Point.js";
 import Select from "ol/interaction/Select.js";
@@ -93,12 +93,30 @@ function getWaterStructureStyle(feature) {
             src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], 
             scale: 0.6 
           }),
+          text : new Text({
+                text : status.wbs_type,
+                font: '14px sans-serif',
+                textAlign: 'center',
+                fill: new Fill({ color: '#111' }),
+                stroke: new Stroke({ color: '#fff', width: 3 }),
+                overflow: true,
+                offsetY : 20
+            })
         });
       } else {
         return new Style({
           image: new Icon({ 
             src: iconsDetails.WB_Icons_Maintenance[status.wbs_type] 
           }),
+          text : new Text({
+                text : status.wbs_type,
+                font: '14px sans-serif',
+                textAlign: 'center',
+                fill: new Fill({ color: '#111' }),
+                stroke: new Stroke({ color: '#fff', width: 3 }),
+                overflow: true,
+                offsetY : 20
+            })
         });
       }
     } catch(err) {
@@ -111,6 +129,15 @@ function getWaterStructureStyle(feature) {
       image: new Icon({ 
         src: iconsDetails.WB_Icons[status.wbs_type] 
       }),
+      text : new Text({
+                text : status.wbs_type,
+                font: '14px sans-serif',
+                textAlign: 'center',
+                fill: new Fill({ color: '#111' }),
+                stroke: new Stroke({ color: '#fff', width: 3 }),
+                overflow: true,
+                offsetY : 20
+            })
     });
   }
   
@@ -315,7 +342,7 @@ const MapComponent = () => {
                         });
                         setTimeout(() => {
                             vectorSource.getFeatures().length > 0 ? resolve() : reject(new Error('Timeout loading features'));
-                        }, 7000);
+                        }, 4000);
                     }
                 };
                 checkFeatures();
@@ -529,11 +556,30 @@ const MapComponent = () => {
             true
         )
 
-        settlementLayer.setStyle(
-            new Style({
+        // settlementLayer.setStyle(
+        //     new Style({
+        //       image: new Icon({ src: settlementIcon, scale: 0.4 }),
+        //       text : new Text({
+        //         text : 
+        //       })
+        //     })
+        // );
+        settlementLayer.setStyle(function (feature) {
+            const stat = feature.values_;
+
+            return new Style({
               image: new Icon({ src: settlementIcon, scale: 0.4 }),
+              text : new Text({
+                text : stat.sett_name,
+                font: '14px sans-serif',
+                textAlign: 'center',
+                fill: new Fill({ color: '#111' }),
+                stroke: new Stroke({ color: '#fff', width: 3 }),
+                overflow: true,
+                offsetY : 20
+              })
             })
-        );
+        });
 
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
@@ -567,10 +613,28 @@ const MapComponent = () => {
                     if(status.wbs_type === "Trench cum bund network" || status.wbs_type === "Water absorption trenches(WAT)" || status.wbs_type === "Staggered Contour trenches(SCT)"){
                         return new Style({
                             image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.6}),
+                            text : new Text({
+                                text : status.wbs_type,
+                                font: '14px sans-serif',
+                                textAlign: 'center',
+                                fill: new Fill({ color: '#111' }),
+                                stroke: new Stroke({ color: '#fff', width: 3 }),
+                                overflow: true,
+                                offsetY : 20
+                            })
                         })
                     }else{
                         return new Style({
                             image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
+                            text : new Text({
+                                text : status.wbs_type,
+                                font: '14px sans-serif',
+                                textAlign: 'center',
+                                fill: new Fill({ color: '#111' }),
+                                stroke: new Stroke({ color: '#fff', width: 3 }),
+                                overflow: true,
+                                offsetY : 20
+                            })
                         })
                     }
                 }catch(err){
@@ -580,11 +644,29 @@ const MapComponent = () => {
             else if (status.wbs_type in iconsDetails.WB_Icons) {
                 return new Style({
                     image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type]}),
+                    text : new Text({
+                        text : status.wbs_type,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 })
             }
             else{
                 return new Style({
                     image: new Icon({ src: LargeWaterBody }),
+                    text : new Text({
+                        text : status.wbs_type,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 })
             }
         });
@@ -594,24 +676,60 @@ const MapComponent = () => {
             if (status.TYPE_OF_WO == "New farm pond") {
                 return new Style({
                   image: new Icon({ src: farm_pond_proposed }),
+                  text : new Text({
+                        text : status.TYPE_OF_WO,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 });
               } else if (status.TYPE_OF_WO == "Land leveling") {
                 return new Style({
                   image: new Icon({ src: land_leveling_proposed }),
+                  text : new Text({
+                        text : status.TYPE_OF_WO,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 });
               } else if (status.TYPE_OF_WO == "New well") {
                 return new Style({
                   image: new Icon({ src: well_mrker }),
+                  text : new Text({
+                        text : status.TYPE_OF_WO,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 });
               } else {
                 return new Style({
                   image: new Icon({ src: IrrigationIcon }),
+                  text : new Text({
+                        text : status.TYPE_OF_WO,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 });
               }
         });
 
         GroundWaterWorkLayer.setStyle(function (feature) {
-            // const status = feature.values_;
+            const status = feature.values_;
             // if(status.work_type in iconsDetails.Recharge_Icons){
             //     return new Style({
             //         image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
@@ -620,11 +738,22 @@ const MapComponent = () => {
             // else{
                 return new Style({
                     image: new Icon({ src: RechargeIcon }),
+                    text : new Text({
+                        text : status.work_type,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 })
             //}
         });
 
         livelihoodLayer.setStyle(function (feature) {
+            const stat = feature.values_
+            // console.log(stat)
             if(feature.values_.select_o_5 === "Yes"){
                 return new Style({
                     image: new Icon({ src: livelihoodIcon}),
@@ -795,6 +924,15 @@ const MapComponent = () => {
                     }
                     return new Style({
                         image: new Icon({ src: settlementIcon, scale: 0.4 }),
+                        text : new Text({
+                            text : feature.values_.sett_name,
+                            font: '14px sans-serif',
+                            textAlign: 'center',
+                            fill: new Fill({ color: '#111' }),
+                            stroke: new Stroke({ color: '#fff', width: 3 }),
+                            overflow: true,
+                            offsetY : 20
+                        })
                     })
                 });
 
@@ -847,24 +985,66 @@ const MapComponent = () => {
 
                 waterStructureLayer.setStyle(function (feature) {
                     const status = feature.values_;
-                    
+
                     if (status.need_maint === "Yes"){
                         try{
-                            return new Style({
-                                image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
-                            })
+                            if(status.wbs_type === "Trench cum bund network" || status.wbs_type === "Water absorption trenches(WAT)" || status.wbs_type === "Staggered Contour trenches(SCT)"){
+                                return new Style({
+                                    image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type], scale: 0.6}),
+                                    text : new Text({
+                                        text : status.wbs_type,
+                                        font: '14px sans-serif',
+                                        textAlign: 'center',
+                                        fill: new Fill({ color: '#111' }),
+                                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                                        overflow: true,
+                                        offsetY : 20
+                                    })
+                                })
+                            }else{
+                                return new Style({
+                                    image: new Icon({ src: iconsDetails.WB_Icons_Maintenance[status.wbs_type]}),
+                                    text : new Text({
+                                        text : status.wbs_type,
+                                        font: '14px sans-serif',
+                                        textAlign: 'center',
+                                        fill: new Fill({ color: '#111' }),
+                                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                                        overflow: true,
+                                        offsetY : 20
+                                    })
+                                })
+                            }
                         }catch(err){
                             console.log(status.wbs_type)
                         }
                     }
                     else if (status.wbs_type in iconsDetails.WB_Icons) {
                         return new Style({
-                            image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type], scale: 0.5 }),
+                            image: new Icon({ src: iconsDetails.WB_Icons[status.wbs_type]}),
+                            text : new Text({
+                                text : status.wbs_type,
+                                font: '14px sans-serif',
+                                textAlign: 'center',
+                                fill: new Fill({ color: '#111' }),
+                                stroke: new Stroke({ color: '#fff', width: 3 }),
+                                overflow: true,
+                                offsetY : 20
+                            })
                         })
                     }
                     else{
                         return new Style({
                             image: new Icon({ src: LargeWaterBody }),
+                            text : new Text({
+                                text : status.wbs_type,
+                                font: '14px sans-serif',
+                                textAlign: 'center',
+                                fill: new Fill({ color: '#111' }),
+                                stroke: new Stroke({ color: '#fff', width: 3 }),
+                                overflow: true,
+                                offsetY : 20
+                            })
                         })
                     }
                 });
@@ -882,8 +1062,18 @@ const MapComponent = () => {
                 true
             )
             GroundWaterWorkLayer.setStyle(function (feature) {
+                const status = feature.values_;
                 return new Style({
                     image: new Icon({ src: RechargeIcon }),
+                    text : new Text({
+                        text : status.work_type,
+                        font: '14px sans-serif',
+                        textAlign: 'center',
+                        fill: new Fill({ color: '#111' }),
+                        stroke: new Stroke({ color: '#fff', width: 3 }),
+                        overflow: true,
+                        offsetY : 20
+                    })
                 })
             });
 
@@ -902,21 +1092,57 @@ const MapComponent = () => {
                 const status = feature.values_;
                 if (status.TYPE_OF_WO == "New farm pond") {
                     return new Style({
-                      image: new Icon({ src: farm_pond_proposed }),
+                    image: new Icon({ src: farm_pond_proposed }),
+                    text : new Text({
+                            text : status.TYPE_OF_WO,
+                            font: '14px sans-serif',
+                            textAlign: 'center',
+                            fill: new Fill({ color: '#111' }),
+                            stroke: new Stroke({ color: '#fff', width: 3 }),
+                            overflow: true,
+                            offsetY : 20
+                        })
                     });
-                  } else if (status.TYPE_OF_WO == "Land leveling") {
+                } else if (status.TYPE_OF_WO == "Land leveling") {
                     return new Style({
-                      image: new Icon({ src: land_leveling_proposed }),
+                    image: new Icon({ src: land_leveling_proposed }),
+                    text : new Text({
+                            text : status.TYPE_OF_WO,
+                            font: '14px sans-serif',
+                            textAlign: 'center',
+                            fill: new Fill({ color: '#111' }),
+                            stroke: new Stroke({ color: '#fff', width: 3 }),
+                            overflow: true,
+                            offsetY : 20
+                        })
                     });
-                  } else if (status.TYPE_OF_WO == "New well") {
+                } else if (status.TYPE_OF_WO == "New well") {
                     return new Style({
-                      image: new Icon({ src: well_mrker }),
+                    image: new Icon({ src: well_mrker }),
+                    text : new Text({
+                            text : status.TYPE_OF_WO,
+                            font: '14px sans-serif',
+                            textAlign: 'center',
+                            fill: new Fill({ color: '#111' }),
+                            stroke: new Stroke({ color: '#fff', width: 3 }),
+                            overflow: true,
+                            offsetY : 20
+                        })
                     });
-                  } else {
+                } else {
                     return new Style({
-                      image: new Icon({ src: IrrigationIcon }),
+                    image: new Icon({ src: IrrigationIcon }),
+                    text : new Text({
+                            text : status.TYPE_OF_WO,
+                            font: '14px sans-serif',
+                            textAlign: 'center',
+                            fill: new Fill({ color: '#111' }),
+                            stroke: new Stroke({ color: '#fff', width: 3 }),
+                            overflow: true,
+                            offsetY : 20
+                        })
                     });
-                  }
+                }
             });
 
             mapRef.current.removeLayer(AgriLayersRefs[2].current)
@@ -931,6 +1157,7 @@ const MapComponent = () => {
                 true
             )
             livelihoodLayer.setStyle(function (feature) {
+                const stat = feature.values_
                 if(feature.values_.select_o_3 === "Yes"){
                     return new Style({
                         image: new Icon({ src: livelihoodIcon}),

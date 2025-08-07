@@ -10,6 +10,7 @@ import GroundwaterAnalyze from './analyze/GroundwaterAnalyze.jsx';
 import AgricultureAnalyze from './analyze/AgricultureAnalyze.jsx';
 import { useTranslation } from "react-i18next";
 
+import { looksBroken, fixMojibake } from '../action/getEncoding.js'
 
 const Bottomsheet = () => {
 
@@ -380,11 +381,17 @@ const Bottomsheet = () => {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         {MainStore.isMetadata && MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key, index) => {
                             const rawValue = MainStore.metadata[key];
-                            const formattedValue =
-                            key === 'Material' || key === 'Total_Expe'
-                                ? `₹${rawValue}`
-                                : rawValue;
+                            const formattedValue = (() => {
+                                let value = rawValue;
 
+                                // Only try to repair strings that look corrupted
+                                if (typeof value === 'string' && looksBroken(value)) {
+                                    value = fixMojibake(value);
+                                }
+
+                                // Keep your existing ₹ formatting
+                                return (key === 'Material' || key === 'Total_Expe') ? `₹${value}` : value;
+                            })();
                             return (
                             <div
                                 key={key}
