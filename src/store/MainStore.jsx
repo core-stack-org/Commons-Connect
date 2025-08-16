@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import authService from "../services/authService";
 
 const useMainStore = create((set) => ({
     //? Default Store
@@ -7,6 +8,11 @@ const useMainStore = create((set) => ({
 
     setIsInfoOpen: (stat) => set({ isInfoOpen: stat }),
     setMenuOption: (stat) => set({ menuOption: stat }),
+
+    // Authentication state
+    user: null,
+    isAuthenticated: false,
+    authLoading: true,
 
     //? Location Store
     districtName: null,
@@ -33,6 +39,37 @@ const useMainStore = create((set) => ({
 
     isLayerBox: false,
     setIsLayerBox: (val) => set({ isLayerBox: val }),
+
+    // Init Auth
+    initializeAuth: async () => {
+        try {
+            const authData = await authService.waitForAuth();
+            if (authData) {
+                set({
+                    user: authService.getUserData(),
+                    isAuthenticated: true,
+                    authLoading: false,
+                });
+            } else {
+                set({
+                    user: null,
+                    isAuthenticated: false,
+                    authLoading: false,
+                });
+            }
+        } catch (error) {
+            console.error("Authentication initialization failed:", error);
+            set({
+                user: null,
+                isAuthenticated: false,
+                authLoading: false,
+            });
+        }
+    },
+
+    updateUser: (userData) => {
+        set({ user: userData, isAuthenticated: !!userData });
+    },
 
     //? Plans Store
     currentPlan: null,
