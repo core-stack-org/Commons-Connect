@@ -17,14 +17,16 @@ const Homepage = () => {
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
     const planRef = useRef(null);
 
+    // TODO: dry run block names
     useEffect(() => {
         if (MainStore.blockName === null) {
             const transformName = (name) => {
                 if (!name) return name;
                 return name
-                    .replace(/\s*\(\s*/g, "_") // Replace " (" with "_"
+                    .replace(/\s*\(\s*/g, "") // Remove "("
                     .replace(/\s*\)\s*/g, "") // Remove ")"
-                    .replace(/\s+/g, "_"); // Replace remaining spaces with "_"
+                    .replace(/\s+/g, "_") // Replace remaining spaces with "_"
+                    .toLowerCase(); // Convert to lowercase
             };
 
             MainStore.setDistrictName(

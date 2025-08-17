@@ -19,15 +19,14 @@ const HamburgerMenu = ({ open, onClose }) => {
     const setIsInfoOpen = useMainStore((state) => state.setIsInfoOpen);
     const { user } = useMainStore();
 
-    // Get user data from authService
+    // MARK: auth data in the hamburger menu
     const userData = authService.getUserData();
     const userName = authService.getUserName();
     const organization = authService.getOrganization();
 
-    // Extract project and role from user data
     const project =
         userData?.project_details?.length > 0
-            ? userData.project_details[0].name ||
+            ? userData.project_details[0].project_name ||
               userData.project_details[0].title
             : "No Project";
     const role =
