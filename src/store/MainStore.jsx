@@ -71,30 +71,76 @@ const useMainStore = create((set) => ({
         set({ user: userData, isAuthenticated: !!userData });
     },
 
-    //? Plans Store
+    // MARK: Plan Store
     currentPlan: null,
     plans: null,
 
-    fetchPlans: async (url) => {
+    fetchPlans: async (projectId = null) => {
         try {
-            let response = await fetch(url, {
-                method: "GET",
-                headers: {
-                    "ngrok-skip-browser-warning": "1",
-                    "Content-Type": "application/json",
-                },
-            });
-            response = await response.json();
+            if (!projectId) {
+                const userData = authService.getUserData();
+                if (userData?.project_details?.length > 0) {
+                    projectId = userData.project_details[0].project_id;
+                } else {
+                    return;
+                }
+            }
 
-            //console.log(response)
-            set({ plans: response.plans });
+            const response = await authService.makeAuthenticatedRequest(
+                `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/`,
+            );
+
+            if (response.ok) {
+                const plans = await response.json();
+                console.log(
+                    "Plans fetched successfully:",
+                    plans.length,
+                    "plans",
+                );
+                set({ plans: plans });
+            } else {
+                set({ plans: [] });
+            }
         } catch (e) {
-            console.log("Not able to Fetch Plans !");
+            console.log("Error details:", e.message);
+            set({ plans: [] });
         }
     },
-    setCurrentPlan: (id) => set((state) => ({ currentPlan: id })),
 
-    //? Layers Hooks
+    setCurrentPlan: (id) =>
+        set((state) => {
+            // Find the plan object from plans array and store it with backward-compatible properties
+            const planObj = state.plans?.find((plan) => plan.id === id);
+            if (planObj) {
+                return { currentPlan: { ...planObj, plan_id: planObj.id } };
+            }
+            return { currentPlan: null };
+        }),
+
+    getCurrentPlanLabel: () => {
+        const state = useMainStore.getState();
+        if (!state.currentPlan) return "Select Plan";
+
+        const planName = state.currentPlan.plan || "Unknown Plan";
+        const capitalizeWords = (str) => {
+            return str
+                .split(" ")
+                .map(
+                    (word) =>
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1).toLowerCase(),
+                )
+                .join(" ");
+        };
+
+        const capitalizedPlan = capitalizeWords(planName);
+        if (capitalizedPlan.length > 15) {
+            return capitalizedPlan.slice(0, 13) + "..";
+        }
+        return capitalizedPlan;
+    },
+
+    // MARK: Layers Hooks
     currentScreen: "HomeScreen",
     currentStep: 0,
     settlementName: "",

@@ -100,8 +100,8 @@ const ResourceMapping = () => {
                     MainStore.settlementName,
                     "",
                     MainStore.blockName,
-                    MainStore.currentPlan.plan_id,
-                    MainStore.currentPlan.plan,
+                    MainStore.currentPlan?.plan_id || MainStore.currentPlan?.id,
+                    MainStore.currentPlan?.plan || "Unknown Plan",
                     MainStore.selectedResource?.id,
                     false,
                     gpsCoords,
@@ -129,7 +129,9 @@ const ResourceMapping = () => {
     };
 
     const getPlanLabel = () => {
-        const plan = MainStore.currentPlan?.plan ?? t("Select Plan");
+        if (!MainStore.currentPlan) return t("Select Plan");
+
+        const planName = MainStore.currentPlan.plan || "Unknown Plan";
 
         // Helper function to capitalize each word
         const capitalizeWords = (str) => {
@@ -143,7 +145,7 @@ const ResourceMapping = () => {
                 .join(" ");
         };
 
-        const capitalizedPlan = capitalizeWords(plan);
+        const capitalizedPlan = capitalizeWords(planName);
         if (capitalizedPlan.length > 15) {
             return capitalizedPlan.slice(0, 13) + "..";
         }

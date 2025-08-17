@@ -1,150 +1,3 @@
-// class AuthService {
-//     constructor() {
-//         this.authData = null;
-//         this.isInitialized = false;
-//         this.initializationPromise = null;
-
-//         this.initialize();
-//     }
-
-//     async initialize() {
-//         if (this.initializationPromise) {
-//             return this.initializationPromise;
-//         }
-
-//         // check flutter injection
-//         this.initializationPromise = new Promise((resolve) => {
-//             if (window.flutterAuth) {
-//                 this.authData = window.flutterAuth;
-//                 this.isInitialized = true;
-//                 console.log("Auth data loaded from Flutter:", this.authData);
-//                 resolve(this.authData);
-//                 return;
-//             }
-
-//             const checkForAuth = setInterval(() => {
-//                 if (window.flutterAuth || window.getAuthToken) {
-//                     clearInterval(checkForAuth);
-//                     this.authData = window.flutterAuth;
-//                     this.isInitialized = true;
-//                     console.log(
-//                         "Auth data received from Flutter:",
-//                         this.authData,
-//                     );
-//                     console.log(JSON.stringify(this.authData, null, 2));
-//                     resolve(this.authData);
-//                 }
-//             }, 100);
-
-//             setTimeout(() => {
-//                 clearInterval(checkForAuth);
-//                 if (!this.isInitialized) {
-//                     console.warn(
-//                         "Auth data not received from Flutter within timeout",
-//                     );
-//                     resolve(null);
-//                 }
-//             }, 10000);
-//         });
-
-//         return this.initializationPromise;
-//     }
-
-//     async waitForAuth() {
-//         if (this.isInitialized) {
-//             return this.authData;
-//         }
-//         return await this.initialize();
-//     }
-
-//     getAccessToken() {
-//         if (window.getAuthToken) {
-//             return window.getAuthToken();
-//         }
-//         return this.authData?.access_token;
-//     }
-
-//     getUserData() {
-//         if (window.getUserData) {
-//             return window.getUserData();
-//         }
-//         return this.authData?.user;
-//     }
-
-//     async refreshToken() {
-//         if (window.refreshAuthToken) {
-//             try {
-//                 const newAuthData = await window.refreshAuthToken();
-//                 this.authData = newAuthData;
-//                 return newAuthData;
-//             } catch (error) {
-//                 console.error("Token refresh failed:", error);
-//                 throw error;
-//             }
-//         }
-//         throw new Error("Token refresh not available");
-//     }
-
-//     async makeAuthenticatedRequest(url, options = {}) {
-//         if (window.makeAuthenticatedRequest) {
-//             return window.makeAuthenticatedRequest(url, options);
-//         }
-
-//         const token = this.getAccessToken();
-//         if (!token) {
-//             throw new Error("No access token available");
-//         }
-
-//         const headers = {
-//             Authorization: `Bearer ${token}`,
-//             "Content-Type": "application/json",
-//             ...options.headers,
-//         };
-
-//         return fetch(url, {
-//             ...options,
-//             headers,
-//         });
-//     }
-
-//     isAuthenticated() {
-//         return !!this.getAccessToken();
-//     }
-
-//     getCurrentUser() {
-//         return this.getUserData();
-//     }
-
-//     getUserName() {
-//         const user = this.getUserData();
-//         return user ? `${user.first_name} ${user.last_name}` : "No name found";
-//     }
-
-//     getUserEmail() {
-//         const user = this.getUserData();
-//         return user?.email;
-//     }
-
-//     getOrganization() {
-//         const user = this.getUserData();
-//         return user?.organization_name;
-//     }
-
-//     isUserSuperAdmin() {
-//         const user = this.getUserData();
-//         return user?.is_superadmin === true;
-//     }
-
-//     getUserId() {
-//         const user = this.getUserData();
-//         return user?.id;
-//     }
-// }
-
-// const authService = new AuthService();
-
-// export default authService;
-
 class AuthService {
     constructor() {
         this.authData = null;
@@ -159,8 +12,8 @@ class AuthService {
     // MAKR: Development mock auth data
     getMockAuthData() {
         return {
-            access_token: "mock_access_token_for_development",
-            refresh_token: "mock_refresh_token",
+            access: "mock_access_token_for_development",
+            refresh: "mock_refresh_token",
             user: {
                 id: 1,
                 first_name: "Dev",
@@ -168,6 +21,12 @@ class AuthService {
                 email: "dev@example.com",
                 organization_name: "Development Org",
                 is_superadmin: true,
+                project_details: [
+                    {
+                        project_id: 9,
+                        project_name: "Development Project",
+                    },
+                ],
             },
         };
     }
@@ -215,6 +74,10 @@ class AuthService {
             return this.initializationPromise;
         }
 
+        console.log("🚀 AuthService: Starting initialization");
+        console.log("🔧 isDevelopment:", this.isDevelopment);
+        console.log("🎭 useMockAuth:", this.useMockAuth);
+
         this.initializationPromise = new Promise((resolve) => {
             if (this.isDevelopment) {
                 if (this.useMockAuth) {
@@ -237,6 +100,8 @@ class AuthService {
                         );
                         resolve(this.authData);
                         return;
+                    } else {
+                        console.log("No stored auth data found");
                     }
                 }
             }
@@ -247,6 +112,8 @@ class AuthService {
                 console.log("Auth data loaded from Flutter:", this.authData);
                 resolve(this.authData);
                 return;
+            } else {
+                console.log("No Flutter auth found");
             }
 
             const checkForAuth = setInterval(() => {
@@ -269,7 +136,6 @@ class AuthService {
                     if (this.isDevelopment) {
                         this.authData = this.getMockAuthData();
                         this.isInitialized = true;
-                        console.log("🔧 Development: Fallback to mock auth");
                         resolve(this.authData);
                     } else {
                         console.warn(
@@ -293,16 +159,21 @@ class AuthService {
 
     getAccessToken() {
         if (window.getAuthToken) {
-            return window.getAuthToken();
+            const token = window.getAuthToken();
+            return token;
         }
-        return this.authData?.access_token;
+        const token = this.authData?.access_token || this.authData?.access;
+        return token;
     }
 
     getUserData() {
         if (window.getUserData) {
-            return window.getUserData();
+            const userData = window.getUserData();
+            console.log(!!userData);
+            return userData;
         }
-        return this.authData?.user;
+        const userData = this.authData?.user;
+        return userData;
     }
 
     async refreshToken() {
@@ -318,7 +189,6 @@ class AuthService {
         }
 
         if (this.isDevelopment) {
-            console.log("Development: Mock token refresh");
             return this.authData;
         }
 
@@ -338,6 +208,7 @@ class AuthService {
         const headers = {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "1",
             ...options.headers,
         };
 
