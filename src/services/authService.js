@@ -117,7 +117,7 @@ class AuthService {
 
     getUserName() {
         const user = this.getUserData();
-        return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
+        return user ? `${user.first_name} ${user.last_name}` : "No name found";
     }
 
     getUserEmail() {
