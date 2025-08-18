@@ -12,6 +12,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [selectedPlanId, setSelectedPlanId] = useState(null);
     const [showPlanDetails, setShowPlanDetails] = useState(null);
+    const [currentProjectName, setCurrentProjectName] = useState("");
 
     const userData = authService.getUserData();
     const organizationName = authService.getOrganization();
@@ -65,7 +66,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         }
     };
 
-    const fetchPlanDetails = async (projectId, planId) => {
+    const fetchPlanDetails = async (projectId, planId, projectName) => {
         try {
             const url = `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/${planId}/`;
             const response = await authService.makeAuthenticatedRequest(url);
@@ -73,6 +74,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
             if (response.ok) {
                 const planDetails = await response.json();
                 setShowPlanDetails(planDetails);
+                setCurrentProjectName(projectName);
             } else {
                 const errorText = await response.text();
                 console.error(
@@ -132,7 +134,28 @@ const PlanSheet = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
+                        <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-6 mb-4">
+                            <div className="space-y-3">
+                                <div>
+                                    <div className="text-sm text-gray-600 mb-1">
+                                        Organization
+                                    </div>
+                                    <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                        {organizationName}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-sm text-gray-600 mb-1">
+                                        Project
+                                    </div>
+                                    <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                        {currentProjectName}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4">
                             <h3 className="text-lg font-medium text-gray-900 mb-2">
                                 {showPlanDetails.plan}
                             </h3>
@@ -172,7 +195,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="bg-gray-50 rounded-2xl p-4">
                             <h4 className="font-medium text-gray-900 mb-3">
                                 Status
                             </h4>
@@ -259,7 +282,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             <div className="text-sm text-gray-600 mb-1">
                                                 Organization
                                             </div>
-                                            <div className="text-lg font-semibold text-gray-900">
+                                            <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                 {organizationName}
                                             </div>
                                         </div>
@@ -267,7 +290,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             <div className="text-sm text-gray-600 mb-1">
                                                 Project
                                             </div>
-                                            <div className="text-lg font-semibold text-gray-900">
+                                            <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                 {projectData.projectName}
                                             </div>
                                         </div>
@@ -344,6 +367,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                         fetchPlanDetails(
                                                             projectData.projectId,
                                                             plan.id,
+                                                            projectData.projectName,
                                                         );
                                                     }}
                                                     className="ml-3 p-1 hover:bg-gray-100 rounded-full"
