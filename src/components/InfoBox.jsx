@@ -29,7 +29,6 @@ const InfoBox = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
 
-    // Handlers for menu options
     const handleLanguageSelect = (langCode) => {
         setSelectedLanguage(langCode);
         setLanguageChangeSuccess(false);
@@ -37,18 +36,14 @@ const InfoBox = () => {
 
     const handleApplyLanguage = () => {
         if (selectedLanguage) {
-            // Actually change the language using i18n
             i18n.changeLanguage(selectedLanguage);
 
-            // Update the current language state
             setCurrentLanguage(selectedLanguage);
 
-            // Optionally update URL parameter to keep consistency
             const url = new URL(window.location);
             url.searchParams.set("language", selectedLanguage);
             window.history.pushState({}, "", url);
 
-            // Show success message
             setLanguageChangeSuccess(true);
             setTimeout(() => {
                 setLanguageChangeSuccess(false);
@@ -85,19 +80,16 @@ const InfoBox = () => {
     const handleUploadKML = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Reset states
             setUploadError(null);
             setUploadSuccess(false);
             setUploadProgress(0);
 
-            // Validate file type
             if (!file.name.toLowerCase().endsWith(".kml")) {
                 setUploadError("Please select a valid KML file");
                 setSelectedFile(null);
                 return;
             }
 
-            // Validate file size (10MB limit)
             if (file.size > 10 * 1024 * 1024) {
                 setUploadError("File size must be less than 10MB");
                 setSelectedFile(null);
@@ -151,7 +143,6 @@ const InfoBox = () => {
         }
     };
 
-    // Add this new helper function for KML upload reset
     const handleReset = () => {
         setSelectedFile(null);
         setUploadProgress(0);
@@ -160,7 +151,6 @@ const InfoBox = () => {
         setIsUploading(false);
     };
 
-    // Content for non-home screens
     const screenContent = {
         Resource_mapping: (
             <>

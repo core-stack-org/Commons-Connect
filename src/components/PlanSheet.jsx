@@ -228,6 +228,38 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             </div>
                         </div>
                     </div>
+
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 mt-4">
+                        <h4 className="font-medium text-gray-900 mb-3">
+                            Location Details
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div>
+                                <span className="font-medium text-gray-600">
+                                    State ID:
+                                </span>
+                                <span className="ml-2 text-gray-900">
+                                    {showPlanDetails.state}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="font-medium text-gray-600">
+                                    District ID:
+                                </span>
+                                <span className="ml-2 text-gray-900">
+                                    {showPlanDetails.district}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="font-medium text-gray-600">
+                                    Block ID:
+                                </span>
+                                <span className="ml-2 text-gray-900">
+                                    {showPlanDetails.block}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </BottomSheet>
         );
