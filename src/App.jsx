@@ -19,9 +19,8 @@
 
 // function App() {
 //     // Initializing authentication as the app starts to load
-//     const { initializeAuth, authLoading, isAuthenticated, user } =
-//         useMainStore();
-//     const [appReady, setAppReady] = useState(false);
+//     const { initializeAuth, aut60Loading, isAuthenticated, user } =
+//         useMainStore()960//     const [appReady, setAppReady] = useState(false);
 
 //     useEffect(() => {
 //         const initApp = async () => {
@@ -29,8 +28,7 @@
 //             setAppReady(true);
 //         };
 //         initApp();
-//     }, [initializeAuth]);
-
+//     }, [initializeAuth])90
 //     if (!appReady || authLoading) {
 //         return (
 //             <div className="app-loading">
@@ -103,6 +101,7 @@ import "./App.css";
 import MapComponent from "./components/MapComponent";
 import Bottomsheet from "./components/BottomSheet";
 import DevAuthHelper from "./components/DevAuthHelper";
+import SquircleLoader from "./components/SquircleLoader";
 
 import authService from "./services/authService";
 import useMainStore from "./store/MainStore";
@@ -131,8 +130,15 @@ function App() {
 
     if (!appReady || authLoading) {
         return (
-            <div className="app-loading">
-                <div>Loading...</div>
+            <div className="flex items-center justify-center w-screen h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+                <div className="flex flex-col items-center space-y-4">
+                    <SquircleLoader
+                        size={50}
+                        strokeWidth={5}
+                        color="#667eea"
+                        speed={1500}
+                    />
+                </div>
             </div>
         );
     }

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
+import SquircleLoader from "../components/SquircleLoader.jsx";
 import toast from "react-hot-toast";
 
 const ResourceMapping = () => {
@@ -112,7 +113,6 @@ const ResourceMapping = () => {
         }
     };
 
-    // Wrapper to handle async actions with loading state
     const withLoading = async (action) => {
         MainStore.setIsLoading(true);
         try {
@@ -157,7 +157,13 @@ const ResourceMapping = () => {
             {/* Loader overlay */}
             {MainStore.isLoading && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
-                    <div className="w-12 h-12 border-4 border-t-4 border-white rounded-full animate-spin" />
+                    <SquircleLoader
+                        size={48}
+                        strokeWidth={4}
+                        color="#ffffff"
+                        backgroundColor="rgba(255, 255, 255, 0.3)"
+                        speed={1500}
+                    />
                 </div>
             )}
 
