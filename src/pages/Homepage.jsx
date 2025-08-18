@@ -4,7 +4,9 @@ import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import HamburgerMenu from "../components/HamburgerMenu.jsx";
+import PlanSheet from "../components/PlanSheet.jsx";
 import { useTranslation } from "react-i18next";
+import authService from "../services/authService.js";
 
 const Homepage = () => {
     const [searchParams] = useSearchParams();
@@ -12,47 +14,67 @@ const Homepage = () => {
 
     const { t, i18n } = useTranslation();
     const MainStore = useMainStore((state) => state);
-    const [isPlanOpen, setIsPlanOpen] = useState(false);
+    const [isPlanSheetOpen, setIsPlanSheetOpen] = useState(false);
     const [isPlanningOpen, setIsPlanningOpen] = useState(false);
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
     const planRef = useRef(null);
 
+    // TODO: dry run block names
     useEffect(() => {
-        if (MainStore.blockName === null) {
-            const transformName = (name) => {
-                if (!name) return name;
-                return name
-                    .replace(/\s*\(\s*/g, "_") // Replace " (" with "_"
-                    .replace(/\s*\)\s*/g, "") // Remove ")"
-                    .replace(/\s+/g, "_"); // Replace remaining spaces with "_"
-            };
+        const initializeApp = async () => {
+            await MainStore.initializeAuth();
 
-            MainStore.setDistrictName(
-                transformName(searchParams.get("dist_name")),
-            );
-            MainStore.setBlockName(
-                transformName(searchParams.get("block_name")),
-            );
-            MainStore.setBlockId?.(searchParams.get("block_id"));
+            if (MainStore.blockName === null) {
+                const transformName = (name) => {
+                    if (!name) return name;
+                    return name
+                        .replace(/\s*\(\s*/g, "") // Remove "("
+                        .replace(/\s*\)\s*/g, "") // Remove ")"
+                        .replace(/\s+/g, "_") // Replace remaining spaces with "_"
+                        .toLowerCase();
+                };
 
-            const language = searchParams.get("language");
-            if (language && ["en", "hi"].includes(language)) {
-                i18n.changeLanguage(language);
+                MainStore.setDistrictName(
+                    transformName(searchParams.get("dist_name")),
+                );
+                MainStore.setBlockName(
+                    transformName(searchParams.get("block_name")),
+                );
+                MainStore.setBlockId?.(searchParams.get("block_id"));
+
+                const language = searchParams.get("language");
+                if (language && ["en", "hi"].includes(language)) {
+                    i18n.changeLanguage(language);
+                }
             }
 
-            MainStore.fetchPlans(
-                `${import.meta.env.VITE_API_URL}get_plans/?block_id=${searchParams.get("block_id")}`,
-            );
-        }
-        MainStore.setIsResourceOpen(false);
-        MainStore.setCurrentScreen("HomeScreen");
-        MainStore.setCurrentStep(0);
+            MainStore.setIsResourceOpen(false);
+            MainStore.setCurrentScreen("HomeScreen");
+            MainStore.setCurrentStep(0);
+        };
+
+        initializeApp();
     }, []);
 
-    const getPlanLabel = () => {
-        const plan = MainStore.currentPlan?.plan ?? t("Select Plan");
+    useEffect(() => {
+        const fetchPlansIfReady = async () => {
+            if (MainStore.isAuthenticated && authService.isAuthenticated()) {
+                const userData = authService.getUserData();
+                if (userData?.project_details?.length > 0) {
+                    await MainStore.fetchPlans(
+                        userData.project_details[0].project_id,
+                    );
+                }
+            }
+        };
 
-        // Helper function to capitalize each word
+        fetchPlansIfReady();
+    }, [MainStore.isAuthenticated]);
+
+    const getPlanLabel = () => {
+        if (!MainStore.currentPlan) return t("Select Plan");
+
+        const planName = MainStore.currentPlan.plan || "Unknown Plan";
         const capitalizeWords = (str) => {
             return str
                 .split(" ")
@@ -64,13 +86,12 @@ const Homepage = () => {
                 .join(" ");
         };
 
-        const words = plan.trim().split(/\s+/);
-        if (words.length > 15) {
-            return capitalizeWords(words.slice(0, 15).join(" ") + "…");
+        const capitalizedPlan = capitalizeWords(planName);
+        if (capitalizedPlan.length > 15) {
+            return capitalizedPlan.slice(0, 13) + "..";
         }
-        return capitalizeWords(plan);
+        return capitalizedPlan;
     };
-
     const handleNregaSheet = () => {
         MainStore.setNregaSheet(true);
         MainStore.setIsOpen(true);
@@ -248,10 +269,10 @@ const Homepage = () => {
                         </button>
                     </div>
 
-                    {/* Plan selector with dropdown */}
-                    <div className="relative" ref={planRef}>
+                    {/* Plan selector with sheet */}
+                    <div className="relative">
                         <button
-                            onClick={() => setIsPlanOpen((prev) => !prev)}
+                            onClick={() => setIsPlanSheetOpen(true)}
                             className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
                             style={{
                                 backgroundColor: "#D6D5C9",
@@ -262,40 +283,8 @@ const Homepage = () => {
                         >
                             {getPlanLabel()}
                         </button>
-
-                        {isPlanOpen && (
-                            <div
-                                className="absolute mt-2 left-0 w-58 bg-white rounded-xl shadow-lg
-                            overflow-y-auto max-h-48 z-30"
-                            >
-                                {/* Replace this static list with your dynamic plans array if you have one */}
-                                {MainStore.plans !== null &&
-                                    MainStore.plans.map((plan) => (
-                                        <button
-                                            key={plan.plan_id}
-                                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
-                                            onClick={() => {
-                                                setIsPlanOpen(false);
-                                                MainStore.setCurrentPlan(plan);
-                                            }}
-                                        >
-                                            {plan.plan
-                                                .split(" ")
-                                                .map(
-                                                    (word) =>
-                                                        word
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                        word
-                                                            .slice(1)
-                                                            .toLowerCase(),
-                                                )
-                                                .join(" ")}
-                                        </button>
-                                    ))}
-                            </div>
-                        )}
                     </div>
+
                     <button
                         className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm h-9"
                         style={{
@@ -459,6 +448,12 @@ const Homepage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Plan Selection Sheet */}
+            <PlanSheet
+                isOpen={isPlanSheetOpen}
+                onClose={() => setIsPlanSheetOpen(false)}
+            />
         </div>
     );
 };
