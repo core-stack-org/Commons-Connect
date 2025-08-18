@@ -74,10 +74,6 @@ class AuthService {
             return this.initializationPromise;
         }
 
-        console.log("🚀 AuthService: Starting initialization");
-        console.log("🔧 isDevelopment:", this.isDevelopment);
-        console.log("🎭 useMockAuth:", this.useMockAuth);
-
         this.initializationPromise = new Promise((resolve) => {
             if (this.isDevelopment) {
                 if (this.useMockAuth) {
@@ -169,7 +165,6 @@ class AuthService {
     getUserData() {
         if (window.getUserData) {
             const userData = window.getUserData();
-            console.log(!!userData);
             return userData;
         }
         const userData = this.authData?.user;
