@@ -4,6 +4,7 @@ import "react-spring-bottom-sheet/dist/style.css";
 import { useTranslation } from "react-i18next";
 import authService from "../services/authService";
 import useMainStore from "../store/MainStore.jsx";
+import SquircleLoader from "./SquircleLoader.jsx";
 
 const PlanSheet = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
@@ -266,7 +267,13 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                 {loading ? (
                     <div className="flex justify-center items-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <SquircleLoader
+                            size={32}
+                            strokeWidth={3}
+                            color="#2563eb"
+                            backgroundColor="rgba(37, 99, 235, 0.2)"
+                            speed={1500}
+                        />
                     </div>
                 ) : (
                     <div className="space-y-6">
