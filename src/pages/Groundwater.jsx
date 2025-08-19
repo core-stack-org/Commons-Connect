@@ -20,7 +20,10 @@ const Groundwater = () => {
     const navigate = useNavigate();
 
     useEffect(() =>{
-      MainStore.setMarkerPlaced(false)
+      // Only reset marker placement if there's no accepted work demand item
+      if (!MainStore.acceptedWorkDemandItem) {
+        MainStore.setMarkerPlaced(false)
+      }
         const handleBackButton = () => {
           let BACK = MainStore.currentStep - 1
   
@@ -62,9 +65,20 @@ const Groundwater = () => {
         MainStore.setGpsLocation(gpsCoords)
       }
       
-      if(MainStore.markerCoords){
+      // ⭐ PRIORITIZE: Use accepted work demand coordinates if available, otherwise use marker coordinates
+      const coordinatesToUse = MainStore.acceptedWorkDemandCoords || MainStore.markerCoords;
+      
+      // Debug logging to verify coordinate flow
+      console.log('🔍 Groundwater Planning - Coordinate Debug:');
+      console.log('  - acceptedWorkDemandCoords:', MainStore.acceptedWorkDemandCoords);
+      console.log('  - markerCoords:', MainStore.markerCoords);
+      console.log('  - coordinatesToUse:', coordinatesToUse);
+      console.log('  - currentScreen:', MainStore.currentScreen);
+      console.log('  - currentStep:', MainStore.currentStep);
+      
+      if(coordinatesToUse){
         MainStore.setIsForm(true)
-        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle, gpsCoords))
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, coordinatesToUse, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "",toggle, gpsCoords))
         MainStore.setIsOpen(true)
       }
     }
@@ -98,8 +112,12 @@ const Groundwater = () => {
 
     return(
         <>
+
+            
             {/* Title Bubble */}
-            <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
+            <div className={`absolute left-0 w-full px-4 z-10 pointer-events-none ${
+              MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-12' : 'top-4'
+            }`}>
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
                         {t("GroundWater")}
@@ -107,7 +125,9 @@ const Groundwater = () => {
                 </div>
             </div>
                   {/* 2. Top-left buttons */}
-            <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
+            <div className={`absolute left-0 w-full px-4 z-10 flex justify-start pointer-events-auto ${
+              MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-28' : 'top-20'
+            }`}>
               <div className="flex gap-4 max-w-lg">
                 <div className="flex flex-col gap-3">
                     {/* GPS Button */}
@@ -190,7 +210,9 @@ const Groundwater = () => {
             </div>
 
             {/* 3. WellDepth Toggle button */}
-            <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
+            <div className={`absolute left-13 w-full px-4 z-10 flex justify-start pointer-events-auto ${
+              MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-40' : 'top-31.5'
+            }`}>
                 <div className="flex gap-4 max-w-lg">
                   <div 
                     className={`relative inline-flex rounded-xl pb-0.5 pt-0.5`}
@@ -338,7 +360,7 @@ const Groundwater = () => {
                     {/* second row – 50 % wide & centered */}
                     <button
                       className="w-1/2 self-center px-4 py-3 rounded-xl shadow-sm text-sm"
-                      onClick={() => navigate('/maps')} 
+                      onClick={() => navigate('/maps')}
                       style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
                     >
                       {t("Finish")}

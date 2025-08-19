@@ -30,12 +30,79 @@ const Homepage = () => {
         MainStore.setDistrictName(transformName(searchParams.get('dist_name')));
         MainStore.setBlockName(transformName(searchParams.get('block_name')));
         MainStore.setBlockId?.(searchParams.get('block_id'));
-        MainStore.fetchPlans(`${import.meta.env.VITE_API_URL}get_plans/?block_id=${searchParams.get('block_id')}`)
+        
+        // 🎯 NEW: Store the complete homepage URL for navigation back
+        const homepageUrl = window.location.href;
+        MainStore.setHomepageUrl(homepageUrl);
+        console.log('🔄 Homepage - Storing homepage URL:', homepageUrl);
+        
+        // 🎯 NEW: Check if we should automatically open items list
+        const shouldOpenItems = searchParams.get('open_items') === 'true';
+        if (shouldOpenItems) {
+            // 🎯 NEW: Check if this navigation is from ODK form (not hard refresh)
+            const isFromOdkForm = sessionStorage.getItem('odkFormNavigation') === 'true';
+            
+            if (isFromOdkForm) {
+                console.log('🔄 Homepage - Auto-opening items list from ODK form navigation');
+                
+                // 🎯 NEW: Get community info from URL parameters
+                const communityId = searchParams.get('community_id');
+                const communityName = searchParams.get('community_name');
+                
+                if (communityId && communityName) {
+                    console.log('🔄 Homepage - Found community info in URL:', { communityId, communityName });
+                    
+                    // Store this community info in MainStore for InfoBox to use
+                    MainStore.setAcceptedWorkDemandCommunityInfo(communityId, communityName);
+                    console.log('✅ Homepage - Stored community info in MainStore');
+                } else {
+                    console.log('ℹ️ Homepage - No community info in URL parameters');
+                }
+                
+                // Clean up URL parameters
+                let cleanUrl = homepageUrl.replace(/[?&]open_items=true/, '');
+                if (communityId) cleanUrl = cleanUrl.replace(/[?&]community_id=[^&]*/, '');
+                if (communityName) cleanUrl = cleanUrl.replace(/[?&]community_name=[^&]*/, '');
+                window.history.replaceState({}, '', cleanUrl);
+                
+                // Set menu option to communities to trigger items list
+                setTimeout(() => {
+                    MainStore.setMenuOption('communities');
+                    MainStore.setIsInfoOpen(true); // 🎯 CRITICAL: Open InfoBox
+                    console.log('✅ Homepage - Menu option set to communities and InfoBox opened');
+                }, 100);
+                
+                // 🎯 NEW: Clear the ODK form navigation flag after use
+                sessionStorage.removeItem('odkFormNavigation');
+                console.log('✅ Homepage - Cleared ODK form navigation flag');
+            } else {
+                console.log('ℹ️ Homepage - URL parameters detected but NOT from ODK form (likely hard refresh) - skipping auto-open');
+                
+                // Clean up URL parameters without opening InfoBox
+                let cleanUrl = homepageUrl.replace(/[?&]open_items=true/, '');
+                const communityId = searchParams.get('community_id');
+                const communityName = searchParams.get('community_name');
+                if (communityId) cleanUrl = cleanUrl.replace(/[?&]community_id=[^&]*/, '');
+                if (communityName) cleanUrl = cleanUrl.replace(/[?&]community_name=[^&]*/, '');
+                window.history.replaceState({}, '', cleanUrl);
+                console.log('✅ Homepage - Cleaned up URL parameters from hard refresh');
+            }
+        }
+        
+        // 🎯 NEW: Reset community state on hard refresh (when no ODK form navigation AND no items trigger)
+        if (!shouldOpenItems && !sessionStorage.getItem('odkFormNavigation')) {
+            console.log('🔄 Homepage - Hard refresh detected, resetting community state');
+            MainStore.clearAcceptedWorkDemandCommunityInfo();
+            console.log('✅ Homepage - Community state cleared');
+        }
+        
+//         MainStore.fetchPlans(`http://127.0.0.1:8000/api/v1/get_plans/?block_id=${searchParams.get('block_id')}`)
+        MainStore.fetchPlans(`https://geoserver.core-stack.org/api/v1/get_plans/?block_id=${searchParams.get('block_id')}`)
       }
       MainStore.setIsResourceOpen(false)
       MainStore.setCurrentScreen("HomeScreen")
       MainStore.setCurrentStep(0)
-    }, []);
+    }, [searchParams]); // 🎯 NEW: Add searchParams dependency to re-run when URL changes
 
     const getPlanLabel = () => {
       const plan = MainStore.currentPlan?.plan ?? t("Select Plan");
@@ -69,6 +136,13 @@ const Homepage = () => {
         return
       }
       setIsPlanningOpen(false);
+      // Ensure planning flow always starts from step 0 with clean state
+      try {
+        MainStore.setCurrentStep(0);
+        MainStore.setFeatureStat?.(false);
+      } catch (e) {
+        console.log('ℹ️ Homepage - Could not reset planning step/feature state:', e);
+      }
       
       if(section === "Groundwater"){
         MainStore.setCurrentScreen('Groundwater');
@@ -93,7 +167,9 @@ const Homepage = () => {
         <HamburgerMenu open={isSideMenuOpen} onClose={() => setIsSideMenuOpen(false)} />
         {/* 1. Header + hamburger wrapper */}
         <div
-          className="absolute top-4 left-0 w-full px-2 z-10 pointer-events-none"
+          className={`absolute left-0 w-full px-2 z-50 pointer-events-none ${
+            MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-12' : 'top-4'
+          }`}
         >
           <div className="relative w-full max-w-lg mx-auto flex items-center">
             {/* Hamburger button: re-enable pointer events just for this */}
@@ -130,7 +206,9 @@ const Homepage = () => {
         </div>
       
         {/* 2. Top-left buttons */}
-        <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
+        <div className={`absolute left-0 w-full px-4 z-45 flex justify-start pointer-events-auto ${
+          MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-28' : 'top-20'
+        }`}>
           <div className="flex gap-4 max-w-lg">
             <div className="flex flex-col gap-3">
               {/* GPS Button */}

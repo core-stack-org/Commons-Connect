@@ -103,6 +103,8 @@ const Bottomsheet = () => {
         "LULCLayer" : "setLULCLayer"
     }
 
+
+
     const handleOnLoadEvent = async() => {
         if(flg){
             if (MainStore.currentScreen === "Resource_mapping"){
@@ -117,7 +119,7 @@ const Bottomsheet = () => {
                         block_name: MainStore.blockName,
                     }
 
-                    const response = await fetch(`${import.meta.env.VITE_API_URL}add_resources/`, {
+                    const response = await fetch('http://127.0.0.1:8000/api/v1/add_resources/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -131,6 +133,34 @@ const Bottomsheet = () => {
 
                     if (res.message === "Success") {
                         MainStore.setIsSubmissionSuccess(true)
+                        
+                        // Check if there's an accepted work demand item and update its stage
+                        if (MainStore.acceptedWorkDemandItem) {
+                            try {
+                                const workDemandResponse = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        item_id: MainStore.acceptedWorkDemandItem.id,
+                                        state: 'RESOLVED',
+                                    }),
+                                });
+
+                                if (workDemandResponse.ok) {
+                                    console.log('✅ Work demand item updated to RESOLVED');
+                                    // Only clear the dialog flag, keep the accepted item for continued workflow
+                                    MainStore.clearAcceptedFromDialog();
+                                    // Don't clear acceptedWorkDemandItem yet - let user continue with planning
+                                    // Don't set map to editable yet - keep the fixed marker
+                                } else {
+                                    console.error('❌ Failed to update work demand item stage');
+                                }
+                            } catch (error) {
+                                console.error('Error updating work demand item stage:', error);
+                            }
+                        }
                     }
                     onDismiss()
 
@@ -150,7 +180,7 @@ const Bottomsheet = () => {
                         block_name: MainStore.blockName,
                     }
                     console.log(payload)
-                    const response = await fetch(`${import.meta.env.VITE_API_URL}add_works/`, {
+                    const response = await fetch('http://127.0.0.1:8000/api/v1/add_works/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -166,6 +196,34 @@ const Bottomsheet = () => {
 
                     if (res.message === "Success") {
                         MainStore.setIsSubmissionSuccess(true)
+                        
+                        // Check if there's an accepted work demand item and update its stage
+                        if (MainStore.acceptedWorkDemandItem) {
+                            try {
+                                const workDemandResponse = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        item_id: MainStore.acceptedWorkDemandItem.id,
+                                        state: 'RESOLVED',
+                                    }),
+                                });
+
+                                if (workDemandResponse.ok) {
+                                    console.log('✅ Work demand item updated to RESOLVED');
+                                    // Only clear the dialog flag, keep the accepted item for continued workflow
+                                    MainStore.clearAcceptedFromDialog();
+                                    // Don't clear acceptedWorkDemandItem yet - let user continue with planning
+                                    // Don't set map to editable yet - keep the fixed marker
+                                } else {
+                                    console.error('❌ Failed to update work demand item stage');
+                                }
+                            } catch (error) {
+                                console.error('Error updating work demand item stage:', error);
+                            }
+                        }
                     }
                     onDismiss()
                 }
@@ -512,7 +570,118 @@ const Bottomsheet = () => {
         </>
     )
 
-    const onDismiss = () => {
+    const onDismiss = async () => {
+        // Check if there's an accepted work demand item and update its state to RESOLVED
+        if (MainStore.acceptedWorkDemandItem) {
+            try {
+                const workDemandResponse = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        item_id: MainStore.acceptedWorkDemandItem.id,
+                        state: 'RESOLVED',
+                    }),
+                });
+
+                if (workDemandResponse.ok) {
+                    console.log('✅ Work demand item updated to RESOLVED successfully!');
+                    
+                    // 🎯 NEW: Reset ALL work demand related values and hide banner
+                    console.log('🔄 BottomSheet - Resetting all work demand state after ODK completion');
+                    
+                    // Clear all work demand related variables
+                    MainStore.clearAcceptedWorkDemandItem();
+                    MainStore.clearAcceptedFromDialog();
+                    MainStore.clearAcceptedWorkDemandCoords();
+                    MainStore.clearUserExplicitlyEnabledEditing();
+                    
+                    // 🎯 FIXED: Don't automatically reset map to editable mode
+                    // The map should stay in non-editable mode for accepted work demand items
+                    // until the user explicitly clicks "Enable Editing"
+                    // MainStore.setIsMapEditable(true); // REMOVED - this was causing the issue
+                    
+                    // Reset marker placement
+                    MainStore.setMarkerPlaced(false);
+                    MainStore.setMarkerCoords(null);
+                    
+                    console.log('✅ BottomSheet - All work demand state cleared, map reset to editable mode');
+                    
+                    // 🎯 NEW: Navigate back to items page if community info is available
+                    if (MainStore.acceptedWorkDemandCommunityId && MainStore.acceptedWorkDemandCommunityName) {
+                        console.log('🔄 BottomSheet - Navigating back to items page for community:', MainStore.acceptedWorkDemandCommunityName);
+                        
+                        // 🎯 CRITICAL FIX: First navigate to homepage, then set menu option
+                        console.log('🔄 BottomSheet - Navigating to homepage first');
+                        
+                        // 🎯 NEW: Use direct state management instead of popstate events
+                        const communityId = MainStore.acceptedWorkDemandCommunityId;
+                        const communityName = MainStore.acceptedWorkDemandCommunityName;
+                        
+                        if (communityId && communityName) {
+                            console.log('🔄 BottomSheet - Using direct state management with community info:', { communityId, communityName });
+                            
+                            // Store community info in MainStore for immediate use
+                            MainStore.setAcceptedWorkDemandCommunityInfo(communityId, communityName);
+                            
+                            // 🎯 NEW: Set a flag in sessionStorage to indicate this is from ODK form
+                            sessionStorage.setItem('odkFormNavigation', 'true');
+                            console.log('✅ BottomSheet - Set ODK form navigation flag in sessionStorage');
+                            
+                            // Navigate to homepage and trigger items list directly
+                            if (MainStore.homepageUrl) {
+                                // Extract the base path from stored URL
+                                const url = new URL(MainStore.homepageUrl);
+                                const basePath = url.pathname;
+                                const searchParams = new URLSearchParams(url.search);
+                                
+                                // Add our trigger parameters
+                                searchParams.set('open_items', 'true');
+                                searchParams.set('community_id', communityId);
+                                searchParams.set('community_name', communityName);
+                                
+                                const navigationUrl = `${basePath}?${searchParams.toString()}`;
+                                console.log('✅ BottomSheet - Navigating to:', navigationUrl);
+                                
+                                // Use window.location.href for reliable navigation
+                                window.location.href = navigationUrl;
+                            } else {
+                                // Fallback to /maps
+                                const navigationUrl = `/maps?open_items=true&community_id=${communityId}&community_name=${encodeURIComponent(communityName)}`;
+                                console.log('✅ BottomSheet - Navigating to fallback:', navigationUrl);
+                                
+                                window.location.href = navigationUrl;
+                            }
+                        } else {
+                            console.log('ℹ️ BottomSheet - No community info available, using fallback navigation');
+                            
+                            // Fallback to simple navigation
+                            if (MainStore.homepageUrl) {
+                                const url = new URL(MainStore.homepageUrl);
+                                const navigationUrl = `${url.pathname}?${url.search}&open_items=true`;
+                                console.log('✅ BottomSheet - Fallback navigation to:', navigationUrl);
+                                
+                                window.location.href = navigationUrl;
+                            } else {
+                                const navigationUrl = '/maps?open_items=true';
+                                console.log('✅ BottomSheet - Fallback navigation to:', navigationUrl);
+                                
+                                window.location.href = navigationUrl;
+                            }
+                        }
+                        
+                        console.log('✅ BottomSheet - Navigation to homepage and items page initiated');
+                    } else {
+                        console.log('ℹ️ BottomSheet - No community info available for navigation');
+                    }
+                } else {
+                    console.error('❌ Failed to update work demand item stage. Status:', workDemandResponse.status);
+                }
+            } catch (error) {
+                console.error('❌ Error updating work demand item stage:', error);
+            }
+        }
 
         MainStore.setIsForm(false)
 

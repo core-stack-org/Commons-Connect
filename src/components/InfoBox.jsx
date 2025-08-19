@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useMainStore from '../store/MainStore';
+import DraggableMap from './DraggableMap';
+import WorkDemandDialog from './WorkDemandDialog'
 import toast from 'react-hot-toast';
 import i18next from "i18next";
 import { useTranslation } from "react-i18next";
@@ -12,6 +14,12 @@ const InfoBox = () => {
   const currentStep = useMainStore((state) => state.currentStep);
   const currentMenuOption = useMainStore((state) => state.menuOption);
   const setMenuOption = useMainStore((state) => state.setMenuOption);
+  const resetMapToEditableMode = useMainStore((state) => state.resetMapToEditableMode);
+const safeResetMapToEditableMode = useMainStore((state) => state.safeResetMapToEditableMode);
+const setAcceptedWorkDemandCommunityInfo = useMainStore((state) => state.setAcceptedWorkDemandCommunityInfo);
+const acceptedWorkDemandCommunityId = useMainStore((state) => state.acceptedWorkDemandCommunityId);
+const acceptedWorkDemandCommunityName = useMainStore((state) => state.acceptedWorkDemandCommunityName);
+const clearAcceptedWorkDemandCommunityInfo = useMainStore((state) => state.clearAcceptedWorkDemandCommunityInfo);
 
   const { t } = useTranslation();
   const isHome = currentScreen === 'HomeScreen';
@@ -19,7 +27,7 @@ const InfoBox = () => {
   const [email, setEmail] = useState('');
 
   const [selectedLanguage, setSelectedLanguage] = useState(null);
-  const [currentLanguage, setCurrentLanguage] = useState(i18next.language); // Default language
+  const [currentLanguage, setCurrentLanguage] = useState(i18next.language);
   const [languageChangeSuccess, setLanguageChangeSuccess] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -27,6 +35,50 @@ const InfoBox = () => {
   const [uploadError, setUploadError] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  const [communities, setCommunities] = useState([]);
+  const [isCommunitiesLoading, setIsCommunitiesLoading] = useState(false);
+  const [communityError, setCommunityError] = useState(null);
+
+  const [selectedCommunityId, setSelectedCommunityId] = useState(null);
+  const [selectedCommunityName, setSelectedCommunityName] = useState('');
+  const [communityItems, setCommunityItems] = useState([]);
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [itemsError, setItemsError] = useState(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [selectedItemType, setSelectedItemType] = useState('');
+  const [selectedItemState, setSelectedItemState] = useState('');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showMapForItem, setShowMapForItem] = useState(null);
+  const [markerCoords, setMarkerCoords] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
+  const [showImages, setShowImages] = useState(false);
+  const [activePreviewImage, setActivePreviewImage] = useState(null);
+  const [showImageGallery, setShowImageGallery] = useState(false);
+  const [showAudios, setShowAudios] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [showRejectDropdown, setShowRejectDropdown] = useState(false);
+  const [showRejectReasonDialog, setShowRejectReasonDialog] = useState(false);
+
+  const typeStateMap = {
+    STORY: ['UNMODERATED', 'PUBLISHED', 'REJECTED'],
+    GRIEVANCE: ['UNMODERATED', 'INPROGRESS', 'RESOLVED', 'REJECTED'],
+    CONTENT: ['UNMODERATED', 'PUBLISHED', 'REJECTED'],
+    ASSET_DEMAND: ['UNMODERATED', 'ACCEPTED_STAGE_1', 'REJECTED_STAGE_1', 'INPROGRESS', 'RESOLVED']
+  };
+
+  const rejectionOptions = [
+    'Spam or irrelevant submission',
+    'Already resolved or addressed (Duplicate)',
+    'Incorrect location',
+    'Photo unclear or missing',
+    'Audio not understandable',
+    'Other'
+  ];
+
 
   // Handlers for menu options
   const handleLanguageSelect = (langCode) => {
@@ -52,7 +104,7 @@ const InfoBox = () => {
     if(currentPlan !== null){
       const body = { "plan_id": currentPlan.plan_id, "email_id": email }
 
-      fetch(`${import.meta.env.VITE_API_URL}generate_dpr/`, {
+              fetch('http://127.0.0.1:8000/api/v1/generate_dpr/', {
         method: "POST",
         headers: {
             "ngrok-skip-browser-warning": "1",
@@ -107,7 +159,7 @@ const InfoBox = () => {
       const formData = new FormData();
       formData.append('kml_file', selectedFile);
       
-      const url = `${import.meta.env.VITE_API_URL}upload_kml/`;
+              const url = 'http://127.0.0.1:8000/api/v1/upload_kml/';
       
       const response = await fetch(url, {
         method: 'POST',
@@ -134,7 +186,69 @@ const InfoBox = () => {
       setIsUploading(false);
     }
   };
-  
+
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+
+    const nextPage = page + 1;
+    await fetchItems(selectedCommunityId, nextPage);
+
+    setPage(nextPage);
+    setLoadingMore(false);
+  };
+
+
+  async function handleAccept() {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          item_id: selectedItem.id,
+          state: 'ACCEPTED_STAGE_1',
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to accept item');
+
+      setMapDialogOpen(false);
+    } catch (error) {
+      console.error('Error accepting item:', error);
+    }
+  }
+
+
+  async function handleReject() {
+    try {
+      if (!rejectionReason) return;
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          item_id: selectedItem.id,
+          state: 'REJECTED_STAGE_1',
+          misc: {
+            rejection_reason: rejectionReason,
+          },
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to reject item');
+
+      setMapDialogOpen(false);
+    } catch (error) {
+      console.error('Error rejecting item:', error);
+    }
+  }
+
+
   // Content for non-home screens
   const screenContent = {
       Resource_mapping: (
@@ -316,10 +430,173 @@ const InfoBox = () => {
   };
 
 
+  useEffect(() => {
+    console.log('🔄 InfoBox - Menu option changed to:', currentMenuOption);
+    
+    if (currentMenuOption === 'communities') {
+      console.log('🔄 InfoBox - Opening communities menu');
+      fetchCommunities();
+      
+      // 🎯 NEW: Auto-select community if we have stored community info from work demand
+      console.log('🔄 InfoBox - Checking for stored community info:', {
+          acceptedWorkDemandCommunityId,
+          acceptedWorkDemandCommunityName,
+          hasCommunityInfo: !!(acceptedWorkDemandCommunityId && acceptedWorkDemandCommunityName)
+      });
+      
+      // Add a small delay to ensure MainStore state is properly loaded
+      setTimeout(() => {
+        if (acceptedWorkDemandCommunityId && acceptedWorkDemandCommunityName) {
+          console.log('🔄 InfoBox - Auto-selecting community from work demand (after delay):', {
+              communityId: acceptedWorkDemandCommunityId,
+              communityName: acceptedWorkDemandCommunityName
+          });
+          
+          // Set the community and fetch items
+          setSelectedCommunityId(acceptedWorkDemandCommunityId);
+          setSelectedCommunityName(acceptedWorkDemandCommunityName);
+          
+          // 🎯 NEW: Immediately fetch items after setting community
+          console.log('🔄 InfoBox - Immediately fetching items for auto-selected community');
+          fetchItems(acceptedWorkDemandCommunityId, 0);
+          
+          // Clear the stored community info after a delay to ensure items are fetched
+          setTimeout(() => {
+            clearAcceptedWorkDemandCommunityInfo();
+            console.log('🔄 InfoBox - Community info cleared after delay');
+          }, 500);
+        } else {
+          console.log('❌ InfoBox - No stored community info available for auto-selection (after delay)');
+        }
+      }, 100);
+    } else {
+      console.log('🔄 InfoBox - Closing communities menu, resetting state');
+      setSelectedCommunityId(null);
+      setSelectedCommunityName('');
+      setCommunityItems([]);
+      setPage(0);
+      setHasMore(true);
+    }
+  }, [currentMenuOption]);
+
+
+  useEffect(() => {
+    if (selectedCommunityId !== null) {
+      console.log('🔄 InfoBox - Community selected, fetching items:', { selectedCommunityId, selectedCommunityName });
+      setPage(0);
+      setCommunityItems([]);
+      setHasMore(true);
+      fetchItems(selectedCommunityId, 0);
+    }
+  }, [selectedCommunityId, selectedItemType, selectedItemState]);
+
+  // 🎯 NEW: Debug effect to track community selection
+  useEffect(() => {
+    console.log('🔍 InfoBox - Community selection debug:', {
+      selectedCommunityId,
+      selectedCommunityName,
+      acceptedWorkDemandCommunityId,
+      acceptedWorkDemandCommunityName,
+      currentMenuOption
+    });
+  }, [selectedCommunityId, selectedCommunityName, acceptedWorkDemandCommunityId, acceptedWorkDemandCommunityName, currentMenuOption]);
+
+
+  const fetchCommunities = async () => {
+    setIsCommunitiesLoading(true);
+    setCommunityError(null);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}get_communities_by_location/?number=8`);
+//       const res = await fetch(`${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=20&district_id=64`);
+      if (!res.ok) throw new Error("Failed to fetch communities");
+      const data = await res.json();
+      setCommunities(data.data);
+    } catch (err) {
+      setCommunityError(err.message || "Something went wrong");
+    } finally {
+      setIsCommunitiesLoading(false);
+    }
+  };
+
+
+  const fetchItems = async (communityId, pageNum = 0) => {
+    console.log('🔄 InfoBox - fetchItems called:', { communityId, pageNum });
+    setItemsLoading(true);
+    setItemsError(null);
+
+    try {
+      const limit = 7;
+      const offset = pageNum * limit;
+
+      const params = new URLSearchParams({
+        community_id: communityId,
+        limit,
+        offset,
+      });
+
+      if (selectedItemType) {
+        params.append('item_type', selectedItemType);
+      }
+      if (selectedItemState) {
+        params.append('item_state', selectedItemState);
+      }
+
+              const url = `${import.meta.env.VITE_API_URL}get_items_by_community?${params.toString()}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch community items');
+      const result = await response.json();
+
+      if (pageNum === 0) {
+        setCommunityItems(result.data || []);
+      } else {
+        setCommunityItems((prev) => [...prev, ...(result.data || [])]);
+      }
+
+      if (pageNum === 0) {
+        setHasMore(true);
+      }
+      if (!result.data || result.data.length < limit) {
+        setHasMore(false);
+      }
+
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setItemsError(error.message || 'Error fetching community items.');
+    } finally {
+      setItemsLoading(false);
+    }
+  };
+
   if (!isInfoOpen) return null;
 
+
+  const titles = {
+    language: t('Select Language'),
+    'download dpr': 'Generate Pre-DPR',
+    'upload kml': 'Upload KML',
+    communities: t('Communities'),
+  };
+
+
+  const resetCommunityUI = () => {
+    setMapDialogOpen(false);
+    setSelectedItem(null);
+    setSelectedCommunityId(null);
+    setSelectedCommunityName('');
+    setCommunityItems([]);
+    setPage(0);
+    setHasMore(true);
+    setSelectedItemType('');
+    setSelectedItemState('');
+    setMenuOption(null);
+    setIsInfoOpen(false);
+    // Use safe reset that won't interfere with work demand processing
+    safeResetMapToEditableMode();
+  };
+
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+            <div className="fixed inset-0 z-60 flex items-center justify-center pointer-events-none">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-white/10 backdrop-blur-md"
@@ -329,15 +606,16 @@ const InfoBox = () => {
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 z-10 pointer-events-auto">
         {/* Header */}
-        <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
-          {currentMenuOption
-            ? currentMenuOption === 'language'
-              ? t('Select Language')
-              : currentMenuOption === 'download dpr'
-              ? 'Generate Pre-DPR'
-              : 'Upload KML'
-            : t('Information')}
+        <h2 className={`text-xl font-bold mb-4 text-center ${
+          currentMenuOption === 'communities' 
+            ? 'text-blue-600' 
+            : 'text-gray-800'
+        }`}>
+          {currentMenuOption === 'communities' && selectedCommunityId
+            ? selectedCommunityName
+            : titles[currentMenuOption] || t('Information')}
         </h2>
+
 
         {/* Close */}
         <button
@@ -345,6 +623,8 @@ const InfoBox = () => {
           onClick={() => {
             setIsInfoOpen(false);
             setMenuOption(null);
+            // Use safe reset that won't interfere with work demand processing
+            safeResetMapToEditableMode();
           }}
         >
           ✕
@@ -700,6 +980,342 @@ const InfoBox = () => {
                 )}
               </div>
             )}
+
+            {currentMenuOption === 'communities' && (
+              <>
+                {/* Show Community List */}
+                {!selectedCommunityId && (
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
+                    {isCommunitiesLoading && (
+                      <div className="text-center py-6 text-gray-500">{t("Loading communities...")}</div>
+                    )}
+
+                    {communityError && (
+                      <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">
+                        {communityError}
+                      </div>
+                    )}
+
+                    {!isCommunitiesLoading && !communityError && communities.length === 0 && (
+                      <div className="text-center py-6 text-gray-500">{t("No communities found.")}</div>
+                    )}
+
+                    {!isCommunitiesLoading && !communityError && communities.length > 0 && (
+                      <div className="max-h-64 overflow-y-auto space-y-3 pr-2">
+                        {communities.map((community) => (
+                          <button
+                            key={community.community_id}
+
+                            onClick={() => {
+                              setCommunityItems([]);
+                              setPage(0);
+                              setHasMore(true);
+                              setSelectedItemType('');
+                              setSelectedItemState('');
+                              setSelectedCommunityId(null);
+
+                              setTimeout(() => {
+                                setSelectedCommunityId(community.community_id);
+                                setSelectedCommunityName(community.name);
+                              }, 50);
+                            }}
+
+                            className={`w-full p-4 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                              selectedCommunityId === community.community_id
+                                ? 'border-blue-500 bg-blue-50 shadow-md'
+                                : 'border-gray-200 hover:border-blue-300 hover:bg-white bg-white'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center space-x-3 flex-1 min-w-0">
+                                <div className="p-2 bg-gray-100 rounded-lg flex-shrink-0">
+                                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                  </svg>
+                                </div>
+                                <h4 className="font-medium text-gray-900 break-words">{community.name}</h4>
+                              </div>
+                              <div className="text-gray-400 flex-shrink-0 ml-2">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {selectedCommunityId && (
+                  <div
+                    className="mt-6 bg-white p-4 rounded-lg border border-gray-200 space-y-4 overflow-y-auto"
+                    style={{ maxHeight: '400px' }}
+                  >
+                    {/* Back Button */}
+                    <button
+                      onClick={() => {
+                        setSelectedCommunityId(null);
+                        setCommunityItems([]);
+                        setPage(0);
+                        setHasMore(true);
+                      }}
+                      className="text-sm text-blue-600 hover:underline mb-4"
+                    >
+                      ← {t("Back to communities")}
+                    </button>
+
+                    {itemsLoading && page === 0 && (
+                      <p className="text-center text-gray-500">Loading items...</p>
+                    )}
+
+                    {itemsError && (
+                      <p className="text-center text-red-600 text-sm">{itemsError}</p>
+                    )}
+
+                    {!itemsLoading && !itemsError && communityItems.length === 0 && (
+                      <p className="text-center text-gray-500">{t("No items found for this community.")}</p>
+                    )}
+
+
+
+                    {/* ✅ Only render filters if items exist */}
+                    {communityItems.length > 0 && (
+                      <div
+                        className="sticky top-0 z-10 bg-white pb-2 pt-1 border-b border-gray-200 mt-6"
+                        style={{ marginTop: '-1rem', marginLeft: '-1rem', marginRight: '-1rem', paddingLeft: '1rem', paddingRight: '1rem' }}
+                      >
+
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          {/* Mobile Filter Toggle Button */}
+                          <div className="sm:hidden">
+                            <button
+                              onClick={() => setShowMobileFilters(prev => !prev)}
+                              className="text-sm text-blue-600 border border-blue-500 px-3 py-2 rounded hover:bg-blue-50"
+                            >
+                              {showMobileFilters ? t("Hide Filters") : t("Show Filters")}
+                            </button>
+                          </div>
+
+                          {/* Filters - Visible by default on sm+ and toggleable on mobile */}
+                          <div className={`${showMobileFilters ? 'block' : 'hidden'} sm:flex sm:items-center sm:gap-4 w-full sm:w-auto`}>
+                            {/* Type Selector */}
+                            <select
+                              value={selectedItemType}
+                              onChange={(e) => {
+                                const type = e.target.value;
+                                setSelectedItemType(type);
+                                setSelectedItemState('');
+                              }}
+                              className="mt-2 sm:mt-0 border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+                            >
+                              <option value="">{t("Select Item Type")}</option>
+                              <option value="CONTENT">Content</option>
+                              <option value="GRIEVANCE">Grievance</option>
+                              <option value="ASSET_DEMAND">Asset Demand</option>
+                              <option value="STORY">Story</option>
+                            </select>
+
+                            {/* State Selector */}
+                            <select
+                              value={selectedItemState}
+                              onChange={(e) => {
+                                setSelectedItemState(e.target.value);
+                              }}
+                              disabled={!selectedItemType}
+                              className={`mt-2 sm:mt-0 border ${
+                                selectedItemType ? 'border-gray-300' : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                              } rounded-md px-3 py-2 text-sm w-full sm:w-auto`}
+                            >
+                              <option value="">{t("Select Item State")}</option>
+                              {selectedItemType &&
+                                typeStateMap[selectedItemType].map((stateKey) => (
+                                  <option key={stateKey} value={stateKey}>
+                                    {stateKey
+                                      .replace(/_/g, ' ')
+                                      .toLowerCase()
+                                      .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                  </option>
+                                ))}
+                            </select>
+
+                            {/* Clear Filters */}
+                            {(selectedItemType || selectedItemState) && (
+                              <button
+                                onClick={() => {
+                                  setSelectedItemType('');
+                                  setSelectedItemState('');
+                                  setPage(0);
+                                  setHasMore(true);
+                                  if (selectedCommunityId) fetchItems(selectedCommunityId, 0);
+                                }}
+                                className="mt-2 sm:mt-0 text-sm text-blue-600 border border-blue-500 px-3 py-2 rounded hover:bg-blue-50 w-full sm:w-auto"
+                              >
+                                {t("Clear Filters")}
+                              </button>
+                            )}
+                          </div>
+
+
+                        </div>
+                      </div>
+                    )}
+
+
+                    {communityItems.length > 0 && (
+                      <div>
+                        {/* Table Header */}
+                        <div className="bg-gray-100 text-gray-700 rounded-t-lg overflow-hidden">
+                          <div className="grid grid-cols-3 text-center">
+                            <div className="px-2 py-2 border-r border-gray-300 text-[13px] font-medium">{t("Phone & Date")}</div>
+                            <div className="px-2 py-2 border-r border-gray-300 text-[13px] font-medium">{t("Title & Status")}</div>
+                            <div className="px-2 py-2 text-[13px] font-medium">{t("Type")}</div>
+                          </div>
+                        </div>
+                        
+                        {/* Content Cards */}
+                        <div className="space-y-3 mt-4">
+                          {communityItems
+                            .filter(item => !selectedItemType || item.item_type === selectedItemType)
+                            .map(item => (
+                              <div
+                                key={item.id}
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  if (item.item_type === 'ASSET_DEMAND') {
+                                    setMapDialogOpen(true);
+                                  }
+                                }}
+                                className={`border rounded-lg p-4 hover:shadow-md cursor-pointer transition-all duration-200 ${
+                                  item.item_type === 'ASSET_DEMAND'
+                                    ? 'bg-orange-50 border-orange-200 hover:bg-orange-100' 
+                                    : item.item_type === 'GRIEVANCE'
+                                    ? 'bg-red-50 border-red-200 hover:bg-red-100'
+                                    : item.item_type === 'CONTENT'
+                                    ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                                    : 'bg-green-50 border-green-200 hover:bg-green-100'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  {/* Column 1: Phone Number and Date */}
+                                  <div className="flex-1 text-center">
+                                    <div className="text-xs text-gray-900 font-medium">{item.number || '—'}</div>
+                                    {(() => {
+                                      // Generate date from created_at field (date only, no time)
+                                      if (item.created_at) {
+                                        const date = new Date(item.created_at);
+                                        const day = date.getDate();
+                                        const month = date.toLocaleDateString('en-US', { month: 'short' });
+                                        const year = date.getFullYear();
+                                        
+                                        const formattedDate = `${day} ${month} ${year}`;
+                                        return <div className="text-xs text-gray-500 mt-1">{formattedDate}</div>;
+                                      }
+                                      return null;
+                                    })()}
+                                  </div>
+                                  
+                                  {/* Column 2: Title/Status or Status Only */}
+                                  <div className="flex-1 text-center px-4">
+                                    {(() => {
+                                      // Check if title is auto-generated
+                                      const isAutoGenerated = /^[A-Za-z\s]+ - \d{1,2} [A-Za-z]{3} \d{4}, \d{1,2}:\d{2} [AP]M$/.test(item.title);
+                                      
+                                      if (isAutoGenerated) {
+                                        // For auto-generated titles, show only status
+                                        return (
+                                          <div className="text-xs text-gray-900 font-medium">
+                                            {item.state === 'UNMODERATED' ? 'Unmoderated' :
+                                             item.state === 'ACCEPTED_STAGE_1' ? 'Accepted (Stage 1)' :
+                                             item.state === 'REJECTED_STAGE_1' ? 'Rejected' :
+                                             item.state === 'INPROGRESS' ? 'In Progress' :
+                                             item.state === 'RESOLVED' ? 'Resolved' :
+                                             item.state}
+                                          </div>
+                                        );
+                                      } else {
+                                        // For user-given titles, show title and status
+                                        return (
+                                          <>
+                                            {item.title && (
+                                              <div className="text-xs text-gray-900 break-words mb-1">{item.title}</div>
+                                            )}
+                                            <div className="text-xs text-gray-500">
+                                              {item.state === 'UNMODERATED' ? 'Unmoderated' :
+                                               item.state === 'ACCEPTED_STAGE_1' ? 'Accepted (Stage 1)' :
+                                               item.state === 'REJECTED_STAGE_1' ? 'Rejected' :
+                                               item.state === 'INPROGRESS' ? 'In Progress' :
+                                               item.state === 'RESOLVED' ? 'Resolved' :
+                                               item.state}
+                                            </div>
+                                          </>
+                                        );
+                                      }
+                                    })()}
+                                  </div>
+                                  
+                                  {/* Column 3: Type */}
+                                  <div className="flex-1 text-center">
+                                    <div className="text-xs text-gray-900 font-medium">
+                                      {item.item_type === 'STORY' ? 'Story' :
+                                       item.item_type === 'GRIEVANCE' ? 'Grievance' :
+                                       item.item_type === 'ASSET_DEMAND' ? 'Asset Demand' :
+                                       item.item_type === 'CONTENT' ? 'Content' :
+                                       item.item_type}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Load More inside scroll container */}
+                    {hasMore && (
+                      <div className="text-center mt-4">
+                        {loadingMore ? (
+                          <p className="text-gray-500">Loading more items...</p>
+                        ) : (
+                          <button
+                            onClick={handleLoadMore}
+                            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          >
+                            {t("Load More")}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <WorkDemandDialog
+                  open={mapDialogOpen}
+                  onClose={() => setMapDialogOpen(false)}
+                  item={selectedItem}
+                  onAccepted={() => {
+                    // 🎯 NEW: Store community info for navigation back to items page
+                    if (selectedCommunityId && selectedCommunityName) {
+                        console.log('🔄 InfoBox - Storing community info for work demand navigation:', {
+                            communityId: selectedCommunityId,
+                            communityName: selectedCommunityName
+                        });
+                        setAcceptedWorkDemandCommunityInfo(selectedCommunityId, selectedCommunityName);
+                    }
+                    
+                    resetCommunityUI();
+                  }}
+                  onRejected={() => {
+                    setMapDialogOpen(false);
+                    fetchItems(selectedCommunityId, 0);
+                  }}
+                />
+
+              </>
+            )}
+
+
 
           </div>
           ) : isHome ? (

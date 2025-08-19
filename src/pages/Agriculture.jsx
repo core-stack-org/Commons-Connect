@@ -48,24 +48,13 @@ const Agriculture = () => {
         }
         MainStore.setGpsLocation(gpsCoords)
       }
-    if (MainStore.markerCoords) {
-      MainStore.setIsForm(true);
-      MainStore.setFormUrl(
-        getOdkUrlForScreen(
-          MainStore.currentScreen,
-          MainStore.currentStep,
-          MainStore.markerCoords,
-          MainStore.settlementName,
-          "",
-          MainStore.blockName,
-          MainStore.currentPlan.plan_id,
-          MainStore.currentPlan.plan,
-          "",
-          toggle,
-          gpsCoords
-        )
-      );
-      MainStore.setIsOpen(true);
+    // ⭐ PRIORITIZE: Use accepted work demand coordinates if available, otherwise use marker coordinates
+    const coordinatesToUse = MainStore.acceptedWorkDemandCoords || MainStore.markerCoords;
+    
+    if(coordinatesToUse){
+        MainStore.setIsForm(true)
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, coordinatesToUse, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", toggle, gpsCoords))
+        MainStore.setIsOpen(true)
     }
   };
 
@@ -98,7 +87,9 @@ const Agriculture = () => {
   return (
     <>
       {/* Title Bubble (UNCHANGED) */}
-      <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
+      <div className={`absolute left-0 w-full px-4 z-10 pointer-events-none ${
+        MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-12' : 'top-4'
+      }`}>
         <div className="relative w-full max-w-lg mx-auto flex items-center">
           <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
             {t("Agriculture")}
@@ -107,7 +98,9 @@ const Agriculture = () => {
       </div>
 
       {/* 2. Top-left buttons */}
-      <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
+      <div className={`absolute left-0 w-full px-4 z-10 flex justify-start pointer-events-auto ${
+        MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-28' : 'top-20'
+      }`}>
             <div className="flex gap-4 max-w-lg">
             <div className="flex flex-col gap-3">
                 {/* GPS Button */}
@@ -189,7 +182,9 @@ const Agriculture = () => {
 
      {/* ─── Slider + popup (step 0 only) - MOVED FURTHER DOWN TO AVOID OVERLAP ─── */}
      {MainStore.currentStep === 0 && (
-        <div className="absolute top-44 left-0 w-full px-4 z-10">
+        <div className={`absolute left-0 w-full px-4 z-10 ${
+          MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-56' : 'top-44'
+        }`}>
             <div className="relative w-3/4 max-w-md mx-auto">
             <input
                 type="range"
