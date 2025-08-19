@@ -1414,8 +1414,13 @@ const MapComponent = () => {
                     mapRef.current.addLayer(groundwaterRefs[0].current); // Well depth layer
                 }
 
-                mapRef.current.addLayer(assetsLayerRefs[0].current) // Settlement layer
-                mapRef.current.addLayer(assetsLayerRefs[2].current)
+            mapRef.current.addLayer(groundwaterRefs[1].current)
+            mapRef.current.addLayer(assetsLayerRefs[2].current)
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
 
                 // Restore accepted item layer if it exists
                 if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
@@ -1502,11 +1507,6 @@ const MapComponent = () => {
             if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
                 mapRef.current.addLayer(AcceptedItemLayerRef.current);
             }
-
-            // Restore accepted item layer if it exists
-            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
-                mapRef.current.addLayer(AcceptedItemLayerRef.current);
-            }
         }
 
         else if(currentScreen === "Livelihood"){
@@ -1529,6 +1529,11 @@ const MapComponent = () => {
             if(currentStep > 0){
                 mapRef.current.addLayer(LivelihoodRefs[0].current)
                 tempSettlementLayer.current.setVisible(true)
+            }
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
             }
         }
     }
@@ -1800,6 +1805,7 @@ const MapComponent = () => {
             if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
                 mapRef.current.addLayer(AcceptedItemLayerRef.current);
             }
+
             mapRef.current.addLayer(assetsLayerRefs[1].current)
 
             assetsLayerRefs[2].current.setStyle(function (feature) {
@@ -1885,6 +1891,7 @@ const MapComponent = () => {
                 }),
             }));
 
+            // Store reference to position feature
             PositionFeatureRef.current = positionFeature;
 
             let tempCoords = MainStore.gpsLocation
@@ -2190,16 +2197,16 @@ const MapComponent = () => {
             // 🎯 NEW: Set marker as placed for work demand flow so buttons are enabled
             console.log('🔍 Before setting isMarkerPlaced - Current state:', {
                 isMarkerPlaced: MainStore.isMarkerPlaced,
-                acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
-                acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords
+                acceptedWorkDemandItem: MainStore.acceptedWorkDemandItem,
+                acceptedWorkDemandCoords: MainStore.acceptedWorkDemandCoords
             });
             
             MainStore.setMarkerPlaced(true);
             
             console.log('🔍 After setting isMarkerPlaced - New state:', {
                 isMarkerPlaced: MainStore.isMarkerPlaced,
-                acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
-                acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords
+                acceptedWorkDemandItem: MainStore.acceptedWorkDemandItem,
+                acceptedWorkDemandCoords: MainStore.acceptedWorkDemandCoords
             });
             
             console.log('✅ Accepted work demand item marker created and displayed immediately');
@@ -2223,101 +2230,6 @@ const MapComponent = () => {
             setIsMapEditable(false);
         }
     }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords, isMapEditable]);
-
-    // 🎯 NEW: Function to initialize layers for the selected plan
-    const initializeLayersForPlan = async () => {
-        if (!mapRef.current || !currentPlan || !districtName || !blockName) return;
-
-        console.log('🔄 MapComponent - Initializing layers for plan:', currentPlan.plan);
-        console.log('🔍 Layer initialization - State check:', {
-            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
-            acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
-            coords: MainStore.acceptedWorkDemandCoords
-        });
-
-        try {
-            // Initialize layers that are needed for the map to function properly
-            // Some layers are loaded but not necessarily displayed by default
-
-            // Initialize Well Depth layer - needed for map functionality (matches normal flow)
-            if (groundwaterRefs[0].current === null) {
-                const wellDepthLayer = await getVectorLayers(
-                    "mws_layers",
-                    `deltaG_well_depth_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
-                    true,
-                    true
-                );
-                groundwaterRefs[0].current = wellDepthLayer;
-                // Don't add to map by default - only when user clicks the layer button
-                console.log('✅ Well Depth layer initialized (background layer)');
-                
-                // 🎯 NEW: If we have an accepted work demand item marker, highlight the subregion containing it
-                if (acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords) {
-                    console.log('🎯 Well Depth layer ready, highlighting subregion for existing marker');
-                    
-                    // 🎯 NEW: Set Well Depth layer z-index lower than marker
-                    groundwaterRefs[0].current.setZIndex(100); // Lower than marker's 1000
-                    
-                    // Add a longer delay to ensure the layer features are fully loaded
-                    setTimeout(() => {
-                        highlightWellDepthSubregionForMarker(MainStore.acceptedWorkDemandCoords);
-                    }, 2000); // Increased from 500ms to 2000ms
-                }
-            }
-
-            // Initialize Settlement layer - only if it doesn't exist (matches normal flow)
-            if (assetsLayerRefs[0].current === null) {
-                const settlementLayer = await getVectorLayers(
-                    "resources",
-                    `settlement_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
-                    true,
-                    true
-                );
-                assetsLayerRefs[0].current = settlementLayer;
-                mapRef.current.addLayer(settlementLayer);
-                console.log('✅ Settlement layer initialized');
-            }
-
-            // Initialize Well layer - only if it doesn't exist (matches normal flow)
-            if (assetsLayerRefs[1].current === null) {
-                const wellLayer = await getVectorLayers(
-                    "resources",
-                    `well_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
-                    true,
-                    true
-                );
-                assetsLayerRefs[1].current = wellLayer;
-                mapRef.current.addLayer(wellLayer);
-                console.log('✅ Well layer initialized');
-            }
-
-            // Initialize Water Structure layer - only if it doesn't exist (matches normal flow)
-            if (assetsLayerRefs[2].current === null) {
-                const waterStructureLayer = await getVectorLayers(
-                    "resources",
-                    `waterbody_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
-                    true,
-                    true
-                );
-                assetsLayerRefs[2].current = waterStructureLayer;
-                mapRef.current.addLayer(waterStructureLayer);
-                console.log('✅ Water Structure layer initialized');
-            }
-
-            // Set layer store states to match what's actually shown (matches normal flow)
-            LayersStore.setAdminBoundary(true);
-            LayersStore.setWellDepth(true); // Available but not shown by default
-            LayersStore.setSettlementLayer(true);
-            LayersStore.setWellLayer(true);
-            LayersStore.setWaterStructure(true);
-            // Note: WorkGroundwater, Drainage, etc. are not shown by default
-
-            // 🎯 NEW: Marker creation is handled in useEffect hook - no need to create here
-            console.log('⏰ Marker creation handled separately in useEffect hook');
-        } catch (error) {
-            console.error('❌ Error initializing layers for plan:', error);
-        }
-    };
 
     // Clear the dialog flag after a short delay to ensure map mode is set
     useEffect(() => {
@@ -2825,7 +2737,7 @@ const MapComponent = () => {
                 } else {
                     mapRef.current.removeLayer(NregaWorkLayerRef.current);
                 }
-
+            }
                 else if(MainStore.layerClicked === "WellDepth"){
                     if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === groundwaterRefs[0].current)){
                         mapRef.current.addLayer(groundwaterRefs[0].current);
@@ -2921,16 +2833,10 @@ const MapComponent = () => {
                 } else {
                     mapRef.current.removeLayer(LivelihoodRefs[0].current);
                 }
-            } else if (MainStore.layerClicked === "CLARTLayer") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === ClartLayerRef.current)
-                ) {
-                    mapRef.current.addLayer(ClartLayerRef.current);
-                } else {
-                    mapRef.current.removeLayer(ClartLayerRef.current);
+
+            }else if(MainStore.layerClicked === "CLARTLayer"){
+                    if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === ClartLayerRef.current)){mapRef.current.addLayer(ClartLayerRef.current)}
+                    else{mapRef.current.removeLayer(ClartLayerRef.current)}
                 }
            }
 

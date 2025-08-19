@@ -81,10 +81,11 @@ const InfoBox = () => {
   ];
 
 
-    const handleLanguageSelect = (langCode) => {
-        setSelectedLanguage(langCode);
-        setLanguageChangeSuccess(false);
-    };
+  // Handlers for menu options
+  const handleLanguageSelect = (langCode) => {
+    setSelectedLanguage(langCode);
+    setLanguageChangeSuccess(false);
+  };
 
     const handleApplyLanguage = () => {
         if (selectedLanguage) {

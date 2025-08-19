@@ -42,47 +42,35 @@ const Livelihood = () => {
         }
     };
 
-    const toggleFormsUrl = () => {
-        let gpsCoords = MainStore.gpsLocation;
+    const toggleFormsUrl = () =>{
 
-        if (gpsCoords === null) {
-            try {
-                navigator.geolocation.getCurrentPosition(
-                    ({ coords }) => {
-                        gpsCoords = [coords.longitude, coords.latitude];
-                    },
-                    (err) => {
-                        console.log("In first err : ", err);
-                    },
-                );
-                if (gpsCoords === null) {
-                    throw new Error("User object missing");
-                }
-            } catch (e) {
-                console.log("In the catch ");
+      let gpsCoords = MainStore.gpsLocation
+
+      if(gpsCoords === null){
+        try{
+          navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+              gpsCoords = [coords.longitude, coords.latitude];
+            },
+            (err) => {
+              console.log("In first err : ", err)
             }
-            MainStore.setGpsLocation(gpsCoords);
+          );
+          if(gpsCoords === null){
+            throw new Error('User object missing');
+          }
+        }catch(e){
+          console.log("In the catch ")
         }
-        if (MainStore.markerCoords) {
-            MainStore.setIsForm(true);
-
-            MainStore.setFormUrl(
-                getOdkUrlForScreen(
-                    MainStore.currentScreen,
-                    MainStore.currentStep,
-                    MainStore.markerCoords,
-                    MainStore.settlementName,
-                    "",
-                    MainStore.blockName,
-                    MainStore.currentPlan.plan_id,
-                    MainStore.currentPlan.plan,
-                    MainStore.selectedResource?.id,
-                    false,
-                    gpsCoords,
-                ),
-            );
-
-            MainStore.setIsOpen(true);
+        MainStore.setGpsLocation(gpsCoords)
+      }
+        // ⭐ PRIORITIZE: Use accepted work demand coordinates if available, otherwise use marker coordinates
+        const coordinatesToUse = MainStore.acceptedWorkDemandCoords || MainStore.markerCoords;
+        
+        if(coordinatesToUse){
+            MainStore.setIsForm(true)
+            MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, coordinatesToUse, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", toggle, gpsCoords))
+            MainStore.setIsOpen(true)
         }
     };
 
