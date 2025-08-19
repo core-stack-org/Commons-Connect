@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+                                                                                                                                                                                                                                                                                                                import { useEffect, useRef, useState } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import useLayersStore from "../store/LayerStore.jsx";
 import getWebglVectorLayers from "../action/getWebglVectorLayers.js";
@@ -158,6 +158,7 @@ function shouldShowWaterStructure(wbsType, screen) {
     }
 }
 
+
 const MapComponent = () => {
     const mapElement = useRef(null);
     const mapRef = useRef(null);
@@ -166,30 +167,46 @@ const MapComponent = () => {
     const AdminLayerRef = useRef(null);
     const MapMarkerRef = useRef(null);
     const NregaWorkLayerRef = useRef(null);
-    const ClartLayerRef = useRef(null);
-    const WaterbodiesLayerRef = useRef(null);
-    const PositionFeatureRef = useRef(null);
-    const GeolocationRef = useRef(null);
-    const GpsLayerRef = useRef(null);
-
-    const tempSettlementFeature = useRef(null);
-    const tempSettlementLayer = useRef(null);
+    const ClartLayerRef = useRef(null)
+    const WaterbodiesLayerRef = useRef(null)
+    const PositionFeatureRef = useRef(null)
+    const GeolocationRef = useRef(null)
+    const AcceptedItemLayerRef = useRef(null);
+    const GpsLayerRef = useRef(null)
+    
+    const tempSettlementFeature = useRef(null)
+    const tempSettlementLayer = useRef(null)
 
     const [isLoading, setIsLoading] = useState(false);
 
     const MainStore = useMainStore((state) => state);
-    const LayersStore = useLayersStore((state) => state);
+    const LayersStore = useLayersStore((state) => state)
+
+    const acceptedWorkDemandItem = useMainStore((state) => state.acceptedWorkDemandItem);
+    const acceptedFromDialog = useMainStore((state) => state.acceptedFromDialog);
+    const clearAcceptedFromDialog = useMainStore((state) => state.clearAcceptedFromDialog);
+    const clearAcceptedWorkDemandItem = useMainStore((state) => state.clearAcceptedWorkDemandItem);
+    const setAcceptedWorkDemandCoords = useMainStore((state) => state.setAcceptedWorkDemandCoords);
+    const clearAcceptedWorkDemandCoords = useMainStore((state) => state.clearAcceptedWorkDemandCoords);
+    
+    // Map mode management
+    const isMapEditable = useMainStore((state) => state.isMapEditable);
+    const setIsMapEditable = useMainStore((state) => state.setIsMapEditable);
+    const setUserExplicitlyEnabledEditing = useMainStore((state) => state.setUserExplicitlyEnabledEditing);
+    const clearUserExplicitlyEnabledEditing = useMainStore((state) => state.clearUserExplicitlyEnabledEditing);
+
+
 
     const blockName = useMainStore((state) => state.blockName);
     const districtName = useMainStore((state) => state.districtName);
     const currentPlan = useMainStore((state) => state.currentPlan);
     const setFeatureStat = useMainStore((state) => state.setFeatureStat);
     const setMarkerPlaced = useMainStore((state) => state.setMarkerPlaced);
-    const setSelectedResource = useMainStore(
-        (state) => state.setSelectedResource,
-    );
-    const setMarkerCoords = useMainStore((state) => state.setMarkerCoords);
-    const setAllNregaYears = useMainStore((state) => state.setAllNregaYears);
+    const setSelectedResource = useMainStore((state) => state.setSelectedResource)
+    const setMarkerCoords = useMainStore((state) => state.setMarkerCoords)
+    const setAllNregaYears = useMainStore((state) => state.setAllNregaYears)
+
+
 
     //? Screens
     const currentScreen = useMainStore((state) => state.currentScreen);
@@ -212,15 +229,7 @@ const MapComponent = () => {
     ];
 
     //?                     17-18       18-19           19-20       20-21           21-22         22-23         23-24
-    let LulcLayerRefs = [
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-    ];
+    let LulcLayerRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)]
 
     //?                   Cropping      Drought        Works
     let AgriLayersRefs = [useRef(null), useRef(null), useRef(null)];
@@ -273,7 +282,7 @@ const MapComponent = () => {
             smoothResolutionConstraint: true,
         });
 
-        viewRef.current = view;
+        viewRef.current = view
 
         const map = new Map({
             target: mapElement.current,
@@ -307,7 +316,7 @@ const MapComponent = () => {
                 projection: view.getProjection(),
             });
 
-            GeolocationRef.current = geolocation;
+            GeolocationRef.current = geolocation
 
             GeolocationRef.current.on("change:position", function () {
                 const coordinates = GeolocationRef.current.getPosition();
@@ -323,6 +332,16 @@ const MapComponent = () => {
     };
 
     const fetchBoundaryAndZoom = async (district, block) => {
+        // Only fetch boundary and zoom if we're in editable mode
+        if (!isMapEditable) {
+            return;
+        }
+
+        if (useMainStore.getState().acceptedWorkDemandItem && useMainStore.getState().acceptedFromDialog) {
+          // Skip boundary if we just accepted an item; map will center on it
+          return;
+        }
+
         setIsLoading(true);
         try {
             const boundaryLayer = await getWebglVectorLayers(
@@ -374,43 +393,45 @@ const MapComponent = () => {
             const view = mapRef.current.getView();
 
             view.cancelAnimations();
-            view.animate(
-                {
-                    zoom: Math.max(view.getZoom() - 0.5, 5),
-                    duration: 750,
-                },
-                () => {
-                    view.fit(extent, {
-                        padding: [50, 50, 50, 50],
-                        duration: 1000,
-                        maxZoom: 15,
-                        easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
-                        callback: () => {
-                            let opacity = 0;
-                            const interval = setInterval(() => {
-                                opacity += 0.1;
-                                boundaryLayer.setOpacity(opacity);
-                                nregaWorksLayer.setOpacity(opacity);
-                                if (opacity >= 1) {
-                                    clearInterval(interval);
-                                    setIsLoading(false);
-                                }
-                            }, 50);
-                            view.animate({
-                                zoom: 13,
-                                duration: 600,
-                                easing: easeOut,
-                            });
-                        },
-                    });
-                },
-            );
+            view.animate({
+                zoom: Math.max(view.getZoom() - 0.5, 5),
+                duration: 750,
+            }, () => {
+                view.fit(extent, {
+                    padding: [50, 50, 50, 50],
+                    duration: 1000,
+                    maxZoom: 15,
+                    easing: (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t),
+                    callback: () => {
+                        let opacity = 0;
+                        const interval = setInterval(() => {
+                            opacity += 0.1;
+                            boundaryLayer.setOpacity(opacity);
+                            nregaWorksLayer.setOpacity(opacity);
+                            if (opacity >= 1) {
+                                clearInterval(interval);
+                                setIsLoading(false);
+                            }
+                        }, 50);
+                        view.animate({
+                            zoom: 13,
+                            duration: 600,
+                            easing: easeOut,
+                        });
+                    }
+                });
+            });
 
-            mapRef.current.on("click", async (e) => {
-                MainStore.setIsMetadata(false);
-                MainStore.setIsWaterBody(false);
-                MainStore.setIsGroundWater(false);
-                MainStore.setIsAgriculture(false);
+            mapRef.current.on("click", async(e) => {
+                // Only allow map interactions in editable mode
+                if (!isMapEditable) {
+                    return;
+                }
+
+                MainStore.setIsMetadata(false)
+                MainStore.setIsWaterBody(false)
+                MainStore.setIsGroundWater(false)
+                MainStore.setIsAgriculture(false)
 
                 const NregaFeature = mapRef.current.forEachFeatureAtPixel(
                     e.pixel,
@@ -902,66 +923,100 @@ const MapComponent = () => {
         tempSettlementLayer.current.setVisible(false);
 
         mapRef.current.on("click", (e) => {
-            setFeatureStat(false);
-            setMarkerPlaced(true);
-            setMarkerCoords(e.coordinate);
-            MainStore.setIsResource(false);
+            console.log("🗺️ Map clicked - Debug info:", {
+                isMapEditable,
+                acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+                currentPlan: !!currentPlan,
+                markerPlaced: MainStore.isMarkerPlaced
+            });
+
+            // Only allow map interactions in editable mode
+            if (!isMapEditable) {
+                console.log("❌ Map not editable, blocking click");
+                return;
+            }
+
+                            // Check if we're in planning mode with an accepted work demand item
+                // If so, prevent new marker placement
+                if (acceptedWorkDemandItem && currentPlan) {
+                    console.log("❌ Planning mode with work demand item, blocking marker placement");
+                    return; // Exit early - no new markers allowed in planning mode
+                }
+
+            console.log("✅ Allowing marker placement");
+            setFeatureStat(false)
+            setMarkerPlaced(true)
+            setMarkerCoords(e.coordinate)
+            MainStore.setIsResource(false)
 
             markerFeature.setGeometry(new Point(e.coordinate));
             MapMarkerRef.current.setVisible(true);
 
             mapRef.current.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
-                if (layer === assetsLayerRefs[0].current) {
-                    MainStore.setResourceType("Settlement");
-                    setFeatureStat(true);
-                    mapRef.current.addInteraction(selectSettleIcon);
-                    setSelectedResource(feature.values_);
-                    tempSettlementFeature.current.setGeometry(
-                        new Point(e.coordinate),
-                    );
-                    MainStore.setSettlementName(feature.values_.sett_name);
-                    MainStore.setIsResource(true);
-                    MainStore.setIsResourceOpen(true);
-                } else if (layer === assetsLayerRefs[1].current) {
-                    MainStore.setResourceType("Well");
-                    mapRef.current.removeInteraction(selectSettleIcon);
-                    setSelectedResource(feature.values_);
-                    setFeatureStat(true);
-                    MainStore.setIsResource(true);
-                    MainStore.setIsResourceOpen(true);
-                } else if (layer === assetsLayerRefs[2].current) {
-                    MainStore.setResourceType("Waterbody");
-                    mapRef.current.removeInteraction(selectSettleIcon);
-                    setSelectedResource(feature.values_);
-                    setFeatureStat(true);
-                    MainStore.setIsResource(true);
-                    MainStore.setIsResourceOpen(true);
-                } else if (layer === assetsLayerRefs[3].current) {
-                    MainStore.setResourceType("Cropgrid");
-                    setSelectedResource(feature.values_);
-                    setFeatureStat(true);
-                } else if (layer === LivelihoodRefs[0].current) {
-                    MainStore.setResourceType("Livelihood");
-                    mapRef.current.removeInteraction(selectSettleIcon);
-                    setSelectedResource(feature.values_);
-                    setFeatureStat(true);
-                    MainStore.setIsResource(true);
-                } else if (layer === groundwaterRefs[3].current) {
-                    MainStore.setResourceType("Recharge");
-                    mapRef.current.removeInteraction(selectSettleIcon);
-                    tempSettlementLayer.current.setVisible(false);
-                    setSelectedResource(feature.values_);
-                    setFeatureStat(true);
-                    MainStore.setIsResource(true);
-                } else if (layer === AgriLayersRefs[2].current) {
-                    setFeatureStat(true);
-                    setSelectedResource(feature.values_);
-                    console.log(feature);
-                    MainStore.setResourceType("Irrigation");
-                    mapRef.current.removeInteraction(selectSettleIcon);
-                    MainStore.setIsResource(true);
-                    tempSettlementLayer.current.setVisible(false);
+              if (layer === assetsLayerRefs[0].current) {
+                MainStore.setResourceType("Settlement")
+                setFeatureStat(true)
+                mapRef.current.addInteraction(selectSettleIcon)
+                setSelectedResource(feature.values_)
+                tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
+                
+                // 🎯 FIXED: Don't automatically advance to step 1 in work demand flow
+                // Only advance if we're not processing an accepted work demand item
+                if (!MainStore.acceptedWorkDemandItem) {
+                    MainStore.setCurrentStep(1);
+                } else {
+                    console.log('🎯 MapComponent - Keeping currentStep at 0 for work demand flow');
                 }
+                
+                MainStore.setSettlementName(feature.values_.sett_name)
+                MainStore.setIsResource(true)
+                MainStore.setIsResourceOpen(true)
+              }
+              else if (layer === assetsLayerRefs[1].current) {
+                MainStore.setResourceType("Well")
+                mapRef.current.removeInteraction(selectSettleIcon)
+                setSelectedResource(feature.values_)
+                setFeatureStat(true)
+                MainStore.setIsResource(true)
+                MainStore.setIsResourceOpen(true)
+              }
+              else if (layer === assetsLayerRefs[2].current) {
+                MainStore.setResourceType("Waterbody")
+                mapRef.current.removeInteraction(selectSettleIcon)
+                setSelectedResource(feature.values_)
+                setFeatureStat(true)
+                MainStore.setIsResource(true)
+                MainStore.setIsResourceOpen(true)
+              }
+              else if(layer === assetsLayerRefs[3].current){
+                MainStore.setResourceType("Cropgrid")
+                setSelectedResource(feature.values_)
+                setFeatureStat(true)
+              }
+              else if(layer === LivelihoodRefs[0].current){
+                MainStore.setResourceType("Livelihood")
+                mapRef.current.removeInteraction(selectSettleIcon)
+                setSelectedResource(feature.values_)
+                setFeatureStat(true)
+                MainStore.setIsResource(true)
+              }
+              else if(layer === groundwaterRefs[3].current){
+                MainStore.setResourceType("Recharge")
+                mapRef.current.removeInteraction(selectSettleIcon)
+                tempSettlementLayer.current.setVisible(false)
+                setSelectedResource(feature.values_)
+                setFeatureStat(true)
+                MainStore.setIsResource(true)
+              }
+              else if(layer === AgriLayersRefs[2].current){
+                setFeatureStat(true)
+                setSelectedResource(feature.values_)
+                console.log(feature)
+                MainStore.setResourceType("Irrigation")
+                mapRef.current.removeInteraction(selectSettleIcon)
+                MainStore.setIsResource(true)
+                tempSettlementLayer.current.setVisible(false)
+              }
 
                 if (
                     feature.geometryChangeKey_.target.flatCoordinates[0] ===
@@ -1016,11 +1071,20 @@ const MapComponent = () => {
                     });
                 });
 
-                tempSettlementFeature.current.setGeometry(
-                    new Point(MainStore.markerCoords),
-                );
-                assetsLayerRefs[0].current = settlementLayer;
-            } else if (currentStep === 1) {
+                tempSettlementFeature.current.setGeometry(new Point(MainStore.markerCoords))
+                
+                // 🎯 FIXED: Don't automatically advance to step 1 in work demand flow
+                // Only advance if we're not processing an accepted work demand item
+                if (!MainStore.acceptedWorkDemandItem) {
+                    MainStore.setCurrentStep(1);
+                } else {
+                    console.log('🎯 MapComponent - Keeping currentStep at 0 for work demand flow');
+                }
+                
+                assetsLayerRefs[0].current = settlementLayer
+            }
+
+            else if(currentStep === 1){
                 const wellLayer = await getVectorLayers(
                     "resources",
                     "well_" +
@@ -1062,17 +1126,15 @@ const MapComponent = () => {
                         });
                     } else {
                         return new Style({
-                            image: new Icon({
-                                src: iconsDetails.socialMapping_icons.well[
-                                    "proposed"
-                                ],
-                            }),
-                        });
+                            image: new Icon({ src: iconsDetails.socialMapping_icons.well["proposed"] }),
+                        })
                     }
                 });
 
-                assetsLayerRefs[1].current = wellLayer;
-            } else if (currentStep === 2) {
+                assetsLayerRefs[1].current = wellLayer
+            }
+
+            else if(currentStep === 2){
                 const waterStructureLayer = await getVectorLayers(
                     "resources",
                     "waterbody_" +
@@ -1299,22 +1361,18 @@ const MapComponent = () => {
     const updateLayersOnStep = async () => {
         const layerCollection = mapRef.current.getLayers();
 
-        if (currentScreen === "Resource_mapping") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current &&
-                        layer !== MapMarkerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
+        if(currentScreen === "Resource_mapping"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
             MapMarkerRef.current.setVisible(false);
-            setMarkerPlaced(false);
+            // Only reset marker placement if there's no accepted work demand item
+            if (!acceptedWorkDemandItem) {
+                setMarkerPlaced(false);
+            }
 
             mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
             if (currentStep > 0) {
@@ -1332,20 +1390,20 @@ const MapComponent = () => {
                 }
                 mapRef.current.addLayer(WaterbodiesLayerRef.current);
             }
-        } else if (currentScreen === "Groundwater") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current &&
-                        layer !== MapMarkerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
 
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+
+        else if(currentScreen === "Groundwater"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+            
             //? Code has been changed here from previous ones, the previous was working fine, check previous commit and match the changes, the offline has the code in the commit before this
             // Step 0
             if (currentStep === 0) {
@@ -1356,9 +1414,14 @@ const MapComponent = () => {
                     mapRef.current.addLayer(groundwaterRefs[0].current); // Well depth layer
                 }
 
-                mapRef.current.addLayer(assetsLayerRefs[0].current); // Settlement layer
-                mapRef.current.addLayer(assetsLayerRefs[2].current);
-                mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
+                mapRef.current.addLayer(assetsLayerRefs[0].current) // Settlement layer
+                mapRef.current.addLayer(assetsLayerRefs[2].current)
+
+                // Restore accepted item layer if it exists
+                if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                    mapRef.current.addLayer(AcceptedItemLayerRef.current);
+                }
+                mapRef.current.addLayer(groundwaterRefs[3].current) // Works layer
 
                 LayersStore.setSettlementLayer(true);
                 LayersStore.setWellDepth(true);
@@ -1390,20 +1453,14 @@ const MapComponent = () => {
                 LayersStore.setWaterStructure(false);
                 LayersStore.setWorkGroundwater(true);
             }
-        } else if (currentScreen === "Agriculture") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current &&
-                        layer !== AgriLayersRefs[0].current &&
-                        layer !== MapMarkerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
+        }
+
+        else if(currentScreen === "Agriculture"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AgriLayersRefs[0].current && layer !== MapMarkerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
             if (currentStep === 0) {
                 mapRef.current.addLayer(LulcLayerRefs[0].current);
@@ -1440,50 +1497,53 @@ const MapComponent = () => {
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
                 mapRef.current.addLayer(AgriLayersRefs[2].current);
             }
-        } else if (currentScreen === "Livelihood") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+
+        else if(currentScreen === "Livelihood"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
             if (currentStep === 0) {
                 mapRef.current.addLayer(assetsLayerRefs[0].current);
             }
 
             MapMarkerRef.current.setVisible(false);
-            setMarkerPlaced(false);
+            // Only reset marker placement if there's no accepted work demand item
+            if (!acceptedWorkDemandItem) {
+                setMarkerPlaced(false);
+            }
 
-            if (currentStep > 0) {
-                mapRef.current.addLayer(LivelihoodRefs[0].current);
-                tempSettlementLayer.current.setVisible(true);
+            if(currentStep > 0){
+                mapRef.current.addLayer(LivelihoodRefs[0].current)
+                tempSettlementLayer.current.setVisible(true)
             }
         }
-    };
+    }
 
     const updateLayersOnScreen = async () => {
         const layerCollection = mapRef.current.getLayers();
 
-        if (currentScreen === "HomeScreen") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-            if (NregaWorkLayerRef.current !== null) {
-                mapRef.current.addLayer(NregaWorkLayerRef.current);
+        if(currentScreen === "HomeScreen"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+            if(NregaWorkLayerRef.current !== null){
+                mapRef.current.addLayer(NregaWorkLayerRef.current)
             }
             if (assetsLayerRefs[0].current !== null) {
                 mapRef.current.addLayer(assetsLayerRefs[0].current);
@@ -1495,34 +1555,36 @@ const MapComponent = () => {
                 MapMarkerRef.current.setVisible(false);
                 tempSettlementLayer.current.setVisible(false);
             }
-        } else if (currentScreen === "Resource_mapping") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current &&
-                        layer !== MapMarkerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-            mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
-            MainStore.setFeatureStat(false);
-            MainStore.setMarkerPlaced(false);
-        } else if (currentScreen === "Groundwater") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
+
+            // Restore accepted item layer if it exists and we're in non-editable mode
+            if (AcceptedItemLayerRef.current && !isMapEditable && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+        else if(currentScreen === "Resource_mapping"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+            mapRef.current.addLayer(assetsLayerRefs[currentStep].current)
+            MainStore.setFeatureStat(false)
+            // Only reset marker placement if there's no accepted work demand item
+            if (!acceptedWorkDemandItem) {
+                MainStore.setMarkerPlaced(false);
+            }
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+        else if(currentScreen === "Groundwater"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
             if (groundwaterRefs[0].current === null && currentStep === 0) {
                 const deltaGWellDepth = await getVectorLayers(
@@ -1607,25 +1669,25 @@ const MapComponent = () => {
                 }
                 return null;
             });
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
+            mapRef.current.addLayer(assetsLayerRefs[2].current)
 
-            LayersStore.setAdminBoundary(true);
-            LayersStore.setWellDepth(true);
-            LayersStore.setSettlementLayer(true);
-            LayersStore.setWaterStructure(true);
-            LayersStore.setWorkGroundwater(true);
-        } else if (currentScreen === "SurfaceWater") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+
+            LayersStore.setAdminBoundary(true)
+            LayersStore.setWellDepth(true)
+            LayersStore.setSettlementLayer(true)
+            LayersStore.setWaterStructure(true)
+            LayersStore.setWorkGroundwater(true)
+        }
+        else if(currentScreen === "SurfaceWater"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
             if (WaterbodiesLayerRef.current === null && currentStep === 0) {
                 const waterBodyLayers = await getWebglVectorLayers(
@@ -1658,22 +1720,22 @@ const MapComponent = () => {
                 return null;
             });
 
-            mapRef.current.addLayer(NregaWorkLayerRef.current);
-            mapRef.current.addLayer(WaterbodiesLayerRef.current);
-            mapRef.current.addLayer(groundwaterRefs[1].current);
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
-        } else if (currentScreen === "Agriculture") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
+            mapRef.current.addLayer(NregaWorkLayerRef.current)
+            mapRef.current.addLayer(WaterbodiesLayerRef.current)
+            mapRef.current.addLayer(groundwaterRefs[1].current)
+            mapRef.current.addLayer(assetsLayerRefs[2].current)
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+        else if(currentScreen === "Agriculture"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
             if (AgriLayersRefs[0].current === null) {
                 let CroppingIntensity = await getWebglVectorLayers(
@@ -1728,12 +1790,17 @@ const MapComponent = () => {
                 groundwaterRefs[1].current = drainageLayer;
             }
 
-            mapRef.current.addLayer(LulcLayerRefs[0].current);
-            mapRef.current.addLayer(AgriLayersRefs[0].current);
-            mapRef.current.addLayer(AgriLayersRefs[1].current);
-            mapRef.current.addLayer(AgriLayersRefs[2].current);
-            mapRef.current.addLayer(assetsLayerRefs[0].current);
-            mapRef.current.addLayer(assetsLayerRefs[1].current);
+            mapRef.current.addLayer(LulcLayerRefs[0].current)
+            mapRef.current.addLayer(AgriLayersRefs[0].current)
+            mapRef.current.addLayer(AgriLayersRefs[1].current)
+            mapRef.current.addLayer(AgriLayersRefs[2].current)
+            mapRef.current.addLayer(assetsLayerRefs[0].current)
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+            mapRef.current.addLayer(assetsLayerRefs[1].current)
 
             assetsLayerRefs[2].current.setStyle(function (feature) {
                 if (
@@ -1760,27 +1827,29 @@ const MapComponent = () => {
             ) {
                 LayersStore.setCLARTLayer(false);
             }
-        } else if (currentScreen === "Livelihood") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-
-            mapRef.current.addLayer(assetsLayerRefs[0].current);
-            mapRef.current.addLayer(LivelihoodRefs[0].current);
         }
-    };
+        else if(currentScreen === "Livelihood"){
+            layerCollection.getArray().slice().forEach(layer => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AcceptedItemLayerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
-    const updateLulcLayer = async () => {
-        if (currentScreen === "Agriculture") {
-            if (LulcLayerRefs[MainStore.lulcYearIdx].current === null) {
+            mapRef.current.addLayer(assetsLayerRefs[0].current)
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+            mapRef.current.addLayer(LivelihoodRefs[0].current)
+        }
+    }
+
+    const updateLulcLayer = async() => {
+
+        if(currentScreen === "Agriculture"){
+
+            if(LulcLayerRefs[MainStore.lulcYearIdx].current === null){
                 let lulcLayer = await getImageLayer(
                     "LULC_level_3",
                     `LULC_${LulcYears[MainStore.lulcYearIdx]}_${blockName.toLowerCase().replace(/\s+/g, "_")}_level_3`,
@@ -1806,23 +1875,21 @@ const MapComponent = () => {
         if (PositionFeatureRef.current === null && mapRef.current !== null) {
             const positionFeature = new Feature();
 
-            positionFeature.setStyle(
-                new Style({
-                    image: new Icon({
-                        src: Man_icon,
-                        scale: 0.8,
-                        anchor: [0.5, 0.5],
-                        anchorXUnits: "fraction",
-                        anchorYUnits: "fraction",
-                    }),
+            positionFeature.setStyle(new Style({
+                image: new Icon({
+                    src: Man_icon,
+                    scale: 0.8,
+                    anchor: [0.5, 0.5],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
                 }),
-            );
+            }));
 
             PositionFeatureRef.current = positionFeature;
 
-            let tempCoords = MainStore.gpsLocation;
-            if (tempCoords === null) {
-                try {
+            let tempCoords = MainStore.gpsLocation
+            if(tempCoords === null){
+                try{
                     navigator.geolocation.getCurrentPosition(
                         ({ coords }) => {
                             tempCoords = [coords.longitude, coords.latitude];
@@ -1879,7 +1946,7 @@ const MapComponent = () => {
                 zIndex: 99, // Ensure it's on top
             });
 
-            GpsLayerRef.current = gpsLayer;
+            GpsLayerRef.current = gpsLayer
 
             // Store cleanup references
             return () => {
@@ -1897,7 +1964,7 @@ const MapComponent = () => {
         ) {
             const view = mapRef.current.getView();
 
-            if (MainStore.gpsLocation === null) {
+            if(MainStore.gpsLocation === null){
                 toast.error("Not able to get Location !");
                 return;
             }
@@ -1930,6 +1997,699 @@ const MapComponent = () => {
             fetchBoundaryAndZoom(districtName, blockName);
         }
     }, [blockName, districtName]);
+
+    // Debug effect to track state changes
+    useEffect(() => {
+        console.log('🔍 MapComponent - State debug:', {
+            isMapEditable,
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            acceptedFromDialog,
+            currentScreen,
+            districtName,
+            blockName,
+            AdminLayerRef: !!AdminLayerRef.current,
+            AcceptedItemLayerRef: !!AcceptedItemLayerRef.current
+        });
+    }, [isMapEditable, acceptedWorkDemandItem, acceptedFromDialog, currentScreen, districtName, blockName]);
+
+    // Debug banner visibility
+    useEffect(() => {
+        if (!isMapEditable && acceptedWorkDemandItem) {
+            console.log('🎯 MapComponent - Banner should be visible:', {
+                isMapEditable,
+                acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+                bannerCondition: !isMapEditable && acceptedWorkDemandItem
+            });
+        } else {
+            console.log('🎯 MapComponent - Banner should NOT be visible:', {
+                isMapEditable,
+                acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+                bannerCondition: !isMapEditable && acceptedWorkDemandItem
+            });
+        }
+    }, [isMapEditable, acceptedWorkDemandItem]);
+
+    // Handle map mode changes
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        console.log('🔄 MapComponent - Map mode changed:', {
+            isMapEditable,
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            districtName,
+            blockName
+        });
+
+        if (isMapEditable) {
+            // Reset to editable mode - restore boundary and allow interactions
+            if (districtName && blockName) {
+                // Re-fetch boundary if it was removed
+                if (!AdminLayerRef.current) {
+                    fetchBoundaryAndZoom(districtName, blockName);
+                }
+
+                // Clear any accepted item markers
+                if (AcceptedItemLayerRef.current) {
+                    mapRef.current.removeLayer(AcceptedItemLayerRef.current);
+                    AcceptedItemLayerRef.current = null;
+                }
+
+                // Reset marker placement
+                if (MapMarkerRef.current) {
+                    MapMarkerRef.current.setVisible(false);
+                }
+            }
+        } else {
+            // Non-editable mode - ensure boundary is removed and accepted item is visible
+            console.log('🔄 MapComponent - Entering non-editable mode');
+
+            // Remove boundary layer if it exists
+            if (AdminLayerRef.current) {
+                mapRef.current.removeLayer(AdminLayerRef.current);
+                AdminLayerRef.current = null;
+            }
+
+            // Ensure accepted item layer is visible
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+    }, [isMapEditable, districtName, blockName, acceptedWorkDemandItem]);
+
+
+    // When a Work Demand is accepted and we navigated from dialog, focus on it once
+    useEffect(() => {
+        if (!mapRef.current) return;
+        if (!acceptedWorkDemandItem || !acceptedFromDialog) return;
+
+        // ⚠️ CRITICAL FIX: Don't run this effect if user has explicitly enabled editing
+        if (MainStore.userExplicitlyEnabledEditing) {
+            console.log('🔄 MapComponent - Skipping focus effect - user explicitly enabled editing');
+            return;
+        }
+
+        console.log('🎯 MapComponent - Focusing on accepted work demand item');
+
+        // Focus on the accepted item
+        if (MainStore.acceptedWorkDemandCoords) {
+            const view = mapRef.current.getView();
+            view.cancelAnimations();
+            view.animate({
+                center: MainStore.acceptedWorkDemandCoords,
+                zoom: 16,
+                duration: 1000,
+                easing: easeOut
+            });
+        }
+
+        // Clear the dialog flag after focusing
+        clearAcceptedFromDialog();
+    }, [acceptedWorkDemandItem, acceptedFromDialog]);
+
+    // 🎯 NEW: Initialize layers when a plan is selected
+    useEffect(() => {
+        if (!mapRef.current || !currentPlan || !districtName || !blockName) return;
+        
+        console.log('🎯 MapComponent - Plan selected, initializing layers:', {
+            plan: currentPlan?.plan,
+            districtName,
+            blockName,
+            isMapEditable
+        });
+
+        // Only initialize layers if we're in editable mode (normal flow) or if we have an accepted work demand item
+        if (isMapEditable || acceptedWorkDemandItem) {
+            initializeLayersForPlan();
+        }
+    }, [currentPlan, districtName, blockName, isMapEditable, acceptedWorkDemandItem]);
+
+    // 🎯 NEW: Create accepted work demand item marker immediately when detected
+    useEffect(() => {
+        console.log('🔍 MapComponent - Marker creation useEffect triggered:', {
+            hasMap: !!mapRef.current,
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            hasCoords: !!MainStore.acceptedWorkDemandCoords,
+            coords: MainStore.acceptedWorkDemandCoords,
+            acceptedItemExists: !!AcceptedItemLayerRef.current
+        });
+        
+        if (!mapRef.current || !acceptedWorkDemandItem || !MainStore.acceptedWorkDemandCoords) {
+            console.log('🔍 Marker creation useEffect - conditions not met:', {
+                hasMap: !!mapRef.current,
+                acceptedWorkDemandItem,
+                hasCoords: !!MainStore.acceptedWorkDemandCoords
+            });
+            return;
+        }
+
+        // Don't create if already exists
+        if (AcceptedItemLayerRef.current) {
+            console.log('🔍 Marker already exists, skipping creation');
+            return;
+        }
+
+        console.log('🎯 Creating accepted work demand item marker immediately at:', MainStore.acceptedWorkDemandCoords);
+        
+        try {
+            // Create a feature for the accepted item
+            const acceptedItemFeature = new Feature({
+                geometry: new Point(MainStore.acceptedWorkDemandCoords)
+            });
+
+            // Style the accepted item marker (exact same as normal flow)
+            const acceptedItemStyle = new Style({
+                image: new Icon({
+                    src: mapMarker, // Using the same marker icon as normal flow
+                    anchor: [0.5, 46], // Exact same anchor as normal flow
+                    anchorXUnits: "fraction", // Exact same units as normal flow
+                    anchorYUnits: "pixels", // Exact same units as normal flow
+                }),
+            });
+
+            console.log('🎯 Marker styling debug:', {
+                iconSrc: mapMarker,
+                style: acceptedItemStyle,
+                feature: acceptedItemFeature
+            });
+
+            acceptedItemFeature.setStyle(acceptedItemStyle);
+
+            // Create the layer for the accepted item
+            const acceptedItemLayer = new VectorLayer({
+                source: new VectorSource({
+                    features: [acceptedItemFeature]
+                }),
+                style: acceptedItemStyle,
+                zIndex: 1000 // 🎯 NEW: Ensure marker renders on top of all other layers
+            });
+
+            // Store reference and add to map
+            AcceptedItemLayerRef.current = acceptedItemLayer;
+            mapRef.current.addLayer(acceptedItemLayer);
+            
+            // 🎯 NEW: Set marker as placed for work demand flow so buttons are enabled
+            console.log('🔍 Before setting isMarkerPlaced - Current state:', {
+                isMarkerPlaced: MainStore.isMarkerPlaced,
+                acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
+                acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords
+            });
+            
+            MainStore.setMarkerPlaced(true);
+            
+            console.log('🔍 After setting isMarkerPlaced - New state:', {
+                isMarkerPlaced: MainStore.isMarkerPlaced,
+                acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
+                acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords
+            });
+            
+            console.log('✅ Accepted work demand item marker created and displayed immediately');
+        } catch (error) {
+            console.error('❌ Error creating accepted work demand item marker:', error);
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords]);
+
+    // 🎯 NEW: Automatically set map to non-editable mode when accepted work demand item is detected
+    useEffect(() => {
+        console.log('🔍 MapComponent - Auto non-editable useEffect triggered:', {
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            hasCoords: !!MainStore.acceptedWorkDemandCoords,
+            coords: MainStore.acceptedWorkDemandCoords,
+            isMapEditable,
+            shouldSetNonEditable: acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords && isMapEditable
+        });
+        
+        if (acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords && isMapEditable) {
+            console.log('🎯 MapComponent - Detected accepted work demand item, setting map to non-editable mode');
+            setIsMapEditable(false);
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords, isMapEditable]);
+
+    // 🎯 NEW: Function to initialize layers for the selected plan
+    const initializeLayersForPlan = async () => {
+        if (!mapRef.current || !currentPlan || !districtName || !blockName) return;
+
+        console.log('🔄 MapComponent - Initializing layers for plan:', currentPlan.plan);
+        console.log('🔍 Layer initialization - State check:', {
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
+            coords: MainStore.acceptedWorkDemandCoords
+        });
+
+        try {
+            // Initialize layers that are needed for the map to function properly
+            // Some layers are loaded but not necessarily displayed by default
+
+            // Initialize Well Depth layer - needed for map functionality (matches normal flow)
+            if (groundwaterRefs[0].current === null) {
+                const wellDepthLayer = await getVectorLayers(
+                    "mws_layers",
+                    `deltaG_well_depth_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                groundwaterRefs[0].current = wellDepthLayer;
+                // Don't add to map by default - only when user clicks the layer button
+                console.log('✅ Well Depth layer initialized (background layer)');
+                
+                // 🎯 NEW: If we have an accepted work demand item marker, highlight the subregion containing it
+                if (acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords) {
+                    console.log('🎯 Well Depth layer ready, highlighting subregion for existing marker');
+                    
+                    // 🎯 NEW: Set Well Depth layer z-index lower than marker
+                    groundwaterRefs[0].current.setZIndex(100); // Lower than marker's 1000
+                    
+                    // Add a longer delay to ensure the layer features are fully loaded
+                    setTimeout(() => {
+                        highlightWellDepthSubregionForMarker(MainStore.acceptedWorkDemandCoords);
+                    }, 2000); // Increased from 500ms to 2000ms
+                }
+            }
+
+            // Initialize Settlement layer - only if it doesn't exist (matches normal flow)
+            if (assetsLayerRefs[0].current === null) {
+                const settlementLayer = await getVectorLayers(
+                    "resources",
+                    `settlement_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                assetsLayerRefs[0].current = settlementLayer;
+                mapRef.current.addLayer(settlementLayer);
+                console.log('✅ Settlement layer initialized');
+            }
+
+            // Initialize Well layer - only if it doesn't exist (matches normal flow)
+            if (assetsLayerRefs[1].current === null) {
+                const wellLayer = await getVectorLayers(
+                    "resources",
+                    `well_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                assetsLayerRefs[1].current = wellLayer;
+                mapRef.current.addLayer(wellLayer);
+                console.log('✅ Well layer initialized');
+            }
+
+            // Initialize Water Structure layer - only if it doesn't exist (matches normal flow)
+            if (assetsLayerRefs[2].current === null) {
+                const waterStructureLayer = await getVectorLayers(
+                    "resources",
+                    `waterbody_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                assetsLayerRefs[2].current = waterStructureLayer;
+                mapRef.current.addLayer(waterStructureLayer);
+                console.log('✅ Water Structure layer initialized');
+            }
+
+            // Set layer store states to match what's actually shown (matches normal flow)
+            LayersStore.setAdminBoundary(true);
+            LayersStore.setWellDepth(true); // Available but not shown by default
+            LayersStore.setSettlementLayer(true);
+            LayersStore.setWellLayer(true);
+            LayersStore.setWaterStructure(true);
+            // Note: WorkGroundwater, Drainage, etc. are not shown by default
+
+            // 🎯 NEW: Marker creation is handled in useEffect hook - no need to create here
+            console.log('⏰ Marker creation handled separately in useEffect hook');
+        } catch (error) {
+            console.error('❌ Error initializing layers for plan:', error);
+        }
+    };
+
+    // Clear the dialog flag after a short delay to ensure map mode is set
+    useEffect(() => {
+        if (acceptedFromDialog && !isMapEditable) {
+            const timer = setTimeout(() => {
+                console.log('📍 MapComponent - Clearing acceptedFromDialog flag');
+                clearAcceptedFromDialog();
+            }, 1000); // Wait 1 second for map mode to be set
+
+            return () => clearTimeout(timer);
+        }
+    }, [acceptedFromDialog, isMapEditable]);
+
+    // Clean up accepted item marker when navigating to different screens
+    // Only remove it when navigating away from all screens (component unmount)
+    useEffect(() => {
+        // No cleanup needed - we want to preserve the accepted item layer across all screens
+    }, [currentScreen]);
+
+    // Clean up accepted item marker when accepted item changes or component unmounts
+    useEffect(() => {
+        return () => {
+            if (AcceptedItemLayerRef.current && mapRef.current) {
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current);
+                AcceptedItemLayerRef.current = null;
+            }
+            // ⭐ FIXED: Don't clear coordinates on every cleanup, only on unmount
+            // clearAcceptedWorkDemandCoords(); // REMOVED - was clearing coordinates too aggressively
+        };
+    }, []); // Empty dependency array - only runs on unmount
+
+    // ⭐ FIXED: Only clear coordinates when accepted item is completely cleared (not during normal operation)
+    useEffect(() => {
+        if (!acceptedWorkDemandItem && !MainStore.acceptedWorkDemandCoords) {
+            // Only clear if both the item and coordinates are gone
+            clearAcceptedWorkDemandCoords();
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords]);
+
+    // Debug effect to track state changes
+    useEffect(() => {
+        if(currentPlan !== null){
+            fetchResourcesLayers()
+        }
+    },[currentPlan])
+
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        console.log('🔄 MapComponent - Map mode changed:', {
+            isMapEditable,
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            districtName,
+            blockName
+        });
+
+        if (isMapEditable) {
+            // Reset to editable mode - restore boundary and allow interactions
+            if (districtName && blockName) {
+                // Re-fetch boundary if it was removed
+                if (!AdminLayerRef.current) {
+                    fetchBoundaryAndZoom(districtName, blockName);
+                }
+
+                // Clear any accepted item markers
+                if (AcceptedItemLayerRef.current) {
+                    mapRef.current.removeLayer(AcceptedItemLayerRef.current);
+                    AcceptedItemLayerRef.current = null;
+                }
+
+                // Reset marker placement
+                if (MapMarkerRef.current) {
+                    MapMarkerRef.current.setVisible(false);
+                }
+            }
+        } else {
+            // Non-editable mode - ensure boundary is removed and accepted item is visible
+            console.log('🔄 MapComponent - Entering non-editable mode');
+
+            // Remove boundary layer if it exists
+            if (AdminLayerRef.current) {
+                mapRef.current.removeLayer(AdminLayerRef.current);
+                AdminLayerRef.current = null;
+            }
+
+            // Ensure accepted item layer is visible
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+    }, [isMapEditable, districtName, blockName, acceptedWorkDemandItem]);
+
+
+    // When a Work Demand is accepted and we navigated from dialog, focus on it once
+    useEffect(() => {
+        if (!mapRef.current) return;
+        if (!acceptedWorkDemandItem || !acceptedFromDialog) return;
+
+        // ⚠️ CRITICAL FIX: Don't run this effect if user has explicitly enabled editing
+        if (MainStore.userExplicitlyEnabledEditing) {
+            console.log('🔄 MapComponent - Skipping focus effect - user explicitly enabled editing');
+            return;
+        }
+
+        console.log('🎯 MapComponent - Focusing on accepted work demand item');
+
+        // Focus on the accepted item
+        if (MainStore.acceptedWorkDemandCoords) {
+            const view = mapRef.current.getView();
+            view.cancelAnimations();
+            view.animate({
+                center: MainStore.acceptedWorkDemandCoords,
+                zoom: 16,
+                duration: 1000,
+                easing: easeOut
+            });
+        }
+
+        // Clear the dialog flag after focusing
+        clearAcceptedFromDialog();
+    }, [acceptedWorkDemandItem, acceptedFromDialog]);
+
+    // 🎯 NEW: Initialize layers when a plan is selected
+    useEffect(() => {
+        if (!mapRef.current || !currentPlan || !districtName || !blockName) return;
+        
+        console.log('🎯 MapComponent - Plan selected, initializing layers:', {
+            plan: currentPlan?.plan,
+            districtName,
+            blockName,
+            isMapEditable
+        });
+
+        // Only initialize layers if we're in editable mode (normal flow) or if we have an accepted work demand item
+        if (isMapEditable || acceptedWorkDemandItem) {
+            initializeLayersForPlan();
+        }
+    }, [currentPlan, districtName, blockName, isMapEditable, acceptedWorkDemandItem]);
+
+    // 🎯 NEW: Create accepted work demand item marker immediately when detected
+    useEffect(() => {
+        console.log('🔍 MapComponent - Marker creation useEffect triggered:', {
+            hasMap: !!mapRef.current,
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            hasCoords: !!MainStore.acceptedWorkDemandCoords,
+            coords: MainStore.acceptedWorkDemandCoords,
+            acceptedItemExists: !!AcceptedItemLayerRef.current
+        });
+        
+        if (!mapRef.current || !acceptedWorkDemandItem || !MainStore.acceptedWorkDemandCoords) {
+            console.log('🔍 Marker creation useEffect - conditions not met:', {
+                hasMap: !!mapRef.current,
+                acceptedWorkDemandItem,
+                hasCoords: !!MainStore.acceptedWorkDemandCoords
+            });
+            return;
+        }
+
+        // Don't create if already exists
+        if (AcceptedItemLayerRef.current) {
+            console.log('🔍 Marker already exists, skipping creation');
+            return;
+        }
+
+        console.log('🎯 Creating accepted work demand item marker immediately at:', MainStore.acceptedWorkDemandCoords);
+        
+        try {
+            // Create a feature for the accepted item
+            const acceptedItemFeature = new Feature({
+                geometry: new Point(MainStore.acceptedWorkDemandCoords)
+            });
+
+            // Style the accepted item marker (exact same as normal flow)
+            const acceptedItemStyle = new Style({
+                image: new Icon({
+                    src: mapMarker, // Using the same marker icon as normal flow
+                    anchor: [0.5, 46], // Exact same anchor as normal flow
+                    anchorXUnits: "fraction", // Exact same units as normal flow
+                    anchorYUnits: "pixels", // Exact same units as normal flow
+                }),
+            });
+
+            console.log('🎯 Marker styling debug:', {
+                iconSrc: mapMarker,
+                style: acceptedItemStyle,
+                feature: acceptedItemFeature
+            });
+
+            acceptedItemFeature.setStyle(acceptedItemStyle);
+
+            // Create the layer for the accepted item
+            const acceptedItemLayer = new VectorLayer({
+                source: new VectorSource({
+                    features: [acceptedItemFeature]
+                }),
+                style: acceptedItemStyle,
+                zIndex: 1000 // 🎯 NEW: Ensure marker renders on top of all other layers
+            });
+
+            // Store reference and add to map
+            AcceptedItemLayerRef.current = acceptedItemLayer;
+            mapRef.current.addLayer(acceptedItemLayer);
+            
+            // 🎯 NEW: Set marker as placed for work demand flow so buttons are enabled
+            console.log('🔍 Before setting isMarkerPlaced - Current state:', {
+                isMarkerPlaced: MainStore.isMarkerPlaced,
+                acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
+                acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords
+            });
+            
+            MainStore.setMarkerPlaced(true);
+            
+            console.log('🔍 After setting isMarkerPlaced - New state:', {
+                isMarkerPlaced: MainStore.isMarkerPlaced,
+                acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
+                acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords
+            });
+            
+            console.log('✅ Accepted work demand item marker created and displayed immediately');
+        } catch (error) {
+            console.error('❌ Error creating accepted work demand item marker:', error);
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords]);
+
+    // 🎯 NEW: Automatically set map to non-editable mode when accepted work demand item is detected
+    useEffect(() => {
+        console.log('🔍 MapComponent - Auto non-editable useEffect triggered:', {
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            hasCoords: !!MainStore.acceptedWorkDemandCoords,
+            coords: MainStore.acceptedWorkDemandCoords,
+            isMapEditable,
+            shouldSetNonEditable: acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords && isMapEditable
+        });
+        
+        if (acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords && isMapEditable) {
+            console.log('🎯 MapComponent - Detected accepted work demand item, setting map to non-editable mode');
+            setIsMapEditable(false);
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords, isMapEditable]);
+
+    // 🎯 NEW: Function to initialize layers for the selected plan
+    const initializeLayersForPlan = async () => {
+        if (!mapRef.current || !currentPlan || !districtName || !blockName) return;
+
+        console.log('🔄 MapComponent - Initializing layers for plan:', currentPlan.plan);
+        console.log('🔍 Layer initialization - State check:', {
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
+            coords: MainStore.acceptedWorkDemandCoords
+        });
+
+        try {
+            // Initialize layers that are needed for the map to function properly
+            // Some layers are loaded but not necessarily displayed by default
+
+            // Initialize Well Depth layer - needed for map functionality (matches normal flow)
+            if (groundwaterRefs[0].current === null) {
+                const wellDepthLayer = await getVectorLayers(
+                    "mws_layers",
+                    `deltaG_well_depth_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                groundwaterRefs[0].current = wellDepthLayer;
+                // Don't add to map by default - only when user clicks the layer button
+                console.log('✅ Well Depth layer initialized (background layer)');
+                
+                // 🎯 NEW: If we have an accepted work demand item marker, highlight the subregion containing it
+                if (acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords) {
+                    console.log('🎯 Well Depth layer ready, highlighting subregion for existing marker');
+                    
+                    // 🎯 NEW: Set Well Depth layer z-index lower than marker
+                    groundwaterRefs[0].current.setZIndex(100); // Lower than marker's 1000
+                    
+                    // Add a longer delay to ensure the layer features are fully loaded
+                    setTimeout(() => {
+                        highlightWellDepthSubregionForMarker(MainStore.acceptedWorkDemandCoords);
+                    }, 2000); // Increased from 500ms to 2000ms
+                }
+            }
+
+            // Initialize Settlement layer - only if it doesn't exist (matches normal flow)
+            if (assetsLayerRefs[0].current === null) {
+                const settlementLayer = await getVectorLayers(
+                    "resources",
+                    `settlement_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                assetsLayerRefs[0].current = settlementLayer;
+                mapRef.current.addLayer(settlementLayer);
+                console.log('✅ Settlement layer initialized');
+            }
+
+            // Initialize Well layer - only if it doesn't exist (matches normal flow)
+            if (assetsLayerRefs[1].current === null) {
+                const wellLayer = await getVectorLayers(
+                    "resources",
+                    `well_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                assetsLayerRefs[1].current = wellLayer;
+                mapRef.current.addLayer(wellLayer);
+                console.log('✅ Well layer initialized');
+            }
+
+            // Initialize Water Structure layer - only if it doesn't exist (matches normal flow)
+            if (assetsLayerRefs[2].current === null) {
+                const waterStructureLayer = await getVectorLayers(
+                    "resources",
+                    `waterbody_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    true,
+                    true
+                );
+                assetsLayerRefs[2].current = waterStructureLayer;
+                mapRef.current.addLayer(waterStructureLayer);
+                console.log('✅ Water Structure layer initialized');
+            }
+
+            // Set layer store states to match what's actually shown (matches normal flow)
+            LayersStore.setAdminBoundary(true);
+            LayersStore.setWellDepth(true); // Available but not shown by default
+            LayersStore.setSettlementLayer(true);
+            LayersStore.setWellLayer(true);
+            LayersStore.setWaterStructure(true);
+            // Note: WorkGroundwater, Drainage, etc. are not shown by default
+
+            // 🎯 NEW: Marker creation is handled in useEffect hook - no need to create here
+            console.log('⏰ Marker creation handled separately in useEffect hook');
+        } catch (error) {
+            console.error('❌ Error initializing layers for plan:', error);
+        }
+    };
+
+    // Clear the dialog flag after a short delay to ensure map mode is set
+    useEffect(() => {
+        if (acceptedFromDialog && !isMapEditable) {
+            const timer = setTimeout(() => {
+                console.log('📍 MapComponent - Clearing acceptedFromDialog flag');
+                clearAcceptedFromDialog();
+            }, 1000); // Wait 1 second for map mode to be set
+
+            return () => clearTimeout(timer);
+        }
+    }, [acceptedFromDialog, isMapEditable]);
+
+    // Clean up accepted item marker when navigating to different screens
+    // Only remove it when navigating away from all screens (component unmount)
+    useEffect(() => {
+        // No cleanup needed - we want to preserve the accepted item layer across all screens
+    }, [currentScreen]);
+
+    // Clean up accepted item marker when accepted item changes or component unmounts
+    useEffect(() => {
+        return () => {
+            if (AcceptedItemLayerRef.current && mapRef.current) {
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current);
+                AcceptedItemLayerRef.current = null;
+            }
+            // ⭐ FIXED: Don't clear coordinates on every cleanup, only on unmount
+            // clearAcceptedWorkDemandCoords(); // REMOVED - was clearing coordinates too aggressively
+        };
+    }, []); // Empty dependency array - only runs on unmount
+
+    // ⭐ FIXED: Only clear coordinates when accepted item is completely cleared (not during normal operation)
+    useEffect(() => {
+        if (!acceptedWorkDemandItem && !MainStore.acceptedWorkDemandCoords) {
+            // Only clear if both the item and coordinates are gone
+            clearAcceptedWorkDemandCoords();
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords]);
 
     useEffect(() => {
         if (currentPlan !== null) {
@@ -2065,16 +2825,24 @@ const MapComponent = () => {
                 } else {
                     mapRef.current.removeLayer(NregaWorkLayerRef.current);
                 }
-            } else if (MainStore.layerClicked === "WellDepth") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[0].current)
-                ) {
-                    mapRef.current.addLayer(groundwaterRefs[0].current);
-                } else {
-                    mapRef.current.removeLayer(groundwaterRefs[0].current);
+
+                else if(MainStore.layerClicked === "WellDepth"){
+                    if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === groundwaterRefs[0].current)){
+                        mapRef.current.addLayer(groundwaterRefs[0].current);
+                        
+                        // 🎯 NEW: Set Well Depth layer z-index lower than marker
+                        groundwaterRefs[0].current.setZIndex(100); // Lower than marker's 1000
+                        
+                        // 🎯 NEW: If we have an accepted work demand item marker, highlight the subregion containing it
+                        if (acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords) {
+                            console.log('🎯 Well Depth layer added to map, highlighting subregion for existing marker');
+                            // Add a longer delay to ensure the layer features are fully rendered
+                            setTimeout(() => {
+                                highlightWellDepthSubregionForMarker(MainStore.acceptedWorkDemandCoords);
+                            }, 2000); // Increased from 500ms to 2000ms
+                        }
+                    }
+                    else{mapRef.current.removeLayer(groundwaterRefs[0].current)}
                 }
             } else if (MainStore.layerClicked === "DrainageLayer") {
                 if (
@@ -2164,9 +2932,188 @@ const MapComponent = () => {
                 } else {
                     mapRef.current.removeLayer(ClartLayerRef.current);
                 }
-            }
+           }
+
+    },[LayersStore])
+
+    // 🎯 NEW: Function to highlight the Well Depth subregion containing the accepted work demand item marker
+    const highlightWellDepthSubregionForMarker = (markerCoords) => {
+        console.log('🎯 highlightWellDepthSubregionForMarker called with coords:', markerCoords);
+        
+        if (!groundwaterRefs[0].current) {
+            console.log('❌ Well Depth layer not loaded yet');
+            return;
         }
-    }, [LayersStore]);
+        
+        if (!markerCoords) {
+            console.log('❌ No marker coordinates provided');
+            return;
+        }
+        
+        console.log('🎯 Highlighting Well Depth subregion for marker at:', markerCoords);
+        console.log('🔍 Well Depth layer ref:', groundwaterRefs[0].current);
+        console.log('🔍 Well Depth layer visible:', groundwaterRefs[0].current.getVisible());
+        
+        try {
+            const wellDepthSource = groundwaterRefs[0].current.getSource();
+            console.log('🔍 Well Depth source:', wellDepthSource);
+            
+            // 🎯 NEW: Wait for features to load if they're not ready yet
+            const features = wellDepthSource.getFeatures();
+            console.log('🔍 Number of Well Depth features:', features.length);
+            
+            if (features.length === 0) {
+                console.log('⏰ No features loaded yet, waiting for source to be ready...');
+                
+                // Wait for the source to be ready
+                const waitForFeatures = () => {
+                    const currentFeatures = wellDepthSource.getFeatures();
+                    console.log('🔄 Checking features again, count:', currentFeatures.length);
+                    
+                    if (currentFeatures.length > 0) {
+                        console.log('✅ Features loaded, proceeding with highlighting');
+                        highlightWellDepthSubregionForMarker(markerCoords); // Recursive call
+                    } else {
+                        // Still no features, wait a bit more
+                        setTimeout(waitForFeatures, 500);
+                    }
+                };
+                
+                setTimeout(waitForFeatures, 500);
+                return;
+            }
+            
+            // Find which subregion contains the marker coordinates
+            let containingFeature = null;
+            for (let i = 0; i < features.length; i++) {
+                const feature = features[i];
+                const geometry = feature.getGeometry();
+                console.log(`🔍 Feature ${i}:`, {
+                    uid: feature.get("uid"),
+                    hasGeometry: !!geometry,
+                    geometryType: geometry ? geometry.getType() : 'none'
+                });
+                
+                if (geometry && geometry.intersectsCoordinate(markerCoords)) {
+                    containingFeature = feature;
+                    console.log(`✅ Found containing feature at index ${i}`);
+                    break;
+                }
+            }
+            
+            if (containingFeature) {
+                const clickedMwsId = containingFeature.get("uid");
+                console.log('✅ Found containing subregion with UID:', clickedMwsId);
+                
+                // 🎯 NEW: Try to find adjacent subregions to highlight (matching normal flow behavior)
+                const adjacentFeatures = [];
+                for (let i = 0; i < features.length; i++) {
+                    const feature = features[i];
+                    const geometry = feature.getGeometry();
+                    
+                    if (geometry && feature.get("uid") !== clickedMwsId) {
+                        // Check if this feature is adjacent to the containing feature
+                        // For now, we'll highlight features that are close to the marker
+                        const featureCenter = geometry.getInteriorPoint ? geometry.getInteriorPoint() : geometry.getExtent();
+                        if (featureCenter) {
+                            const distance = Math.sqrt(
+                                Math.pow(featureCenter[0] - markerCoords[0], 2) + 
+                                Math.pow(featureCenter[1] - markerCoords[1], 2)
+                            );
+                            // If feature is within a certain distance, consider it adjacent
+                            if (distance < 0.01) { // Adjust this threshold as needed
+                                adjacentFeatures.push(feature.get("uid"));
+                                console.log(`🎯 Found adjacent subregion: ${feature.get("uid")} at distance: ${distance}`);
+                            }
+                        }
+                    }
+                }
+                
+                // Apply the same styling logic as normal flow
+                console.log('🎨 Applying styling to Well Depth layer...');
+                groundwaterRefs[0].current.setStyle((feature) => {
+                    const featureUid = feature.get("uid");
+                    console.log(`🎨 Styling feature with UID: ${featureUid}, target UID: ${clickedMwsId}`);
+                    
+                    // 🎯 NEW: Skip styling if this is a marker feature (not a subregion)
+                    if (!featureUid) {
+                        console.log(`🎨 Skipping marker feature - no UID`);
+                        return null; // Use default styling for marker features
+                    }
+                    
+                    if (featureUid === clickedMwsId || adjacentFeatures.includes(featureUid)) {
+                        // Turn the containing subregion and adjacent subregions white with transparency - matching normal flow
+                        console.log(`🎨 Turning feature ${featureUid} WHITE with transparency (${featureUid === clickedMwsId ? 'containing' : 'adjacent'})`);
+                        return new Style({
+                            stroke: new Stroke({
+                                color: "#1AA7EC",
+                                width: 1,
+                            }),
+                            fill: new Fill({
+                                color: "rgba(255, 255, 255, 0.1)", // White with transparency - exact match to normal flow
+                            })
+                        });
+                    } else {
+                        // Keep other subregions with original thematic colors
+                        const status = feature.values_;
+                        let tempColor;
+                        
+                        if (MainStore.selectWellDepthYear === '2018_23') {
+                            if (status.Net2018_23 < -5) tempColor = "rgba(255, 0, 0, 0.5)";
+                            else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) tempColor = "rgba(255, 255, 0, 0.5)";
+                            else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) tempColor = "rgba(0, 255, 0, 0.5)";
+                            else tempColor = "rgba(0, 0, 255, 0.5)";
+                        } else {
+                            if (status.Net2017_22 < -5) tempColor = "rgba(255, 0, 0, 0.5)";
+                            else if (status.Net2017_22 >= -5 && status.Net2017_22 < -1) tempColor = "rgba(255, 255, 0, 0.5)";
+                            else if (status.Net2017_22 >= -1 && status.Net2017_22 <= 1) tempColor = "rgba(0, 255, 0, 0.5)";
+                            else tempColor = "rgba(0, 0, 255, 0.5)";
+                        }
+                        
+                        console.log(`🎨 Keeping feature ${featureUid} with color: ${tempColor}`);
+                        return new Style({
+                            stroke: new Stroke({
+                                color: "#1AA7EC",
+                                width: 1,
+                            }),
+                            fill: new Fill({
+                                color: tempColor,
+                            })
+                        });
+                    }
+                });
+                
+                console.log('✅ Well Depth subregion highlighting applied successfully');
+            } else {
+                console.log('⚠️ No Well Depth subregion found containing the marker coordinates');
+                console.log('🔍 Marker coordinates:', markerCoords);
+                console.log('🔍 Available features:', features);
+            }
+        } catch (error) {
+            console.error('❌ Error highlighting Well Depth subregion:', error);
+        }
+    };
+
+    // ⭐ NEW: Clear accepted work demand coordinates on cleanup
+    useEffect(() => {
+        return () => {
+            // Only clear coordinates when component unmounts, not during normal operation
+            if (AcceptedItemLayerRef.current) {
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current);
+                AcceptedItemLayerRef.current = null;
+            }
+            // ⭐ FIXED: Don't clear coordinates on every cleanup, only on unmount
+            // clearAcceptedWorkDemandCoords(); // REMOVED - was clearing coordinates too aggressively
+        };
+    }, []); // Empty dependency array - only runs on unmount
+
+    // ⭐ FIXED: Only clear coordinates when accepted item is completely cleared (not during normal operation)
+    useEffect(() => {
+        if (!acceptedWorkDemandItem && !MainStore.acceptedWorkDemandCoords) {
+            // Only clear if both the item and coordinates are gone
+            clearAcceptedWorkDemandCoords();
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords]);
 
     return (
         <div className="relative h-full w-full">
@@ -2181,6 +3128,73 @@ const MapComponent = () => {
                     />
                 </div>
             )}
+
+            {/* Non-editable mode banner */}
+            {!isMapEditable && acceptedWorkDemandItem && (
+                <div className="absolute top-0 left-0 right-0 z-40 bg-blue-600 text-white px-4 py-1 text-center">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="flex items-center justify-center space-x-3">
+                            <span className="font-medium text-xs">
+                                Processing Accepted Asset Demand
+                            </span>
+                            <button
+                                onClick={() => {
+                                    console.log("🔧 Enable Editing clicked - Before reset:", {
+                                        acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
+                                        acceptedFromDialog: MainStore.acceptedFromDialog,
+                                        acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
+                                        isMarkerPlaced: MainStore.isMarkerPlaced,
+                                        markerCoords: !!MainStore.markerCoords,
+                                        isMapEditable: MainStore.isMapEditable
+                                    });
+
+                                    // Reset all work demand related variables when enabling editing
+                                    clearAcceptedWorkDemandItem();
+                                    clearAcceptedFromDialog();
+                                    clearAcceptedWorkDemandCoords();
+                                    setMarkerPlaced(false);
+                                    setMarkerCoords(null);
+
+                                    // Clear the flag first, then set map to editable
+                                    clearUserExplicitlyEnabledEditing();
+                                    setIsMapEditable(true);
+
+                                    // 🎯 NEW: Clear community state when Enable Editing is clicked
+                                    MainStore.clearAcceptedWorkDemandCommunityInfo();
+                                    console.log("🔧 Enable Editing - Community state cleared");
+
+                                    // Set the flag after a short delay to ensure state is updated
+                                    setTimeout(() => {
+                                        setUserExplicitlyEnabledEditing(true);
+                                        console.log("🔧 Enable Editing - Flag set after delay");
+                                    }, 50);
+
+                                    // Force a re-render to ensure state changes take effect
+                                    setTimeout(() => {
+                                        console.log("🔧 Enable Editing - State after timeout:", {
+                                            isMapEditable: MainStore.isMapEditable,
+                                            userExplicitlyEnabledEditing: MainStore.userExplicitlyEnabledEditing
+                                        });
+                                    }, 100);
+
+                                    console.log("🔧 Enable Editing clicked - After reset:", {
+                                        acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
+                                        acceptedFromDialog: MainStore.acceptedFromDialog,
+                                        acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
+                                        isMarkerPlaced: MainStore.isMarkerPlaced,
+                                        markerCoords: !!MainStore.markerCoords,
+                                        isMapEditable: MainStore.isMapEditable
+                                    });
+                                }}
+                                className="px-3 py-1 bg-white text-blue-600 rounded text-xs hover:bg-gray-100 transition-colors font-medium"
+                            >
+                                Exit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <div className="h-full w-full" ref={mapElement} />
         </div>
     );

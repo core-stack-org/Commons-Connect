@@ -91,6 +91,7 @@ function App() {
                         <BrowserRouter>
                             <InfoBox />
                             <Routes>
+                                <Route path="/" element={<Homepage />} />
                                 <Route path="/maps" element={<Homepage />} />
                                 <Route
                                     path="/resourcemapping"

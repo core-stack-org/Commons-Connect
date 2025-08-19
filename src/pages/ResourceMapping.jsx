@@ -90,6 +90,7 @@ const ResourceMapping = () => {
             MainStore.setGpsLocation(gpsCoords);
         }
 
+        const coordinatesToUse = MainStore.acceptedWorkDemandCoords || MainStore.markerCoords;
         if (MainStore.markerCoords) {
             MainStore.setIsForm(true);
 
@@ -97,7 +98,7 @@ const ResourceMapping = () => {
                 getOdkUrlForScreen(
                     MainStore.currentScreen,
                     MainStore.currentStep,
-                    MainStore.markerCoords,
+                    coordinatesToUse,
                     MainStore.settlementName,
                     "",
                     MainStore.blockName,
@@ -170,67 +171,49 @@ const ResourceMapping = () => {
             {/* Floater component for marker information */}
             <Floater />
 
-            {/* Title Bubble */}
-            <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
-                <div className="relative w-full max-w-lg mx-auto flex items-center">
-                    <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        {t("Resource Mapping")}
-                    </div>
-                </div>
-            </div>
+      {/* Title Bubble */}
+      <div className={`absolute left-0 w-full px-4 z-10 pointer-events-none ${
+        MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-12' : 'top-4'
+      }`}>
+        <div className="relative w-full max-w-lg mx-auto flex items-center">
+          <div
+            className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md"
+          >
+            {t("Resource Mapping")}
+          </div>
+        </div>
+      </div>
 
-            {/* 2. Top-left buttons */}
-            <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
-                <div className="flex gap-4 max-w-lg">
-                    <div className="flex flex-col gap-3">
-                        {/* GPS Button */}
-                        <button
-                            className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                                backdropFilter: "none",
-                            }}
-                            onClick={() => {
-                                MainStore.setIsGPSClick(!MainStore.isGPSClick);
-                            }}
-                        >
-                            <svg
-                                viewBox="-16 0 130 130"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <ellipse
-                                    cx="50"
-                                    cy="130"
-                                    rx="18"
-                                    ry="6"
-                                    fill="#00000010"
-                                />
-                                <path
-                                    d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z"
-                                    fill="#592941"
-                                    stroke="#592941"
-                                    strokeWidth="1.5"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="55"
-                                    r="16"
-                                    fill="#FFFFFF"
-                                    stroke="#1E40AF"
-                                    strokeWidth="1.5"
-                                />
-                                <circle cx="50" cy="55" r="6" fill="#592941" />
-                                <ellipse
-                                    cx="46"
-                                    cy="38"
-                                    rx="6"
-                                    ry="10"
-                                    fill="#FFFFFF25"
-                                />
-                            </svg>
-                        </button>
+      {/* 2. Top-left buttons */}
+        <div className={`absolute left-0 w-full px-4 z-10 flex justify-start pointer-events-auto ${
+          MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-28' : 'top-20'
+        }`}>
+          <div className="flex gap-4 max-w-lg">
+          <div className="flex flex-col gap-3">
+              {/* GPS Button */}
+              <button
+              className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
+              style={{
+                  backgroundColor: '#D6D5C9',
+                  color: '#592941',
+                  border: 'none',
+                  backdropFilter: 'none',
+              }}
+              onClick={() => {
+                MainStore.setIsGPSClick(!MainStore.isGPSClick)}
+              }
+              >
+                <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
+                  <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />
+                  <path d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z" 
+                        fill="#592941" 
+                        stroke="#592941" 
+                        strokeWidth="1.5"/>
+                  <circle cx="50" cy="55" r="16" fill="#FFFFFF" stroke="#1E40AF" strokeWidth="1.5"/>
+                  <circle cx="50" cy="55" r="6" fill="#592941"/>
+                  <ellipse cx="46" cy="38" rx="6" ry="10" fill="#FFFFFF25" />
+                </svg>
+              </button>
 
                         <button
                             className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"

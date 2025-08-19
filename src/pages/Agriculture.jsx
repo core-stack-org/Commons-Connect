@@ -62,44 +62,33 @@ const Agriculture = () => {
     const toggleFormsUrl = (toggle) => {
         let gpsCoords = MainStore.gpsLocation;
 
-        if (gpsCoords === null) {
-            try {
-                navigator.geolocation.getCurrentPosition(
-                    ({ coords }) => {
-                        gpsCoords = [coords.longitude, coords.latitude];
-                    },
-                    (err) => {
-                        console.log("In first err : ", err);
-                    },
-                );
-                if (gpsCoords === null) {
-                    throw new Error("User object missing");
-                }
-            } catch (e) {
-                console.log("In the catch ");
+      if(gpsCoords === null){
+        try{
+          navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+              gpsCoords = [coords.longitude, coords.latitude];
+            },
+            (err) => {
+              console.log("In first err : ", err)
             }
-            MainStore.setGpsLocation(gpsCoords);
+          );
+          if(gpsCoords === null){
+            throw new Error('User object missing');
+          }
+        }catch(e){
+          console.log("In the catch ")
         }
-        if (MainStore.markerCoords) {
-            MainStore.setIsForm(true);
-            MainStore.setFormUrl(
-                getOdkUrlForScreen(
-                    MainStore.currentScreen,
-                    MainStore.currentStep,
-                    MainStore.markerCoords,
-                    MainStore.settlementName,
-                    "",
-                    MainStore.blockName,
-                    MainStore.currentPlan.plan_id,
-                    MainStore.currentPlan.plan,
-                    "",
-                    toggle,
-                    gpsCoords,
-                ),
-            );
-            MainStore.setIsOpen(true);
-        }
-    };
+        MainStore.setGpsLocation(gpsCoords)
+      }
+    // ⭐ PRIORITIZE: Use accepted work demand coordinates if available, otherwise use marker coordinates
+    const coordinatesToUse = MainStore.acceptedWorkDemandCoords || MainStore.markerCoords;
+    
+    if(coordinatesToUse){
+        MainStore.setIsForm(true)
+        MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, coordinatesToUse, MainStore.settlementName, "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", toggle, gpsCoords))
+        MainStore.setIsOpen(true)
+    }
+  };
 
     const handleAssetInfo = () => {
         MainStore.setIsOpen(true);
@@ -150,94 +139,59 @@ const Agriculture = () => {
         });
     };
 
-    return (
-        <>
-            {/* Title Bubble (UNCHANGED) */}
-            <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
-                <div className="relative w-full max-w-lg mx-auto flex items-center">
-                    <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        {t("Agriculture")}
-                    </div>
-                </div>
-            </div>
+  return (
+    <>
+      {/* Title Bubble (UNCHANGED) */}
+      <div className={`absolute left-0 w-full px-4 z-10 pointer-events-none ${
+        MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-12' : 'top-4'
+      }`}>
+        <div className="relative w-full max-w-lg mx-auto flex items-center">
+          <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
+            {t("Agriculture")}
+          </div>
+        </div>
+      </div>
 
-            {/* 2. Top-left buttons */}
-            <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
-                <div className="flex gap-4 max-w-lg">
-                    <div className="flex flex-col gap-3">
-                        {/* GPS Button */}
-                        <button
-                            className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                                backdropFilter: "none",
-                            }}
-                            onClick={() => {
-                                MainStore.setIsGPSClick(!MainStore.isGPSClick);
-                            }}
-                        >
-                            <svg
-                                viewBox="-16 0 130 130"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <ellipse
-                                    cx="50"
-                                    cy="130"
-                                    rx="18"
-                                    ry="6"
-                                    fill="#00000010"
-                                />
-                                <path
-                                    d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z"
-                                    fill="#592941"
-                                    stroke="#592941"
-                                    strokeWidth="1.5"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="55"
-                                    r="16"
-                                    fill="#FFFFFF"
-                                    stroke="#1E40AF"
-                                    strokeWidth="1.5"
-                                />
-                                <circle cx="50" cy="55" r="6" fill="#592941" />
-                                <ellipse
-                                    cx="46"
-                                    cy="38"
-                                    rx="6"
-                                    ry="10"
-                                    fill="#FFFFFF25"
-                                />
-                            </svg>
-                        </button>
+      {/* 2. Top-left buttons */}
+      <div className={`absolute left-0 w-full px-4 z-10 flex justify-start pointer-events-auto ${
+        MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-28' : 'top-20'
+      }`}>
+            <div className="flex gap-4 max-w-lg">
+            <div className="flex flex-col gap-3">
+                {/* GPS Button */}
+                <button
+                className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
+                style={{
+                    backgroundColor: '#D6D5C9',
+                    color: '#592941',
+                    border: 'none',
+                    backdropFilter: 'none',
+                }}
+                onClick={() => {
+                  MainStore.setIsGPSClick(!MainStore.isGPSClick)}}
+                >
+                <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
+                  <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />
+                  <path d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z" 
+                        fill="#592941" 
+                        stroke="#592941" 
+                        strokeWidth="1.5"/>
+                  <circle cx="50" cy="55" r="16" fill="#FFFFFF" stroke="#1E40AF" strokeWidth="1.5"/>
+                  <circle cx="50" cy="55" r="6" fill="#592941"/>
+                  <ellipse cx="46" cy="38" rx="6" ry="10" fill="#FFFFFF25" />
+                </svg>
+                </button>
+                
+                {/* INFO Button */}
+                <button
+                    className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
+                    style={{ backgroundColor: '#D6D5C9', color: '#592941', border: 'none' }}
+                    onClick={() => MainStore.setIsInfoOpen(true)}
+                >
+                    <svg viewBox="-16 0 130 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="40" fill="#592941" stroke="#592941" strokeWidth="2"/>
 
-                        {/* INFO Button */}
-                        <button
-                            className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                            }}
-                            onClick={() => MainStore.setIsInfoOpen(true)}
-                        >
-                            <svg
-                                viewBox="-16 0 130 100"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    fill="#592941"
-                                    stroke="#592941"
-                                    strokeWidth="2"
-                                />
-
-                                <circle cx="50" cy="50" r="36" fill="#592941" />
+                        <circle cx="50" cy="50" r="36" fill="#592941"/>
 
                                 <circle cx="50" cy="35" r="4" fill="#FFFFFF" />
 
@@ -278,23 +232,25 @@ const Agriculture = () => {
                 </div>
             </div>
 
-            {/* ─── Slider + popup (step 0 only) - MOVED FURTHER DOWN TO AVOID OVERLAP ─── */}
-            {MainStore.currentStep === 0 && (
-                <div className="absolute top-44 left-0 w-full px-4 z-10">
-                    <div className="relative w-3/4 max-w-md mx-auto">
-                        <input
-                            type="range"
-                            min="0"
-                            max={years.length - 1} // 0 … 6
-                            step="1"
-                            value={MainStore.lulcYearIdx}
-                            onChange={handleYearChange}
-                            onMouseDown={() => setDrag(true)}
-                            onMouseUp={() => setDrag(false)}
-                            onTouchStart={() => setDrag(true)}
-                            onTouchEnd={() => setDrag(false)}
-                            className="w-full accent-[#592941]"
-                        />
+     {/* ─── Slider + popup (step 0 only) - MOVED FURTHER DOWN TO AVOID OVERLAP ─── */}
+     {MainStore.currentStep === 0 && (
+        <div className={`absolute left-0 w-full px-4 z-10 ${
+          MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-56' : 'top-44'
+        }`}>
+            <div className="relative w-3/4 max-w-md mx-auto">
+            <input
+                type="range"
+                min="0"
+                max={years.length - 1}          // 0 … 6
+                step="1"
+                value={MainStore.lulcYearIdx}
+                onChange={handleYearChange}
+                onMouseDown={() => setDrag(true)}
+                onMouseUp={() => setDrag(false)}
+                onTouchStart={() => setDrag(true)}
+                onTouchEnd={() => setDrag(false)}
+                className="w-full accent-[#592941]"
+            />
 
                         {/* floating label */}
                         {(dragging || true) && (

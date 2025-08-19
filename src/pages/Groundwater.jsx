@@ -19,8 +19,11 @@ const Groundwater = () => {
     const MainStore = useMainStore((state) => state);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        MainStore.setMarkerPlaced(false);
+    useEffect(() =>{
+      // Only reset marker placement if there's no accepted work demand item
+      if (!MainStore.acceptedWorkDemandItem) {
+        MainStore.setMarkerPlaced(false)
+      }
         const handleBackButton = () => {
             let BACK = MainStore.currentStep - 1;
 
@@ -65,7 +68,18 @@ const Groundwater = () => {
             MainStore.setGpsLocation(gpsCoords);
         }
 
-        if (MainStore.markerCoords) {
+        // ⭐ PRIORITIZE: Use accepted work demand coordinates if available, otherwise use marker coordinates
+        const coordinatesToUse = MainStore.acceptedWorkDemandCoords || MainStore.markerCoords;
+        
+        // Debug logging to verify coordinate flow
+        console.log('🔍 Groundwater Planning - Coordinate Debug:');
+        console.log('  - acceptedWorkDemandCoords:', MainStore.acceptedWorkDemandCoords);
+        console.log('  - markerCoords:', MainStore.markerCoords);
+        console.log('  - coordinatesToUse:', coordinatesToUse);
+        console.log('  - currentScreen:', MainStore.currentScreen);
+        console.log('  - currentStep:', MainStore.currentStep);
+      
+        if(coordinatesToUse){
             MainStore.setIsForm(true);
             MainStore.setFormUrl(
                 getOdkUrlForScreen(
@@ -137,66 +151,47 @@ const Groundwater = () => {
 
     return (
         <>
+
+            
             {/* Title Bubble */}
-            <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
+            <div className={`absolute left-0 w-full px-4 z-10 pointer-events-none ${
+              MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-12' : 'top-4'
+            }`}>
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
                         {t("GroundWater")}
                     </div>
                 </div>
             </div>
-            {/* 2. Top-left buttons */}
-            <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
-                <div className="flex gap-4 max-w-lg">
-                    <div className="flex flex-col gap-3">
-                        {/* GPS Button */}
-                        <button
-                            className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                                backdropFilter: "none",
-                            }}
-                            onClick={() => {
-                                MainStore.setIsGPSClick(!MainStore.isGPSClick);
-                            }}
-                        >
-                            <svg
-                                viewBox="-16 0 130 130"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <ellipse
-                                    cx="50"
-                                    cy="130"
-                                    rx="18"
-                                    ry="6"
-                                    fill="#00000010"
-                                />
-                                <path
-                                    d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z"
-                                    fill="#592941"
-                                    stroke="#592941"
-                                    strokeWidth="1.5"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="55"
-                                    r="16"
-                                    fill="#FFFFFF"
-                                    stroke="#1E40AF"
-                                    strokeWidth="1.5"
-                                />
-                                <circle cx="50" cy="55" r="6" fill="#592941" />
-                                <ellipse
-                                    cx="46"
-                                    cy="38"
-                                    rx="6"
-                                    ry="10"
-                                    fill="#FFFFFF25"
-                                />
-                            </svg>
-                        </button>
+                  {/* 2. Top-left buttons */}
+            <div className={`absolute left-0 w-full px-4 z-10 flex justify-start pointer-events-auto ${
+              MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-28' : 'top-20'
+            }`}>
+              <div className="flex gap-4 max-w-lg">
+                <div className="flex flex-col gap-3">
+                    {/* GPS Button */}
+                    <button
+                    className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
+                    style={{
+                        backgroundColor: '#D6D5C9',
+                        color: '#592941',
+                        border: 'none',
+                        backdropFilter: 'none',
+                    }}
+                    onClick={() => {
+                      MainStore.setIsGPSClick(!MainStore.isGPSClick)}}
+                    >
+                    <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
+                      <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />
+                      <path d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z" 
+                            fill="#592941" 
+                            stroke="#592941" 
+                            strokeWidth="1.5"/>
+                      <circle cx="50" cy="55" r="16" fill="#FFFFFF" stroke="#1E40AF" strokeWidth="1.5"/>
+                      <circle cx="50" cy="55" r="6" fill="#592941"/>
+                      <ellipse cx="46" cy="38" rx="6" ry="10" fill="#FFFFFF25" />
+                    </svg>
+                    </button>
 
                         <button
                             className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
@@ -282,7 +277,9 @@ const Groundwater = () => {
 
             {/* 3. WellDepth Toggle button - Hide when planning starts */}
             {MainStore.currentStep === 0 && (
-                <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
+                <div className={`absolute left-13 w-full px-4 z-10 flex justify-start pointer-events-auto ${
+              MainStore.acceptedWorkDemandItem && !MainStore.isMapEditable ? 'top-40' : 'top-31.5'
+            }`}>
                     <div className="flex gap-4 max-w-lg">
                         <div
                             className={`relative inline-flex rounded-xl pb-0.5 pt-0.5`}
