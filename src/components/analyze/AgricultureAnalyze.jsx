@@ -54,7 +54,7 @@ const AgricultureAnalyze = () => {
         const dryspellCount = selectedMWSDrought[dryspKey] || 0;
 
     //const cropIntensityIdx = YEARS.indexOf(year) + 1;
-    const cropIntensity = selectedResource ? (selectedResource[`cropping_${year}`] || 0) : 0;
+    const cropIntensity = selectedResource ? (selectedResource[`cropping_intensity_${year}`] || 0) : 0;
 
         return {
             "Mild Drought": mildCount,
@@ -296,32 +296,26 @@ const AgricultureAnalyze = () => {
                     {t("Annual Summary")}
                 </h2>
 
-                {/* capsules */}
-                {hasAnnual ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                        {CAPSULE_KEYS.map((k) => (
-                            <div
-                                key={k}
-                                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
-                            >
-                                <div className="text-xs tracking-wide text-gray-500 mb-1">
-                                    {t(k)}
-                                </div>
-                                <div className="text-lg font-bold">
-                                    {fmt(
-                                        annual[k],
-                                        k === "Cropping Intensity" ? 1 : 0,
-                                    )}
-                                    {k === "Cropping Intensity" ? "" : " weeks"}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-center text-gray-500">
-                        {t("info_blank")} {year}
-                    </p>
-                )}
+        {/* capsules */}
+        {hasAnnual ? (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            {CAPSULE_KEYS.map((k) => (
+              <div
+                key={k}
+                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
+              >
+                <div className="text-xs tracking-wide text-gray-500 mb-1">
+                  {t(k)}
+                </div>
+                <div className="text-lg font-bold">{fmt(annual[k], k === 'Cropping Intensity' ? 1 : 0)}{k === 'Cropping Intensity' ? '' : ' weeks'}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            {t("info_blank")} {year}
+          </p>
+        )}
 
                 <h2 className="text-center font-bold text-gray-700 text-lg pt-4">
                     {t("Yearly Analysis")}
