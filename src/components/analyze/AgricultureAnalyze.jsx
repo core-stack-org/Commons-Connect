@@ -124,11 +124,10 @@ const AgricultureAnalyze = () => {
   useEffect(() => {
     if (!cropChartRef.current) return;
 
-    const cropIdx = YEARS.indexOf(year) + 1;
-    const totalCrop = selectedResource.total_crop || 0;
-    const single = selectedResource[`single_c_${cropIdx}`] || 0;
-    const doubled = selectedResource[`doubly_c_${cropIdx}`] || 0;
-    const tripled = selectedResource[`triply_c_${cropIdx}`] || 0;
+    const totalCrop = selectedResource.total_cropable_area_ever_hydroyear_2017_2023 || 0;
+    const single = selectedResource[`single_cropped_area_${year}`] || 0;
+    const doubled = selectedResource[`doubly_cropped_area_${year}`] || 0;
+    const tripled = selectedResource[`triply_cropped_area_${year}`] || 0;
 
     if (totalCrop === 0) {
       if (cropChartInstanceRef.current) {
@@ -142,6 +141,7 @@ const AgricultureAnalyze = () => {
     const doublePct = (doubled / totalCrop) * 100;
     const triplePct = (tripled / totalCrop) * 100;
     const uncroppedPct = Math.max(0, 100 - (singlePct + doublePct + triplePct));
+
 
     const data = {
       labels: [`${year}`],
@@ -184,7 +184,7 @@ const AgricultureAnalyze = () => {
   // Line chart effect
   useEffect(() => {
     if (!lineChartRef.current) return;
-    const dataPoints = YEARS.map((_, i) => selectedResource[`cropping_${i + 1}`] || 0);
+    const dataPoints = YEARS.map((year, i) => selectedResource[`cropping_intensity_${year}`] || 0);
     const data = {
       labels: YEARS.map(String),
       datasets: [
@@ -348,7 +348,7 @@ const AgricultureAnalyze = () => {
           <h2 className="font-bold text-gray-700 mb-2">
             {t("cropping_in_header")} ({year})
           </h2>
-          {(selectedResource.total_crop > 0) ? (
+          {(selectedResource.total_cropable_area_ever_hydroyear_2017_2023 > 0) ? (
             <div className="relative h-72">
               <canvas ref={cropChartRef} />
             </div>
@@ -362,7 +362,7 @@ const AgricultureAnalyze = () => {
           <h2 className="font-bold text-gray-700 mb-2">
             {t("Cropping Intensity Trend (2017-2022)")}
           </h2>
-          {(selectedResource.total_crop > 0) ? (
+          {(selectedResource.total_cropable_area_ever_hydroyear_2017_2023 > 0) ? (
             <div className="relative h-72">
               <canvas ref={lineChartRef} />
             </div>
