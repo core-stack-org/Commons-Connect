@@ -29,10 +29,17 @@ const HamburgerMenu = ({ open, onClose }) => {
             ? userData.project_details[0].project_name ||
               userData.project_details[0].title
             : "No Project";
-    const role =
-        userData?.groups?.length > 0
-            ? userData.groups[0].name || userData.groups[0]
-            : "No Role";
+    const role = (() => {
+        if (userData?.groups?.length > 0) {
+            return userData.groups
+                .map((group) => group.name || group)
+                .join(", ");
+        } else if (userData?.is_superadmin) {
+            return "Superadmin";
+        } else {
+            return "No Role";
+        }
+    })();
 
     return (
         <>
