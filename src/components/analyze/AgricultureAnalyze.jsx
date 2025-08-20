@@ -46,7 +46,7 @@ const AgricultureAnalyze = () => {
     const dryspellCount = selectedMWSDrought[dryspKey] || 0;
 
     //const cropIntensityIdx = YEARS.indexOf(year) + 1;
-    const cropIntensity = selectedResource ? (selectedResource[`cropping_${year}`] || 0) : 0;
+    const cropIntensity = selectedResource ? (selectedResource[`cropping_intensity_${year}`] || 0) : 0;
 
     return {
         "Mild Drought": mildCount,
@@ -254,7 +254,7 @@ const AgricultureAnalyze = () => {
                 <div className="text-xs tracking-wide text-gray-500 mb-1">
                   {t(k)}
                 </div>
-                <div className="text-lg font-bold">{fmt(annual[k], k === 'Cropping Intensity' ? 1 : 0)}{k === 'Cropping Intensity' ? '%' : ' weeks'}</div>
+                <div className="text-lg font-bold">{fmt(annual[k], k === 'Cropping Intensity' ? 1 : 0)}{k === 'Cropping Intensity' ? '' : ' weeks'}</div>
               </div>
             ))}
           </div>
