@@ -53,10 +53,8 @@ const AgricultureAnalyze = () => {
         const severeCount = drlbArray.filter((v) => v === 3).length;
         const dryspellCount = selectedMWSDrought[dryspKey] || 0;
 
-        //const cropIntensityIdx = YEARS.indexOf(year) + 1;
-        const cropIntensity = selectedResource
-            ? selectedResource[`cropping_intensity_${year}`] || 0
-            : 0;
+    //const cropIntensityIdx = YEARS.indexOf(year) + 1;
+    const cropIntensity = selectedResource ? (selectedResource[`cropping_${year}`] || 0) : 0;
 
         return {
             "Mild Drought": mildCount,
