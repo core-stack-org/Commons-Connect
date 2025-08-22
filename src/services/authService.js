@@ -9,7 +9,7 @@ class AuthService {
         this.initialize();
     }
 
-    // MAKR: Development mock auth data
+    // MARK: Development mock auth data
     getMockAuthData() {
         return {
             access: "mock_access_token_for_development",

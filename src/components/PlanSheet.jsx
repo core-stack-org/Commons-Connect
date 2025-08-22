@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import { useTranslation } from "react-i18next";
@@ -20,6 +20,15 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const [showProjectSelector, setShowProjectSelector] = useState(false);
     const [availableProjects, setAvailableProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
+
+    const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const [showVillageFilter, setShowVillageFilter] = useState(false);
+    const [showFacilitatorFilter, setShowFacilitatorFilter] = useState(false);
+    const [selectedVillageFilter, setSelectedVillageFilter] = useState(null);
+    const [selectedFacilitatorFilter, setSelectedFacilitatorFilter] =
+        useState(null);
+
+    const filterMenuRef = useRef(null);
 
     const userData = authService.getUserData();
     const organizationName = authService.getOrganization();
@@ -253,6 +262,27 @@ const PlanSheet = ({ isOpen, onClose }) => {
     ]);
 
     useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                filterMenuRef.current &&
+                !filterMenuRef.current.contains(event.target) &&
+                !event.target.closest("button[data-filter-button]")
+            ) {
+                setShowFilterMenu(false);
+                setShowVillageFilter(false);
+                setShowFacilitatorFilter(false);
+            }
+        };
+
+        if (showFilterMenu || showVillageFilter || showFacilitatorFilter) {
+            document.addEventListener("mousedown", handleClickOutside);
+            return () => {
+                document.removeEventListener("mousedown", handleClickOutside);
+            };
+        }
+    }, [showFilterMenu, showVillageFilter, showFacilitatorFilter]);
+
+    useEffect(() => {
         if (MainStore.currentPlan?.id) {
             setSelectedPlanId(MainStore.currentPlan.id);
         }
@@ -361,6 +391,232 @@ const PlanSheet = ({ isOpen, onClose }) => {
         return globalPlans.filter((plan) => !plan.project);
     };
 
+    const getUniqueVillages = () => {
+        const allPlans = isSuperAdmin
+            ? getFilteredPlans()
+            : projectPlans.flatMap((project) => project.plans);
+        const villages = [
+            ...new Set(
+                allPlans.map((plan) => plan.village_name).filter(Boolean),
+            ),
+        ];
+        return villages.sort();
+    };
+
+    const getUniqueFacilitators = () => {
+        const allPlans = isSuperAdmin
+            ? getFilteredPlans()
+            : projectPlans.flatMap((project) => project.plans);
+        const facilitators = [
+            ...new Set(
+                allPlans.map((plan) => plan.facilitator_name).filter(Boolean),
+            ),
+        ];
+        return facilitators.sort();
+    };
+
+    const applyFilters = (plans) => {
+        let filteredPlans = [...plans];
+
+        if (selectedVillageFilter) {
+            filteredPlans = filteredPlans.filter(
+                (plan) => plan.village_name === selectedVillageFilter,
+            );
+        }
+
+        if (selectedFacilitatorFilter) {
+            filteredPlans = filteredPlans.filter(
+                (plan) => plan.facilitator_name === selectedFacilitatorFilter,
+            );
+        }
+
+        return filteredPlans;
+    };
+
+    const clearFilters = () => {
+        setSelectedVillageFilter(null);
+        setSelectedFacilitatorFilter(null);
+        setShowFilterMenu(false);
+        setShowVillageFilter(false);
+        setShowFacilitatorFilter(false);
+    };
+
+    const toggleFilterMenu = () => {
+        if (showFilterMenu || showVillageFilter || showFacilitatorFilter) {
+            setShowFilterMenu(false);
+            setShowVillageFilter(false);
+            setShowFacilitatorFilter(false);
+        } else {
+            setShowFilterMenu(true);
+        }
+    };
+
+    const FilterMenu = () => {
+        if (!showFilterMenu) return null;
+
+        return (
+            <div
+                ref={filterMenuRef}
+                className="absolute top-10 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg z-50 min-w-56"
+            >
+                {/* Main filter options */}
+                {!showVillageFilter && !showFacilitatorFilter && (
+                    <div className="py-3">
+                        <button
+                            onClick={() => setShowVillageFilter(true)}
+                            className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center justify-between rounded-xl mx-2"
+                        >
+                            <span>{t("Filter by village")}</span>
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={() => setShowFacilitatorFilter(true)}
+                            className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center justify-between rounded-xl mx-2"
+                        >
+                            <span>{t("Filter by facilitator")}</span>
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </button>
+                        {(selectedVillageFilter ||
+                            selectedFacilitatorFilter) && (
+                            <>
+                                <hr className="my-3" />
+                                <button
+                                    onClick={clearFilters}
+                                    className="w-full px-5 py-3 text-left hover:bg-gray-50 text-red-600 rounded-xl mx-2"
+                                >
+                                    {t("Clear all filters")}
+                                </button>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {/* Village filter submenu */}
+                {showVillageFilter && (
+                    <div className="py-3">
+                        <div className="px-5 py-3 bg-gray-50 flex items-center justify-between rounded-t-2xl">
+                            <span className="font-medium text-base">
+                                {t("Select Village")}
+                            </span>
+                            <button
+                                onClick={() => setShowVillageFilter(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 19l-7-7 7-7"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="max-h-56 overflow-y-auto">
+                            {getUniqueVillages().map((village) => (
+                                <button
+                                    key={village}
+                                    onClick={() => {
+                                        setSelectedVillageFilter(village);
+                                        setShowFilterMenu(false);
+                                        setShowVillageFilter(false);
+                                    }}
+                                    className={`w-full px-5 py-3 text-left hover:bg-gray-50 text-base rounded-xl mx-2 my-1 ${
+                                        selectedVillageFilter === village
+                                            ? "bg-blue-50 text-blue-600"
+                                            : ""
+                                    }`}
+                                >
+                                    {village}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Facilitator filter submenu */}
+                {showFacilitatorFilter && (
+                    <div className="py-3">
+                        <div className="px-5 py-3 bg-gray-50 flex items-center justify-between rounded-t-2xl">
+                            <span className="font-medium text-base">
+                                {t("Select Facilitator")}
+                            </span>
+                            <button
+                                onClick={() => setShowFacilitatorFilter(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 19l-7-7 7-7"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="max-h-56 overflow-y-auto">
+                            {getUniqueFacilitators().map((facilitator) => (
+                                <button
+                                    key={facilitator}
+                                    onClick={() => {
+                                        setSelectedFacilitatorFilter(
+                                            facilitator,
+                                        );
+                                        setShowFilterMenu(false);
+                                        setShowFacilitatorFilter(false);
+                                    }}
+                                    className={`w-full px-5 py-3 text-left hover:bg-gray-50 text-base rounded-xl mx-2 my-1 ${
+                                        selectedFacilitatorFilter ===
+                                        facilitator
+                                            ? "bg-blue-50 text-blue-600"
+                                            : ""
+                                    }`}
+                                >
+                                    {facilitator}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString("en-US", {
             year: "numeric",
@@ -374,15 +630,15 @@ const PlanSheet = ({ isOpen, onClose }) => {
             <BottomSheet
                 open={isOpen}
                 onDismiss={() => setShowProjectSelector(false)}
-                defaultSnap={({ maxHeight }) => maxHeight * 0.7}
-                snapPoints={({ maxHeight }) => [maxHeight * 0.7]}
+                defaultSnap={({ maxHeight }) => maxHeight * 0.8}
+                snapPoints={({ maxHeight }) => [maxHeight * 0.8]}
             >
                 <div className="p-6 pb-8">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold text-gray-900">
                             {isOrgAdmin
                                 ? "Select Organization Project"
-                                : "Select Project"}
+                                : t("Select Project")}
                         </h2>
                         <button
                             onClick={() => setShowProjectSelector(false)}
@@ -476,8 +732,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
             <BottomSheet
                 open={isOpen}
                 onDismiss={() => setShowPlanDetails(null)}
-                defaultSnap={({ maxHeight }) => maxHeight * 0.9}
-                snapPoints={({ maxHeight }) => [maxHeight * 0.9]}
+                defaultSnap={({ maxHeight }) => maxHeight * 1.0}
+                snapPoints={({ maxHeight }) => [maxHeight * 1.0]}
             >
                 <div className="p-6 pb-8">
                     <div className="flex items-center justify-between mb-6">
@@ -642,14 +898,16 @@ const PlanSheet = ({ isOpen, onClose }) => {
         <BottomSheet
             open={isOpen}
             onDismiss={onClose}
-            defaultSnap={({ maxHeight }) => maxHeight * 0.7}
-            snapPoints={({ maxHeight }) => [maxHeight * 0.7]}
+            defaultSnap={({ maxHeight }) => maxHeight * 0.8}
+            snapPoints={({ maxHeight }) => [maxHeight * 0.8]}
         >
             <div className="p-6 pb-8">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold text-gray-900">
                         {t("Select Plan")}{" "}
-                        {isSuperAdmin && blockId && `(Tehsil: ${blockId})`}
+                        {isSuperAdmin &&
+                            blockId &&
+                            `(${t("Tehsil")}: ${blockId})`}
                     </h2>
                     <button
                         onClick={onClose}
@@ -703,7 +961,9 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                     <div className="text-lg font-semibold text-gray-900">
                                                         {selectedProject
                                                             ? selectedProject.name
-                                                            : "Select Project"}
+                                                            : t(
+                                                                  "Select Project",
+                                                              )}
                                                     </div>
                                                 </div>
                                                 <svg
@@ -757,106 +1017,201 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                         </div>
                                     </div>
 
-                                    <div className="mb-3">
+                                    <div className="mb-3 flex items-center justify-between">
                                         <h3 className="text-lg font-semibold text-gray-900">
                                             {t("Plans")} ({t("Tehsil")}:{" "}
                                             {blockId})
                                         </h3>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        {getFilteredPlans().map((plan) => (
-                                            <div
-                                                key={plan.id}
-                                                className={`border rounded-2xl p-4 transition-all ${
-                                                    selectedPlanId === plan.id
-                                                        ? "border-blue-500 bg-blue-50"
-                                                        : "border-gray-200 hover:border-gray-300"
+                                        <div className="relative">
+                                            <button
+                                                data-filter-button
+                                                onClick={toggleFilterMenu}
+                                                className={`p-2 rounded-lg border transition-colors ${
+                                                    selectedVillageFilter ||
+                                                    selectedFacilitatorFilter
+                                                        ? "bg-blue-50 border-blue-200 text-blue-600"
+                                                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
                                                 }`}
                                             >
-                                                <div className="flex items-center justify-between">
-                                                    <div
-                                                        className="flex-1 cursor-pointer"
+                                                <svg
+                                                    className="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
+                                                    />
+                                                </svg>
+                                            </button>
+                                            <FilterMenu />
+                                        </div>
+                                    </div>
+
+                                    {/* Active filters indicator */}
+                                    {(selectedVillageFilter ||
+                                        selectedFacilitatorFilter) && (
+                                        <div className="mb-3 flex flex-wrap gap-2">
+                                            {selectedVillageFilter && (
+                                                <div className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                                                    <span>
+                                                        Village:{" "}
+                                                        {selectedVillageFilter}
+                                                    </span>
+                                                    <button
                                                         onClick={() =>
-                                                            handlePlanSelect(
-                                                                plan,
-                                                                plan.project,
-                                                                plan.project_name,
+                                                            setSelectedVillageFilter(
+                                                                null,
                                                             )
                                                         }
-                                                    >
-                                                        <div className="flex items-center">
-                                                            <div className="flex-1">
-                                                                <div className="flex items-center">
-                                                                    <h3 className="font-medium text-gray-900 mr-2">
-                                                                        {
-                                                                            plan.plan
-                                                                        }
-                                                                    </h3>
-                                                                    {selectedPlanId ===
-                                                                        plan.id && (
-                                                                        <svg
-                                                                            className="w-5 h-5 text-blue-600"
-                                                                            fill="currentColor"
-                                                                            viewBox="0 0 20 20"
-                                                                        >
-                                                                            <path
-                                                                                fillRule="evenodd"
-                                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                clipRule="evenodd"
-                                                                            />
-                                                                        </svg>
-                                                                    )}
-                                                                </div>
-                                                                <div className="text-sm text-gray-600 mt-1">
-                                                                    {
-                                                                        plan.village_name
-                                                                    }{" "}
-                                                                    •{" "}
-                                                                    {
-                                                                        plan.facilitator_name
-                                                                    }
-                                                                </div>
-                                                                {plan.project_name && (
-                                                                    <div className="text-xs text-blue-600 mt-1">
-                                                                        Project:{" "}
-                                                                        {
-                                                                            plan.project_name
-                                                                        }
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            fetchPlanDetails(
-                                                                plan.project,
-                                                                plan.id,
-                                                                plan.project_name,
-                                                                plan.organization_name,
-                                                            );
-                                                        }}
-                                                        className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                        title="View Details"
+                                                        className="ml-2 hover:text-blue-900"
                                                     >
                                                         <svg
-                                                            className="w-4 h-4 text-gray-500"
+                                                            className="w-3 h-3"
                                                             fill="currentColor"
                                                             viewBox="0 0 20 20"
                                                         >
                                                             <path
                                                                 fillRule="evenodd"
-                                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                                                 clipRule="evenodd"
                                                             />
                                                         </svg>
                                                     </button>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            )}
+                                            {selectedFacilitatorFilter && (
+                                                <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                                                    <span>
+                                                        Facilitator:{" "}
+                                                        {
+                                                            selectedFacilitatorFilter
+                                                        }
+                                                    </span>
+                                                    <button
+                                                        onClick={() =>
+                                                            setSelectedFacilitatorFilter(
+                                                                null,
+                                                            )
+                                                        }
+                                                        className="ml-2 hover:text-green-900"
+                                                    >
+                                                        <svg
+                                                            className="w-3 h-3"
+                                                            fill="currentColor"
+                                                            viewBox="0 0 20 20"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                clipRule="evenodd"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        {applyFilters(getFilteredPlans()).map(
+                                            (plan) => (
+                                                <div
+                                                    key={plan.id}
+                                                    className={`border rounded-2xl p-4 transition-all ${
+                                                        selectedPlanId ===
+                                                        plan.id
+                                                            ? "border-blue-500 bg-blue-50"
+                                                            : "border-gray-200 hover:border-gray-300"
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div
+                                                            className="flex-1 cursor-pointer"
+                                                            onClick={() =>
+                                                                handlePlanSelect(
+                                                                    plan,
+                                                                    plan.project,
+                                                                    plan.project_name,
+                                                                )
+                                                            }
+                                                        >
+                                                            <div className="flex items-center">
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-center">
+                                                                        <h3 className="font-medium text-gray-900 mr-2">
+                                                                            {
+                                                                                plan.plan
+                                                                            }
+                                                                        </h3>
+                                                                        {selectedPlanId ===
+                                                                            plan.id && (
+                                                                            <svg
+                                                                                className="w-5 h-5 text-blue-600"
+                                                                                fill="currentColor"
+                                                                                viewBox="0 0 20 20"
+                                                                            >
+                                                                                <path
+                                                                                    fillRule="evenodd"
+                                                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                    clipRule="evenodd"
+                                                                                />
+                                                                            </svg>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 mt-1">
+                                                                        {
+                                                                            plan.village_name
+                                                                        }{" "}
+                                                                        •{" "}
+                                                                        {
+                                                                            plan.facilitator_name
+                                                                        }
+                                                                    </div>
+                                                                    {plan.project_name && (
+                                                                        <div className="text-xs text-blue-600 mt-1">
+                                                                            Project:{" "}
+                                                                            {
+                                                                                plan.project_name
+                                                                            }
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                fetchPlanDetails(
+                                                                    plan.project,
+                                                                    plan.id,
+                                                                    plan.project_name,
+                                                                    plan.organization_name,
+                                                                );
+                                                            }}
+                                                            className="ml-3 p-1 hover:bg-gray-100 rounded-full"
+                                                            title="View Details"
+                                                        >
+                                                            <svg
+                                                                className="w-4 h-4 text-gray-500"
+                                                                fill="currentColor"
+                                                                viewBox="0 0 20 20"
+                                                            >
+                                                                <path
+                                                                    fillRule="evenodd"
+                                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                                    clipRule="evenodd"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ),
+                                        )}
                                     </div>
 
                                     {getFilteredPlans().length === 0 &&
@@ -897,7 +1252,9 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                     <div className="text-lg font-semibold text-gray-900">
                                                         {selectedProject
                                                             ? selectedProject.name
-                                                            : "Select Project"}
+                                                            : t(
+                                                                  "Select Project",
+                                                              )}
                                                     </div>
                                                 </div>
                                                 <svg
@@ -955,101 +1312,197 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="mb-3">
+                                            <div className="mb-3 flex items-center justify-between">
                                                 <h3 className="text-lg font-semibold text-gray-900">
                                                     {t("Plans")}
                                                 </h3>
+                                                <div className="relative">
+                                                    <button
+                                                        data-filter-button
+                                                        onClick={
+                                                            toggleFilterMenu
+                                                        }
+                                                        className={`p-2 rounded-lg border transition-colors ${
+                                                            selectedVillageFilter ||
+                                                            selectedFacilitatorFilter
+                                                                ? "bg-blue-50 border-blue-200 text-blue-600"
+                                                                : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                                        }`}
+                                                    >
+                                                        <svg
+                                                            className="w-5 h-5"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                    <FilterMenu />
+                                                </div>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                {projectData.plans.map(
-                                                    (plan) => (
-                                                        <div
-                                                            key={plan.id}
-                                                            className={`border rounded-2xl p-4 transition-all ${
-                                                                selectedPlanId ===
-                                                                plan.id
-                                                                    ? "border-blue-500 bg-blue-50"
-                                                                    : "border-gray-200 hover:border-gray-300"
-                                                            }`}
-                                                        >
-                                                            <div className="flex items-center justify-between">
-                                                                <div
-                                                                    className="flex-1 cursor-pointer"
-                                                                    onClick={() =>
-                                                                        handlePlanSelect(
-                                                                            plan,
-                                                                            projectData.projectId,
-                                                                            projectData.projectName,
-                                                                        )
-                                                                    }
+                                            {/* Active filters indicator */}
+                                            {(selectedVillageFilter ||
+                                                selectedFacilitatorFilter) && (
+                                                <div className="mb-3 flex flex-wrap gap-2">
+                                                    {selectedVillageFilter && (
+                                                        <div className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                                                            <span>
+                                                                Village:{" "}
+                                                                {
+                                                                    selectedVillageFilter
+                                                                }
+                                                            </span>
+                                                            <button
+                                                                onClick={() =>
+                                                                    setSelectedVillageFilter(
+                                                                        null,
+                                                                    )
+                                                                }
+                                                                className="ml-2 hover:text-blue-900"
+                                                            >
+                                                                <svg
+                                                                    className="w-3 h-3"
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
                                                                 >
-                                                                    <div className="flex items-center">
-                                                                        <div className="flex-1">
-                                                                            <div className="flex items-center">
-                                                                                <h3 className="font-medium text-gray-900 mr-2">
-                                                                                    {
-                                                                                        plan.plan
-                                                                                    }
-                                                                                </h3>
-                                                                                {selectedPlanId ===
-                                                                                    plan.id && (
-                                                                                    <svg
-                                                                                        className="w-5 h-5 text-blue-600"
-                                                                                        fill="currentColor"
-                                                                                        viewBox="0 0 20 20"
-                                                                                    >
-                                                                                        <path
-                                                                                            fillRule="evenodd"
-                                                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                            clipRule="evenodd"
-                                                                                        />
-                                                                                    </svg>
-                                                                                )}
-                                                                            </div>
-                                                                            <div className="text-sm text-gray-600 mt-1">
+                                                                    <path
+                                                                        fillRule="evenodd"
+                                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                        clipRule="evenodd"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    {selectedFacilitatorFilter && (
+                                                        <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                                                            <span>
+                                                                Facilitator:{" "}
+                                                                {
+                                                                    selectedFacilitatorFilter
+                                                                }
+                                                            </span>
+                                                            <button
+                                                                onClick={() =>
+                                                                    setSelectedFacilitatorFilter(
+                                                                        null,
+                                                                    )
+                                                                }
+                                                                className="ml-2 hover:text-green-900"
+                                                            >
+                                                                <svg
+                                                                    className="w-3 h-3"
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
+                                                                >
+                                                                    <path
+                                                                        fillRule="evenodd"
+                                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                        clipRule="evenodd"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className="space-y-2">
+                                                {applyFilters(
+                                                    projectData.plans,
+                                                ).map((plan) => (
+                                                    <div
+                                                        key={plan.id}
+                                                        className={`border rounded-2xl p-4 transition-all ${
+                                                            selectedPlanId ===
+                                                            plan.id
+                                                                ? "border-blue-500 bg-blue-50"
+                                                                : "border-gray-200 hover:border-gray-300"
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <div
+                                                                className="flex-1 cursor-pointer"
+                                                                onClick={() =>
+                                                                    handlePlanSelect(
+                                                                        plan,
+                                                                        projectData.projectId,
+                                                                        projectData.projectName,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <div className="flex items-center">
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center">
+                                                                            <h3 className="font-medium text-gray-900 mr-2">
                                                                                 {
-                                                                                    plan.village_name
-                                                                                }{" "}
-                                                                                •{" "}
-                                                                                {
-                                                                                    plan.facilitator_name
+                                                                                    plan.plan
                                                                                 }
-                                                                            </div>
+                                                                            </h3>
+                                                                            {selectedPlanId ===
+                                                                                plan.id && (
+                                                                                <svg
+                                                                                    className="w-5 h-5 text-blue-600"
+                                                                                    fill="currentColor"
+                                                                                    viewBox="0 0 20 20"
+                                                                                >
+                                                                                    <path
+                                                                                        fillRule="evenodd"
+                                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                        clipRule="evenodd"
+                                                                                    />
+                                                                                </svg>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="text-sm text-gray-600 mt-1">
+                                                                            {
+                                                                                plan.village_name
+                                                                            }{" "}
+                                                                            •{" "}
+                                                                            {
+                                                                                plan.facilitator_name
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
-                                                                <button
-                                                                    onClick={(
-                                                                        e,
-                                                                    ) => {
-                                                                        e.stopPropagation();
-                                                                        fetchPlanDetails(
-                                                                            projectData.projectId,
-                                                                            plan.id,
-                                                                            projectData.projectName,
-                                                                        );
-                                                                    }}
-                                                                    className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                                    title="View Details"
-                                                                >
-                                                                    <svg
-                                                                        className="w-4 h-4 text-gray-500"
-                                                                        fill="currentColor"
-                                                                        viewBox="0 0 20 20"
-                                                                    >
-                                                                        <path
-                                                                            fillRule="evenodd"
-                                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                            clipRule="evenodd"
-                                                                        />
-                                                                    </svg>
-                                                                </button>
                                                             </div>
+
+                                                            <button
+                                                                onClick={(
+                                                                    e,
+                                                                ) => {
+                                                                    e.stopPropagation();
+                                                                    fetchPlanDetails(
+                                                                        projectData.projectId,
+                                                                        plan.id,
+                                                                        projectData.projectName,
+                                                                    );
+                                                                }}
+                                                                className="ml-3 p-1 hover:bg-gray-100 rounded-full"
+                                                                title="View Details"
+                                                            >
+                                                                <svg
+                                                                    className="w-4 h-4 text-gray-500"
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
+                                                                >
+                                                                    <path
+                                                                        fillRule="evenodd"
+                                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                                        clipRule="evenodd"
+                                                                    />
+                                                                </svg>
+                                                            </button>
                                                         </div>
-                                                    ),
-                                                )}
+                                                    </div>
+                                                ))}
                                             </div>
 
                                             {projectIndex <
@@ -1101,101 +1554,197 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="mb-3">
+                                            <div className="mb-3 flex items-center justify-between">
                                                 <h3 className="text-lg font-semibold text-gray-900">
                                                     {t("Plans")}
                                                 </h3>
+                                                <div className="relative">
+                                                    <button
+                                                        data-filter-button
+                                                        onClick={
+                                                            toggleFilterMenu
+                                                        }
+                                                        className={`p-2 rounded-lg border transition-colors ${
+                                                            selectedVillageFilter ||
+                                                            selectedFacilitatorFilter
+                                                                ? "bg-blue-50 border-blue-200 text-blue-600"
+                                                                : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                                        }`}
+                                                    >
+                                                        <svg
+                                                            className="w-5 h-5"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                    <FilterMenu />
+                                                </div>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                {projectData.plans.map(
-                                                    (plan) => (
-                                                        <div
-                                                            key={plan.id}
-                                                            className={`border rounded-2xl p-4 transition-all ${
-                                                                selectedPlanId ===
-                                                                plan.id
-                                                                    ? "border-blue-500 bg-blue-50"
-                                                                    : "border-gray-200 hover:border-gray-300"
-                                                            }`}
-                                                        >
-                                                            <div className="flex items-center justify-between">
-                                                                <div
-                                                                    className="flex-1 cursor-pointer"
-                                                                    onClick={() =>
-                                                                        handlePlanSelect(
-                                                                            plan,
-                                                                            projectData.projectId,
-                                                                            projectData.projectName,
-                                                                        )
-                                                                    }
+                                            {/* Active filters indicator */}
+                                            {(selectedVillageFilter ||
+                                                selectedFacilitatorFilter) && (
+                                                <div className="mb-3 flex flex-wrap gap-2">
+                                                    {selectedVillageFilter && (
+                                                        <div className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                                                            <span>
+                                                                Village:{" "}
+                                                                {
+                                                                    selectedVillageFilter
+                                                                }
+                                                            </span>
+                                                            <button
+                                                                onClick={() =>
+                                                                    setSelectedVillageFilter(
+                                                                        null,
+                                                                    )
+                                                                }
+                                                                className="ml-2 hover:text-blue-900"
+                                                            >
+                                                                <svg
+                                                                    className="w-3 h-3"
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
                                                                 >
-                                                                    <div className="flex items-center">
-                                                                        <div className="flex-1">
-                                                                            <div className="flex items-center">
-                                                                                <h3 className="font-medium text-gray-900 mr-2">
-                                                                                    {
-                                                                                        plan.plan
-                                                                                    }
-                                                                                </h3>
-                                                                                {selectedPlanId ===
-                                                                                    plan.id && (
-                                                                                    <svg
-                                                                                        className="w-5 h-5 text-blue-600"
-                                                                                        fill="currentColor"
-                                                                                        viewBox="0 0 20 20"
-                                                                                    >
-                                                                                        <path
-                                                                                            fillRule="evenodd"
-                                                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                            clipRule="evenodd"
-                                                                                        />
-                                                                                    </svg>
-                                                                                )}
-                                                                            </div>
-                                                                            <div className="text-sm text-gray-600 mt-1">
+                                                                    <path
+                                                                        fillRule="evenodd"
+                                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                        clipRule="evenodd"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    {selectedFacilitatorFilter && (
+                                                        <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                                                            <span>
+                                                                Facilitator:{" "}
+                                                                {
+                                                                    selectedFacilitatorFilter
+                                                                }
+                                                            </span>
+                                                            <button
+                                                                onClick={() =>
+                                                                    setSelectedFacilitatorFilter(
+                                                                        null,
+                                                                    )
+                                                                }
+                                                                className="ml-2 hover:text-green-900"
+                                                            >
+                                                                <svg
+                                                                    className="w-3 h-3"
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
+                                                                >
+                                                                    <path
+                                                                        fillRule="evenodd"
+                                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                        clipRule="evenodd"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className="space-y-2">
+                                                {applyFilters(
+                                                    projectData.plans,
+                                                ).map((plan) => (
+                                                    <div
+                                                        key={plan.id}
+                                                        className={`border rounded-2xl p-4 transition-all ${
+                                                            selectedPlanId ===
+                                                            plan.id
+                                                                ? "border-blue-500 bg-blue-50"
+                                                                : "border-gray-200 hover:border-gray-300"
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <div
+                                                                className="flex-1 cursor-pointer"
+                                                                onClick={() =>
+                                                                    handlePlanSelect(
+                                                                        plan,
+                                                                        projectData.projectId,
+                                                                        projectData.projectName,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <div className="flex items-center">
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center">
+                                                                            <h3 className="font-medium text-gray-900 mr-2">
                                                                                 {
-                                                                                    plan.village_name
-                                                                                }{" "}
-                                                                                •{" "}
-                                                                                {
-                                                                                    plan.facilitator_name
+                                                                                    plan.plan
                                                                                 }
-                                                                            </div>
+                                                                            </h3>
+                                                                            {selectedPlanId ===
+                                                                                plan.id && (
+                                                                                <svg
+                                                                                    className="w-5 h-5 text-blue-600"
+                                                                                    fill="currentColor"
+                                                                                    viewBox="0 0 20 20"
+                                                                                >
+                                                                                    <path
+                                                                                        fillRule="evenodd"
+                                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                        clipRule="evenodd"
+                                                                                    />
+                                                                                </svg>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="text-sm text-gray-600 mt-1">
+                                                                            {
+                                                                                plan.village_name
+                                                                            }{" "}
+                                                                            •{" "}
+                                                                            {
+                                                                                plan.facilitator_name
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
-                                                                <button
-                                                                    onClick={(
-                                                                        e,
-                                                                    ) => {
-                                                                        e.stopPropagation();
-                                                                        fetchPlanDetails(
-                                                                            projectData.projectId,
-                                                                            plan.id,
-                                                                            projectData.projectName,
-                                                                        );
-                                                                    }}
-                                                                    className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                                    title="View Details"
-                                                                >
-                                                                    <svg
-                                                                        className="w-4 h-4 text-gray-500"
-                                                                        fill="currentColor"
-                                                                        viewBox="0 0 20 20"
-                                                                    >
-                                                                        <path
-                                                                            fillRule="evenodd"
-                                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                            clipRule="evenodd"
-                                                                        />
-                                                                    </svg>
-                                                                </button>
                                                             </div>
+
+                                                            <button
+                                                                onClick={(
+                                                                    e,
+                                                                ) => {
+                                                                    e.stopPropagation();
+                                                                    fetchPlanDetails(
+                                                                        projectData.projectId,
+                                                                        plan.id,
+                                                                        projectData.projectName,
+                                                                    );
+                                                                }}
+                                                                className="ml-3 p-1 hover:bg-gray-100 rounded-full"
+                                                                title="View Details"
+                                                            >
+                                                                <svg
+                                                                    className="w-4 h-4 text-gray-500"
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
+                                                                >
+                                                                    <path
+                                                                        fillRule="evenodd"
+                                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                                        clipRule="evenodd"
+                                                                    />
+                                                                </svg>
+                                                            </button>
                                                         </div>
-                                                    ),
-                                                )}
+                                                    </div>
+                                                ))}
                                             </div>
 
                                             {projectIndex <
