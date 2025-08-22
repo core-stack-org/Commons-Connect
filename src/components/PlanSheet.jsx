@@ -82,12 +82,38 @@ const PlanSheet = ({ isOpen, onClose }) => {
         async (projectId) => {
             setLoading(true);
             try {
-                const url = `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/`;
+                let url = `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/`;
+                if (blockId) {
+                    url += `?block=${blockId}`;
+                }
+
                 const response =
                     await authService.makeAuthenticatedRequest(url);
 
                 if (response.ok) {
-                    const plans = await response.json();
+                    let plans = await response.json();
+
+                    if (blockId && plans.length > 0) {
+                        const hasBlockProperty = plans.some((plan) =>
+                            Object.prototype.hasOwnProperty.call(plan, "block"),
+                        );
+                        if (hasBlockProperty) {
+                            const allPlansMatchBlock = plans.every(
+                                (plan) =>
+                                    plan.block === blockId ||
+                                    plan.block === parseInt(blockId),
+                            );
+
+                            if (!allPlansMatchBlock) {
+                                plans = plans.filter(
+                                    (plan) =>
+                                        plan.block === blockId ||
+                                        plan.block === parseInt(blockId),
+                                );
+                            }
+                        }
+                    }
+
                     setProjectPlans([
                         {
                             projectId: projectId,
@@ -113,7 +139,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                 setLoading(false);
             }
         },
-        [userData],
+        [userData, blockId],
     );
 
     const handleOrgAdminProjects = useCallback(() => {
@@ -146,12 +172,41 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
             for (const project of userData.project_details) {
                 try {
-                    const url = `${import.meta.env.VITE_API_URL}projects/${project.project_id}/watershed/plans/`;
+                    let url = `${import.meta.env.VITE_API_URL}projects/${project.project_id}/watershed/plans/`;
+                    if (blockId) {
+                        url += `?block=${blockId}`;
+                    }
+
                     const response =
                         await authService.makeAuthenticatedRequest(url);
 
                     if (response.ok) {
-                        const plans = await response.json();
+                        let plans = await response.json();
+
+                        if (blockId && plans.length > 0) {
+                            const hasBlockProperty = plans.some((plan) =>
+                                Object.prototype.hasOwnProperty.call(
+                                    plan,
+                                    "block",
+                                ),
+                            );
+                            if (hasBlockProperty) {
+                                const allPlansMatchBlock = plans.every(
+                                    (plan) =>
+                                        plan.block === blockId ||
+                                        plan.block === parseInt(blockId),
+                                );
+
+                                if (!allPlansMatchBlock) {
+                                    plans = plans.filter(
+                                        (plan) =>
+                                            plan.block === blockId ||
+                                            plan.block === parseInt(blockId),
+                                    );
+                                }
+                            }
+                        }
+
                         allPlans.push({
                             projectId: project.project_id,
                             projectName: project.project_name,
@@ -174,7 +229,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         } finally {
             setLoading(false);
         }
-    }, [userData]);
+    }, [userData, blockId]);
 
     useEffect(() => {
         if (isOpen) {
@@ -427,7 +482,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                 <div className="p-6 pb-8">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold text-gray-900">
-                            Plan Details
+                            {t("Plan Details")}
                         </h2>
                         <button
                             onClick={() => setShowPlanDetails(null)}
@@ -454,7 +509,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             <div className="space-y-3">
                                 <div>
                                     <div className="text-sm text-gray-600 mb-1">
-                                        Organization
+                                        {t("Organization")}
                                     </div>
                                     <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                         {isSuperAdmin
@@ -464,7 +519,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                 </div>
                                 <div>
                                     <div className="text-sm text-gray-600 mb-1">
-                                        Project
+                                        {t("Project")}
                                     </div>
                                     <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                         {currentProjectName ||
@@ -481,7 +536,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                 <div>
                                     <span className="font-medium text-gray-600">
-                                        Village:
+                                        {t("Village")}:
                                     </span>
                                     <span className="ml-2 text-gray-900">
                                         {showPlanDetails.village_name}
@@ -489,7 +544,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                 </div>
                                 <div>
                                     <span className="font-medium text-gray-600">
-                                        Gram Panchayat:
+                                        {t("Gram Panchayat")}:
                                     </span>
                                     <span className="ml-2 text-gray-900">
                                         {showPlanDetails.gram_panchayat}
@@ -497,7 +552,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                 </div>
                                 <div>
                                     <span className="font-medium text-gray-600">
-                                        Facilitator:
+                                        {t("Facilitator")}:
                                     </span>
                                     <span className="ml-2 text-gray-900">
                                         {showPlanDetails.facilitator_name}
@@ -505,7 +560,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                 </div>
                                 <div>
                                     <span className="font-medium text-gray-600">
-                                        Created:
+                                        {t("Created At")}:
                                     </span>
                                     <span className="ml-2 text-gray-900">
                                         {formatDate(showPlanDetails.created_at)}
@@ -516,32 +571,32 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                         <div className="bg-gray-50 rounded-2xl p-4">
                             <h4 className="font-medium text-gray-900 mb-3">
-                                Status
+                                {t("Status")}
                             </h4>
                             <div className="grid grid-cols-2 gap-2 text-sm">
                                 <div className="flex items-center">
                                     <div
                                         className={`w-3 h-3 rounded-full mr-2 ${showPlanDetails.is_completed ? "bg-green-500" : "bg-gray-300"}`}
                                     ></div>
-                                    <span>Completed</span>
+                                    <span>{t("Plan Completed")}</span>
                                 </div>
                                 <div className="flex items-center">
                                     <div
                                         className={`w-3 h-3 rounded-full mr-2 ${showPlanDetails.is_dpr_generated ? "bg-green-500" : "bg-gray-300"}`}
                                     ></div>
-                                    <span>DPR Generated</span>
+                                    <span>{t("DPR Generated")}</span>
                                 </div>
                                 <div className="flex items-center">
                                     <div
                                         className={`w-3 h-3 rounded-full mr-2 ${showPlanDetails.is_dpr_reviewed ? "bg-green-500" : "bg-gray-300"}`}
                                     ></div>
-                                    <span>DPR Reviewed</span>
+                                    <span>{t("DPR Reviewed")}</span>
                                 </div>
                                 <div className="flex items-center">
                                     <div
                                         className={`w-3 h-3 rounded-full mr-2 ${showPlanDetails.is_dpr_approved ? "bg-green-500" : "bg-gray-300"}`}
                                     ></div>
-                                    <span>DPR Approved</span>
+                                    <span>{t("DPR Approved")}</span>
                                 </div>
                             </div>
                         </div>
@@ -549,12 +604,12 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 mt-4">
                         <h4 className="font-medium text-gray-900 mb-3">
-                            Location Details
+                            {t("Location Details")}
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                             <div>
                                 <span className="font-medium text-gray-600">
-                                    State ID:
+                                    {t("State ID")}:
                                 </span>
                                 <span className="ml-2 text-gray-900">
                                     {showPlanDetails.state}
@@ -562,7 +617,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             </div>
                             <div>
                                 <span className="font-medium text-gray-600">
-                                    District ID:
+                                    {t("District ID")}:
                                 </span>
                                 <span className="ml-2 text-gray-900">
                                     {showPlanDetails.district}
@@ -570,7 +625,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             </div>
                             <div>
                                 <span className="font-medium text-gray-600">
-                                    Tehsil ID:
+                                    {t("Tehsil ID")}:
                                 </span>
                                 <span className="ml-2 text-gray-900">
                                     {showPlanDetails.block}
@@ -643,7 +698,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <div className="text-sm text-gray-600 mb-1">
-                                                        Current Project
+                                                        {t("Current Project")}
                                                     </div>
                                                     <div className="text-lg font-semibold text-gray-900">
                                                         {selectedProject
@@ -675,7 +730,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                         <div className="space-y-3">
                                             <div>
                                                 <div className="text-sm text-gray-600 mb-1">
-                                                    Organization
+                                                    {t("Organization")}
                                                 </div>
                                                 <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                     {selectedProject
@@ -685,7 +740,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             </div>
                                             <div>
                                                 <div className="text-sm text-gray-600 mb-1">
-                                                    Project
+                                                    {t("Project")}
                                                 </div>
                                                 <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                     {selectedProject
@@ -698,13 +753,14 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                                     <div className="text-center mb-4">
                                         <div className="text-xs text-purple-700 bg-purple-100 px-3 py-1 rounded-full inline-block">
-                                            Super Administrator
+                                            {t("Super Administrator")}
                                         </div>
                                     </div>
 
                                     <div className="mb-3">
                                         <h3 className="text-lg font-semibold text-gray-900">
-                                            Plans (Tehsil: {blockId})
+                                            {t("Plans")} ({t("Tehsil")}:{" "}
+                                            {blockId})
                                         </h3>
                                     </div>
 
@@ -817,8 +873,9 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             </>
                         ) : isSuperAdmin && !blockId ? (
                             <div className="text-center py-8 text-gray-500">
-                                Please provide a tehsil ID in the URL (e.g.,
-                                ?block=311011) to view plans.
+                                {t(
+                                    "No tehsil ID provided, please contact: support@core-stack.org",
+                                )}
                             </div>
                         ) : isOrgAdmin ? (
                             /* Organization Admin view */
@@ -835,7 +892,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <div className="text-sm text-gray-600 mb-1">
-                                                        Current Project
+                                                        {t("Current Project")}
                                                     </div>
                                                     <div className="text-lg font-semibold text-gray-900">
                                                         {selectedProject
@@ -871,7 +928,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 <div className="space-y-3">
                                                     <div>
                                                         <div className="text-sm text-gray-600 mb-1">
-                                                            Organization
+                                                            {t("Organization")}
                                                         </div>
                                                         <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                             {organizationName}
@@ -879,7 +936,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                     </div>
                                                     <div>
                                                         <div className="text-sm text-gray-600 mb-1">
-                                                            Project
+                                                            {t("Project")}
                                                         </div>
                                                         <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                             {
@@ -892,13 +949,15 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                                             <div className="text-center mb-4">
                                                 <div className="text-xs text-blue-700 bg-blue-100 px-3 py-1 rounded-full inline-block">
-                                                    Organization Administrator
+                                                    {t(
+                                                        "Organization Administrator",
+                                                    )}
                                                 </div>
                                             </div>
 
                                             <div className="mb-3">
                                                 <h3 className="text-lg font-semibold text-gray-900">
-                                                    Plans
+                                                    {t("Plans")}
                                                 </h3>
                                             </div>
 
@@ -1023,7 +1082,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 <div className="space-y-3">
                                                     <div>
                                                         <div className="text-sm text-gray-600 mb-1">
-                                                            Organization
+                                                            {t("Organization")}
                                                         </div>
                                                         <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                             {organizationName}
@@ -1031,7 +1090,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                     </div>
                                                     <div>
                                                         <div className="text-sm text-gray-600 mb-1">
-                                                            Project
+                                                            {t("Project")}
                                                         </div>
                                                         <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                                             {
@@ -1044,7 +1103,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                                             <div className="mb-3">
                                                 <h3 className="text-lg font-semibold text-gray-900">
-                                                    Plans
+                                                    {t("Plans")}
                                                 </h3>
                                             </div>
 
@@ -1149,7 +1208,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                                 {projectPlans.length === 0 && !loading && (
                                     <div className="text-center py-8 text-gray-500">
-                                        No plans found for your projects.
+                                        {t("No plans found for your projects.")}
                                     </div>
                                 )}
                             </>
