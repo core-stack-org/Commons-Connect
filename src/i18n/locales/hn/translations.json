@@ -123,6 +123,12 @@
     "Organization Administrator": "संगठन एडमिनिस्ट्रेटर",
     "No tehsil ID provided, please contact: support@core-stack.org": "कोई तहसील आईडी प्रदान नहीं किया गया है, कृपया संपर्क करें: support@core-stack.org",
     "No plans found for your projects.": "आपके परियोजनाओं के लिए कोई प्लान नहीं मिला।",
+    "Filter by facilitator": "सहायक द्वारा फ़िल्टर करें",
+    "Filter by village": "गांव द्वारा फ़िल्टर करें",
+    "Select Facilitator": "सहायक चुनें",
+    "Select Village": "गांव चुनें",
+    "Clear all filters": "सभी फ़िल्टर हटाएँ",
+    "Select Project": "परियोजना चुनें",
 
     "Select Active Layers": "सेलेक्ट एक्टिव लेयर",
     "Well Depth Layer": "वेल डेप्थ लेयर",
