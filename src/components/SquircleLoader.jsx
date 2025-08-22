@@ -9,6 +9,8 @@ const PerimeterProgress = ({
     borderRadius = 5,
     animationDuration = 300,
     useSpring = false,
+    continuous = false,
+    segmentLength = 10,
     style,
 }) => {
     const [currentProgress, setCurrentProgress] = useState(0);
@@ -65,7 +67,9 @@ const PerimeterProgress = ({
         requestAnimationFrame(animate);
     }, [progress, useSpring, animationDuration, currentProgress]);
 
-    const strokeDashoffset = ((100 - currentProgress) / 100) * perimeter;
+    const strokeDashoffset = continuous
+        ? -(currentProgress / 100) * perimeter
+        : ((100 - currentProgress) / 100) * perimeter;
 
     return (
         <svg width={size} height={size} style={style}>
@@ -93,7 +97,11 @@ const PerimeterProgress = ({
                 fill="none"
                 stroke={progressColor}
                 strokeWidth={strokeWidth}
-                strokeDasharray={`${perimeter} ${perimeter}`}
+                strokeDasharray={
+                    continuous
+                        ? `${(segmentLength / 100) * perimeter} ${perimeter - (segmentLength / 100) * perimeter}`
+                        : `${perimeter} ${perimeter}`
+                }
                 strokeDashoffset={strokeDashoffset}
                 strokeLinecap="round"
                 transform={`rotate(-90 ${size / 2} ${size / 2})`}
@@ -116,13 +124,14 @@ const SquircleLoader = ({
     strokeWidth = 4,
     color = "#667eea",
     backgroundColor = "#e2e8f0",
-    speed = 2000,
+    speed = 1000,
+    segmentLength = 25,
 }) => {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setProgress((prev) => (prev >= 100 ? 0 : prev + 2));
+            setProgress((prev) => prev + 1);
         }, speed / 50);
 
         return () => clearInterval(interval);
@@ -137,6 +146,8 @@ const SquircleLoader = ({
             backgroundColor={backgroundColor}
             animationDuration={speed / 25}
             useSpring={false}
+            continuous={true}
+            segmentLength={segmentLength}
         />
     );
 };
