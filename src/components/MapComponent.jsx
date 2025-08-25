@@ -1677,7 +1677,7 @@ const MapComponent = () => {
 
             if (AgriLayersRefs[0].current === null) {
                 let CroppingIntensity = await getWebglVectorLayers(
-                    "cropping_intensity",
+                    "crop_intensity",
                     `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}_intensity`,
                     true,
                     true,
