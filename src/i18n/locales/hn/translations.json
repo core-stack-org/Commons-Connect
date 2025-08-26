@@ -129,6 +129,13 @@
     "Select Village": "गांव चुनें",
     "Clear all filters": "सभी फ़िल्टर हटाएँ",
     "Select Project": "परियोजना चुनें",
+    "Some projects are not for Tehsil ID": "कुछ परियोजनाएं तहसील आईडी के लिए नहीं हैं: ",
+    "Please select the right Tehsil to view plans from the respective projects.": "कृपया सही तहसील का चयन करें ताकि आप अपने परियोजनाओं से संबंधित प्लान देख सकें।",
+    "No plans found for Tehsil ID:": "तहसील आईडी के लिए कोई प्लान नहीं मिला:",
+    "View Plans": "प्लान देखें",
+    "Select Organization Project": "संगठन की परियोजना चुनें",
+    "Authentication not loaded": "सत्यापन लोड नहीं हुआ है",
+    "Please re-submit the location from location selection screen to continue.": "कृपया स्थान को स्थान चयन स्क्रीन से पुनर्सम्बन्धित करें।",
 
     "Select Active Layers": "सेलेक्ट एक्टिव लेयर",
     "Well Depth Layer": "वेल डेप्थ लेयर",

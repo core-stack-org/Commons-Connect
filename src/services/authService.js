@@ -203,7 +203,6 @@ class AuthService {
         const headers = {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "1",
             ...options.headers,
         };
 
