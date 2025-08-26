@@ -60,7 +60,6 @@ const InfoBox = () => {
             fetch(`${import.meta.env.VITE_API_URL}generate_dpr/`, {
                 method: "POST",
                 headers: {
-                    "ngrok-skip-browser-warning": "1",
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(body),

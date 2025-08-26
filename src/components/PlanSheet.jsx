@@ -20,6 +20,9 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const [showProjectSelector, setShowProjectSelector] = useState(false);
     const [availableProjects, setAvailableProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
+    const [projectTehsilWarnings, setProjectTehsilWarnings] = useState(
+        new Map(),
+    );
 
     const [showFilterMenu, setShowFilterMenu] = useState(false);
     const [showVillageFilter, setShowVillageFilter] = useState(false);
@@ -38,6 +41,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         false;
     const blockId = searchParams.get("block_id");
 
+    // MARK: Super Admin
     const fetchGlobalPlans = useCallback(async () => {
         setLoading(true);
         try {
@@ -69,6 +73,24 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                 setAvailableProjects(uniqueProjects);
 
+                if (blockId && uniqueProjects.length > 0) {
+                    const warningsMap = new Map();
+                    for (const project of uniqueProjects) {
+                        const projectPlans = plans.filter(
+                            (plan) => plan.project === project.id,
+                        );
+                        const hasMatchingPlans = projectPlans.some(
+                            (plan) =>
+                                plan.block === blockId ||
+                                plan.block === parseInt(blockId),
+                        );
+                        if (!hasMatchingPlans) {
+                            warningsMap.set(project.id, true);
+                        }
+                    }
+                    setProjectTehsilWarnings(warningsMap);
+                }
+
                 if (uniqueProjects.length === 1) {
                     setSelectedProject(uniqueProjects[0]);
                 } else if (uniqueProjects.length > 1) {
@@ -87,6 +109,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         }
     }, [blockId]);
 
+    // MARK: Org Admin
     const fetchOrgAdminPlans = useCallback(
         async (projectId) => {
             setLoading(true);
@@ -151,13 +174,55 @@ const PlanSheet = ({ isOpen, onClose }) => {
         [userData, blockId],
     );
 
-    const handleOrgAdminProjects = useCallback(() => {
+    const checkProjectTehsilMatch = useCallback(
+        async (projectId) => {
+            if (!blockId) return true;
+
+            try {
+                let url = `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/`;
+                const response =
+                    await authService.makeAuthenticatedRequest(url);
+
+                if (response.ok) {
+                    const plans = await response.json();
+                    const hasMatchingPlans = plans.some(
+                        (plan) =>
+                            plan.block === blockId ||
+                            plan.block === parseInt(blockId),
+                    );
+                    return hasMatchingPlans;
+                }
+            } catch (error) {
+                console.error(
+                    `Error checking project ${projectId} tehsil match:`,
+                    error,
+                );
+            }
+            return false;
+        },
+        [blockId],
+    );
+
+    // MARK: Org Admin
+    const handleOrgAdminProjects = useCallback(async () => {
         if (userData?.project_details && userData.project_details.length > 1) {
             const projects = userData.project_details.map((project) => ({
                 id: project.project_id,
                 name: project.project_name,
                 organization_name: organizationName,
             }));
+
+            if (blockId && (isSuperAdmin || isOrgAdmin)) {
+                const warningsMap = new Map();
+                for (const project of projects) {
+                    const hasMatch = await checkProjectTehsilMatch(project.id);
+                    if (!hasMatch) {
+                        warningsMap.set(project.id, true);
+                    }
+                }
+                setProjectTehsilWarnings(warningsMap);
+            }
+
             setAvailableProjects(projects);
             setShowProjectSelector(true);
         } else if (
@@ -172,8 +237,17 @@ const PlanSheet = ({ isOpen, onClose }) => {
             });
             fetchOrgAdminPlans(project.project_id);
         }
-    }, [userData, organizationName, fetchOrgAdminPlans]);
+    }, [
+        userData,
+        organizationName,
+        fetchOrgAdminPlans,
+        blockId,
+        checkProjectTehsilMatch,
+        isSuperAdmin,
+        isOrgAdmin,
+    ]);
 
+    // MARK: Regular Users
     const fetchAllProjectPlans = useCallback(async () => {
         setLoading(true);
         try {
@@ -249,6 +323,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
             } else if (userData?.project_details) {
                 fetchAllProjectPlans();
             }
+        } else {
+            setProjectTehsilWarnings(new Map());
         }
     }, [
         isOpen,
@@ -328,38 +404,20 @@ const PlanSheet = ({ isOpen, onClose }) => {
     };
 
     const handlePlanSelect = (plan) => {
-        console.log("PlanSheet - Selecting plan:", plan);
-        console.log("PlanSheet - Is superadmin:", isSuperAdmin);
-
         setSelectedPlanId(plan.id);
 
-        if (isSuperAdmin) {
-            console.log(
-                "PlanSheet - Superadmin flow - Current store plans:",
-                MainStore.plans,
-            );
-
+        if (isSuperAdmin || isOrgAdmin) {
             const currentPlans = MainStore.plans || [];
             const planExists = currentPlans.find((p) => p.id === plan.id);
-            console.log("PlanSheet - Plan exists in store:", planExists);
 
             if (!planExists) {
-                console.log("PlanSheet - Adding plan to store");
                 useMainStore.setState((state) => ({
                     plans: [...(state.plans || []), plan],
                 }));
             }
         }
 
-        console.log("PlanSheet - Calling setCurrentPlan with ID:", plan.id);
         MainStore.setCurrentPlan(plan.id);
-
-        setTimeout(() => {
-            console.log(
-                "PlanSheet - Current plan after setting:",
-                MainStore.currentPlan,
-            );
-        }, 100);
 
         onClose();
     };
@@ -637,7 +695,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold text-gray-900">
                             {isOrgAdmin
-                                ? "Select Organization Project"
+                                ? t("Select Organization Project")
                                 : t("Select Project")}
                         </h2>
                         <button
@@ -660,21 +718,86 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         </button>
                     </div>
 
+                    {blockId &&
+                        (isSuperAdmin || isOrgAdmin) &&
+                        projectTehsilWarnings.size > 0 && (
+                            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                                <div className="flex items-start space-x-2">
+                                    <svg
+                                        className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-amber-800">
+                                            {t(
+                                                "Some projects are not for Tehsil ID",
+                                            )}{" "}
+                                            {blockId}
+                                        </p>
+                                        <p className="text-xs text-amber-700 mt-1">
+                                            {t(
+                                                "Please select the right Tehsil to view plans from the respective projects.",
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                     <div className="space-y-3">
                         {availableProjects.map((project) => (
                             <div
                                 key={project.id}
                                 onClick={() => handleProjectSelection(project)}
-                                className="border border-gray-200 rounded-2xl p-4 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                                className={`border rounded-2xl p-4 cursor-pointer transition-all ${
+                                    projectTehsilWarnings.has(project.id)
+                                        ? "border-amber-200 bg-amber-50 hover:border-amber-300 hover:bg-amber-100"
+                                        : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                                }`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="font-medium text-gray-900">
-                                            {project.name}
-                                        </h3>
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-2">
+                                            <h3 className="font-medium text-gray-900">
+                                                {project.name}
+                                            </h3>
+                                            {projectTehsilWarnings.has(
+                                                project.id,
+                                            ) && (
+                                                <svg
+                                                    className="w-4 h-4 text-amber-500"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            )}
+                                        </div>
                                         <p className="text-sm text-gray-600">
                                             {project.organization_name}
                                         </p>
+                                        {projectTehsilWarnings.has(
+                                            project.id,
+                                        ) &&
+                                            blockId && (
+                                                <p className="text-xs text-amber-600 mt-1">
+                                                    {t(
+                                                        "No plans found for Tehsil ID:",
+                                                    )}{" "}
+                                                    {blockId}
+                                                </p>
+                                            )}
                                     </div>
                                     {isSuperAdmin && (
                                         <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
@@ -683,7 +806,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                     )}
                                     {isOrgAdmin && (
                                         <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                            View Plans
+                                            {t("View Plans")}
                                         </div>
                                     )}
                                 </div>
@@ -907,7 +1030,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         {t("Select Plan")}{" "}
                         {isSuperAdmin &&
                             blockId &&
-                            `(${t("Tehsil")}: ${blockId})`}
+                            `(${t("Tehsil ID")}: ${blockId})`}
                     </h2>
                     <button
                         onClick={onClose}
@@ -1019,7 +1142,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                                     <div className="mb-3 flex items-center justify-between">
                                         <h3 className="text-lg font-semibold text-gray-900">
-                                            {t("Plans")} ({t("Tehsil")}:{" "}
+                                            {t("Plans")} ({t("Tehsil ID")}:{" "}
                                             {blockId})
                                         </h3>
                                         <div className="relative">
