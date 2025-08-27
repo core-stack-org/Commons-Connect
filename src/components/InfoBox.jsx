@@ -512,7 +512,6 @@ const InfoBox = () => {
                                     </button>
                                 </div>
 
-                                {/* Current Language Display with Purple Treatment */}
                                 {currentLanguage && (
                                     <div
                                         className="rounded-2xl p-4"
@@ -610,24 +609,25 @@ const InfoBox = () => {
 
                         {currentMenuOption === "download dpr" && (
                             <div className="space-y-4">
-                                {/* DPR Status Card */}
                                 {currentPlan ? (
                                     <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-4 mb-4">
                                         <h4 className="font-medium text-gray-900 mb-3">
-                                            DPR Status
+                                            {t("DPR Status")}
                                         </h4>
                                         <div className="grid grid-cols-2 gap-4 text-sm">
                                             <div className="flex items-center">
                                                 <div
                                                     className={`w-3 h-3 rounded-full mr-2 ${currentPlan.is_dpr_generated ? "bg-green-500" : "bg-gray-300"}`}
                                                 ></div>
-                                                <span>DPR Generated</span>
+                                                <span>
+                                                    {t("DPR Generated")}
+                                                </span>
                                             </div>
                                             <div className="flex items-center">
                                                 <div
                                                     className={`w-3 h-3 rounded-full mr-2 ${currentPlan.is_dpr_reviewed ? "bg-green-500" : "bg-gray-300"}`}
                                                 ></div>
-                                                <span>DPR Reviewed</span>
+                                                <span>{t("DPR Reviewed")}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1029,7 +1029,6 @@ const InfoBox = () => {
                                     )}
                                 </div>
 
-                                {/* File Requirements Section with Purple Treatment */}
                                 <div
                                     className="rounded-2xl p-4"
                                     style={{ backgroundColor: "#C9BACE" }}

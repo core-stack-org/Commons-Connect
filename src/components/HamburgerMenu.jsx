@@ -55,7 +55,7 @@ const HamburgerMenu = ({ open, onClose }) => {
 
             {/* Sidebar panel */}
             <aside
-                className={`fixed left-0 top-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ${
+                className={`fixed left-0 top-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 rounded-br-2xl ${
                     open ? "translate-x-0" : "-translate-x-full"
                 }`}
             >
@@ -114,7 +114,7 @@ const HamburgerMenu = ({ open, onClose }) => {
                             onClose();
                             setIsInfoOpen(true);
                         }}
-                        className="w-full flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md"
+                        className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm hover:shadow-md"
                     >
                         <div className="flex items-center gap-3">
                             <Globe size={18} style={{ color: "#592941" }} />
@@ -129,7 +129,7 @@ const HamburgerMenu = ({ open, onClose }) => {
                             onClose();
                             setIsInfoOpen(true);
                         }}
-                        className="w-full flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md"
+                        className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm hover:shadow-md"
                     >
                         <div className="flex items-center gap-3">
                             <FileText size={18} style={{ color: "#592941" }} />
@@ -144,7 +144,7 @@ const HamburgerMenu = ({ open, onClose }) => {
                             onClose();
                             setIsInfoOpen(true);
                         }}
-                        className="w-full flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md"
+                        className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm hover:shadow-md"
                     >
                         <div className="flex items-center gap-3">
                             <UploadCloud
