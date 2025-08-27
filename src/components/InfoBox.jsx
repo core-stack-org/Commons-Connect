@@ -367,8 +367,12 @@ const InfoBox = () => {
                         ? currentMenuOption === "language"
                             ? t("Select Language")
                             : currentMenuOption === "download dpr"
-                              ? "Generate Pre-DPR"
-                              : "Upload KML"
+                              ? t("Generate pre-DPR")
+                              : currentMenuOption === "upload kml"
+                                ? t("Upload KML")
+                                : currentMenuOption === "information"
+                                  ? t("Information")
+                                  : t("Information")
                         : t("Information")}
                 </h2>
 
@@ -387,7 +391,7 @@ const InfoBox = () => {
                 {currentMenuOption ? (
                     <div className="text-center space-y-4">
                         {currentMenuOption === "language" && (
-                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
+                            <div className="space-y-4">
                                 {/* Header Section */}
                                 <div className="text-center space-y-2">
                                     <p className="text-sm text-gray-600">
@@ -484,7 +488,10 @@ const InfoBox = () => {
                                     <button
                                         onClick={handleApplyLanguage}
                                         disabled={!selectedLanguage}
-                                        className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
+                                        className="w-full py-3 px-4 text-white rounded-2xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
+                                        style={{
+                                            backgroundColor: "#592941",
+                                        }}
                                     >
                                         <div className="flex items-center justify-center space-x-2">
                                             <svg
@@ -505,71 +512,72 @@ const InfoBox = () => {
                                     </button>
                                 </div>
 
-                                {/* Current Language Display */}
+                                {/* Current Language Display with Purple Treatment */}
                                 {currentLanguage && (
-                                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                        <div className="flex items-center space-x-2">
+                                    <div
+                                        className="rounded-2xl p-4"
+                                        style={{ backgroundColor: "#C9BACE" }}
+                                    >
+                                        <div className="flex items-start space-x-3 text-black">
                                             <svg
-                                                className="w-5 h-5 text-gray-600"
-                                                fill="none"
-                                                stroke="currentColor"
+                                                className="w-6 h-6 mt-0.5 flex-shrink-0"
+                                                fill="currentColor"
                                                 viewBox="0 0 24 24"
                                             >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                />
+                                                <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
                                             </svg>
-                                            <p className="text-sm text-gray-700">
-                                                <span className="font-medium">
+                                            <div className="text-sm">
+                                                <p className="font-medium mb-2 text-left">
                                                     {t("Current Language")}:
-                                                </span>{" "}
-                                                {currentLanguage === "en"
-                                                    ? "English"
-                                                    : currentLanguage === "hi"
-                                                      ? "Hindi (हिन्दी)"
-                                                      : currentLanguage === "mr"
-                                                        ? "Marathi (मराठी)"
+                                                </p>
+                                                <p className="text-left">
+                                                    {currentLanguage === "en"
+                                                        ? "English"
                                                         : currentLanguage ===
-                                                            "bn"
-                                                          ? "Bengali (বাংলা)"
+                                                            "hi"
+                                                          ? "Hindi (हिन्दी)"
                                                           : currentLanguage ===
-                                                              "te"
-                                                            ? "Telugu (తెలుగు)"
+                                                              "mr"
+                                                            ? "Marathi (मराठी)"
                                                             : currentLanguage ===
-                                                                "ta"
-                                                              ? "Tamil (தமிழ்)"
+                                                                "bn"
+                                                              ? "Bengali (বাংলা)"
                                                               : currentLanguage ===
-                                                                  "gu"
-                                                                ? "Gujarati (ગુજરાતી)"
+                                                                  "te"
+                                                                ? "Telugu (తెలుగు)"
                                                                 : currentLanguage ===
-                                                                    "kn"
-                                                                  ? "Kannada (ಕನ್ನಡ)"
+                                                                    "ta"
+                                                                  ? "Tamil (தமிழ்)"
                                                                   : currentLanguage ===
-                                                                      "ml"
-                                                                    ? "Malayalam (മലയാളം)"
+                                                                      "gu"
+                                                                    ? "Gujarati (ગુજરાતી)"
                                                                     : currentLanguage ===
-                                                                        "pa"
-                                                                      ? "Punjabi (ਪੰਜਾਬੀ)"
+                                                                        "kn"
+                                                                      ? "Kannada (ಕನ್ನಡ)"
                                                                       : currentLanguage ===
-                                                                          "or"
-                                                                        ? "Odia (ଓଡ଼ିଆ)"
+                                                                          "ml"
+                                                                        ? "Malayalam (മലയാളം)"
                                                                         : currentLanguage ===
-                                                                            "as"
-                                                                          ? "Assamese (অসমীয়া)"
+                                                                            "pa"
+                                                                          ? "Punjabi (ਪੰਜਾਬੀ)"
                                                                           : currentLanguage ===
-                                                                              "ur"
-                                                                            ? "Urdu (اردو)"
+                                                                              "or"
+                                                                            ? "Odia (ଓଡ଼ିଆ)"
                                                                             : currentLanguage ===
-                                                                                "ne"
-                                                                              ? "Nepali (नेपाली)"
+                                                                                "as"
+                                                                              ? "Assamese (অসমীয়া)"
                                                                               : currentLanguage ===
-                                                                                  "si"
-                                                                                ? "Sinhala (සිංහල)"
-                                                                                : currentLanguage}
-                                            </p>
+                                                                                  "ur"
+                                                                                ? "Urdu (اردو)"
+                                                                                : currentLanguage ===
+                                                                                    "ne"
+                                                                                  ? "Nepali (नेपाली)"
+                                                                                  : currentLanguage ===
+                                                                                      "si"
+                                                                                    ? "Sinhala (සිංහල)"
+                                                                                    : currentLanguage}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -601,28 +609,74 @@ const InfoBox = () => {
                         )}
 
                         {currentMenuOption === "download dpr" && (
-                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
-                                {/* Header Section */}
-                                <div className="text-center space-y-2">
-                                    <p className="text-sm text-gray-600">
-                                        Enter your email to receive your DPR
-                                        document
-                                    </p>
-                                    {!currentPlan && (
-                                        <p className="text-sm text-red-600 font-medium">
-                                            Please select a plan first
+                            <div className="space-y-4">
+                                {/* DPR Status Card */}
+                                {currentPlan ? (
+                                    <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-4 mb-4">
+                                        <h4 className="font-medium text-gray-900 mb-3">
+                                            DPR Status
+                                        </h4>
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                            <div className="flex items-center">
+                                                <div
+                                                    className={`w-3 h-3 rounded-full mr-2 ${currentPlan.is_dpr_generated ? "bg-green-500" : "bg-gray-300"}`}
+                                                ></div>
+                                                <span>DPR Generated</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <div
+                                                    className={`w-3 h-3 rounded-full mr-2 ${currentPlan.is_dpr_reviewed ? "bg-green-500" : "bg-gray-300"}`}
+                                                ></div>
+                                                <span>DPR Reviewed</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-4 mb-4">
+                                        <div className="text-center">
+                                            <h4 className="font-medium text-gray-900 mb-2">
+                                                {t("Plan Selection Required")}
+                                            </h4>
+                                            <p className="text-gray-600 text-sm">
+                                                {t(
+                                                    "Please, select a plan first!",
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div
+                                    className="rounded-2xl p-4 mb-4"
+                                    style={{ backgroundColor: "#C9BACE" }}
+                                >
+                                    <div className="flex items-start space-x-3 text-black">
+                                        <svg
+                                            className="w-6 h-6 mt-0.5 flex-shrink-0"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
+                                        </svg>
+                                        <p className="text-sm leading-relaxed text-left">
+                                            {t(
+                                                "Enter your email to receive the DPR document.",
+                                            )}
                                         </p>
-                                    )}
+                                    </div>
                                 </div>
 
                                 {/* Input Section */}
-                                <div className="space-y-4">
+                                <div
+                                    className="rounded-2xl p-4 space-y-4"
+                                    style={{ border: "1px solid #592941" }}
+                                >
                                     <div className="relative">
                                         <label
                                             htmlFor="email-input"
-                                            className="block text-sm font-medium text-gray-700 mb-2"
+                                            className="block text-sm font-bold text-gray-700 mb-2"
                                         >
-                                            Email Address
+                                            {t("Enter your email address")}
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -649,7 +703,7 @@ const InfoBox = () => {
                                                     setEmail(e.target.value)
                                                 }
                                                 disabled={!currentPlan}
-                                                className={`w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${
+                                                className={`w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${
                                                     !currentPlan
                                                         ? "bg-gray-100 cursor-not-allowed opacity-60"
                                                         : ""
@@ -660,8 +714,9 @@ const InfoBox = () => {
                                             !isValidEmail(email) &&
                                             currentPlan && (
                                                 <p className="mt-1 text-sm text-red-600">
-                                                    Please enter a valid email
-                                                    address
+                                                    {t(
+                                                        "Please enter a valid email address",
+                                                    )}
                                                 </p>
                                             )}
                                     </div>
@@ -674,7 +729,7 @@ const InfoBox = () => {
                                             !isValidEmail(email) ||
                                             !currentPlan
                                         }
-                                        className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:transform-none disabled:opacity-60 disabled:cursor-not-allowed"
+                                        className="w-full py-3 px-4 rounded-2xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:transform-none disabled:opacity-60 disabled:cursor-not-allowed"
                                         style={{
                                             backgroundColor:
                                                 email &&
@@ -710,68 +765,57 @@ const InfoBox = () => {
                                                     d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                                 />
                                             </svg>
-                                            <span>{"Get DPR"}</span>
+                                            <span>{t("Get pre-DPR")}</span>
                                         </div>
                                     </button>
                                 </div>
 
-                                {/* Info Section */}
-                                <div
-                                    className={`border rounded-lg p-3 ${currentPlan ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"}`}
-                                >
-                                    <div className="flex items-start space-x-2">
-                                        <svg
-                                            className={`w-5 h-5 mt-0.5 flex-shrink-0 ${currentPlan ? "text-blue-600" : "text-gray-500"}`}
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                            />
-                                        </svg>
-                                        <div
-                                            className={`text-sm ${currentPlan ? "text-blue-800" : "text-gray-600"}`}
-                                        >
-                                            {currentPlan ? (
-                                                <>
-                                                    <p className="font-medium">
-                                                        What to expect:
-                                                    </p>
-                                                    <ul
-                                                        className={`mt-1 space-y-1 ${currentPlan ? "text-blue-700" : "text-gray-600"}`}
-                                                    >
-                                                        <li>
-                                                            • Document will be
-                                                            sent to your email
-                                                        </li>
-                                                        <li>
-                                                            • Processing may
-                                                            take 5-10 minutes
-                                                        </li>
-                                                        <li>
-                                                            • Check spam folder
-                                                            if not received
-                                                        </li>
-                                                    </ul>
-                                                </>
-                                            ) : (
-                                                <p className="font-medium">
-                                                    Please select a plan from
-                                                    the dropdown to generate DPR
+                                {currentPlan && (
+                                    <div
+                                        className="rounded-2xl p-4"
+                                        style={{ backgroundColor: "#C9BACE" }}
+                                    >
+                                        <div className="flex items-start space-x-3 text-black">
+                                            <svg
+                                                className="w-6 h-6 mt-0.5 flex-shrink-0"
+                                                fill="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
+                                            </svg>
+                                            <div className="text-sm">
+                                                <p className="font-medium mb-2 text-left">
+                                                    {t("What to expect")}:
                                                 </p>
-                                            )}
+                                                <ul className="space-y-1 text-left">
+                                                    <li>
+                                                        •{" "}
+                                                        {t(
+                                                            "Document will be sent to your email",
+                                                        )}
+                                                    </li>
+                                                    <li>
+                                                        •{" "}
+                                                        {t(
+                                                            "Processing may take 5 to 10 minutes",
+                                                        )}
+                                                    </li>
+                                                    <li>
+                                                        •{" "}
+                                                        {t(
+                                                            "Check spam folder if not received",
+                                                        )}
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         )}
 
                         {currentMenuOption === "upload kml" && (
-                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-4">
+                            <div className="space-y-4">
                                 {/* Header Section */}
                                 <div className="text-center space-y-2">
                                     <p className="text-sm text-gray-600">
@@ -985,27 +1029,24 @@ const InfoBox = () => {
                                     )}
                                 </div>
 
-                                {/* Info Section */}
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                    <div className="flex items-start space-x-2">
+                                {/* File Requirements Section with Purple Treatment */}
+                                <div
+                                    className="rounded-2xl p-4"
+                                    style={{ backgroundColor: "#C9BACE" }}
+                                >
+                                    <div className="flex items-start space-x-3 text-black">
                                         <svg
-                                            className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                                            fill="none"
-                                            stroke="currentColor"
+                                            className="w-6 h-6 mt-0.5 flex-shrink-0"
+                                            fill="currentColor"
                                             viewBox="0 0 24 24"
                                         >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                            />
+                                            <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
                                         </svg>
-                                        <div className="text-sm text-blue-800">
-                                            <p className="font-medium">
+                                        <div className="text-sm">
+                                            <p className="font-medium mb-2 text-left">
                                                 File Requirements:
                                             </p>
-                                            <ul className="mt-1 space-y-1 text-blue-700">
+                                            <ul className="space-y-1 text-left">
                                                 <li>
                                                     • Only .kml files are
                                                     supported
