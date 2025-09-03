@@ -8,6 +8,7 @@ import {
     Building2,
     FolderOpen,
     Shield,
+    PlayCircle,
 } from "lucide-react";
 import useMainStore from "../store/MainStore.jsx";
 import { useTranslation } from "react-i18next";
@@ -26,8 +27,9 @@ const HamburgerMenu = ({ open, onClose }) => {
 
     const project =
         userData?.project_details?.length > 0
-            ? userData.project_details[0].project_name ||
-              userData.project_details[0].title
+            ? userData.project_details
+                  .map((proj) => proj.project_name || proj.title)
+                  .join(", ")
             : "No Project";
     const role = (() => {
         if (userData?.groups?.length > 0) {
@@ -152,6 +154,26 @@ const HamburgerMenu = ({ open, onClose }) => {
                                 style={{ color: "#592941" }}
                             />
                             <span>{t("Upload KML")}</span>
+                        </div>
+                        <ChevronRight size={18} className="text-gray-400" />
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            window.open(
+                                "https://www.youtube.com/watch?v=ln7wpoW7Eg4&list=PLZ0pcz8ccRmIU8wHzHv-CbDOs4JOqgNHC",
+                                "_blank",
+                            );
+                            onClose();
+                        }}
+                        className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm hover:shadow-md"
+                    >
+                        <div className="flex items-center gap-3">
+                            <PlayCircle
+                                size={18}
+                                style={{ color: "#592941" }}
+                            />
+                            <span>{t("Tutorial")}</span>
                         </div>
                         <ChevronRight size={18} className="text-gray-400" />
                     </button>

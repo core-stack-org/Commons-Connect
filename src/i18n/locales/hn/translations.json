@@ -117,6 +117,7 @@
     "State ID": "राज्य आईडी",
     "District ID": "जिला आईडी",
     "Tehsil ID": "तहसील आईडी",
+    "Plan ID": "योजना आईडी",
     "Tehsil": "तहसील",
     "Current Project": "वर्तमान परियोजना",
     "Super Administrator": "सुपर एडमिनिस्ट्रेटर",
@@ -136,6 +137,7 @@
     "Select Organization Project": "संगठन की परियोजना चुनें",
     "Authentication not loaded": "सत्यापन लोड नहीं हुआ है",
     "Please re-submit the location from location selection screen to continue.": "कृपया स्थान को स्थान चयन स्क्रीन से पुनर्सम्बन्धित करें।",
+    "Test Plans: For training and practice purposes": "परीक्षण योजनाएं: शैक्षणिक और अभ्यास के लिए",
 
     "Select Active Layers": "सेलेक्ट एक्टिव लेयर",
     "Well Depth Layer": "वेल डेप्थ लेयर",
@@ -148,6 +150,7 @@
     "Water Body Layer": "वॉटर बॉडी लेयर",
 
     "Information": "जानकारी",
+    "Tutorial": "संरक्षक",
     "Step Information": "चरण संबंधी जानकारी",
     "Step": "स्टेप",
     "Plan Information": "योजना संबंधी जानकारी",

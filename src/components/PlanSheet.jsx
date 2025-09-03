@@ -30,6 +30,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const [selectedVillageFilter, setSelectedVillageFilter] = useState(null);
     const [selectedFacilitatorFilter, setSelectedFacilitatorFilter] =
         useState(null);
+    const [manuallyCleared, setManuallyCleared] = useState(false);
 
     const filterMenuRef = useRef(null);
 
@@ -316,6 +317,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         if (isOpen) {
+            setManuallyCleared(false);
             if (isSuperAdmin && blockId) {
                 fetchGlobalPlans();
             } else if (isOrgAdmin && userData?.project_details) {
@@ -363,6 +365,52 @@ const PlanSheet = ({ isOpen, onClose }) => {
             setSelectedPlanId(MainStore.currentPlan.id);
         }
     }, [MainStore.currentPlan]);
+
+    useEffect(() => {
+        if (
+            !isSuperAdmin &&
+            !isOrgAdmin &&
+            projectPlans.length > 0 &&
+            userData &&
+            !manuallyCleared
+        ) {
+            const userName = authService.getUserName();
+            if (userName && userName !== "No name found") {
+                const allFacilitatorNames = projectPlans.reduce(
+                    (facilitators, projectData) => {
+                        projectData.plans.forEach((plan) => {
+                            if (
+                                plan.facilitator_name &&
+                                !facilitators.includes(plan.facilitator_name)
+                            ) {
+                                facilitators.push(plan.facilitator_name);
+                            }
+                        });
+                        return facilitators;
+                    },
+                    [],
+                );
+
+                const matchedFacilitator = allFacilitatorNames.find(
+                    (facilitatorName) =>
+                        facilitatorName.toLowerCase() ===
+                        userName.toLowerCase(),
+                );
+
+                if (matchedFacilitator && !selectedFacilitatorFilter) {
+                    setSelectedFacilitatorFilter(matchedFacilitator);
+                }
+            }
+        }
+    }, [
+        projectPlans,
+        userData,
+        isSuperAdmin,
+        isOrgAdmin,
+        selectedFacilitatorFilter,
+        manuallyCleared,
+    ]);
+
     const fetchPlanDetails = async (projectId, planId, projectName) => {
         try {
             let url;
@@ -473,27 +521,41 @@ const PlanSheet = ({ isOpen, onClose }) => {
         return facilitators.sort();
     };
 
+    // MARK: check test plans
+    const isTestPlan = (plan) => {
+        const planName = plan.plan?.toLowerCase() || "";
+        return planName.includes("test plan") || planName.includes("test");
+    };
+
     const applyFilters = (plans) => {
-        let filteredPlans = [...plans];
+        const testPlans = plans.filter(isTestPlan);
+        const regularPlans = plans.filter((plan) => !isTestPlan(plan));
+
+        let filteredRegularPlans = [...regularPlans];
 
         if (selectedVillageFilter) {
-            filteredPlans = filteredPlans.filter(
+            filteredRegularPlans = filteredRegularPlans.filter(
                 (plan) => plan.village_name === selectedVillageFilter,
             );
         }
 
         if (selectedFacilitatorFilter) {
-            filteredPlans = filteredPlans.filter(
+            filteredRegularPlans = filteredRegularPlans.filter(
                 (plan) => plan.facilitator_name === selectedFacilitatorFilter,
             );
         }
 
-        return filteredPlans;
+        return {
+            regularPlans: filteredRegularPlans,
+            testPlans: testPlans,
+            hasTestPlans: testPlans.length > 0,
+        };
     };
 
     const clearFilters = () => {
         setSelectedVillageFilter(null);
         setSelectedFacilitatorFilter(null);
+        setManuallyCleared(true);
         setShowFilterMenu(false);
         setShowVillageFilter(false);
         setShowFacilitatorFilter(false);
@@ -512,11 +574,30 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const FilterMenu = () => {
         if (!showFilterMenu) return null;
 
+        const isRegularUser = !isSuperAdmin && !isOrgAdmin;
+        const hasActiveFilters =
+            selectedVillageFilter || selectedFacilitatorFilter;
+
         return (
             <div
                 ref={filterMenuRef}
-                className="absolute top-10 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg z-50 min-w-56"
+                className="absolute top-10 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg z-50 min-w-56 max-h-96 overflow-y-auto"
             >
+                {/* For regular users, show clear filters prominently at the top */}
+                {isRegularUser &&
+                    hasActiveFilters &&
+                    !showVillageFilter &&
+                    !showFacilitatorFilter && (
+                        <div className="py-2 border-b border-gray-100">
+                            <button
+                                onClick={clearFilters}
+                                className="w-full px-5 py-3 text-left hover:bg-red-50 text-red-600 font-medium rounded-xl mx-2"
+                            >
+                                {t("Clear all filters")}
+                            </button>
+                        </div>
+                    )}
+
                 {/* Main filter options */}
                 {!showVillageFilter && !showFacilitatorFilter && (
                     <div className="py-3">
@@ -558,8 +639,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                 />
                             </svg>
                         </button>
-                        {(selectedVillageFilter ||
-                            selectedFacilitatorFilter) && (
+                        {/* For superadmin and orgadmin, show clear filters at the bottom */}
+                        {!isRegularUser && hasActiveFilters && (
                             <>
                                 <hr className="my-3" />
                                 <button
@@ -915,6 +996,14 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                 <div>
                                     <span className="font-medium text-gray-600">
+                                        {t("Plan ID")}:
+                                    </span>
+                                    <span className="ml-2 text-gray-900">
+                                        {showPlanDetails.id}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-600">
                                         {t("Village")}:
                                     </span>
                                     <span className="ml-2 text-gray-900">
@@ -1240,15 +1329,130 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                     )}
 
                                     <div className="space-y-2">
-                                        {applyFilters(getFilteredPlans()).map(
-                                            (plan) => (
+                                        {/* Regular Plans */}
+                                        {applyFilters(
+                                            getFilteredPlans(),
+                                        ).regularPlans.map((plan) => (
+                                            <div
+                                                key={plan.id}
+                                                className={`border rounded-2xl p-4 transition-all ${
+                                                    selectedPlanId === plan.id
+                                                        ? "border-blue-500 bg-blue-50"
+                                                        : "border-gray-200 hover:border-gray-300"
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div
+                                                        className="flex-1 cursor-pointer"
+                                                        onClick={() =>
+                                                            handlePlanSelect(
+                                                                plan,
+                                                                plan.project,
+                                                                plan.project_name,
+                                                            )
+                                                        }
+                                                    >
+                                                        <div className="flex items-center">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center">
+                                                                    <h3 className="font-medium text-gray-900 mr-2">
+                                                                        {
+                                                                            plan.plan
+                                                                        }
+                                                                    </h3>
+                                                                    {selectedPlanId ===
+                                                                        plan.id && (
+                                                                        <svg
+                                                                            className="w-5 h-5 text-blue-600"
+                                                                            fill="currentColor"
+                                                                            viewBox="0 0 20 20"
+                                                                        >
+                                                                            <path
+                                                                                fillRule="evenodd"
+                                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                clipRule="evenodd"
+                                                                            />
+                                                                        </svg>
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-sm text-gray-600 mt-1">
+                                                                    {
+                                                                        plan.village_name
+                                                                    }{" "}
+                                                                    •{" "}
+                                                                    {
+                                                                        plan.facilitator_name
+                                                                    }
+                                                                </div>
+                                                                {plan.project_name && (
+                                                                    <div className="text-xs text-blue-600 mt-1">
+                                                                        Project:{" "}
+                                                                        {
+                                                                            plan.project_name
+                                                                        }
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            fetchPlanDetails(
+                                                                plan.project,
+                                                                plan.id,
+                                                                plan.project_name,
+                                                                plan.organization_name,
+                                                            );
+                                                        }}
+                                                        className="ml-3 p-1 hover:bg-gray-100 rounded-full"
+                                                        title="View Details"
+                                                    >
+                                                        <svg
+                                                            className="w-4 h-4 text-gray-500"
+                                                            fill="currentColor"
+                                                            viewBox="0 0 20 20"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                                clipRule="evenodd"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Test Plans Section */}
+                                    {applyFilters(getFilteredPlans())
+                                        .hasTestPlans && (
+                                        <>
+                                            {/* Horizontal line separator */}
+                                            <hr className="my-4 border-gray-300" />
+
+                                            {/* Test Plans Header */}
+                                            <div className="mb-3">
+                                                <h4 className="text-md font-semibold text-gray-900 mb-1">
+                                                    {t(
+                                                        "Test Plans: For training and practice purposes",
+                                                    )}
+                                                </h4>
+                                            </div>
+
+                                            {/* Test Plans */}
+                                            {applyFilters(
+                                                getFilteredPlans(),
+                                            ).testPlans.map((plan) => (
                                                 <div
                                                     key={plan.id}
-                                                    className={`border rounded-2xl p-4 transition-all ${
+                                                    className={`border border-red-500 rounded-2xl p-4 transition-all ${
                                                         selectedPlanId ===
                                                         plan.id
-                                                            ? "border-blue-500 bg-blue-50"
-                                                            : "border-gray-200 hover:border-gray-300"
+                                                            ? "border-red-600 bg-red-50"
+                                                            : "border-red-500 hover:border-red-600"
                                                     }`}
                                                 >
                                                     <div className="flex items-center justify-between">
@@ -1333,11 +1537,14 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                         </button>
                                                     </div>
                                                 </div>
-                                            ),
-                                        )}
-                                    </div>
+                                            ))}
+                                        </>
+                                    )}
 
-                                    {getFilteredPlans().length === 0 &&
+                                    {applyFilters(getFilteredPlans())
+                                        .regularPlans.length === 0 &&
+                                        !applyFilters(getFilteredPlans())
+                                            .hasTestPlans &&
                                         !loading && (
                                             <div className="text-center py-8 text-gray-500">
                                                 {!blockId
@@ -1477,7 +1684,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                     {selectedVillageFilter && (
                                                         <div className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                                                             <span>
-                                                                Village:{" "}
+                                                                {t("Village")}:{" "}
                                                                 {
                                                                     selectedVillageFilter
                                                                 }
@@ -1538,9 +1745,10 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             )}
 
                                             <div className="space-y-2">
+                                                {/* Regular Plans */}
                                                 {applyFilters(
                                                     projectData.plans,
-                                                ).map((plan) => (
+                                                ).regularPlans.map((plan) => (
                                                     <div
                                                         key={plan.id}
                                                         className={`border rounded-2xl p-4 transition-all ${
@@ -1626,6 +1834,118 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                         </div>
                                                     </div>
                                                 ))}
+
+                                                {/* Test Plans Section */}
+                                                {applyFilters(projectData.plans)
+                                                    .hasTestPlans && (
+                                                    <>
+                                                        {/* Horizontal line separator */}
+                                                        <hr className="my-4 border-gray-300" />
+
+                                                        {/* Test Plans Header */}
+                                                        <div className="mb-3">
+                                                            <h4 className="text-md font-semibold text-gray-900 mb-1">
+                                                                {t(
+                                                                    "Test Plans: For training and practice purposes",
+                                                                )}
+                                                            </h4>
+                                                        </div>
+
+                                                        {/* Test Plans */}
+                                                        {applyFilters(
+                                                            projectData.plans,
+                                                        ).testPlans.map(
+                                                            (plan) => (
+                                                                <div
+                                                                    key={
+                                                                        plan.id
+                                                                    }
+                                                                    className={`border border-red-500 rounded-2xl p-4 transition-all ${
+                                                                        selectedPlanId ===
+                                                                        plan.id
+                                                                            ? "border-red-600 bg-red-50"
+                                                                            : "border-red-500 hover:border-red-600"
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex items-center justify-between">
+                                                                        <div
+                                                                            className="flex-1 cursor-pointer"
+                                                                            onClick={() =>
+                                                                                handlePlanSelect(
+                                                                                    plan,
+                                                                                    projectData.projectId,
+                                                                                    projectData.projectName,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <div className="flex items-center">
+                                                                                <div className="flex-1">
+                                                                                    <div className="flex items-center">
+                                                                                        <h3 className="font-medium text-gray-900 mr-2">
+                                                                                            {
+                                                                                                plan.plan
+                                                                                            }
+                                                                                        </h3>
+                                                                                        {selectedPlanId ===
+                                                                                            plan.id && (
+                                                                                            <svg
+                                                                                                className="w-5 h-5 text-blue-600"
+                                                                                                fill="currentColor"
+                                                                                                viewBox="0 0 20 20"
+                                                                                            >
+                                                                                                <path
+                                                                                                    fillRule="evenodd"
+                                                                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                                    clipRule="evenodd"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="text-sm text-gray-600 mt-1">
+                                                                                        {
+                                                                                            plan.village_name
+                                                                                        }{" "}
+                                                                                        •{" "}
+                                                                                        {
+                                                                                            plan.facilitator_name
+                                                                                        }
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <button
+                                                                            onClick={(
+                                                                                e,
+                                                                            ) => {
+                                                                                e.stopPropagation();
+                                                                                fetchPlanDetails(
+                                                                                    projectData.projectId,
+                                                                                    plan.id,
+                                                                                    projectData.projectName,
+                                                                                );
+                                                                            }}
+                                                                            className="ml-3 p-1 hover:bg-gray-100 rounded-full"
+                                                                            title="View Details"
+                                                                        >
+                                                                            <svg
+                                                                                className="w-4 h-4 text-gray-500"
+                                                                                fill="currentColor"
+                                                                                viewBox="0 0 20 20"
+                                                                            >
+                                                                                <path
+                                                                                    fillRule="evenodd"
+                                                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                                                    clipRule="evenodd"
+                                                                                />
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            ),
+                                                        )}
+                                                    </>
+                                                )}
                                             </div>
 
                                             {projectIndex <
@@ -1719,70 +2039,34 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                     {selectedVillageFilter && (
                                                         <div className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                                                             <span>
-                                                                Village:{" "}
+                                                                {t("Village")}:{" "}
                                                                 {
                                                                     selectedVillageFilter
                                                                 }
                                                             </span>
-                                                            <button
-                                                                onClick={() =>
-                                                                    setSelectedVillageFilter(
-                                                                        null,
-                                                                    )
-                                                                }
-                                                                className="ml-2 hover:text-blue-900"
-                                                            >
-                                                                <svg
-                                                                    className="w-3 h-3"
-                                                                    fill="currentColor"
-                                                                    viewBox="0 0 20 20"
-                                                                >
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                                        clipRule="evenodd"
-                                                                    />
-                                                                </svg>
-                                                            </button>
                                                         </div>
                                                     )}
                                                     {selectedFacilitatorFilter && (
                                                         <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
                                                             <span>
-                                                                Facilitator:{" "}
+                                                                {t(
+                                                                    "Facilitator",
+                                                                )}
+                                                                :{" "}
                                                                 {
                                                                     selectedFacilitatorFilter
                                                                 }
                                                             </span>
-                                                            <button
-                                                                onClick={() =>
-                                                                    setSelectedFacilitatorFilter(
-                                                                        null,
-                                                                    )
-                                                                }
-                                                                className="ml-2 hover:text-green-900"
-                                                            >
-                                                                <svg
-                                                                    className="w-3 h-3"
-                                                                    fill="currentColor"
-                                                                    viewBox="0 0 20 20"
-                                                                >
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                                        clipRule="evenodd"
-                                                                    />
-                                                                </svg>
-                                                            </button>
                                                         </div>
                                                     )}
                                                 </div>
                                             )}
 
                                             <div className="space-y-2">
+                                                {/* Regular Plans */}
                                                 {applyFilters(
                                                     projectData.plans,
-                                                ).map((plan) => (
+                                                ).regularPlans.map((plan) => (
                                                     <div
                                                         key={plan.id}
                                                         className={`border rounded-2xl p-4 transition-all ${
@@ -1868,6 +2152,118 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                         </div>
                                                     </div>
                                                 ))}
+
+                                                {/* Test Plans Section */}
+                                                {applyFilters(projectData.plans)
+                                                    .hasTestPlans && (
+                                                    <>
+                                                        {/* Horizontal line separator */}
+                                                        <hr className="my-4 border-gray-300" />
+
+                                                        {/* Test Plans Header */}
+                                                        <div className="mb-3">
+                                                            <h4 className="text-md font-semibold text-gray-900 mb-1">
+                                                                {t(
+                                                                    "Test Plans: For training and practice purposes",
+                                                                )}
+                                                            </h4>
+                                                        </div>
+
+                                                        {/* Test Plans */}
+                                                        {applyFilters(
+                                                            projectData.plans,
+                                                        ).testPlans.map(
+                                                            (plan) => (
+                                                                <div
+                                                                    key={
+                                                                        plan.id
+                                                                    }
+                                                                    className={`border border-red-500 rounded-2xl p-4 transition-all ${
+                                                                        selectedPlanId ===
+                                                                        plan.id
+                                                                            ? "border-red-600 bg-red-50"
+                                                                            : "border-red-500 hover:border-red-600"
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex items-center justify-between">
+                                                                        <div
+                                                                            className="flex-1 cursor-pointer"
+                                                                            onClick={() =>
+                                                                                handlePlanSelect(
+                                                                                    plan,
+                                                                                    projectData.projectId,
+                                                                                    projectData.projectName,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <div className="flex items-center">
+                                                                                <div className="flex-1">
+                                                                                    <div className="flex items-center">
+                                                                                        <h3 className="font-medium text-gray-900 mr-2">
+                                                                                            {
+                                                                                                plan.plan
+                                                                                            }
+                                                                                        </h3>
+                                                                                        {selectedPlanId ===
+                                                                                            plan.id && (
+                                                                                            <svg
+                                                                                                className="w-5 h-5 text-blue-600"
+                                                                                                fill="currentColor"
+                                                                                                viewBox="0 0 20 20"
+                                                                                            >
+                                                                                                <path
+                                                                                                    fillRule="evenodd"
+                                                                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                                    clipRule="evenodd"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="text-sm text-gray-600 mt-1">
+                                                                                        {
+                                                                                            plan.village_name
+                                                                                        }{" "}
+                                                                                        •{" "}
+                                                                                        {
+                                                                                            plan.facilitator_name
+                                                                                        }
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <button
+                                                                            onClick={(
+                                                                                e,
+                                                                            ) => {
+                                                                                e.stopPropagation();
+                                                                                fetchPlanDetails(
+                                                                                    projectData.projectId,
+                                                                                    plan.id,
+                                                                                    projectData.projectName,
+                                                                                );
+                                                                            }}
+                                                                            className="ml-3 p-1 hover:bg-gray-100 rounded-full"
+                                                                            title="View Details"
+                                                                        >
+                                                                            <svg
+                                                                                className="w-4 h-4 text-gray-500"
+                                                                                fill="currentColor"
+                                                                                viewBox="0 0 20 20"
+                                                                            >
+                                                                                <path
+                                                                                    fillRule="evenodd"
+                                                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                                                    clipRule="evenodd"
+                                                                                />
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            ),
+                                                        )}
+                                                    </>
+                                                )}
                                             </div>
 
                                             {projectIndex <
