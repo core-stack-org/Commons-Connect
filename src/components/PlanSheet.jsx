@@ -1448,7 +1448,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             ).testPlans.map((plan) => (
                                                 <div
                                                     key={plan.id}
-                                                    className={`border border-red-500 rounded-2xl p-4 transition-all ${
+                                                    className={`border border-red-500 rounded-2xl p-4 mb-2 transition-all ${
                                                         selectedPlanId ===
                                                         plan.id
                                                             ? "border-red-600 bg-red-50"
@@ -1860,7 +1860,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                                     key={
                                                                         plan.id
                                                                     }
-                                                                    className={`border border-red-500 rounded-2xl p-4 transition-all ${
+                                                                    className={`border border-red-500 rounded-2xl p-4 mb-2 transition-all ${
                                                                         selectedPlanId ===
                                                                         plan.id
                                                                             ? "border-red-600 bg-red-50"
@@ -2178,7 +2178,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                                     key={
                                                                         plan.id
                                                                     }
-                                                                    className={`border border-red-500 rounded-2xl p-4 transition-all ${
+                                                                    className={`border border-red-500 rounded-2xl p-4 mb-2 transition-all ${
                                                                         selectedPlanId ===
                                                                         plan.id
                                                                             ? "border-red-600 bg-red-50"
