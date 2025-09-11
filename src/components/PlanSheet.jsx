@@ -40,7 +40,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const isOrgAdmin =
         userData?.groups?.some((group) => group.name === "Administrator") ||
         false;
-    const blockId = searchParams.get("block_id");
+    const blockId = MainStore.block_id || searchParams.get("block_id");
 
     // MARK: Super Admin
     const fetchGlobalPlans = useCallback(async () => {
