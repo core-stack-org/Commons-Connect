@@ -632,7 +632,7 @@ const MapComponent = () => {
 
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
-            const m = status.Well_condi.match(
+            const m = status.Well_usage.match(
                 /'select_one_maintenance'\s*:\s*'([^']*)'/i,
             );
             const wellMaintenance = m ? m[1].toLowerCase() === "yes" : null;
@@ -1033,7 +1033,7 @@ const MapComponent = () => {
 
                 wellLayer.setStyle(function (feature) {
                     const status = feature.values_;
-                    const m = status.Well_condi.match(
+                    const m = status.Well_usage.match(
                         /'select_one_maintenance'\s*:\s*'([^']*)'/i,
                     );
                     const wellMaintenance = m
