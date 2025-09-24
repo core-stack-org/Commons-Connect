@@ -539,7 +539,7 @@ const InfoBox = () => {
     setCommunityError(null);
     try {
 //       const res = await fetch(`${import.meta.env.VITE_API_URL}get_communities_by_location/?number=8`);
-      const res = await fetch(`${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=20&district_id=64`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=10&district_id=56&block_id=654`);
       if (!res.ok) throw new Error("Failed to fetch communities");
       const data = await res.json();
       setCommunities(data.data);

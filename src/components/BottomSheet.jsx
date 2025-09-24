@@ -125,7 +125,7 @@ const Bottomsheet = () => {
                         block_name: MainStore.blockName,
                     }
 
-                    const response = await fetch('http://127.0.0.1:8000/api/v1/add_resources/', {
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}add_resources/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -186,7 +186,7 @@ const Bottomsheet = () => {
                         block_name: MainStore.blockName,
                     }
                     console.log(payload)
-                    const response = await fetch('http://127.0.0.1:8000/api/v1/add_works/', {
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}add_works/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -488,7 +488,6 @@ const Bottomsheet = () => {
                     {MainStore.isResource && MainStore.selectedResource !== null &&
                         Object.keys(resourceDetails[MainStore.resourceType]).flatMap((key, index) => {
                         let rawValue = MainStore.selectedResource[key];
-                        console.log(key)
                         if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
                             const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
                             const data = (new Function(`return (${jsonReady})`))();
@@ -633,7 +632,6 @@ const Bottomsheet = () => {
                 onClick={() => {
                     LayerStore[layerStoreFuncMapping[key]](!LayerStore[key])
                     MainStore.setLayerClicked(key)
-                    console.log("IN BOTTOM SHEET")
                 }}
                 className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
                 ${LayerStore[key]
@@ -657,8 +655,8 @@ const Bottomsheet = () => {
         </>
     )
 
-    const onDismiss = async () => {
-        // Check if there's an accepted work demand item and update its state to RESOLVED
+    const onDismiss = async() => {
+
         if (MainStore.acceptedWorkDemandItem) {
             try {
                 const workDemandResponse = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
