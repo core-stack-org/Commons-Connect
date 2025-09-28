@@ -283,11 +283,11 @@ const InfoBox = () => {
                                 <span>Triple Crop</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-6 h-6 rounded mr-3 bg-[#A9A9A9]"></div>
+                                <div className="w-6 h-6 rounded mr-3 bg-[#a9a9a9]"></div>
                                 <span>Barren Lands</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-6 h-6 rounded mr-3 bg-[#A9A9A9]"></div>
+                                <div className="w-6 h-6 rounded mr-3 bg-[#4c4ef5]"></div>
                                 <span>Shrubs and Scrubs</span>
                             </div>
                         </div>
