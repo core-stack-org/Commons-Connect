@@ -228,23 +228,6 @@ const HamburgerMenu = ({ open, onClose }) => {
                         </div>
                         <ChevronRight size={18} className="text-gray-400" />
                     </button>
-        
-            <button
-            onClick={() => {
-                // Reset map to editable mode when selecting a menu option
-                safeResetMapToEditableMode();
-                setMenuOption("communities")
-                onClose()
-                setIsInfoOpen(true)
-            }}
-            className="w-full flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md"
-            >
-            <div className="flex items-center gap-3">
-                <Handshake size={18} style={{color: '#592941'}} />
-                <span>{t("Communities")}</span>
-            </div>
-            <ChevronRight size={18} className="text-gray-400" />
-            </button>
         </div>
             </aside>
         </>

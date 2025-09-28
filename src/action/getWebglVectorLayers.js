@@ -121,49 +121,6 @@ export default async function getWebglVectorLayers(
             "stroke-width": 2,
         };
     }
-    else if(layer_store === "swb"){
-      style = {
-        'stroke-color': '#21618c',
-        'stroke-width': 3,
-        'fill-color' : "rgba(76, 171, 235, 0.7)"
-      }
-    }
-    else if(layer_store === "crop_intensity"){
-      style = {
-        'stroke-color': '#e4c1f9',
-        'stroke-width': 2,
-        'fill-color' : "rgba(255, 255, 255, 0.1)"
-      }
-    }
-    else{
-      style = {
-        'stroke-color': [
-          'match', 
-          ['get', 'itemColor'],
-          0,
-          "#03045E",
-          1,
-          "#023E8A",
-          2,
-          "#0077B6",
-          3,
-          "#0096C7",
-          4,
-          "#00B4D8",
-          5,
-          "#48CAE4",
-          6,
-          "#90E0EF",
-          7,
-          "#ADE8F4",
-          8,
-          "#CAF0F8",
-          [255, 255, 255, 0.6]
-        ],
-        'stroke-width': 2,
-      }
-    }
-  
 
     const wmsLayer = new WebGLVectorLayer({
         source: vectorSource,
