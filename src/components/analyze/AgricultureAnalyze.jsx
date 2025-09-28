@@ -53,8 +53,10 @@ const AgricultureAnalyze = () => {
         const severeCount = drlbArray.filter((v) => v === 3).length;
         const dryspellCount = selectedMWSDrought[dryspKey] || 0;
 
-    //const cropIntensityIdx = YEARS.indexOf(year) + 1;
-    const cropIntensity = selectedResource ? (selectedResource[`cropping_intensity_${year}`] || 0) : 0;
+        //const cropIntensityIdx = YEARS.indexOf(year) + 1;
+        const cropIntensity = selectedResource
+            ? selectedResource[`cropping_intensity_${year}`] || 0
+            : 0;
 
         return {
             "Mild Drought": mildCount,
@@ -143,10 +145,11 @@ const AgricultureAnalyze = () => {
     useEffect(() => {
         if (!cropChartRef.current) return;
 
-    const totalCrop = selectedResource.total_cropable_area_ever_hydroyear_2017_2023 || 0;
-    const single = selectedResource[`single_cropped_area_${year}`] || 0;
-    const doubled = selectedResource[`doubly_cropped_area_${year}`] || 0;
-    const tripled = selectedResource[`triply_cropped_area_${year}`] || 0;
+        const totalCrop =
+            selectedResource.total_cropable_area_ever_hydroyear_2017_2023 || 0;
+        const single = selectedResource[`single_cropped_area_${year}`] || 0;
+        const doubled = selectedResource[`doubly_cropped_area_${year}`] || 0;
+        const tripled = selectedResource[`triply_cropped_area_${year}`] || 0;
 
         if (totalCrop === 0) {
             if (cropChartInstanceRef.current) {
@@ -156,11 +159,13 @@ const AgricultureAnalyze = () => {
             return;
         }
 
-    const singlePct = (single / totalCrop) * 100;
-    const doublePct = (doubled / totalCrop) * 100;
-    const triplePct = (tripled / totalCrop) * 100;
-    const uncroppedPct = Math.max(0, 100 - (singlePct + doublePct + triplePct));
-
+        const singlePct = (single / totalCrop) * 100;
+        const doublePct = (doubled / totalCrop) * 100;
+        const triplePct = (tripled / totalCrop) * 100;
+        const uncroppedPct = Math.max(
+            0,
+            100 - (singlePct + doublePct + triplePct),
+        );
 
         const data = {
             labels: [`${year}`],
@@ -220,50 +225,55 @@ const AgricultureAnalyze = () => {
         }
     }, [year, selectedResource]);
 
-  // Line chart effect
-  useEffect(() => {
-    if (!lineChartRef.current) return;
-    const dataPoints = YEARS.map((year, i) => selectedResource[`cropping_intensity_${year}`] || 0);
-    const data = {
-      labels: YEARS.map(String),
-      datasets: [
-        {
-          label: 'Cropping Intensity',
-          data: dataPoints,
-          borderColor: '#3B82F6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          fill: true,
-          tension: 0.4,
-          pointRadius: 6,
-          pointBackgroundColor: '#3B82F6',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2,
-          borderWidth: 3,
-        },
-      ],
-    };
-    const ctx3 = lineChartRef.current.getContext('2d');
-    if (lineChartInstanceRef.current) {
-      lineChartInstanceRef.current.data = data;
-      lineChartInstanceRef.current.update();
-    } else {
-      lineChartInstanceRef.current = new Chart(ctx3, {
-        type: 'line',
-        data,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { 
-            y: { 
-              beginAtZero: true, 
-              ticks: { precision: 0 },
-              title: { display: true, text: 'Cropping Intensity' }
-            },
-          },
-        },
-      });
-    }
-  }, [selectedResource]);
+    // Line chart effect
+    useEffect(() => {
+        if (!lineChartRef.current) return;
+        const dataPoints = YEARS.map(
+            (year, i) => selectedResource[`cropping_intensity_${year}`] || 0,
+        );
+        const data = {
+            labels: YEARS.map(String),
+            datasets: [
+                {
+                    label: "Cropping Intensity",
+                    data: dataPoints,
+                    borderColor: "#3B82F6",
+                    backgroundColor: "rgba(59, 130, 246, 0.1)",
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: "#3B82F6",
+                    pointBorderColor: "#ffffff",
+                    pointBorderWidth: 2,
+                    borderWidth: 3,
+                },
+            ],
+        };
+        const ctx3 = lineChartRef.current.getContext("2d");
+        if (lineChartInstanceRef.current) {
+            lineChartInstanceRef.current.data = data;
+            lineChartInstanceRef.current.update();
+        } else {
+            lineChartInstanceRef.current = new Chart(ctx3, {
+                type: "line",
+                data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 },
+                            title: {
+                                display: true,
+                                text: "Cropping Intensity",
+                            },
+                        },
+                    },
+                },
+            });
+        }
+    }, [selectedResource]);
 
     const toggleFormsUrl = () => {
         MainStore.setIsForm(true);
@@ -296,26 +306,32 @@ const AgricultureAnalyze = () => {
                     {t("Annual Summary")}
                 </h2>
 
-        {/* capsules */}
-        {hasAnnual ? (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            {CAPSULE_KEYS.map((k) => (
-              <div
-                key={k}
-                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
-              >
-                <div className="text-xs tracking-wide text-gray-500 mb-1">
-                  {t(k)}
-                </div>
-                <div className="text-lg font-bold">{fmt(annual[k], k === 'Cropping Intensity' ? 1 : 0)}{k === 'Cropping Intensity' ? '' : ' weeks'}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">
-            {t("info_blank")} {year}
-          </p>
-        )}
+                {/* capsules */}
+                {hasAnnual ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                        {CAPSULE_KEYS.map((k) => (
+                            <div
+                                key={k}
+                                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
+                            >
+                                <div className="text-xs tracking-wide text-gray-500 mb-1">
+                                    {t(k)}
+                                </div>
+                                <div className="text-lg font-bold">
+                                    {fmt(
+                                        annual[k],
+                                        k === "Cropping Intensity" ? 1 : 0,
+                                    )}
+                                    {k === "Cropping Intensity" ? "" : " weeks"}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-center text-gray-500">
+                        {t("info_blank")} {year}
+                    </p>
+                )}
 
                 <h2 className="text-center font-bold text-gray-700 text-lg pt-4">
                     {t("Yearly Analysis")}
@@ -337,94 +353,107 @@ const AgricultureAnalyze = () => {
                     )}
                 </section>
 
-        {/* year slider */}
-        <div className="w-3/4 max-w-lg mx-auto pt-4 pb-8">
-            {/* Year marks above slider */}
-            <div className="relative mb-2">
-                <div className="flex justify-between relative">
-                    {YEARS.map((year, index) => (
-                        <div key={year} className="flex flex-col items-center relative">
-                            {/* Tick mark */}
-                            <div 
-                                className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
-                                    index === idx ? 'bg-[#0f766e]' : 'bg-gray-400'
-                                }`}
-                            />
-                            {/* Year label */}
-                            <span 
-                                className={`text-sm font-bold transition-colors duration-200 ${
-                                    index === idx ? 'text-[#0f766e]' : 'text-gray-600'
-                                }`}
-                            >
-                                {year}
-                            </span>
+                {/* year slider */}
+                <div className="w-3/4 max-w-lg mx-auto pt-4 pb-8">
+                    {/* Year marks above slider */}
+                    <div className="relative mb-2">
+                        <div className="flex justify-between relative">
+                            {YEARS.map((year, index) => (
+                                <div
+                                    key={year}
+                                    className="flex flex-col items-center relative"
+                                >
+                                    {/* Tick mark */}
+                                    <div
+                                        className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
+                                            index === idx
+                                                ? "bg-[#0f766e]"
+                                                : "bg-gray-400"
+                                        }`}
+                                    />
+                                    {/* Year label */}
+                                    <span
+                                        className={`text-sm font-bold transition-colors duration-200 ${
+                                            index === idx
+                                                ? "text-[#0f766e]"
+                                                : "text-gray-600"
+                                        }`}
+                                    >
+                                        {year}
+                                    </span>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            </div>
-            
-            {/* Slider */}
-            <input
-                type="range"
-                min="0"
-                max={YEARS.length - 1}
-                value={idx}
-                onChange={(e) => setIdx(Number(e.target.value))}
-                className="w-full accent-[#0f766e] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
-            />
-            
-            {/* Add custom slider styles */}
-            <style jsx>{`
-                .slider-custom::-webkit-slider-thumb {
-                    appearance: none;
-                    height: 20px;
-                    width: 20px;
-                    border-radius: 50%;
-                    background: #0f766e;
-                    cursor: pointer;
-                    border: 2px solid white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                }
-                
-                .slider-custom::-moz-range-thumb {
-                    height: 20px;
-                    width: 20px;
-                    border-radius: 50%;
-                    background: #0f766e;
-                    cursor: pointer;
-                    border: 2px solid white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                }
-            `}</style>
-        </div>
-        
-        {/* Cropping Pattern chart */}
-        <section>
-          <h2 className="font-bold text-gray-700 mb-2">
-            {t("cropping_in_header")} ({year})
-          </h2>
-          {(selectedResource.total_cropable_area_ever_hydroyear_2017_2023 > 0) ? (
-            <div className="relative h-72">
-              <canvas ref={cropChartRef} />
-            </div>
-          ) : (
-            <p className="text-center text-gray-500 py-10">{t("No data available")}</p>
-          )}
-        </section>
+                    </div>
 
-        {/* Cropping Intensity Trend chart */}
-        <section>
-          <h2 className="font-bold text-gray-700 mb-2">
-            {t("Cropping Intensity Trend (2017-2022)")}
-          </h2>
-          {(selectedResource.total_cropable_area_ever_hydroyear_2017_2023 > 0) ? (
-            <div className="relative h-72">
-              <canvas ref={lineChartRef} />
-            </div>
-          ) : (
-            <p className="text-center text-gray-500 py-10">{t("No data available")}</p>
-          )}
-        </section>
+                    {/* Slider */}
+                    <input
+                        type="range"
+                        min="0"
+                        max={YEARS.length - 1}
+                        value={idx}
+                        onChange={(e) => setIdx(Number(e.target.value))}
+                        className="w-full accent-[#0f766e] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
+                    />
+
+                    {/* Add custom slider styles */}
+                    <style jsx>{`
+                        .slider-custom::-webkit-slider-thumb {
+                            appearance: none;
+                            height: 20px;
+                            width: 20px;
+                            border-radius: 50%;
+                            background: #0f766e;
+                            cursor: pointer;
+                            border: 2px solid white;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+
+                        .slider-custom::-moz-range-thumb {
+                            height: 20px;
+                            width: 20px;
+                            border-radius: 50%;
+                            background: #0f766e;
+                            cursor: pointer;
+                            border: 2px solid white;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+                    `}</style>
+                </div>
+
+                {/* Cropping Pattern chart */}
+                <section>
+                    <h2 className="font-bold text-gray-700 mb-2">
+                        {t("cropping_in_header")} ({year})
+                    </h2>
+                    {selectedResource.total_cropable_area_ever_hydroyear_2017_2023 >
+                    0 ? (
+                        <div className="relative h-72">
+                            <canvas ref={cropChartRef} />
+                        </div>
+                    ) : (
+                        <p className="text-center text-gray-500 py-10">
+                            {t("No data available")}
+                        </p>
+                    )}
+                </section>
+
+                {/* Cropping Intensity Trend chart */}
+                <section>
+                    <h2 className="font-bold text-gray-700 mb-2">
+                        {t("Cropping Intensity Trend (2017-2022)")}
+                    </h2>
+                    {selectedResource.total_cropable_area_ever_hydroyear_2017_2023 >
+                    0 ? (
+                        <div className="relative h-72">
+                            <canvas ref={lineChartRef} />
+                        </div>
+                    ) : (
+                        <p className="text-center text-gray-500 py-10">
+                            {t("No data available")}
+                        </p>
+                    )}
+                </section>
 
                 {/* Explanation Section */}
                 <section className="space-y-8 text-sm leading-relaxed text-gray-700 mt-8 pt-8 border-t">
