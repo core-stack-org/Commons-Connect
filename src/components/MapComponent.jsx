@@ -1169,7 +1169,9 @@ const MapComponent = () => {
             }
 
             mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
-        } else if (currentScreen === "Groundwater") {
+
+        } 
+        else if (currentScreen === "Groundwater") {
             const GroundWaterWorkLayer = await getVectorLayers(
                 "works",
                 `plan_gw_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
@@ -1195,7 +1197,8 @@ const MapComponent = () => {
             mapRef.current.removeLayer(groundwaterRefs[2].current);
             groundwaterRefs[3].current = GroundWaterWorkLayer;
             mapRef.current.addLayer(groundwaterRefs[3].current);
-        } else if (currentScreen === "Agriculture") {
+        } 
+        else if (currentScreen === "Agriculture") {
             const AgricultureWorkLayer = await getVectorLayers(
                 "works",
                 `plan_agri_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
@@ -1262,7 +1265,8 @@ const MapComponent = () => {
             mapRef.current.removeLayer(AgriLayersRefs[2].current);
             AgriLayersRefs[2].current = AgricultureWorkLayer;
             mapRef.current.addLayer(AgriLayersRefs[2].current);
-        } else if (currentScreen === "Livelihood") {
+        } 
+        else if (currentScreen === "Livelihood") {
             const livelihoodLayer = await getVectorLayers(
                 "works",
                 `livelihood_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
@@ -1350,11 +1354,6 @@ const MapComponent = () => {
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
                 mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
 
-                // Restore accepted item layer if it exists
-                if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
-                    mapRef.current.addLayer(AcceptedItemLayerRef.current);
-                }
-
                 LayersStore.setSettlementLayer(true);
                 LayersStore.setWellDepth(true);
                 LayersStore.setDrainageLayer(false);
@@ -1385,6 +1384,12 @@ const MapComponent = () => {
                 LayersStore.setWaterStructure(false);
                 LayersStore.setWorkGroundwater(true);
             }
+
+            // Restore accepted item layer if it exists
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+
         }
 
         else if(currentScreen === "Agriculture"){
@@ -1934,13 +1939,6 @@ const MapComponent = () => {
     useEffect(() => {
         if (!mapRef.current) return;
 
-        console.log('🔄 MapComponent - Map mode changed:', {
-            isMapEditable,
-            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
-            districtName,
-            blockName
-        });
-
         if (isMapEditable) {
             // Reset to editable mode - restore boundary and allow interactions
             if (districtName && blockName) {
@@ -2026,14 +2024,7 @@ const MapComponent = () => {
 
     // 🎯 NEW: Create accepted work demand item marker immediately when detected
     useEffect(() => {
-        console.log('🔍 MapComponent - Marker creation useEffect triggered:', {
-            hasMap: !!mapRef.current,
-            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
-            hasCoords: !!MainStore.acceptedWorkDemandCoords,
-            coords: MainStore.acceptedWorkDemandCoords,
-            acceptedItemExists: !!AcceptedItemLayerRef.current
-        });
-        
+
         if (!mapRef.current || !acceptedWorkDemandItem || !MainStore.acceptedWorkDemandCoords) {
             console.log('🔍 Marker creation useEffect - conditions not met:', {
                 hasMap: !!mapRef.current,
@@ -2111,104 +2102,11 @@ const MapComponent = () => {
 
     // 🎯 NEW: Automatically set map to non-editable mode when accepted work demand item is detected
     useEffect(() => {
-        console.log('🔍 MapComponent - Auto non-editable useEffect triggered:', {
-            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
-            hasCoords: !!MainStore.acceptedWorkDemandCoords,
-            coords: MainStore.acceptedWorkDemandCoords,
-            isMapEditable,
-            shouldSetNonEditable: acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords && isMapEditable
-        });
-        
         if (acceptedWorkDemandItem && MainStore.acceptedWorkDemandCoords && isMapEditable) {
             console.log('🎯 MapComponent - Detected accepted work demand item, setting map to non-editable mode');
             setIsMapEditable(false);
         }
     }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords, isMapEditable]);
-
-    // Clear the dialog flag after a short delay to ensure map mode is set
-    useEffect(() => {
-        if (acceptedFromDialog && !isMapEditable) {
-            const timer = setTimeout(() => {
-                console.log('📍 MapComponent - Clearing acceptedFromDialog flag');
-                clearAcceptedFromDialog();
-            }, 1000); // Wait 1 second for map mode to be set
-
-            return () => clearTimeout(timer);
-        }
-    }, [acceptedFromDialog, isMapEditable]);
-
-    // Clean up accepted item marker when accepted item changes or component unmounts
-    useEffect(() => {
-        return () => {
-            if (AcceptedItemLayerRef.current && mapRef.current) {
-                mapRef.current.removeLayer(AcceptedItemLayerRef.current);
-                AcceptedItemLayerRef.current = null;
-            }
-            // ⭐ FIXED: Don't clear coordinates on every cleanup, only on unmount
-            // clearAcceptedWorkDemandCoords(); // REMOVED - was clearing coordinates too aggressively
-        };
-    }, []); // Empty dependency array - only runs on unmount
-
-    // ⭐ FIXED: Only clear coordinates when accepted item is completely cleared (not during normal operation)
-    useEffect(() => {
-        if (!acceptedWorkDemandItem && !MainStore.acceptedWorkDemandCoords) {
-            // Only clear if both the item and coordinates are gone
-            clearAcceptedWorkDemandCoords();
-        }
-    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords]);
-
-    // Debug effect to track state changes
-    useEffect(() => {
-        if(currentPlan !== null){
-            fetchResourcesLayers()
-        }
-    },[currentPlan])
-
-    useEffect(() => {
-        if (!mapRef.current) return;
-
-        console.log('🔄 MapComponent - Map mode changed:', {
-            isMapEditable,
-            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
-            districtName,
-            blockName
-        });
-
-        if (isMapEditable) {
-            // Reset to editable mode - restore boundary and allow interactions
-            if (districtName && blockName) {
-                // Re-fetch boundary if it was removed
-                if (!AdminLayerRef.current) {
-                    fetchBoundaryAndZoom(districtName, blockName);
-                }
-
-                // Clear any accepted item markers
-                if (AcceptedItemLayerRef.current) {
-                    mapRef.current.removeLayer(AcceptedItemLayerRef.current);
-                    AcceptedItemLayerRef.current = null;
-                }
-
-                // Reset marker placement
-                if (MapMarkerRef.current) {
-                    MapMarkerRef.current.setVisible(false);
-                }
-            }
-        } else {
-            // Non-editable mode - ensure boundary is removed and accepted item is visible
-            console.log('🔄 MapComponent - Entering non-editable mode');
-
-            // Remove boundary layer if it exists
-            if (AdminLayerRef.current) {
-                mapRef.current.removeLayer(AdminLayerRef.current);
-                AdminLayerRef.current = null;
-            }
-
-            // Ensure accepted item layer is visible
-            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
-                mapRef.current.addLayer(AcceptedItemLayerRef.current);
-            }
-        }
-    }, [isMapEditable, districtName, blockName, acceptedWorkDemandItem]);
 
     // 🎯 NEW: Function to initialize layers for the selected plan
     const initializeLayersForPlan = async () => {
@@ -2304,6 +2202,93 @@ const MapComponent = () => {
             console.error('❌ Error initializing layers for plan:', error);
         }
     };
+
+
+    // Clear the dialog flag after a short delay to ensure map mode is set
+    useEffect(() => {
+        if (acceptedFromDialog && !isMapEditable) {
+            const timer = setTimeout(() => {
+                console.log('📍 MapComponent - Clearing acceptedFromDialog flag');
+                clearAcceptedFromDialog();
+            }, 1000); // Wait 1 second for map mode to be set
+
+            return () => clearTimeout(timer);
+        }
+    }, [acceptedFromDialog, isMapEditable]);
+
+    // Clean up accepted item marker when accepted item changes or component unmounts
+    useEffect(() => {
+        return () => {
+            if (AcceptedItemLayerRef.current && mapRef.current) {
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current);
+                AcceptedItemLayerRef.current = null;
+            }
+            // ⭐ FIXED: Don't clear coordinates on every cleanup, only on unmount
+            // clearAcceptedWorkDemandCoords(); // REMOVED - was clearing coordinates too aggressively
+        };
+    }, []); // Empty dependency array - only runs on unmount
+
+    // ⭐ FIXED: Only clear coordinates when accepted item is completely cleared (not during normal operation)
+    useEffect(() => {
+        if (!acceptedWorkDemandItem && !MainStore.acceptedWorkDemandCoords) {
+            // Only clear if both the item and coordinates are gone
+            clearAcceptedWorkDemandCoords();
+        }
+    }, [acceptedWorkDemandItem, MainStore.acceptedWorkDemandCoords]);
+
+    // Debug effect to track state changes
+    useEffect(() => {
+        if(currentPlan !== null){
+            fetchResourcesLayers()
+        }
+    },[currentPlan])
+
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        console.log('🔄 MapComponent - Map mode changed:', {
+            isMapEditable,
+            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
+            districtName,
+            blockName
+        });
+
+        if (isMapEditable) {
+            // Reset to editable mode - restore boundary and allow interactions
+            if (districtName && blockName) {
+                // Re-fetch boundary if it was removed
+                if (!AdminLayerRef.current) {
+                    fetchBoundaryAndZoom(districtName, blockName);
+                }
+
+                // Clear any accepted item markers
+                if (AcceptedItemLayerRef.current) {
+                    mapRef.current.removeLayer(AcceptedItemLayerRef.current);
+                    AcceptedItemLayerRef.current = null;
+                }
+
+                // Reset marker placement
+                if (MapMarkerRef.current) {
+                    MapMarkerRef.current.setVisible(false);
+                }
+            }
+        } else {
+            // Non-editable mode - ensure boundary is removed and accepted item is visible
+            console.log('🔄 MapComponent - Entering non-editable mode');
+
+            // Remove boundary layer if it exists
+            if (AdminLayerRef.current) {
+                mapRef.current.removeLayer(AdminLayerRef.current);
+                AdminLayerRef.current = null;
+            }
+
+            // Ensure accepted item layer is visible
+            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
+                mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+        }
+    }, [isMapEditable, districtName, blockName, acceptedWorkDemandItem]);
+
 
     useEffect(() => {
         if (currentPlan !== null) {
