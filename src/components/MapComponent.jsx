@@ -1289,7 +1289,7 @@ const MapComponent = () => {
 
         if(currentScreen === "Resource_mapping"){
             layerCollection.getArray().slice().forEach(layer => {
-                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current && layer !== AcceptedItemLayerRef.current) {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
                     layerCollection.remove(layer);
                 }
             });
@@ -1317,12 +1317,9 @@ const MapComponent = () => {
                 mapRef.current.addLayer(WaterbodiesLayerRef.current);
             }
 
-            // Restore accepted item layer if it exists
-            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
-                mapRef.current.addLayer(AcceptedItemLayerRef.current);
-            }
         }
         else if(currentScreen === "Groundwater"){
+
             layerCollection.getArray().slice().forEach(layer => {
                 if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current && layer !== AcceptedItemLayerRef.current) {
                     layerCollection.remove(layer);
@@ -1352,7 +1349,6 @@ const MapComponent = () => {
             }
 
             // Step 1: In the planning step
-            // TODO: Should I show works layer in both the steps?
             if (currentStep === 1) {
                 if (ClartLayerRef.current !== null) {
                     ClartLayerRef.current.setOpacity(0.4);
@@ -1464,7 +1460,7 @@ const MapComponent = () => {
 
         if(currentScreen === "HomeScreen"){
             layerCollection.getArray().slice().forEach(layer => {
-                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== AcceptedItemLayerRef.current) {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current) {
                     layerCollection.remove(layer);
                 }
             });
@@ -1964,7 +1960,6 @@ const MapComponent = () => {
         }
     }, [isMapEditable, districtName, blockName, acceptedWorkDemandItem]);
 
-
     // When a Work Demand is accepted and we navigated from dialog, focus on it once
     useEffect(() => {
         if (!mapRef.current) return;
@@ -2015,11 +2010,6 @@ const MapComponent = () => {
     useEffect(() => {
 
         if (!mapRef.current || !acceptedWorkDemandItem || !MainStore.acceptedWorkDemandCoords) {
-            console.log('🔍 Marker creation useEffect - conditions not met:', {
-                hasMap: !!mapRef.current,
-                acceptedWorkDemandItem,
-                hasCoords: !!MainStore.acceptedWorkDemandCoords
-            });
             return;
         }
 
@@ -2029,8 +2019,6 @@ const MapComponent = () => {
             return;
         }
 
-        console.log('🎯 Creating accepted work demand item marker immediately at:', MainStore.acceptedWorkDemandCoords);
-        
         try {
             // Create a feature for the accepted item
             const acceptedItemFeature = new Feature();
@@ -2162,7 +2150,6 @@ const MapComponent = () => {
         }
     };
 
-
     // Clear the dialog flag after a short delay to ensure map mode is set
     useEffect(() => {
         if (acceptedFromDialog && !isMapEditable) {
@@ -2204,13 +2191,6 @@ const MapComponent = () => {
 
     useEffect(() => {
         if (!mapRef.current) return;
-
-        console.log('🔄 MapComponent - Map mode changed:', {
-            isMapEditable,
-            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
-            districtName,
-            blockName
-        });
 
         if (isMapEditable) {
             // Reset to editable mode - restore boundary and allow interactions
@@ -2488,7 +2468,6 @@ const MapComponent = () => {
 
     // 🎯 NEW: Function to highlight the Well Depth subregion containing the accepted work demand item marker
     const highlightWellDepthSubregionForMarker = (markerCoords) => {
-        console.log('🎯 highlightWellDepthSubregionForMarker called with coords:', markerCoords);
         
         if (!groundwaterRefs[0].current) {
             console.log('❌ Well Depth layer not loaded yet');
@@ -2510,7 +2489,6 @@ const MapComponent = () => {
             
             // 🎯 NEW: Wait for features to load if they're not ready yet
             const features = wellDepthSource.getFeatures();
-            console.log('🔍 Number of Well Depth features:', features.length);
             
             if (features.length === 0) {
                 console.log('⏰ No features loaded yet, waiting for source to be ready...');
@@ -2593,7 +2571,6 @@ const MapComponent = () => {
                     
                     if (featureUid === clickedMwsId || adjacentFeatures.includes(featureUid)) {
                         // Turn the containing subregion and adjacent subregions white with transparency - matching normal flow
-                        console.log(`🎨 Turning feature ${featureUid} WHITE with transparency (${featureUid === clickedMwsId ? 'containing' : 'adjacent'})`);
                         return new Style({
                             stroke: new Stroke({
                                 color: "#1AA7EC",

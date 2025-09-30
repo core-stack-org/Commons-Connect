@@ -222,32 +222,26 @@ const useMainStore = create((set) => ({
 
     acceptedWorkDemandItem: null,
     setAcceptedWorkDemandItem: (item) => {
-        console.log('🔄 MainStore - Setting acceptedWorkDemandItem:', item);
         set({ acceptedWorkDemandItem: item });
     },
     clearAcceptedWorkDemandItem: () => {
-        console.log('🔄 MainStore - Clearing acceptedWorkDemandItem');
         set({ acceptedWorkDemandItem: null });
     },
 
     acceptedFromDialog: false,
     setAcceptedFromDialog: () => {
-        console.log('🔄 MainStore - Setting acceptedFromDialog: true');
         set({ acceptedFromDialog: true });
     },
     clearAcceptedFromDialog: () => {
-        console.log('🔄 MainStore - Clearing acceptedFromDialog');
         set({ acceptedFromDialog: false });
     },
 
     //? NEW: Dedicated coordinates for accepted work demand items
     acceptedWorkDemandCoords: null,
     setAcceptedWorkDemandCoords: (coords) => {
-        console.log('✅ MainStore - setAcceptedWorkDemandCoords called with:', coords);
         set({ acceptedWorkDemandCoords: coords });
     },
     clearAcceptedWorkDemandCoords: () => {
-        console.log('🚨 MainStore - clearAcceptedWorkDemandCoords called from:', new Error().stack);
         set({ acceptedWorkDemandCoords: null });
     },
 
@@ -255,11 +249,9 @@ const useMainStore = create((set) => ({
     acceptedWorkDemandCommunityId: null,
     acceptedWorkDemandCommunityName: null,
     setAcceptedWorkDemandCommunityInfo: (communityId, communityName) => {
-        console.log('🔄 MainStore - Setting acceptedWorkDemandCommunityInfo:', { communityId, communityName });
         set({ acceptedWorkDemandCommunityId: communityId, acceptedWorkDemandCommunityName: communityName });
     },
     clearAcceptedWorkDemandCommunityInfo: () => {
-        console.log('🔄 MainStore - Clearing acceptedWorkDemandCommunityInfo');
         set({ acceptedWorkDemandCommunityId: null, acceptedWorkDemandCommunityName: null });
     },
 
@@ -267,15 +259,12 @@ const useMainStore = create((set) => ({
     isMapEditable: true,
     userExplicitlyEnabledEditing: false,
     setIsMapEditable: (editable) => {
-        console.log('🔄 MainStore - Setting isMapEditable:', editable);
         set({ isMapEditable: editable });
     },
     setUserExplicitlyEnabledEditing: (enabled) => {
-        console.log('🔄 MainStore - Setting userExplicitlyEnabledEditing:', enabled);
         set({ userExplicitlyEnabledEditing: enabled });
     },
     clearUserExplicitlyEnabledEditing: () => {
-        console.log('🔄 MainStore - Clearing userExplicitlyEnabledEditing');
         set({ userExplicitlyEnabledEditing: false });
     },
     resetMapToEditableMode: () => {
@@ -304,7 +293,6 @@ const useMainStore = create((set) => ({
     
     // New function to safely reset map mode only when appropriate
     safeResetMapToEditableMode: () => {
-        console.log('🔄 MainStore - Safe reset map to editable mode');
         set((state) => {
             // Don't reset if we're in the middle of processing a work demand
             if (state.acceptedFromDialog) {

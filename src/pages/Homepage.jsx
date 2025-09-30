@@ -48,7 +48,6 @@ const Homepage = () => {
                 }
                 const homepageUrl = window.location.href;
                 MainStore.setHomepageUrl(homepageUrl);
-                console.log('🔄 Homepage - Storing homepage URL:', homepageUrl);
                 
                 // 🎯 NEW: Check if we should automatically open items list
                 const shouldOpenItems = searchParams.get('open_items') === 'true';
@@ -78,7 +77,6 @@ const Homepage = () => {
                         setTimeout(() => {
                             MainStore.setMenuOption('communities');
                             MainStore.setIsInfoOpen(true); // 🎯 CRITICAL: Open InfoBox
-                            console.log('✅ Homepage - Menu option set to communities and InfoBox opened');
                         }, 100);
                         
                         // 🎯 NEW: Clear the ODK form navigation flag after use
@@ -91,15 +89,12 @@ const Homepage = () => {
                         if (communityId) cleanUrl = cleanUrl.replace(/[?&]community_id=[^&]*/, '');
                         if (communityName) cleanUrl = cleanUrl.replace(/[?&]community_name=[^&]*/, '');
                         window.history.replaceState({}, '', cleanUrl);
-                        console.log('✅ Homepage - Cleaned up URL parameters from hard refresh');
                     }
                 }
                 
                 // 🎯 NEW: Reset community state on hard refresh (when no ODK form navigation AND no items trigger)
                 if (!shouldOpenItems && !sessionStorage.getItem('odkFormNavigation')) {
-                    console.log('🔄 Homepage - Hard refresh detected, resetting community state');
                     MainStore.clearAcceptedWorkDemandCommunityInfo();
-                    console.log('✅ Homepage - Community state cleared');
                 }
             }
 
