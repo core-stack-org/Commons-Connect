@@ -15,6 +15,7 @@ const InfoBox = () => {
     const currentStep = useMainStore((state) => state.currentStep);
     const currentMenuOption = useMainStore((state) => state.menuOption);
     const setMenuOption = useMainStore((state) => state.setMenuOption);
+    const blockName = useMainStore((state) => state.blockName);
   
     const safeResetMapToEditableMode = useMainStore((state) => state.safeResetMapToEditableMode);
     const setAcceptedWorkDemandCommunityInfo = useMainStore((state) => state.setAcceptedWorkDemandCommunityInfo);
@@ -87,24 +88,21 @@ const InfoBox = () => {
     setLanguageChangeSuccess(false);
   };
 
-    const handleApplyLanguage = () => {
-        if (selectedLanguage) {
-            i18n.changeLanguage(selectedLanguage);
-
-            setCurrentLanguage(selectedLanguage);
-
-            const url = new URL(window.location);
-            url.searchParams.set("language", selectedLanguage);
-            window.history.pushState({}, "", url);
-
-            setLanguageChangeSuccess(true);
-            setTimeout(() => {
-                setLanguageChangeSuccess(false);
-                setMenuOption(null);
-                setIsInfoOpen(false);
-            }, 3000);
-        }
-    };
+  const handleApplyLanguage = () => {
+      if (selectedLanguage) {
+          i18n.changeLanguage(selectedLanguage);
+          setCurrentLanguage(selectedLanguage);
+          const url = new URL(window.location);
+          url.searchParams.set("language", selectedLanguage);
+          window.history.pushState({}, "", url);
+          setLanguageChangeSuccess(true);
+          setTimeout(() => {
+              setLanguageChangeSuccess(false);
+              setMenuOption(null);
+              setIsInfoOpen(false);
+          }, 3000);
+      }
+  };
 
     const handleDownloadDPR = () => {
         if (currentPlan !== null) {
@@ -202,57 +200,6 @@ const InfoBox = () => {
     setLoadingMore(false);
   };
 
-
-  async function handleAccept() {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          item_id: selectedItem.id,
-          state: 'ACCEPTED_STAGE_1',
-        }),
-      });
-
-      if (!res.ok) throw new Error('Failed to accept item');
-
-      setMapDialogOpen(false);
-    } catch (error) {
-      console.error('Error accepting item:', error);
-    }
-  }
-
-
-  async function handleReject() {
-    try {
-      if (!rejectionReason) return;
-
-      const res = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          item_id: selectedItem.id,
-          state: 'REJECTED_STAGE_1',
-          misc: {
-            rejection_reason: rejectionReason,
-          },
-        }),
-      });
-
-      if (!res.ok) throw new Error('Failed to reject item');
-
-      setMapDialogOpen(false);
-    } catch (error) {
-      console.error('Error rejecting item:', error);
-    }
-  }
-
-
-  
   // Add this new helper function for KML upload reset
   const handleReset = () => {
     setSelectedFile(null);
@@ -262,7 +209,7 @@ const InfoBox = () => {
     setIsUploading(false);
   };
 
-    const screenContent = {
+  const screenContent = {
         Resource_mapping: (
             <>
                 <h2 className="text-lg font-bold mb-2">Resource Mapping</h2>
@@ -448,12 +395,12 @@ const InfoBox = () => {
                 </p>
             </>
         ),
-    };
+  };
 
-    const isValidEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+  const isValidEmail = (email) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+  };
 
   // MARK: Language Selection
   const getCurrentLanguageFromURL = () => {
@@ -522,24 +469,22 @@ const InfoBox = () => {
     }
   }, [selectedCommunityId, selectedItemType, selectedItemState]);
 
-  // 🎯 NEW: Debug effect to track community selection
-  useEffect(() => {
-    console.log('🔍 InfoBox - Community selection debug:', {
-      selectedCommunityId,
-      selectedCommunityName,
-      acceptedWorkDemandCommunityId,
-      acceptedWorkDemandCommunityName,
-      currentMenuOption
-    });
-  }, [selectedCommunityId, selectedCommunityName, acceptedWorkDemandCommunityId, acceptedWorkDemandCommunityName, currentMenuOption]);
-
 
   const fetchCommunities = async () => {
     setIsCommunitiesLoading(true);
     setCommunityError(null);
     try {
-//       const res = await fetch(`${import.meta.env.VITE_API_URL}get_communities_by_location/?number=8`);
-      const res = await fetch(`${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=10&district_id=56&block_id=654`);
+      let url = ""
+      if(blockName === "poreyahat"){
+        url = `${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=20&district_id=64&block_id=741`
+      }
+      else if(blockName === "jamui"){
+        url = `${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=10&district_id=56&block_id=654`
+      }
+      else{
+        throw new Error("Failed to fetch communities");
+      }
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch communities");
       const data = await res.json();
       setCommunities(data.data);
@@ -573,7 +518,7 @@ const InfoBox = () => {
         params.append('item_state', selectedItemState);
       }
 
-              const url = `${import.meta.env.VITE_API_URL}get_items_by_community?${params.toString()}`;
+      const url = `${import.meta.env.VITE_API_URL}get_items_by_community?${params.toString()}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch community items');
       const result = await response.json();
@@ -628,7 +573,7 @@ const InfoBox = () => {
 
 
   return (
-            <div className="fixed inset-0 z-60 flex items-center justify-center pointer-events-none">
+    <div className="fixed inset-0 z-60 flex items-center justify-center pointer-events-none">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-white/10 backdrop-blur-md"
@@ -1349,7 +1294,7 @@ const InfoBox = () => {
                   </div>
                 )}
               </div>
-            )}
+                        )}
 
             {currentMenuOption === 'communities' && (
               <>

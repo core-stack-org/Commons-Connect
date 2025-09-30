@@ -36,7 +36,8 @@ const Bottomsheet = () => {
     const PlanningResource = {
         "Agriculture" : "plan_agri",
         "Groundwater" : "plan_gw",
-        "Livelihood" : "livelihood"
+        "Livelihood" : "livelihood",
+        "SurfaceWater" : "surfaceWater"
     }
 
     const LayerStoreKeysGW = [
@@ -108,8 +109,6 @@ const Bottomsheet = () => {
         "CLARTLayer" : "setCLARTLayer",
         "LULCLayer" : "setLULCLayer"
     }
-
-
 
     const handleOnLoadEvent = async() => {
         if(flg){
@@ -185,7 +184,6 @@ const Bottomsheet = () => {
                         district_name: MainStore.districtName,
                         block_name: MainStore.blockName,
                     }
-                    console.log(payload)
                     const response = await fetch(`${import.meta.env.VITE_API_URL}add_works/`, {
                         method: 'POST',
                         headers: {
@@ -197,8 +195,6 @@ const Bottomsheet = () => {
                     const res = await response.json()
 
                     MainStore.setIsLoading(false)
-
-                    console.log(res)
 
                     if (res.message === "Success") {
                         MainStore.setIsSubmissionSuccess(true)

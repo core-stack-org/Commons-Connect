@@ -30,6 +30,7 @@ import IrrigationIcon from "../assets/irrigation_icon.svg";
 import selectedSettlementIcon from "../assets/selected_settlement.svg";
 import iconsDetails from "../assets/icons.json";
 import mapMarker from "../assets/map_marker.svg";
+import itemMarker from "../assets/Item_marker.svg"
 import farm_pond_proposed from "../assets/farm_pond_proposed.svg";
 import land_leveling_proposed from "../assets/land_leveling_proposed.svg";
 import well_mrker from "../assets/well_icon.svg";
@@ -604,13 +605,13 @@ const MapComponent = () => {
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
             let wellMaintenance = false
+            if(status.Well_usage !== undefined){
+                const m = status.Well_usage.match(/'is_maintenance_required'\s*:\s*'([^']*)'/i);
+                wellMaintenance = m ? m[1].toLowerCase() === 'yes' : wellMaintenance;
+            }
             if(status.Well_condi !== undefined){
                 const m = status.Well_condi.match(/'select_one_maintenance'\s*:\s*'([^']*)'/i);
-                wellMaintenance = m ? m[1].toLowerCase() === 'yes' : null;
-            }
-            else{
-                const m = status.Well_usage.match(/'select_one_maintenance'\s*:\s*'([^']*)'/i);
-                wellMaintenance = m ? m[1].toLowerCase() === 'yes' : null;
+                wellMaintenance = m ? m[1].toLowerCase() === 'yes' : wellMaintenance;
             }
 
             if (status.status_re in iconsDetails.socialMapping_icons.well) {
@@ -875,8 +876,6 @@ const MapComponent = () => {
                 return;
             }
 
-            // Check if we're in planning mode with an accepted work demand item
-            // If so, prevent new marker placement
             if (acceptedWorkDemandItem && currentPlan) {
                 console.log("❌ Planning mode with work demand item, blocking marker placement");
                 return; // Exit early - no new markers allowed in planning mode
@@ -893,23 +892,14 @@ const MapComponent = () => {
 
             mapRef.current.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
               if (layer === assetsLayerRefs[0].current) {
-                MainStore.setResourceType("Settlement")
-                setFeatureStat(true)
-                mapRef.current.addInteraction(selectSettleIcon)
-                setSelectedResource(feature.values_)
-                tempSettlementFeature.current.setGeometry(new Point(e.coordinate))
-                
-                // 🎯 FIXED: Don't automatically advance to step 1 in work demand flow
-                // Only advance if we're not processing an accepted work demand item
-                if (!MainStore.acceptedWorkDemandItem) {
-                    MainStore.setCurrentStep(1);
-                } else {
-                    console.log('🎯 MapComponent - Keeping currentStep at 0 for work demand flow');
-                }
-                
-                MainStore.setSettlementName(feature.values_.sett_name)
-                MainStore.setIsResource(true)
-                MainStore.setIsResourceOpen(true)
+                MainStore.setResourceType("Settlement");
+                setFeatureStat(true);
+                mapRef.current.addInteraction(selectSettleIcon);
+                setSelectedResource(feature.values_);
+                tempSettlementFeature.current.setGeometry(new Point(e.coordinate),);
+                MainStore.setSettlementName(feature.values_.sett_name);
+                MainStore.setIsResource(true);
+                MainStore.setIsResourceOpen(true);
               }
               else if (layer === assetsLayerRefs[1].current) {
                 MainStore.setResourceType("Well")
@@ -957,12 +947,12 @@ const MapComponent = () => {
                 tempSettlementLayer.current.setVisible(false)
               }
 
-                if (
-                    feature.geometryChangeKey_.target.flatCoordinates[0] === GeolocationRef.current.position_[0] &&
-                    feature.geometryChangeKey_.target.flatCoordinates[1] === GeolocationRef.current.position_[1]
-                ) {
-                    mapRef.current.removeInteraction(selectSettleIcon);
-                }
+            if (
+                feature.geometryChangeKey_.target.flatCoordinates[0] === GeolocationRef.current.position_[0] &&
+                feature.geometryChangeKey_.target.flatCoordinates[1] === GeolocationRef.current.position_[1]
+            ) {
+                mapRef.current.removeInteraction(selectSettleIcon);
+            }
             });
         });
         setIsLoading(false);
@@ -1009,11 +999,11 @@ const MapComponent = () => {
                 
                 // 🎯 FIXED: Don't automatically advance to step 1 in work demand flow
                 // Only advance if we're not processing an accepted work demand item
-                if (!MainStore.acceptedWorkDemandItem) {
-                    MainStore.setCurrentStep(1);
-                } else {
-                    console.log('🎯 MapComponent - Keeping currentStep at 0 for work demand flow');
-                }
+                // if (!MainStore.acceptedWorkDemandItem) {
+                //     MainStore.setCurrentStep(1);
+                // } else {
+                //     console.log('🎯 MapComponent - Keeping currentStep at 0 for work demand flow');
+                // }
                 
                 assetsLayerRefs[0].current = settlementLayer
             }
@@ -1028,17 +1018,16 @@ const MapComponent = () => {
                     true,
                     true,
                 );
-
                 wellLayer.setStyle(function (feature) {
                     const status = feature.values_;
                     let wellMaintenance = false
+                    if(status.Well_usage !== undefined){
+                        const m = status.Well_usage.match(/'is_maintenance_required'\s*:\s*'([^']*)'/i);
+                        wellMaintenance = m ? m[1].toLowerCase() === 'yes' : wellMaintenance;
+                    }
                     if(status.Well_condi !== undefined){
                         const m = status.Well_condi.match(/'select_one_maintenance'\s*:\s*'([^']*)'/i);
-                        wellMaintenance = m ? m[1].toLowerCase() === 'yes' : null;
-                    }
-                    else{
-                        const m = status.Well_usage.match(/'select_one_maintenance'\s*:\s*'([^']*)'/i);
-                        wellMaintenance = m ? m[1].toLowerCase() === 'yes' : null;
+                        wellMaintenance = m ? m[1].toLowerCase() === 'yes' : wellMaintenance;
                     }
 
                     if (status.status_re in iconsDetails.socialMapping_icons.well) {
@@ -2044,56 +2033,33 @@ const MapComponent = () => {
         
         try {
             // Create a feature for the accepted item
-            const acceptedItemFeature = new Feature({
-                geometry: new Point(MainStore.acceptedWorkDemandCoords)
-            });
+            const acceptedItemFeature = new Feature();
 
             // Style the accepted item marker (exact same as normal flow)
             const acceptedItemStyle = new Style({
                 image: new Icon({
-                    src: mapMarker, // Using the same marker icon as normal flow
-                    anchor: [0.5, 46], // Exact same anchor as normal flow
-                    anchorXUnits: "fraction", // Exact same units as normal flow
-                    anchorYUnits: "pixels", // Exact same units as normal flow
+                    anchor: [0.5, 46],
+                    anchorXUnits: "fraction",
+                    anchorYUnits: "pixels",
+                    src: itemMarker,
                 }),
             });
-
-            console.log('🎯 Marker styling debug:', {
-                iconSrc: mapMarker,
-                style: acceptedItemStyle,
-                feature: acceptedItemFeature
-            });
-
-            acceptedItemFeature.setStyle(acceptedItemStyle);
 
             // Create the layer for the accepted item
             const acceptedItemLayer = new VectorLayer({
+                map: mapRef.current,
                 source: new VectorSource({
-                    features: [acceptedItemFeature]
+                    features: [acceptedItemFeature],
                 }),
                 style: acceptedItemStyle,
-                zIndex: 1000 // 🎯 NEW: Ensure marker renders on top of all other layers
             });
+            acceptedItemFeature.setGeometry(new Point(MainStore.acceptedWorkDemandCoords));
 
             // Store reference and add to map
             AcceptedItemLayerRef.current = acceptedItemLayer;
-            mapRef.current.addLayer(acceptedItemLayer);
-            
-            // 🎯 NEW: Set marker as placed for work demand flow so buttons are enabled
-            console.log('🔍 Before setting isMarkerPlaced - Current state:', {
-                isMarkerPlaced: MainStore.isMarkerPlaced,
-                acceptedWorkDemandItem: MainStore.acceptedWorkDemandItem,
-                acceptedWorkDemandCoords: MainStore.acceptedWorkDemandCoords
-            });
             
             MainStore.setMarkerPlaced(true);
-            
-            console.log('🔍 After setting isMarkerPlaced - New state:', {
-                isMarkerPlaced: MainStore.isMarkerPlaced,
-                acceptedWorkDemandItem: MainStore.acceptedWorkDemandItem,
-                acceptedWorkDemandCoords: MainStore.acceptedWorkDemandCoords
-            });
-            
+
             console.log('✅ Accepted work demand item marker created and displayed immediately');
         } catch (error) {
             console.error('❌ Error creating accepted work demand item marker:', error);
@@ -2111,13 +2077,6 @@ const MapComponent = () => {
     // 🎯 NEW: Function to initialize layers for the selected plan
     const initializeLayersForPlan = async () => {
         if (!mapRef.current || !currentPlan || !districtName || !blockName) return;
-
-        console.log('🔄 MapComponent - Initializing layers for plan:', currentPlan.plan);
-        console.log('🔍 Layer initialization - State check:', {
-            acceptedWorkDemandItem: !!acceptedWorkDemandItem,
-            acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
-            coords: MainStore.acceptedWorkDemandCoords
-        });
 
         try {
             // Initialize layers that are needed for the map to function properly
@@ -2710,14 +2669,6 @@ const MapComponent = () => {
                             </span>
                             <button
                                 onClick={() => {
-                                    console.log("🔧 Enable Editing clicked - Before reset:", {
-                                        acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
-                                        acceptedFromDialog: MainStore.acceptedFromDialog,
-                                        acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
-                                        isMarkerPlaced: MainStore.isMarkerPlaced,
-                                        markerCoords: !!MainStore.markerCoords,
-                                        isMapEditable: MainStore.isMapEditable
-                                    });
 
                                     // Reset all work demand related variables when enabling editing
                                     clearAcceptedWorkDemandItem();
@@ -2748,14 +2699,6 @@ const MapComponent = () => {
                                         });
                                     }, 100);
 
-                                    console.log("🔧 Enable Editing clicked - After reset:", {
-                                        acceptedWorkDemandItem: !!MainStore.acceptedWorkDemandItem,
-                                        acceptedFromDialog: MainStore.acceptedFromDialog,
-                                        acceptedWorkDemandCoords: !!MainStore.acceptedWorkDemandCoords,
-                                        isMarkerPlaced: MainStore.isMarkerPlaced,
-                                        markerCoords: !!MainStore.markerCoords,
-                                        isMapEditable: MainStore.isMapEditable
-                                    });
                                 }}
                                 className="px-3 py-1 bg-white text-blue-600 rounded text-xs hover:bg-gray-100 transition-colors font-medium"
                             >

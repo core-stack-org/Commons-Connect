@@ -41,7 +41,7 @@ const SurfaceWaterBodies = () => {
                 getOdkUrlForScreen(
                     MainStore.currentScreen,
                     MainStore.currentStep,
-                    MainStore.markerCoords,
+                    coordinatesToUse,
                     "",
                     "",
                     MainStore.blockName,

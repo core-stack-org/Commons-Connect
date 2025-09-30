@@ -70,14 +70,7 @@ const Groundwater = () => {
 
         // ⭐ PRIORITIZE: Use accepted work demand coordinates if available, otherwise use marker coordinates
         const coordinatesToUse = MainStore.acceptedWorkDemandCoords || MainStore.markerCoords;
-        
-        // Debug logging to verify coordinate flow
-        console.log('🔍 Groundwater Planning - Coordinate Debug:');
-        console.log('  - acceptedWorkDemandCoords:', MainStore.acceptedWorkDemandCoords);
-        console.log('  - markerCoords:', MainStore.markerCoords);
-        console.log('  - coordinatesToUse:', coordinatesToUse);
-        console.log('  - currentScreen:', MainStore.currentScreen);
-        console.log('  - currentStep:', MainStore.currentStep);
+    
       
         if(coordinatesToUse){
             MainStore.setIsForm(true);
@@ -85,7 +78,7 @@ const Groundwater = () => {
                 getOdkUrlForScreen(
                     MainStore.currentScreen,
                     MainStore.currentStep,
-                    MainStore.markerCoords,
+                    coordinatesToUse,
                     MainStore.settlementName,
                     "",
                     MainStore.blockName,

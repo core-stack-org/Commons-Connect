@@ -71,8 +71,6 @@ export default function WorkDemandDialog({
     }
   };
 
-
-
   // Initialize coordinates when item changes
   useEffect(() => {
     if (item) {
@@ -88,13 +86,6 @@ export default function WorkDemandDialog({
   // Check if buttons should be enabled based on current state
   const isActionable = item.state === 'ACCEPTED_STAGE_1' || item.state === 'UNMODERATED';
   
-  console.log('🎯 WorkDemandDialog - Component state:', { 
-    item, 
-    itemState: item?.state, 
-    isActionable, 
-    open 
-  });
-
   const handleAccept = async () => {
     if (!isActionable) return;
     

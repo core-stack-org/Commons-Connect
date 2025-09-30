@@ -57,18 +57,13 @@ const Homepage = () => {
                     const isFromOdkForm = sessionStorage.getItem('odkFormNavigation') === 'true';
                     
                     if (isFromOdkForm) {
-                        console.log('🔄 Homepage - Auto-opening items list from ODK form navigation');
-                        
                         // 🎯 NEW: Get community info from URL parameters
                         const communityId = searchParams.get('community_id');
                         const communityName = searchParams.get('community_name');
                         
                         if (communityId && communityName) {
-                            console.log('🔄 Homepage - Found community info in URL:', { communityId, communityName });
-                            
                             // Store this community info in MainStore for InfoBox to use
                             MainStore.setAcceptedWorkDemandCommunityInfo(communityId, communityName);
-                            console.log('✅ Homepage - Stored community info in MainStore');
                         } else {
                             console.log('ℹ️ Homepage - No community info in URL parameters');
                         }
@@ -88,10 +83,7 @@ const Homepage = () => {
                         
                         // 🎯 NEW: Clear the ODK form navigation flag after use
                         sessionStorage.removeItem('odkFormNavigation');
-                        console.log('✅ Homepage - Cleared ODK form navigation flag');
                     } else {
-                        console.log('ℹ️ Homepage - URL parameters detected but NOT from ODK form (likely hard refresh) - skipping auto-open');
-                        
                         // Clean up URL parameters without opening InfoBox
                         let cleanUrl = homepageUrl.replace(/[?&]open_items=true/, '');
                         const communityId = searchParams.get('community_id');
@@ -109,9 +101,6 @@ const Homepage = () => {
                     MainStore.clearAcceptedWorkDemandCommunityInfo();
                     console.log('✅ Homepage - Community state cleared');
                 }
-                
-        //         MainStore.fetchPlans(`http://127.0.0.1:8000/api/v1/get_plans/?block_id=${searchParams.get('block_id')}`)
-                //MainStore.fetchPlans(`https://geoserver.core-stack.org/api/v1/get_plans/?block_id=${searchParams.get('block_id')}`)
             }
 
 
@@ -372,12 +361,17 @@ const Homepage = () => {
                         <button
                             className="w-full px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95 whitespace-nowrap"
                             style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
+                                backgroundColor: !MainStore.isMapEditable
+                                    ? "#696969"
+                                    : "#D6D5C9",
+                                color: !MainStore.isMapEditable
+                                    ? "#A8A8A8"
+                                    : "#592941",
                                 border: "none",
                                 minHeight: "44px",
                                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
                             }}
+                            disabled={!MainStore.isMapEditable}
                             onClick={() => {
                                 if (MainStore.currentPlan) {
                                     MainStore.setCurrentScreen(
