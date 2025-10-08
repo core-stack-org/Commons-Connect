@@ -5,11 +5,8 @@ class AuthService {
         this.initializationPromise = null;
         this.isDevelopment = import.meta.env.VITE_NODE_ENV === "development";
         this.useMockAuth = import.meta.env.VITE_USE_MOCK_AUTH === "true";
-
-        this.initialize();
     }
 
-    // MARK: Development mock auth data
     getMockAuthData() {
         return {
             access: "mock_access_token_for_development",
@@ -75,13 +72,14 @@ class AuthService {
         }
 
         this.initializationPromise = new Promise((resolve) => {
+            console.log("[AuthService] Starting initialization...");
+
             if (this.isDevelopment) {
                 if (this.useMockAuth) {
                     this.authData = this.getMockAuthData();
                     this.isInitialized = true;
                     console.log(
-                        "Development: Using mock auth data:",
-                        this.authData,
+                        "[AuthService] Development: Using mock auth data",
                     );
                     resolve(this.authData);
                     return;
@@ -91,59 +89,211 @@ class AuthService {
                         this.authData = storedAuth;
                         this.isInitialized = true;
                         console.log(
-                            "Development: Using stored auth data:",
-                            this.authData,
+                            "[AuthService] Development: Using stored auth data",
                         );
                         resolve(this.authData);
                         return;
-                    } else {
-                        console.log("No stored auth data found");
                     }
                 }
             }
-            // MARK: flutter injection here
-            if (window.flutterAuth) {
-                this.authData = window.flutterAuth;
-                this.isInitialized = true;
-                console.log("Auth data loaded from Flutter:", this.authData);
-                resolve(this.authData);
-                return;
-            } else {
-                console.log("No Flutter auth found");
-            }
 
-            const checkForAuth = setInterval(() => {
-                if (window.flutterAuth || window.getAuthToken) {
-                    clearInterval(checkForAuth);
-                    this.authData = window.flutterAuth;
+            let resolved = false;
+
+            const resolveOnce = (authData, source) => {
+                if (!resolved) {
+                    resolved = true;
+                    this.authData = authData;
                     this.isInitialized = true;
                     console.log(
-                        "Auth data received from Flutter:",
-                        this.authData,
+                        `[AuthService] ✓ Auth loaded from: ${source}`,
+                        authData,
                     );
-                    console.log(JSON.stringify(this.authData, null, 2));
-                    resolve(this.authData);
+                    resolve(authData);
                 }
-            }, 100);
+            };
 
-            setTimeout(() => {
-                clearInterval(checkForAuth);
-                if (!this.isInitialized) {
-                    if (this.isDevelopment) {
-                        this.authData = this.getMockAuthData();
-                        this.isInitialized = true;
-                        resolve(this.authData);
-                    } else {
-                        console.warn(
-                            "Auth data not received from Flutter within timeout",
+            // 1: Check if already available (immediate)
+            if (window.flutterAuth) {
+                console.log("[AuthService] Found immediate window.flutterAuth");
+                resolveOnce(window.flutterAuth, "immediate-window");
+                return;
+            }
+
+            if (
+                window.getAuthToken &&
+                typeof window.getAuthToken === "function"
+            ) {
+                const token = window.getAuthToken();
+                const userData = window.getUserData
+                    ? window.getUserData()
+                    : null;
+                if (token) {
+                    console.log("[AuthService] Found immediate getAuthToken");
+                    resolveOnce(
+                        {
+                            access_token: token,
+                            user: userData,
+                            timestamp: Date.now(),
+                        },
+                        "immediate-function",
+                    );
+                    return;
+                }
+            }
+
+            // 2: Aggressive polling with exponential backoff
+            let pollAttempt = 0;
+            const maxPollAttempts = 200;
+
+            const pollForAuth = () => {
+                pollAttempt++;
+
+                // Flutter Auth
+                if (window.flutterAuth) {
+                    console.log(
+                        `[AuthService] Poll success (attempt ${pollAttempt}): window.flutterAuth`,
+                    );
+                    clearInterval(pollInterval);
+                    resolveOnce(window.flutterAuth, `poll-${pollAttempt}`);
+                    return;
+                }
+
+                if (
+                    window.getAuthToken &&
+                    typeof window.getAuthToken === "function"
+                ) {
+                    const token = window.getAuthToken();
+                    if (token) {
+                        console.log(
+                            `[AuthService] Poll success (attempt ${pollAttempt}): getAuthToken`,
                         );
-                        resolve(null);
+                        clearInterval(pollInterval);
+                        const userData = window.getUserData
+                            ? window.getUserData()
+                            : null;
+                        resolveOnce(
+                            {
+                                access_token: token,
+                                user: userData,
+                                timestamp: Date.now(),
+                            },
+                            `poll-function-${pollAttempt}`,
+                        );
+                        return;
                     }
                 }
-            }, 10000);
+
+                // Log progress every 20 attempts (2 seconds)
+                if (pollAttempt % 20 === 0) {
+                    console.log(
+                        `[AuthService] Still waiting for Flutter auth... (${pollAttempt} attempts, ${pollAttempt * 100}ms)`,
+                    );
+                }
+
+                if (pollAttempt >= maxPollAttempts) {
+                    console.warn(
+                        `[AuthService] Polling timeout after ${pollAttempt} attempts`,
+                    );
+                    clearInterval(pollInterval);
+                    this.handleAuthTimeout(resolve);
+                }
+            };
+
+            const pollInterval = setInterval(pollForAuth, 100);
+
+            // 3: Listen for page lifecycle events
+            const checkOnVisibility = () => {
+                if (!resolved && document.visibilityState === "visible") {
+                    if (window.flutterAuth) {
+                        console.log(
+                            "[AuthService] Found auth on visibility change",
+                        );
+                        clearInterval(pollInterval);
+                        resolveOnce(window.flutterAuth, "visibility-change");
+                    }
+                }
+            };
+            document.addEventListener("visibilitychange", checkOnVisibility);
+
+            // 4: Check on DOMContentLoaded (if not already fired)
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", () => {
+                    setTimeout(() => {
+                        if (!resolved && window.flutterAuth) {
+                            console.log(
+                                "[AuthService] Found auth after DOMContentLoaded",
+                            );
+                            clearInterval(pollInterval);
+                            resolveOnce(window.flutterAuth, "dom-loaded");
+                        }
+                    }, 500);
+                });
+            }
+
+            // 5: Check on window load
+            if (document.readyState !== "complete") {
+                window.addEventListener("load", () => {
+                    setTimeout(() => {
+                        if (!resolved && window.flutterAuth) {
+                            console.log(
+                                "[AuthService] Found auth after window load",
+                            );
+                            clearInterval(pollInterval);
+                            resolveOnce(window.flutterAuth, "window-load");
+                        }
+                    }, 1000);
+                });
+            }
+
+            // Approach 6: Use MutationObserver to watch for window property changes
+            if (typeof MutationObserver !== "undefined") {
+                let checkCount = 0;
+                const observer = new MutationObserver(() => {
+                    checkCount++;
+                    if (!resolved && window.flutterAuth) {
+                        console.log(
+                            `[AuthService] Found auth via MutationObserver (check ${checkCount})`,
+                        );
+                        observer.disconnect();
+                        clearInterval(pollInterval);
+                        resolveOnce(window.flutterAuth, "mutation-observer");
+                    }
+                });
+
+                if (document.body) {
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true,
+                    });
+                }
+            }
         });
 
         return this.initializationPromise;
+    }
+
+    handleAuthTimeout(resolve) {
+        if (this.isDevelopment) {
+            console.log(
+                "[AuthService] Development: Falling back to mock auth after timeout",
+            );
+            this.authData = this.getMockAuthData();
+            this.isInitialized = true;
+            resolve(this.authData);
+        } else {
+            console.error(
+                "[AuthService] ✗ Auth data not received from Flutter - no fallback available",
+            );
+            console.error("[AuthService] Debug info:", {
+                hasFlutterAuth: !!window.flutterAuth,
+                hasGetAuthToken: typeof window.getAuthToken === "function",
+                hasFlutterInappWebview: !!window.flutter_inappwebview,
+                windowKeys: Object.keys(window).filter(
+                    (k) => k.includes("flutter") || k.includes("auth"),
+                ),
+            });
+            resolve(null);
+        }
     }
 
     async waitForAuth() {
@@ -154,36 +304,68 @@ class AuthService {
     }
 
     getAccessToken() {
-        if (window.getAuthToken) {
-            const token = window.getAuthToken();
-            return token;
+        if (window.getAuthToken && typeof window.getAuthToken === "function") {
+            try {
+                const token = window.getAuthToken();
+                if (token) return token;
+            } catch (e) {
+                console.warn(
+                    "[AuthService] Error calling window.getAuthToken:",
+                    e,
+                );
+            }
         }
-        const token = this.authData?.access_token || this.authData?.access;
-        return token;
+
+        if (window.flutterAuth?.access_token) {
+            return window.flutterAuth.access_token;
+        }
+
+        return this.authData?.access_token || this.authData?.access;
     }
 
     getUserData() {
-        if (window.getUserData) {
-            const userData = window.getUserData();
-            return userData;
+        if (window.getUserData && typeof window.getUserData === "function") {
+            try {
+                const userData = window.getUserData();
+                if (userData) return userData;
+            } catch (e) {
+                console.warn(
+                    "[AuthService] Error calling window.getUserData:",
+                    e,
+                );
+            }
         }
-        const userData = this.authData?.user;
-        return userData;
+
+        if (window.flutterAuth?.user) {
+            return window.flutterAuth.user;
+        }
+
+        return this.authData?.user;
     }
 
     async refreshToken() {
-        if (window.refreshAuthToken) {
+        if (
+            window.refreshAuthToken &&
+            typeof window.refreshAuthToken === "function"
+        ) {
             try {
+                console.log(
+                    "[AuthService] Requesting token refresh from Flutter...",
+                );
                 const newAuthData = await window.refreshAuthToken();
                 this.authData = newAuthData;
+                console.log("[AuthService] Token refreshed successfully");
                 return newAuthData;
             } catch (error) {
-                console.error("Token refresh failed:", error);
+                console.error("[AuthService] Token refresh failed:", error);
                 throw error;
             }
         }
 
         if (this.isDevelopment) {
+            console.log(
+                "[AuthService] Development: Returning existing auth data (no refresh)",
+            );
             return this.authData;
         }
 
@@ -191,8 +373,18 @@ class AuthService {
     }
 
     async makeAuthenticatedRequest(url, options = {}) {
-        if (window.makeAuthenticatedRequest) {
-            return window.makeAuthenticatedRequest(url, options);
+        if (
+            window.makeAuthenticatedRequest &&
+            typeof window.makeAuthenticatedRequest === "function"
+        ) {
+            try {
+                return await window.makeAuthenticatedRequest(url, options);
+            } catch (e) {
+                console.warn(
+                    "[AuthService] Flutter makeAuthenticatedRequest failed, using fallback:",
+                    e,
+                );
+            }
         }
 
         const token = this.getAccessToken();
@@ -248,11 +440,22 @@ class AuthService {
 
 const authService = new AuthService();
 
+setTimeout(() => {
+    if (!authService.isInitialized) {
+        console.log("[AuthService] Auto-initializing after delay...");
+        authService.initialize().catch((err) => {
+            console.error("[AuthService] Auto-initialization failed:", err);
+        });
+    }
+}, 100);
+
 if (import.meta.env.VITE_NODE_ENV === "development") {
     window.devAuth = {
         setAuth: (authData) => authService.setDevAuthData(authData),
         clearAuth: () => authService.clearDevAuthData(),
         getAuth: () => authService.authData,
+        isInitialized: () => authService.isInitialized,
+        forceInit: () => authService.initialize(),
     };
 }
 
