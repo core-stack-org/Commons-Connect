@@ -1883,7 +1883,7 @@ const MapComponent = () => {
 
             // Store cleanup references
             return () => {
-                GeolocationRef.current.setTracking(false);
+                //GeolocationRef.current.setTracking(false);
                 mapRef.current.removeLayer(gpsLayer);
                 PositionFeatureRef.current = null;
             };
