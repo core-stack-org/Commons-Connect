@@ -28,9 +28,10 @@ const Homepage = () => {
                 const transformName = (name) => {
                     if (!name) return name;
                     return name
-                        .replace(/\s*\(\s*/g, "") // Remove "("
-                        .replace(/\s*\)\s*/g, "") // Remove ")"
-                        .replace(/\s+/g, "_") // Replace remaining spaces with "_"
+                        .replace(/[()]/g, "") // Remove all parentheses
+                        .replace(/[-\s]+/g, "_") // Replace dashes and spaces with "_"
+                        .replace(/_+/g, "_") // Collapse multiple underscores to one
+                        .replace(/^_|_$/g, "") // Remove leading/trailing underscores
                         .toLowerCase();
                 };
 
