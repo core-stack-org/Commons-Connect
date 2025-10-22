@@ -327,14 +327,14 @@ const MapComponent = () => {
         try {
             const boundaryLayer = await getWebglVectorLayers(
                 "panchayat_boundaries",
-                `${district.toLowerCase().replace(/\s+/g, "_")}_${block.toLowerCase().replace(/\s+/g, "_")}`,
+                `${district}_${block}`,
                 true,
                 true,
             );
 
             const nregaWorksLayer = await getWebGlLayers(
                 "nrega_assets",
-                `${district.toLowerCase().replace(/\s+/g, "_")}_${block.toLowerCase().replace(/\s+/g, "_")}`,
+                `${district}_${block}`,
                 setAllNregaYears,
                 MainStore.nregaStyle,
             );
@@ -551,7 +551,7 @@ const MapComponent = () => {
             "settlement_" +
                 currentPlan.plan_id +
                 "_" +
-                `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                `${districtName}_${blockName}`,
             true,
             true,
         );
@@ -561,7 +561,7 @@ const MapComponent = () => {
             "well_" +
                 currentPlan.plan_id +
                 "_" +
-                `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                `${districtName}_${blockName}`,
             true,
             true,
         );
@@ -571,36 +571,35 @@ const MapComponent = () => {
             "waterbody_" +
                 currentPlan.plan_id +
                 "_" +
-                `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                `${districtName}_${blockName}`,
             true,
             true,
         );
 
         const cropGridLayer = await getVectorLayers(
             "crop_grid_layers",
-            `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}` +
-                "_grid",
+            `${districtName}_${blockName}` + "_grid",
             true,
             true,
         );
 
         const AgricultureWorkLayer = await getVectorLayers(
             "works",
-            `plan_agri_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+            `plan_agri_${currentPlan.plan_id}_${districtName}_${blockName}`,
             true,
             true,
         );
 
         const GroundWaterWorkLayer = await getVectorLayers(
             "works",
-            `plan_gw_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+            `plan_gw_${currentPlan.plan_id}_${districtName}_${blockName}`,
             true,
             true,
         );
 
         const livelihoodLayer = await getVectorLayers(
             "works",
-            `livelihood_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+            `livelihood_${currentPlan.plan_id}_${districtName}_${blockName}`,
             true,
             true,
         );
@@ -986,7 +985,7 @@ const MapComponent = () => {
                     "settlement_" +
                         currentPlan.plan_id +
                         "_" +
-                        `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                        `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1026,7 +1025,7 @@ const MapComponent = () => {
                     "well_" +
                         currentPlan.plan_id +
                         "_" +
-                        `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                        `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1078,7 +1077,7 @@ const MapComponent = () => {
                     "waterbody_" +
                         currentPlan.plan_id +
                         "_" +
-                        `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                        `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1177,7 +1176,7 @@ const MapComponent = () => {
         } else if (currentScreen === "Groundwater") {
             const GroundWaterWorkLayer = await getVectorLayers(
                 "works",
-                `plan_gw_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                `plan_gw_${currentPlan.plan_id}_${districtName}_${blockName}`,
                 true,
                 true,
             );
@@ -1203,7 +1202,7 @@ const MapComponent = () => {
         } else if (currentScreen === "Agriculture") {
             const AgricultureWorkLayer = await getVectorLayers(
                 "works",
-                `plan_agri_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                `plan_agri_${currentPlan.plan_id}_${districtName}_${blockName}`,
                 true,
                 true,
             );
@@ -1270,7 +1269,7 @@ const MapComponent = () => {
         } else if (currentScreen === "Livelihood") {
             const livelihoodLayer = await getVectorLayers(
                 "works",
-                `livelihood_${currentPlan.plan_id}_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                `livelihood_${currentPlan.plan_id}_${districtName}_${blockName}`,
                 true,
                 true,
             );
@@ -1324,7 +1323,7 @@ const MapComponent = () => {
                 if (WaterbodiesLayerRef.current === null) {
                     const waterBodyLayers = await getWebglVectorLayers(
                         "swb",
-                        `surface_waterbodies_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                        `surface_waterbodies_${districtName}_${blockName}`,
                         true,
                         true,
                     );
@@ -1527,8 +1526,7 @@ const MapComponent = () => {
             if (groundwaterRefs[0].current === null && currentStep === 0) {
                 const deltaGWellDepth = await getVectorLayers(
                     "mws_layers",
-                    "deltaG_well_depth_" +
-                        `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    "deltaG_well_depth_" + `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1538,8 +1536,7 @@ const MapComponent = () => {
             if (groundwaterRefs[2].current === null && currentStep === 0) {
                 const deltaGWellDepthFortnight = await getVectorLayers(
                     "mws_layers",
-                    "deltaG_fortnight_" +
-                        `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    "deltaG_fortnight_" + `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1549,7 +1546,7 @@ const MapComponent = () => {
             if (groundwaterRefs[1].current === null) {
                 const drainageLayer = await getWebglVectorLayers(
                     "drainage",
-                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1559,8 +1556,7 @@ const MapComponent = () => {
             if (ClartLayerRef.current === null) {
                 const ClartLayer = await getImageLayer(
                     "clart",
-                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}` +
-                        "_clart",
+                    `${districtName}_${blockName}` + "_clart",
                     true,
                     "",
                 );
@@ -1630,7 +1626,7 @@ const MapComponent = () => {
             if (WaterbodiesLayerRef.current === null && currentStep === 0) {
                 const waterBodyLayers = await getWebglVectorLayers(
                     "swb",
-                    `surface_waterbodies_${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    `surface_waterbodies_${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1639,7 +1635,7 @@ const MapComponent = () => {
             if (groundwaterRefs[1].current === null && currentStep === 0) {
                 const drainageLayer = await getWebglVectorLayers(
                     "drainage",
-                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1678,7 +1674,7 @@ const MapComponent = () => {
             if (AgriLayersRefs[0].current === null) {
                 let CroppingIntensity = await getWebglVectorLayers(
                     "crop_intensity",
-                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}_intensity`,
+                    `${districtName}_${blockName}_intensity`,
                     true,
                     true,
                 );
@@ -1688,7 +1684,7 @@ const MapComponent = () => {
             if (AgriLayersRefs[1].current === null) {
                 let DroughtIntensity = await getWebglVectorLayers(
                     "cropping_drought",
-                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}_drought`,
+                    `${districtName}_${blockName}_drought`,
                     true,
                     true,
                 );
@@ -1698,7 +1694,7 @@ const MapComponent = () => {
             if (LulcLayerRefs[0].current === null) {
                 let lulcLayer = await getImageLayer(
                     "LULC_level_3",
-                    `LULC_17_18_${blockName.toLowerCase().replace(/\s+/g, "_")}_level_3`,
+                    `LULC_17_18_${blockName}_level_3`,
                     true,
                     "",
                 );
@@ -1709,8 +1705,7 @@ const MapComponent = () => {
             if (ClartLayerRef.current === null) {
                 const ClartLayer = await getImageLayer(
                     "clart",
-                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}` +
-                        "_clart",
+                    `${districtName}_${blockName}` + "_clart",
                     true,
                     "",
                 );
@@ -1721,7 +1716,7 @@ const MapComponent = () => {
             if (groundwaterRefs[1].current === null) {
                 const drainageLayer = await getWebglVectorLayers(
                     "drainage",
-                    `${districtName.toLowerCase().replace(/\s+/g, "_")}_${blockName.toLowerCase().replace(/\s+/g, "_")}`,
+                    `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1783,7 +1778,7 @@ const MapComponent = () => {
             if (LulcLayerRefs[MainStore.lulcYearIdx].current === null) {
                 let lulcLayer = await getImageLayer(
                     "LULC_level_3",
-                    `LULC_${LulcYears[MainStore.lulcYearIdx]}_${blockName.toLowerCase().replace(/\s+/g, "_")}_level_3`,
+                    `LULC_${LulcYears[MainStore.lulcYearIdx]}_${blockName}_level_3`,
                     true,
                     "",
                 );
