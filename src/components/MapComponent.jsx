@@ -1855,7 +1855,7 @@ const MapComponent = () => {
                     return coords;
                 } catch (geoError) {
                     console.error("Browser geolocation error:", geoError);
-                    toast.error("Unable to get GPS location");
+                    //toast.error("Unable to get GPS location");
                     return null;
                 }
             }
@@ -1897,7 +1897,7 @@ const MapComponent = () => {
                 console.log("GPS button clicked - fetching current location");
                 
                 // Show loading toast
-                toast.info("Getting current GPS location...");
+                //toast.info("Getting current GPS location...");
                 
                 // Fetch location from Flutter app (with fallback to browser)
                 const currentLocation = await fetchLocationFromFlutter();
