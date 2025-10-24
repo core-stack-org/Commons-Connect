@@ -187,7 +187,6 @@ const MapComponent = () => {
     const acceptedFromDialog = useMainStore((state) => state.acceptedFromDialog);
     const clearAcceptedFromDialog = useMainStore((state) => state.clearAcceptedFromDialog);
     const clearAcceptedWorkDemandItem = useMainStore((state) => state.clearAcceptedWorkDemandItem);
-    const setAcceptedWorkDemandCoords = useMainStore((state) => state.setAcceptedWorkDemandCoords);
     const clearAcceptedWorkDemandCoords = useMainStore((state) => state.clearAcceptedWorkDemandCoords);
     
     // Map mode management
@@ -1186,6 +1185,10 @@ const MapComponent = () => {
             mapRef.current.removeLayer(groundwaterRefs[2].current);
             groundwaterRefs[3].current = GroundWaterWorkLayer;
             mapRef.current.addLayer(groundwaterRefs[3].current);
+            if(AcceptedItemLayerRef.current !== null){
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current)
+                AcceptedItemLayerRef.current = null
+            }
         } 
         else if (currentScreen === "Agriculture") {
             const AgricultureWorkLayer = await getVectorLayers(
@@ -1316,7 +1319,6 @@ const MapComponent = () => {
                 }
                 mapRef.current.addLayer(WaterbodiesLayerRef.current);
             }
-
         }
         else if(currentScreen === "Groundwater"){
 
@@ -1482,6 +1484,9 @@ const MapComponent = () => {
             if (AcceptedItemLayerRef.current && !isMapEditable && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
                 mapRef.current.addLayer(AcceptedItemLayerRef.current);
             }
+            else if(AcceptedItemLayerRef.current && isMapEditable && mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)){
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current)
+            }
         }
         else if(currentScreen === "Resource_mapping"){
             layerCollection.getArray().slice().forEach(layer => {
@@ -1494,11 +1499,6 @@ const MapComponent = () => {
             // Only reset marker placement if there's no accepted work demand item
             if (!acceptedWorkDemandItem) {
                 MainStore.setMarkerPlaced(false);
-            }
-
-            // Restore accepted item layer if it exists
-            if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
-                mapRef.current.addLayer(AcceptedItemLayerRef.current);
             }
         }
         else if(currentScreen === "Groundwater"){
@@ -1551,8 +1551,12 @@ const MapComponent = () => {
                 ClartLayer.setOpacity(0.4);
                 ClartLayerRef.current = ClartLayer;
             }
-
-            groundwaterRefs[0].current.setStyle(function (feature) {
+            
+            if(MainStore.acceptedWorkDemandCoords !== null){
+                highlightWellDepthSubregionForMarker(MainStore.acceptedWorkDemandCoords)
+            }
+            else{
+                groundwaterRefs[0].current.setStyle(function (feature) {
                 const status = feature.values_;
                 let tempColor;
 
@@ -1576,6 +1580,7 @@ const MapComponent = () => {
                     }),
                 });
             });
+            }
             mapRef.current.addLayer(groundwaterRefs[2].current);
             mapRef.current.addLayer(groundwaterRefs[currentStep].current);
             mapRef.current.addLayer(assetsLayerRefs[0].current);
@@ -1596,6 +1601,9 @@ const MapComponent = () => {
             // Restore accepted item layer if it exists
             if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
                 mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+            else if(AcceptedItemLayerRef.current && isMapEditable && mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)){
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current)
             }
 
             LayersStore.setAdminBoundary(true)
@@ -1650,6 +1658,9 @@ const MapComponent = () => {
             // Restore accepted item layer if it exists
             if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
                 mapRef.current.addLayer(AcceptedItemLayerRef.current);
+            }
+            else if(AcceptedItemLayerRef.current && isMapEditable && mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)){
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current)
             }
         }
         else if(currentScreen === "Agriculture"){
@@ -1722,6 +1733,9 @@ const MapComponent = () => {
             if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
                 mapRef.current.addLayer(AcceptedItemLayerRef.current);
             }
+            else if(AcceptedItemLayerRef.current && isMapEditable && mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)){
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current)
+            }
 
             mapRef.current.addLayer(assetsLayerRefs[1].current)
 
@@ -1764,6 +1778,9 @@ const MapComponent = () => {
             if (AcceptedItemLayerRef.current && !mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)) {
                 mapRef.current.addLayer(AcceptedItemLayerRef.current);
             }
+            else if(AcceptedItemLayerRef.current && isMapEditable && mapRef.current.getLayers().getArray().includes(AcceptedItemLayerRef.current)){
+                mapRef.current.removeLayer(AcceptedItemLayerRef.current)
+            }
             mapRef.current.addLayer(LivelihoodRefs[0].current)
         }
     }
@@ -1793,119 +1810,161 @@ const MapComponent = () => {
     };
 
     useEffect(() => {
-        if (PositionFeatureRef.current === null && mapRef.current !== null) {
-            const positionFeature = new Feature();
+        const initializeGPSLocation = async () => {
+            if (PositionFeatureRef.current === null && mapRef.current !== null) {
+                const positionFeature = new Feature();
 
-            positionFeature.setStyle(new Style({
-                image: new Icon({
-                    src: Man_icon,
-                    scale: 0.8,
-                    anchor: [0.5, 0.5],
-                    anchorXUnits: 'fraction',
-                    anchorYUnits: 'fraction',
-                }),
-            }));
+                positionFeature.setStyle(new Style({
+                    image: new Icon({
+                        src: Man_icon,
+                        scale: 0.8,
+                        anchor: [0.5, 0.5],
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'fraction',
+                    }),
+                }));
 
-            // Store reference to position feature
-            PositionFeatureRef.current = positionFeature;
+                console.log("Reached here in GPS location ksheetiz");
 
-            let tempCoords = MainStore.gpsLocation
-            if(tempCoords === null){
-                try{
-                    navigator.geolocation.getCurrentPosition(
-                        ({ coords }) => {
-                            tempCoords = [coords.longitude, coords.latitude];
-                            MainStore.setGpsLocation(tempCoords);
-                        },
-                        (err) => console.error("Geo error:", err),
-                    );
+                // Store reference to position feature
+                PositionFeatureRef.current = positionFeature;
 
-                    if (tempCoords === null) {
-                        throw new Error("User Location missing");
-                    }
-                } catch (err) {
-                    GeolocationRef.current.on("change:position", function () {
-                        const coordinates =
-                            GeolocationRef.current.getPosition();
-                        if (coordinates) {
-                            MainStore.setGpsLocation(coordinates);
-
-                            positionFeature.setGeometry(new Point(coordinates));
+                let tempCoords = MainStore.gpsLocation;
+                
+                if (tempCoords === null) {
+                    try {
+                        // First try to get location from Flutter app's local server
+                        console.log("Fetching location from Flutter app...");
+                        const response = await fetch(`http://localhost:3000/api/v1/location`);
+                        
+                        if (response.ok) {
+                            const locationData = await response.json();
+                            console.log("Location data from Flutter:", locationData);
+                            
+                            // Check if we got valid location data
+                            if (locationData && locationData.latitude && locationData.longitude) {
+                                tempCoords = [locationData.longitude, locationData.latitude];
+                                MainStore.setGpsLocation(tempCoords);
+                                console.log("GPS location set from Flutter app:", tempCoords);
+                            } else if (locationData.error) {
+                                console.warn("Flutter app returned error:", locationData.error);
+                                // Fall back to browser geolocation
+                                throw new Error("Flutter location not available");
+                            }
+                        } else {
+                            console.error(`Failed to fetch from Flutter: ${response.status} ${response.statusText}`);
+                            throw new Error(`Failed to fetch form: ${response.status} ${response.statusText}`);
                         }
-                    });
+                    } catch (err) {
+                        console.error("Error fetching from Flutter, falling back to browser geolocation:", err);
+                        
+                        // Fallback to browser's geolocation API
+                        try {
+                            const position = await new Promise((resolve, reject) => {
+                                navigator.geolocation.getCurrentPosition(
+                                    (pos) => resolve(pos),
+                                    (error) => reject(error),
+                                    {
+                                        enableHighAccuracy: true,
+                                        timeout: 5000,
+                                        maximumAge: 0
+                                    }
+                                );
+                            });
+                            
+                            tempCoords = [position.coords.longitude, position.coords.latitude];
+                            MainStore.setGpsLocation(tempCoords);
+                            console.log("GPS location set from browser:", tempCoords);
+                        } catch (geoError) {
+                            console.error("Browser geolocation error:", geoError);
+                            
+                            // Final fallback to geolocation tracking
+                            GeolocationRef.current.on("change:position", function () {
+                                const coordinates = GeolocationRef.current.getPosition();
+                                if (coordinates) {
+                                    MainStore.setGpsLocation(coordinates);
+                                    positionFeature.setGeometry(new Point(coordinates));
+                                }
+                            });
+                        }
+                    }
                 }
-            }
-            // Animate to new position with smooth pan
-            const view = mapRef.current.getView();
+                
+                // Animate to new position with smooth pan
+                const view = mapRef.current.getView();
 
-            if (tempCoords === null) {
-                toast("Getting GPS !");
-                return;
-            }
+                if (tempCoords === null) {
+                    toast("Getting GPS!");
+                    return;
+                }
 
-            // First pan to location
-            view.animate({
-                center: tempCoords,
-                duration: 1000,
-                easing: easeOut,
-            });
+                // First pan to location
+                view.animate({
+                    center: tempCoords,
+                    duration: 1000,
+                    easing: easeOut,
+                });
 
-            // Then zoom in to level 17 with animation
-            view.animate({
-                zoom: 17,
-                duration: 1200,
-                easing: easeOut,
-            });
+                // Then zoom in to level 17 with animation
+                view.animate({
+                    zoom: 17,
+                    duration: 1200,
+                    easing: easeOut,
+                });
 
-            positionFeature.setGeometry(new Point(tempCoords));
+                positionFeature.setGeometry(new Point(tempCoords));
 
-            // Create GPS layer
-            let gpsLayer = new VectorLayer({
-                map: mapRef.current,
-                source: new VectorSource({
-                    features: [positionFeature],
-                }),
-                zIndex: 99, // Ensure it's on top
-            });
+                // Create GPS layer
+                let gpsLayer = new VectorLayer({
+                    map: mapRef.current,
+                    source: new VectorSource({
+                        features: [positionFeature],
+                    }),
+                    zIndex: 99, // Ensure it's on top
+                });
 
-            GpsLayerRef.current = gpsLayer
+                GpsLayerRef.current = gpsLayer;
 
-            // Store cleanup references
-            return () => {
-                GeolocationRef.current.setTracking(false);
-                mapRef.current.removeLayer(gpsLayer);
-                PositionFeatureRef.current = null;
-            };
-        }
-
-        // Handle GPS button click to center on current location
-        if (
-            PositionFeatureRef.current !== null &&
-            MainStore.gpsLocation !== null &&
-            MainStore.isGPSClick
-        ) {
-            const view = mapRef.current.getView();
-
-            if(MainStore.gpsLocation === null){
-                toast.error("Not able to get Location !");
-                return;
+                // Store cleanup references
+                return () => {
+                    GeolocationRef.current.setTracking(false);
+                    mapRef.current.removeLayer(gpsLayer);
+                    PositionFeatureRef.current = null;
+                };
             }
 
-            // Sequence of animations for smoother experience
-            // 1. First start panning
-            view.animate({
-                center: MainStore.gpsLocation,
-                duration: 800,
-                easing: easeOut,
-            });
+            // Handle GPS button click to center on current location
+            if (
+                PositionFeatureRef.current !== null &&
+                MainStore.gpsLocation !== null &&
+                MainStore.isGPSClick
+            ) {
+                const view = mapRef.current.getView();
 
-            // 2. Then always animate to zoom level 17 regardless of current zoom
-            view.animate({
-                zoom: 17,
-                duration: 1000,
-                easing: easeOut,
-            });
-        }
+                if (MainStore.gpsLocation === null) {
+                    toast.error("Not able to get Location!");
+                    return;
+                }
+                
+                // Sequence of animations for smoother experience
+                // 1. First start panning
+                view.animate({
+                    center: MainStore.gpsLocation,
+                    duration: 800,
+                    easing: easeOut,
+                });
+
+                // 2. Then always animate to zoom level 17 regardless of current zoom
+                view.animate({
+                    zoom: 17,
+                    duration: 1000,
+                    easing: easeOut,
+                });
+            }
+        };
+
+        // Call the async function
+        initializeGPSLocation();
     }, [MainStore.isGPSClick]);
 
     useEffect(() => {
@@ -2228,7 +2287,6 @@ const MapComponent = () => {
         }
     }, [isMapEditable, districtName, blockName, acceptedWorkDemandItem]);
 
-
     useEffect(() => {
         if (currentPlan !== null) {
             fetchResourcesLayers();
@@ -2485,21 +2543,18 @@ const MapComponent = () => {
         
         try {
             const wellDepthSource = groundwaterRefs[0].current.getSource();
-            console.log('🔍 Well Depth source:', wellDepthSource);
+            const fortnightSource = groundwaterRefs[2].current.getSource();
             
             // 🎯 NEW: Wait for features to load if they're not ready yet
             const features = wellDepthSource.getFeatures();
+            const fortnightFeatures = fortnightSource.getFeatures();
             
-            if (features.length === 0) {
-                console.log('⏰ No features loaded yet, waiting for source to be ready...');
-                
+            if (features.length === 0 || fortnightFeatures.length === 0) {
                 // Wait for the source to be ready
                 const waitForFeatures = () => {
                     const currentFeatures = wellDepthSource.getFeatures();
-                    console.log('🔄 Checking features again, count:', currentFeatures.length);
                     
                     if (currentFeatures.length > 0) {
-                        console.log('✅ Features loaded, proceeding with highlighting');
                         highlightWellDepthSubregionForMarker(markerCoords); // Recursive call
                     } else {
                         // Still no features, wait a bit more
@@ -2516,15 +2571,9 @@ const MapComponent = () => {
             for (let i = 0; i < features.length; i++) {
                 const feature = features[i];
                 const geometry = feature.getGeometry();
-                console.log(`🔍 Feature ${i}:`, {
-                    uid: feature.get("uid"),
-                    hasGeometry: !!geometry,
-                    geometryType: geometry ? geometry.getType() : 'none'
-                });
                 
                 if (geometry && geometry.intersectsCoordinate(markerCoords)) {
                     containingFeature = feature;
-                    console.log(`✅ Found containing feature at index ${i}`);
                     break;
                 }
             }
@@ -2532,6 +2581,15 @@ const MapComponent = () => {
             if (containingFeature) {
                 const clickedMwsId = containingFeature.get("uid");
                 console.log('✅ Found containing subregion with UID:', clickedMwsId);
+
+                for(let i = 0; i < fortnightFeatures.length; ++i){
+                    let feature = fortnightFeatures[i];
+
+                    if(feature.get("uid") === clickedMwsId){
+                        MainStore.setFortnightData(feature.values_);
+                        break;
+                    }
+                }
                 
                 // 🎯 NEW: Try to find adjacent subregions to highlight (matching normal flow behavior)
                 const adjacentFeatures = [];
@@ -2558,10 +2616,8 @@ const MapComponent = () => {
                 }
                 
                 // Apply the same styling logic as normal flow
-                console.log('🎨 Applying styling to Well Depth layer...');
                 groundwaterRefs[0].current.setStyle((feature) => {
                     const featureUid = feature.get("uid");
-                    console.log(`🎨 Styling feature with UID: ${featureUid}, target UID: ${clickedMwsId}`);
                     
                     // 🎯 NEW: Skip styling if this is a marker feature (not a subregion)
                     if (!featureUid) {
@@ -2597,7 +2653,6 @@ const MapComponent = () => {
                             else tempColor = "rgba(0, 0, 255, 0.5)";
                         }
                         
-                        console.log(`🎨 Keeping feature ${featureUid} with color: ${tempColor}`);
                         return new Style({
                             stroke: new Stroke({
                                 color: "#1AA7EC",
