@@ -1855,7 +1855,6 @@ const MapComponent = () => {
                     return coords;
                 } catch (geoError) {
                     console.error("Browser geolocation error:", geoError);
-                    //toast.error("Unable to get GPS location");
                     return null;
                 }
             }
@@ -1896,11 +1895,36 @@ const MapComponent = () => {
             if (MainStore.isGPSClick && mapRef.current !== null) {
                 console.log("GPS button clicked - fetching current location");
                 
-                // Show loading toast
-                //toast.info("Getting current GPS location...");
+                // Show loading toast with a unique ID so we can dismiss it later
+                let loadingToastId = null;
+                
+                // Check which toast library you're using and use appropriate method
+                if (toast.loading) {
+                    // For react-hot-toast
+                    loadingToastId = toast.loading("Getting GPS location...");
+                } else if (toast.info && toast.dismiss) {
+                    // For react-toastify
+                    loadingToastId = toast.info("Getting GPS location...", { 
+                        autoClose: false,
+                        closeButton: false,
+                        draggable: false
+                    });
+                } else {
+                    // Fallback for simple toast
+                    toast("Getting GPS location...");
+                }
                 
                 // Fetch location from Flutter app (with fallback to browser)
                 const currentLocation = await fetchLocationFromFlutter();
+                
+                // Dismiss the loading toast
+                if (loadingToastId) {
+                    if (toast.dismiss) {
+                        toast.dismiss(loadingToastId);
+                    } else if (toast.remove) {
+                        toast.remove(loadingToastId);
+                    }
+                }
                 
                 if (currentLocation !== null && PositionFeatureRef.current !== null) {
                     // Update position feature geometry
@@ -1923,9 +1947,19 @@ const MapComponent = () => {
                         easing: easeOut,
                     });
                     
-                    toast.success("Location updated!");
+                    // Show success toast
+                    if (toast.success) {
+                        toast.success("Location updated!");
+                    } else {
+                        toast("Location updated!");
+                    }
                 } else if (currentLocation === null) {
-                    toast.error("Failed to get GPS location");
+                    // Show error toast
+                    if (toast.error) {
+                        toast.error("Failed to get GPS location");
+                    } else {
+                        toast("Failed to get GPS location");
+                    }
                 }
                 
                 // Reset the GPS click state if needed
@@ -1950,7 +1984,6 @@ const MapComponent = () => {
             PositionFeatureRef.current = null;
         };
     }, [MainStore.isGPSClick]); // Only re-run when isGPSClick changes
-
     useEffect(() => {
         if (!mapRef.current) {
             initializeMap();
