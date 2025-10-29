@@ -7,7 +7,7 @@
     "Precipitation" : "Precipitation (mm)",
     "ET" : "Evapotranspiration (mm)",
     "RunOff" : "Runoff (mm)",
-    "DeltaG" : "Change in Groundwater (mm)",
+    "DeltaG" : "Change in Water Balance (mm)",
     "WellDepth" : "Well Depth (m)",
 
     "info_main_1" : "Select a plan.",
@@ -40,14 +40,14 @@
 
     "info_blank": "No annual data found for the selected year",
 
-    "gw_heading": "GroundWater Analysis",
-    "info_gw_header_1": "Change in Groundwater table in the year:",
+    "gw_heading": "Water Balance Analysis",
+    "info_gw_header_1": "Change in water balance over the years:",
     "info_gw_header_2": "Precipitation and RunOff",
     "info_gw_header_3": "Evapotranspiration",
-    "info_gw_header_4": "Groundwater",
+    "info_gw_header_4": "Water Balance",
     "info_gw_modal_1" : "The first graph shows the amount of rainfall in this area, and the portion of that rainfall lost in runoff. High runoff would typically indicate an opportunity for constructing groundwater recharge structures such as check dams, percolation tanks, and trenches and bunds.",
     "info_gw_modal_2" : "The second graph shows for the area the water lost from water bodies through evaporation, and from vegetation through transpiration. An increase in cropping intensity would typically result in an increase in evapotranspiration due to greater use of water, often obtained from groundwater. A different choice of crops and trees would change the evapotranspiration in an area.",
-    "info_gw_modal_3" : "The third graph shows the drop or increase in groundwater levels. Greater evapotranspiration, greater runoff, or less rainfall, would typically lead to a drop in groundwater levels. Recharge structures to improve groundwater, or alternative cropping patterns to reduce water usage, can help improve groundwater levels.",
+    "info_gw_modal_3" : "The third graph shows the change in water balance. Greater evapotranspiration, greater runoff, or less rainfall, would typically lead to a reduced water balance. Recharge structures to improve groundwater, or alternative cropping patterns to reduce water usage, lead to an improved water balance.",
     "instruct_gw": "You can use the slider on the top to move across different years.",
     "yearly": "Yearly",
     "fortnightly": "Fortnightly",

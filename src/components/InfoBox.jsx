@@ -634,10 +634,10 @@ const InfoBox = () => {
                                 ) : (
                                     <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-4 mb-4">
                                         <div className="text-center">
-                                            <h4 className="font-medium text-gray-900 mb-2">
+                                            <h4 className="font-medium text-red-600 mb-2">
                                                 {t("Plan Selection Required")}
                                             </h4>
-                                            <p className="text-gray-600 text-sm">
+                                            <p className="text-red-600 text-sm">
                                                 {t(
                                                     "Please, select a plan first!",
                                                 )}

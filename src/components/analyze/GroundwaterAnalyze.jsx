@@ -299,7 +299,7 @@ const GroundwaterAnalyze = () => {
 
         {/* Ground-water area */}
         <section>
-          <h2 className="font-bold text-gray-700 mb-2">{t("info_gw_header_4")} (G)</h2>
+          <h2 className="font-bold text-gray-700 mb-2">{t("info_gw_header_4")}</h2>
           {hasFort ? (
             <div className="relative h-56">
               <Line
