@@ -1891,120 +1891,176 @@ const MapComponent = () => {
     };
 
     useEffect(() => {
-        if (PositionFeatureRef.current === null && mapRef.current !== null) {
-            const positionFeature = new Feature();
-
-            positionFeature.setStyle(
-                new Style({
-                    image: new Icon({
-                        src: Man_icon,
-                        scale: 0.8,
-                        anchor: [0.5, 0.5],
-                        anchorXUnits: "fraction",
-                        anchorYUnits: "fraction",
-                    }),
-                }),
-            );
-
-            PositionFeatureRef.current = positionFeature;
-
-            let tempCoords = MainStore.gpsLocation;
-            if (tempCoords === null) {
+            const fetchLocationFromFlutter = async () => {
                 try {
-                    navigator.geolocation.getCurrentPosition(
-                        ({ coords }) => {
-                            tempCoords = [coords.longitude, coords.latitude];
-                            MainStore.setGpsLocation(tempCoords);
-                        },
-                        (err) => console.error("Geo error:", err),
-                    );
-
-                    if (tempCoords === null) {
-                        throw new Error("User Location missing");
+                    console.log("Fetching location from Flutter app...");
+                    const response = await fetch(`http://localhost:3000/api/v1/location`);
+                    
+                    if (response.ok) {
+                        const locationData = await response.json();
+                        
+                        // Check if we got valid location data
+                        if (locationData && locationData.latitude && locationData.longitude) {
+                            const newCoords = [locationData.longitude, locationData.latitude];
+                            MainStore.setGpsLocation(newCoords);
+                            return newCoords;
+                        } else if (locationData.error) {
+                            console.warn("Flutter app returned error:", locationData.error);
+                        }
+                    } else {
+                        console.error(`Failed to fetch from Flutter: ${response.status}`);
                     }
                 } catch (err) {
-                    GeolocationRef.current.on("change:position", function () {
-                        const coordinates =
-                            GeolocationRef.current.getPosition();
-                        if (coordinates) {
-                            MainStore.setGpsLocation(coordinates);
-
-                            positionFeature.setGeometry(new Point(coordinates));
-                        }
-                    });
+                    console.error("Error fetching location from Flutter:", err);
+                    
+                    // Fallback to browser geolocation
+                    try {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(
+                                (pos) => resolve(pos),
+                                (error) => reject(error),
+                                {
+                                    enableHighAccuracy: true,
+                                    timeout: 5000,
+                                    maximumAge: 0
+                                }
+                            );
+                        });
+                        
+                        const coords = [position.coords.longitude, position.coords.latitude];
+                        console.log("Fallback to browser location:", coords);
+                        MainStore.setGpsLocation(coords);
+                        return coords;
+                    } catch (geoError) {
+                        console.error("Browser geolocation error:", geoError);
+                        return null;
+                    }
                 }
-            }
-            // Animate to new position with smooth pan
-            const view = mapRef.current.getView();
-
-            if (tempCoords === null) {
-                toast("Getting GPS !");
-                return;
-            }
-
-            // First pan to location
-            view.animate({
-                center: tempCoords,
-                duration: 1000,
-                easing: easeOut,
-            });
-
-            // Then zoom in to level 17 with animation
-            view.animate({
-                zoom: 17,
-                duration: 1200,
-                easing: easeOut,
-            });
-
-            positionFeature.setGeometry(new Point(tempCoords));
-
-            // Create GPS layer
-            let gpsLayer = new VectorLayer({
-                map: mapRef.current,
-                source: new VectorSource({
-                    features: [positionFeature],
-                }),
-                zIndex: 99, // Ensure it's on top
-            });
-
-            GpsLayerRef.current = gpsLayer;
-
-            // Store cleanup references
+            };
+    
+            const initializeGPSLocation = async () => {
+                // Initialize position feature if not already created
+                if (PositionFeatureRef.current === null && mapRef.current !== null) {
+                    const positionFeature = new Feature();
+    
+                    positionFeature.setStyle(new Style({
+                        image: new Icon({
+                            src: Man_icon,
+                            scale: 0.8,
+                            anchor: [0.5, 0.5],
+                            anchorXUnits: 'fraction',
+                            anchorYUnits: 'fraction',
+                        }),
+                    }));
+    
+                    console.log("Initializing GPS position feature");
+                    PositionFeatureRef.current = positionFeature;
+    
+                    // Create GPS layer if it doesn't exist
+                    if (!GpsLayerRef.current) {
+                        let gpsLayer = new VectorLayer({
+                            map: mapRef.current,
+                            source: new VectorSource({
+                                features: [positionFeature],
+                            }),
+                            zIndex: 99, // Ensure it's on top
+                        });
+                        GpsLayerRef.current = gpsLayer;
+                    }
+                }
+    
+                // Fetch location when GPS button is clicked
+                if (MainStore.isGPSClick && mapRef.current !== null) {
+                    console.log("GPS button clicked - fetching current location");
+                    
+                    // Show loading toast with a unique ID so we can dismiss it later
+                    let loadingToastId = null;
+                    
+                    // Check which toast library you're using and use appropriate method
+                    if (toast.loading) {
+                        // For react-hot-toast
+                        loadingToastId = toast.loading("Getting GPS location...");
+                    } else if (toast.info && toast.dismiss) {
+                        // For react-toastify
+                        loadingToastId = toast.info("Getting GPS location...", { 
+                            autoClose: false,
+                            closeButton: false,
+                            draggable: false
+                        });
+                    } else {
+                        // Fallback for simple toast
+                        toast("Getting GPS location...");
+                    }
+                    
+                    // Fetch location from Flutter app (with fallback to browser)
+                    const currentLocation = await fetchLocationFromFlutter();
+                    
+                    // Dismiss the loading toast
+                    if (loadingToastId) {
+                        if (toast.dismiss) {
+                            toast.dismiss(loadingToastId);
+                        } else if (toast.remove) {
+                            toast.remove(loadingToastId);
+                        }
+                    }
+                    
+                    if (currentLocation !== null && PositionFeatureRef.current !== null) {
+                        // Update position feature geometry
+                        PositionFeatureRef.current.setGeometry(new Point(currentLocation));
+                        
+                        // Animate map to new position
+                        const view = mapRef.current.getView();
+                        
+                        // First pan to location
+                        view.animate({
+                            center: currentLocation,
+                            duration: 800,
+                            easing: easeOut,
+                        });
+    
+                        // Then zoom to level 17
+                        view.animate({
+                            zoom: 17,
+                            duration: 1000,
+                            easing: easeOut,
+                        });
+                        
+                        // Show success toast
+                        if (toast.success) {
+                            toast.success("Location updated!");
+                        } else {
+                            toast("Location updated!");
+                        }
+                    } else if (currentLocation === null) {
+                        // Show error toast
+                        if (toast.error) {
+                            toast.error("Failed to get GPS location");
+                        } else {
+                            toast("Failed to get GPS location");
+                        }
+                    }
+                    
+                    // Reset the GPS click state if needed
+                    // MainStore.setIsGPSClick(false); // Uncomment if you want to reset the state
+                }
+            };
+    
+            // Call the initialization function
+            initializeGPSLocation();
+    
+            // Cleanup function
             return () => {
-                //GeolocationRef.current.setTracking(false);
-                mapRef.current.removeLayer(gpsLayer);
+                if (GeolocationRef.current) {
+                    GeolocationRef.current.setTracking(false);
+                }
+                
+                if (GpsLayerRef.current && mapRef.current) {
+                    mapRef.current.removeLayer(GpsLayerRef.current);
+                    GpsLayerRef.current = null;
+                }
+                
                 PositionFeatureRef.current = null;
             };
-        }
-
-        // Handle GPS button click to center on current location
-        if (
-            PositionFeatureRef.current !== null &&
-            MainStore.gpsLocation !== null &&
-            MainStore.isGPSClick
-        ) {
-            const view = mapRef.current.getView();
-
-            if (MainStore.gpsLocation === null) {
-                toast.error("Not able to get Location !");
-                return;
-            }
-
-            // Sequence of animations for smoother experience
-            // 1. First start panning
-            view.animate({
-                center: MainStore.gpsLocation,
-                duration: 800,
-                easing: easeOut,
-            });
-
-            // 2. Then always animate to zoom level 17 regardless of current zoom
-            view.animate({
-                zoom: 17,
-                duration: 1000,
-                easing: easeOut,
-            });
-        }
     }, [MainStore.isGPSClick]);
 
     useEffect(() => {
