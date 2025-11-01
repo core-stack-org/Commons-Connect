@@ -138,6 +138,7 @@
     "Authentication not loaded": "सत्यापन लोड नहीं हुआ है",
     "Please re-submit the location from location selection screen to continue.": "कृपया स्थान को स्थान चयन स्क्रीन से पुनर्सम्बन्धित करें।",
     "Test Plans: For training and practice purposes": "परीक्षण योजनाएं: शैक्षणिक और अभ्यास के लिए",
+    "Search plans by name...": "नाम द्वारा प्लान खोजें...",
 
     "Select Active Layers": "सेलेक्ट एक्टिव लेयर",
     "Well Depth Layer": "वेल डेप्थ लेयर",
@@ -148,6 +149,10 @@
     "Drainage Layer": "ड्रेनेज लेयर",
     "Water Structures Layer": "जल स्रोत का लेयर",
     "Water Body Layer": "वॉटर बॉडी लेयर",
+    "Select a project to view its plans.": "एक परियोजना का चयन करें ताकि आप उसके प्लान देख सकें।",
+    "No plans found for the selected project.": "चयनित परियोजना के लिए कोई प्लान नहीं मिला।",
+    "Projects": "परियोजनाएं",
+    "No Project": "कोई परियोजना नहीं",
 
     "Information": "जानकारी",
     "Tutorial": "संरक्षक",

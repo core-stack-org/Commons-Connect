@@ -31,6 +31,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const [selectedFacilitatorFilter, setSelectedFacilitatorFilter] =
         useState(null);
     const [manuallyCleared, setManuallyCleared] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const filterMenuRef = useRef(null);
 
@@ -452,6 +453,12 @@ const PlanSheet = ({ isOpen, onClose }) => {
     };
 
     const handlePlanSelect = (plan) => {
+        if (selectedPlanId === plan.id) {
+            setSelectedPlanId(null);
+            MainStore.setCurrentPlan(null);
+            return;
+        }
+
         setSelectedPlanId(plan.id);
 
         if (isSuperAdmin || isOrgAdmin) {
@@ -532,9 +539,23 @@ const PlanSheet = ({ isOpen, onClose }) => {
         const regularPlans = plans.filter((plan) => !isTestPlan(plan));
 
         let filteredRegularPlans = [...regularPlans];
+        let filteredTestPlans = [...testPlans];
+
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            filteredRegularPlans = filteredRegularPlans.filter((plan) =>
+                plan.plan?.toLowerCase().includes(query),
+            );
+            filteredTestPlans = filteredTestPlans.filter((plan) =>
+                plan.plan?.toLowerCase().includes(query),
+            );
+        }
 
         if (selectedVillageFilter) {
             filteredRegularPlans = filteredRegularPlans.filter(
+                (plan) => plan.village_name === selectedVillageFilter,
+            );
+            filteredTestPlans = filteredTestPlans.filter(
                 (plan) => plan.village_name === selectedVillageFilter,
             );
         }
@@ -543,18 +564,22 @@ const PlanSheet = ({ isOpen, onClose }) => {
             filteredRegularPlans = filteredRegularPlans.filter(
                 (plan) => plan.facilitator_name === selectedFacilitatorFilter,
             );
+            filteredTestPlans = filteredTestPlans.filter(
+                (plan) => plan.facilitator_name === selectedFacilitatorFilter,
+            );
         }
 
         return {
             regularPlans: filteredRegularPlans,
-            testPlans: testPlans,
-            hasTestPlans: testPlans.length > 0,
+            testPlans: filteredTestPlans,
+            hasTestPlans: filteredTestPlans.length > 0,
         };
     };
 
     const clearFilters = () => {
         setSelectedVillageFilter(null);
         setSelectedFacilitatorFilter(null);
+        setSearchQuery("");
         setManuallyCleared(true);
         setShowFilterMenu(false);
         setShowVillageFilter(false);
@@ -769,8 +794,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
             <BottomSheet
                 open={isOpen}
                 onDismiss={() => setShowProjectSelector(false)}
-                defaultSnap={({ maxHeight }) => maxHeight * 0.8}
-                snapPoints={({ maxHeight }) => [maxHeight * 0.8]}
+                defaultSnap={({ maxHeight }) => maxHeight * 1.0}
+                snapPoints={({ maxHeight }) => [maxHeight * 1.0]}
             >
                 <div className="p-6 pb-8">
                     <div className="flex items-center justify-between mb-6">
@@ -1110,8 +1135,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
         <BottomSheet
             open={isOpen}
             onDismiss={onClose}
-            defaultSnap={({ maxHeight }) => maxHeight * 0.8}
-            snapPoints={({ maxHeight }) => [maxHeight * 0.8]}
+            defaultSnap={({ maxHeight }) => maxHeight * 1.0}
+            snapPoints={({ maxHeight }) => [maxHeight * 1.0]}
         >
             <div className="p-6 pb-8">
                 <div className="flex items-center justify-between mb-6">
@@ -1229,37 +1254,80 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                         </div>
                                     </div>
 
-                                    <div className="mb-3 flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold text-gray-900">
-                                            {t("Plans")} ({t("Tehsil ID")}:{" "}
-                                            {blockId})
-                                        </h3>
-                                        <div className="relative">
-                                            <button
-                                                data-filter-button
-                                                onClick={toggleFilterMenu}
-                                                className={`p-2 rounded-lg border transition-colors ${
-                                                    selectedVillageFilter ||
-                                                    selectedFacilitatorFilter
-                                                        ? "bg-blue-50 border-blue-200 text-blue-600"
-                                                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                                                }`}
-                                            >
-                                                <svg
-                                                    className="w-5 h-5"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
+                                    <div className="mb-3">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h3 className="text-lg font-semibold text-gray-900">
+                                                {t("Plans")} ({t("Tehsil ID")}:{" "}
+                                                {blockId})
+                                            </h3>
+                                            <div className="relative">
+                                                <button
+                                                    data-filter-button
+                                                    onClick={toggleFilterMenu}
+                                                    className={`p-2 rounded-lg border transition-colors ${
+                                                        selectedVillageFilter ||
+                                                        selectedFacilitatorFilter
+                                                            ? "bg-blue-50 border-blue-200 text-blue-600"
+                                                            : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                                    }`}
                                                 >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
-                                                    />
-                                                </svg>
-                                            </button>
-                                            <FilterMenu />
+                                                    <svg
+                                                        className="w-5 h-5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                                <FilterMenu />
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder={t("Search plans by name...")}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                autoComplete="off"
+                                                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                            <svg
+                                                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                                />
+                                            </svg>
+                                            {searchQuery && (
+                                                <button
+                                                    onClick={() => setSearchQuery("")}
+                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                >
+                                                    <svg
+                                                        className="w-4 h-4"
+                                                        fill="currentColor"
+                                                        viewBox="0 0 20 20"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
@@ -1642,38 +1710,81 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="mb-3 flex items-center justify-between">
-                                                <h3 className="text-lg font-semibold text-gray-900">
-                                                    {t("Plans")}
-                                                </h3>
-                                                <div className="relative">
-                                                    <button
-                                                        data-filter-button
-                                                        onClick={
-                                                            toggleFilterMenu
-                                                        }
-                                                        className={`p-2 rounded-lg border transition-colors ${
-                                                            selectedVillageFilter ||
-                                                            selectedFacilitatorFilter
-                                                                ? "bg-blue-50 border-blue-200 text-blue-600"
-                                                                : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                                                        }`}
-                                                    >
-                                                        <svg
-                                                            className="w-5 h-5"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
+                                            <div className="mb-3">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h3 className="text-lg font-semibold text-gray-900">
+                                                        {t("Plans")}
+                                                    </h3>
+                                                    <div className="relative">
+                                                        <button
+                                                            data-filter-button
+                                                            onClick={
+                                                                toggleFilterMenu
+                                                            }
+                                                            className={`p-2 rounded-lg border transition-colors ${
+                                                                selectedVillageFilter ||
+                                                                selectedFacilitatorFilter
+                                                                    ? "bg-blue-50 border-blue-200 text-blue-600"
+                                                                    : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                                            }`}
                                                         >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
-                                                            />
-                                                        </svg>
-                                                    </button>
-                                                    <FilterMenu />
+                                                            <svg
+                                                                className="w-5 h-5"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                        <FilterMenu />
+                                                    </div>
+                                                </div>
+                                                <div className="relative">
+                                                    <input
+                                                type="text"
+                                                placeholder={t("Search plans by name...")}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                autoComplete="off"
+                                                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    />
+                                                    <svg
+                                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                                        />
+                                                    </svg>
+                                                    {searchQuery && (
+                                                        <button
+                                                            onClick={() => setSearchQuery("")}
+                                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                        >
+                                                            <svg
+                                                                className="w-4 h-4"
+                                                                fill="currentColor"
+                                                                viewBox="0 0 20 20"
+                                                            >
+                                                                <path
+                                                                    fillRule="evenodd"
+                                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                    clipRule="evenodd"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -1960,8 +2071,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                     <div className="text-center py-8 text-gray-500">
                                         {userData?.project_details?.length >
                                             1 && !selectedProject
-                                            ? "Select a project to view its plans."
-                                            : "No plans found for the selected project."}
+                                            ? t("Select a project to view its plans.")
+                                            : t("No plans found for the selected project.")}
                                     </div>
                                 )}
                             </>
@@ -1997,38 +2108,81 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="mb-3 flex items-center justify-between">
-                                                <h3 className="text-lg font-semibold text-gray-900">
-                                                    {t("Plans")}
-                                                </h3>
-                                                <div className="relative">
-                                                    <button
-                                                        data-filter-button
-                                                        onClick={
-                                                            toggleFilterMenu
-                                                        }
-                                                        className={`p-2 rounded-lg border transition-colors ${
-                                                            selectedVillageFilter ||
-                                                            selectedFacilitatorFilter
-                                                                ? "bg-blue-50 border-blue-200 text-blue-600"
-                                                                : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                                                        }`}
-                                                    >
-                                                        <svg
-                                                            className="w-5 h-5"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
+                                            <div className="mb-3">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h3 className="text-lg font-semibold text-gray-900">
+                                                        {t("Plans")}
+                                                    </h3>
+                                                    <div className="relative">
+                                                        <button
+                                                            data-filter-button
+                                                            onClick={
+                                                                toggleFilterMenu
+                                                            }
+                                                            className={`p-2 rounded-lg border transition-colors ${
+                                                                selectedVillageFilter ||
+                                                                selectedFacilitatorFilter
+                                                                    ? "bg-blue-50 border-blue-200 text-blue-600"
+                                                                    : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                                            }`}
                                                         >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
-                                                            />
-                                                        </svg>
-                                                    </button>
-                                                    <FilterMenu />
+                                                            <svg
+                                                                className="w-5 h-5"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                        <FilterMenu />
+                                                    </div>
+                                                </div>
+                                                <div className="relative">
+                                                    <input
+                                                type="text"
+                                                placeholder={t("Search plans by name...")}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                autoComplete="off"
+                                                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    />
+                                                    <svg
+                                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                                        />
+                                                    </svg>
+                                                    {searchQuery && (
+                                                        <button
+                                                            onClick={() => setSearchQuery("")}
+                                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                        >
+                                                            <svg
+                                                                className="w-4 h-4"
+                                                                fill="currentColor"
+                                                                viewBox="0 0 20 20"
+                                                            >
+                                                                <path
+                                                                    fillRule="evenodd"
+                                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                    clipRule="evenodd"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
 

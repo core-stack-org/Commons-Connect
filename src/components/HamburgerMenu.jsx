@@ -25,12 +25,15 @@ const HamburgerMenu = ({ open, onClose }) => {
     const userName = authService.getUserName();
     const organization = authService.getOrganization();
 
-    const project =
-        userData?.project_details?.length > 0
-            ? userData.project_details
-                  .map((proj) => proj.project_name || proj.title)
-                  .join(", ")
-            : "No Project";
+    const project = (() => {
+        if (!userData?.project_details || userData.project_details.length === 0) {
+            return t("No Project");
+        }
+        if (userData.project_details.length === 1) {
+            return userData.project_details[0].project_name || userData.project_details[0].title || t("No Project");
+        }
+        return `${userData.project_details.length} ${t("Projects")}`;
+    })();
     const role = (() => {
         if (userData?.groups?.length > 0) {
             return userData.groups
