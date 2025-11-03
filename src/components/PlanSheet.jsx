@@ -28,8 +28,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const [showVillageFilter, setShowVillageFilter] = useState(false);
     const [showFacilitatorFilter, setShowFacilitatorFilter] = useState(false);
     const [selectedVillageFilter, setSelectedVillageFilter] = useState(null);
-    const [selectedFacilitatorFilter, setSelectedFacilitatorFilter] =
-        useState(null);
+    const [selectedFacilitatorFilter, setSelectedFacilitatorFilter] = useState(null);
     const [manuallyCleared, setManuallyCleared] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 

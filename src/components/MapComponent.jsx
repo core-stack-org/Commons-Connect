@@ -536,15 +536,16 @@ const MapComponent = () => {
             });
         } catch (error) {
             console.error("Error loading boundary:", error);
-            setIsLoading(false);
             const view = mapRef.current.getView();
             view.setCenter([78.9, 23.6]);
             view.setZoom(5);
         }
+        setIsLoading(false);
     };
 
     const fetchResourcesLayers = async () => {
         setIsLoading(true);
+
 
         const settlementLayer = await getVectorLayers(
             "resources",
@@ -1468,7 +1469,7 @@ const MapComponent = () => {
 
     const updateLayersOnScreen = async () => {
         const layerCollection = mapRef.current.getLayers();
-
+        setIsLoading(true);
         if (currentScreen === "HomeScreen") {
             layerCollection
                 .getArray()
@@ -1511,251 +1512,341 @@ const MapComponent = () => {
             MainStore.setFeatureStat(false);
             MainStore.setMarkerPlaced(false);
         } else if (currentScreen === "Groundwater") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-
-            if (groundwaterRefs[0].current === null && currentStep === 0) {
-                const deltaGWellDepth = await getVectorLayers(
-                    "mws_layers",
-                    "deltaG_well_depth_" + `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[0].current = deltaGWellDepth;
-            }
-
-            if (groundwaterRefs[2].current === null && currentStep === 0) {
-                const deltaGWellDepthFortnight = await getVectorLayers(
-                    "mws_layers",
-                    "deltaG_fortnight_" + `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[2].current = deltaGWellDepthFortnight;
-            }
-
-            if (groundwaterRefs[1].current === null) {
-                const drainageLayer = await getWebglVectorLayers(
-                    "drainage",
-                    `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[1].current = drainageLayer;
-            }
-
-            if (ClartLayerRef.current === null) {
-                const ClartLayer = await getImageLayer(
-                    "clart",
-                    `${districtName}_${blockName}` + "_clart",
-                    true,
-                    "",
-                );
-                ClartLayer.setOpacity(0.4);
-                ClartLayerRef.current = ClartLayer;
-            }
-
-            groundwaterRefs[0].current.setStyle(function (feature) {
-                const status = feature.values_;
-                let tempColor;
-
-                if (status.Net2018_23 < -5) {
-                    tempColor = "rgba(255, 0, 0, 0.5)";
-                } else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) {
-                    tempColor = "rgba(255, 255, 0, 0.5)";
-                } else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) {
-                    tempColor = "rgba(0, 255, 0, 0.5)";
-                } else {
-                    tempColor = "rgba(0, 0, 255, 0.5)";
-                }
-
-                return new Style({
-                    stroke: new Stroke({
-                        color: "#1AA7EC",
-                        width: 1,
-                    }),
-                    fill: new Fill({
-                        color: tempColor,
-                    }),
-                });
-            });
-            mapRef.current.addLayer(groundwaterRefs[2].current);
-            mapRef.current.addLayer(groundwaterRefs[currentStep].current);
-            mapRef.current.addLayer(assetsLayerRefs[0].current);
-            mapRef.current.addLayer(groundwaterRefs[3].current);
-            assetsLayerRefs[2].current.setStyle(function (feature) {
-                if (
-                    shouldShowWaterStructure(
-                        feature.get("wbs_type"),
-                        "Groundwater",
-                    )
-                ) {
-                    return getWaterStructureStyle(feature);
-                }
-                return null;
-            });
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
-
-            LayersStore.setAdminBoundary(true);
-            LayersStore.setWellDepth(true);
-            LayersStore.setSettlementLayer(true);
-            LayersStore.setWaterStructure(true);
-            LayersStore.setWorkGroundwater(true);
-        } else if (currentScreen === "SurfaceWater") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-
-            if (WaterbodiesLayerRef.current === null && currentStep === 0) {
-                const waterBodyLayers = await getWebglVectorLayers(
-                    "swb",
-                    `surface_waterbodies_${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                WaterbodiesLayerRef.current = waterBodyLayers;
-            }
-            if (groundwaterRefs[1].current === null && currentStep === 0) {
-                const drainageLayer = await getWebglVectorLayers(
-                    "drainage",
-                    `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[1].current = drainageLayer;
-            }
-
-            assetsLayerRefs[2].current.setStyle(function (feature) {
-                if (
-                    shouldShowWaterStructure(
-                        feature.get("wbs_type"),
-                        "SurfaceWater",
-                    )
-                ) {
-                    return getWaterStructureStyle(feature);
-                }
-                return null;
-            });
-
-            mapRef.current.addLayer(NregaWorkLayerRef.current);
-            mapRef.current.addLayer(WaterbodiesLayerRef.current);
-            mapRef.current.addLayer(groundwaterRefs[1].current);
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
-        } else if (currentScreen === "Agriculture") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-
-            if (AgriLayersRefs[0].current === null) {
-                let CroppingIntensity = await getWebglVectorLayers(
-                    "crop_intensity",
-                    `${districtName}_${blockName}_intensity`,
-                    true,
-                    true,
-                );
-                AgriLayersRefs[0].current = CroppingIntensity;
-            }
-
-            if (AgriLayersRefs[1].current === null) {
-                let DroughtIntensity = await getWebglVectorLayers(
-                    "cropping_drought",
-                    `${districtName}_${blockName}_drought`,
-                    true,
-                    true,
-                );
-                AgriLayersRefs[1].current = DroughtIntensity;
-            }
-
-            if (LulcLayerRefs[0].current === null) {
-                let lulcLayer = await getImageLayer(
-                    "LULC_level_3",
-                    `LULC_17_18_${blockName}_level_3`,
-                    true,
-                    "",
-                );
-                LulcLayerRefs[0].current = lulcLayer;
-                LulcLayerRefs[0].current.setOpacity(0.6);
-            }
-
-            if (ClartLayerRef.current === null) {
-                const ClartLayer = await getImageLayer(
-                    "clart",
-                    `${districtName}_${blockName}` + "_clart",
-                    true,
-                    "",
-                );
-                ClartLayer.setOpacity(0.4);
-                ClartLayerRef.current = ClartLayer;
-            }
-
-            if (groundwaterRefs[1].current === null) {
-                const drainageLayer = await getWebglVectorLayers(
-                    "drainage",
-                    `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[1].current = drainageLayer;
-            }
-
-            mapRef.current.addLayer(LulcLayerRefs[0].current);
-            mapRef.current.addLayer(AgriLayersRefs[0].current);
-            mapRef.current.addLayer(AgriLayersRefs[1].current);
-            mapRef.current.addLayer(AgriLayersRefs[2].current);
-            mapRef.current.addLayer(assetsLayerRefs[0].current);
-            mapRef.current.addLayer(assetsLayerRefs[1].current);
-
-            assetsLayerRefs[2].current.setStyle(function (feature) {
-                if (
-                    shouldShowWaterStructure(
-                        feature.get("wbs_type"),
-                        "Agriculture",
-                    )
-                ) {
-                    return getWaterStructureStyle(feature);
-                }
-                return null;
-            });
-
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
-
-            LayersStore.setAdminBoundary(true);
-            LayersStore.setLULCLayer(true);
-            LayersStore.setWorkAgri(true);
-
-            if (
-                !layerCollection
+            // Show loader at the start
+            setIsLoading(true);
+            
+            try {
+                layerCollection
                     .getArray()
-                    .some((layer) => layer === ClartLayerRef.current)
-            ) {
-                LayersStore.setCLARTLayer(false);
+                    .slice()
+                    .forEach((layer) => {
+                        if (
+                            layer !== baseLayerRef.current &&
+                            layer !== AdminLayerRef.current
+                        ) {
+                            layerCollection.remove(layer);
+                        }
+                    });
+
+                // Collect all loading promises
+                const loadingPromises = [];
+
+                if (groundwaterRefs[0].current === null && currentStep === 0) {
+                    const deltaGWellDepth = await getVectorLayers(
+                        "mws_layers",
+                        "deltaG_well_depth_" + `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[0].current = deltaGWellDepth;
+                    if (deltaGWellDepth.loadPromise) {
+                        loadingPromises.push(deltaGWellDepth.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[2].current === null && currentStep === 0) {
+                    const deltaGWellDepthFortnight = await getVectorLayers(
+                        "mws_layers",
+                        "deltaG_fortnight_" + `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[2].current = deltaGWellDepthFortnight;
+                    if (deltaGWellDepthFortnight.loadPromise) {
+                        loadingPromises.push(deltaGWellDepthFortnight.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[1].current === null) {
+                    const drainageLayer = await getWebglVectorLayers(
+                        "drainage",
+                        `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[1].current = drainageLayer;
+                    if (drainageLayer.loadPromise) {
+                        loadingPromises.push(drainageLayer.loadPromise);
+                    }
+                }
+
+                if (ClartLayerRef.current === null) {
+                    const ClartLayer = await getImageLayer(
+                        "clart",
+                        `${districtName}_${blockName}` + "_clart",
+                        true,
+                        "",
+                    );
+                    ClartLayer.setOpacity(0.4);
+                    ClartLayerRef.current = ClartLayer;
+                    if (ClartLayer.loadPromise) {
+                        loadingPromises.push(ClartLayer.loadPromise);
+                    }
+                }
+
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor;
+
+                    if (status.Net2018_23 < -5) {
+                        tempColor = "rgba(255, 0, 0, 0.5)";
+                    } else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) {
+                        tempColor = "rgba(255, 255, 0, 0.5)";
+                    } else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) {
+                        tempColor = "rgba(0, 255, 0, 0.5)";
+                    } else {
+                        tempColor = "rgba(0, 0, 255, 0.5)";
+                    }
+
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        }),
+                    });
+                });
+                
+                mapRef.current.addLayer(groundwaterRefs[2].current);
+                mapRef.current.addLayer(groundwaterRefs[currentStep].current);
+                mapRef.current.addLayer(assetsLayerRefs[0].current);
+                mapRef.current.addLayer(groundwaterRefs[3].current);
+                
+                assetsLayerRefs[2].current.setStyle(function (feature) {
+                    if (
+                        shouldShowWaterStructure(
+                            feature.get("wbs_type"),
+                            "Groundwater",
+                        )
+                    ) {
+                        return getWaterStructureStyle(feature);
+                    }
+                    return null;
+                });
+                mapRef.current.addLayer(assetsLayerRefs[2].current);
+
+                LayersStore.setAdminBoundary(true);
+                LayersStore.setWellDepth(true);
+                LayersStore.setSettlementLayer(true);
+                LayersStore.setWaterStructure(true);
+                LayersStore.setWorkGroundwater(true);
+                
+                // Wait for all layers to finish loading their data
+                await Promise.allSettled(loadingPromises);
+                
+            } catch (error) {
+                console.error("Error loading groundwater layers:", error);
+                // Optionally show error toast/notification to user
+            } finally {
+                // Hide loader when everything is done
+                setIsLoading(false);
             }
-        } else if (currentScreen === "Livelihood") {
+        } else if (currentScreen === "SurfaceWater") {
+            // Show loader at the start
+            setIsLoading(true);
+            
+            try {
+                layerCollection
+                    .getArray()
+                    .slice()
+                    .forEach((layer) => {
+                        if (
+                            layer !== baseLayerRef.current &&
+                            layer !== AdminLayerRef.current
+                        ) {
+                            layerCollection.remove(layer);
+                        }
+                    });
+
+                // Collect all loading promises
+                const loadingPromises = [];
+
+                if (WaterbodiesLayerRef.current === null && currentStep === 0) {
+                    const waterBodyLayers = await getWebglVectorLayers(
+                        "swb",
+                        `surface_waterbodies_${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    WaterbodiesLayerRef.current = waterBodyLayers;
+                    if (waterBodyLayers.loadPromise) {
+                        loadingPromises.push(waterBodyLayers.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[1].current === null && currentStep === 0) {
+                    const drainageLayer = await getWebglVectorLayers(
+                        "drainage",
+                        `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[1].current = drainageLayer;
+                    if (drainageLayer.loadPromise) {
+                        loadingPromises.push(drainageLayer.loadPromise);
+                    }
+                }
+
+                assetsLayerRefs[2].current.setStyle(function (feature) {
+                    if (
+                        shouldShowWaterStructure(
+                            feature.get("wbs_type"),
+                            "SurfaceWater",
+                        )
+                    ) {
+                        return getWaterStructureStyle(feature);
+                    }
+                    return null;
+                });
+
+                mapRef.current.addLayer(NregaWorkLayerRef.current);
+                mapRef.current.addLayer(WaterbodiesLayerRef.current);
+                mapRef.current.addLayer(groundwaterRefs[1].current);
+                mapRef.current.addLayer(assetsLayerRefs[2].current);
+                
+                // Wait for all layers to finish loading their data
+                await Promise.allSettled(loadingPromises);
+                
+            } catch (error) {
+                console.error("Error loading surface water layers:", error);
+                // Optionally show error toast/notification to user
+            } finally {
+                // Hide loader when everything is done
+                setIsLoading(false);
+            }
+        } else if (currentScreen === "Agriculture") {
+            // Show loader at the start
+            setIsLoading(true);
+            
+            try {
+                layerCollection
+                    .getArray()
+                    .slice()
+                    .forEach((layer) => {
+                        if (
+                            layer !== baseLayerRef.current &&
+                            layer !== AdminLayerRef.current
+                        ) {
+                            layerCollection.remove(layer);
+                        }
+                    });
+
+                // Collect all loading promises
+                const loadingPromises = [];
+
+                if (AgriLayersRefs[0].current === null) {
+                    let CroppingIntensity = await getWebglVectorLayers(
+                        "crop_intensity",
+                        `${districtName}_${blockName}_intensity`,
+                        true,
+                        true,
+                    );
+                    AgriLayersRefs[0].current = CroppingIntensity;
+                    if (CroppingIntensity.loadPromise) {
+                        loadingPromises.push(CroppingIntensity.loadPromise);
+                    }
+                }
+
+                if (AgriLayersRefs[1].current === null) {
+                    let DroughtIntensity = await getWebglVectorLayers(
+                        "cropping_drought",
+                        `${districtName}_${blockName}_drought`,
+                        true,
+                        true,
+                    );
+                    AgriLayersRefs[1].current = DroughtIntensity;
+                    if (DroughtIntensity.loadPromise) {
+                        loadingPromises.push(DroughtIntensity.loadPromise);
+                    }
+                }
+
+                if (LulcLayerRefs[0].current === null) {
+                    let lulcLayer = await getImageLayer(
+                        "LULC_level_3",
+                        `LULC_17_18_${blockName}_level_3`,
+                        true,
+                        "",
+                    );
+                    LulcLayerRefs[0].current = lulcLayer;
+                    LulcLayerRefs[0].current.setOpacity(0.6);
+                    if (lulcLayer.loadPromise) {
+                        loadingPromises.push(lulcLayer.loadPromise);
+                    }
+                }
+
+                if (ClartLayerRef.current === null) {
+                    const ClartLayer = await getImageLayer(
+                        "clart",
+                        `${districtName}_${blockName}` + "_clart",
+                        true,
+                        "",
+                    );
+                    ClartLayer.setOpacity(0.4);
+                    ClartLayerRef.current = ClartLayer;
+                    if (ClartLayer.loadPromise) {
+                        loadingPromises.push(ClartLayer.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[1].current === null) {
+                    const drainageLayer = await getWebglVectorLayers(
+                        "drainage",
+                        `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[1].current = drainageLayer;
+                    if (drainageLayer.loadPromise) {
+                        loadingPromises.push(drainageLayer.loadPromise);
+                    }
+                }
+
+                mapRef.current.addLayer(LulcLayerRefs[0].current);
+                mapRef.current.addLayer(AgriLayersRefs[0].current);
+                mapRef.current.addLayer(AgriLayersRefs[1].current);
+                mapRef.current.addLayer(AgriLayersRefs[2].current);
+                mapRef.current.addLayer(assetsLayerRefs[0].current);
+                mapRef.current.addLayer(assetsLayerRefs[1].current);
+
+                assetsLayerRefs[2].current.setStyle(function (feature) {
+                    if (
+                        shouldShowWaterStructure(
+                            feature.get("wbs_type"),
+                            "Agriculture",
+                        )
+                    ) {
+                        return getWaterStructureStyle(feature);
+                    }
+                    return null;
+                });
+
+                mapRef.current.addLayer(assetsLayerRefs[2].current);
+
+                LayersStore.setAdminBoundary(true);
+                LayersStore.setLULCLayer(true);
+                LayersStore.setWorkAgri(true);
+
+                if (
+                    !layerCollection
+                        .getArray()
+                        .some((layer) => layer === ClartLayerRef.current)
+                ) {
+                    LayersStore.setCLARTLayer(false);
+                }
+                
+                // Wait for all layers to finish loading their data
+                await Promise.allSettled(loadingPromises);
+                
+            } catch (error) {
+                console.error("Error loading agriculture layers:", error);
+                // Optionally show error toast/notification to user
+            } finally {
+                // Hide loader when everything is done
+                setIsLoading(false);
+            }
+        } else if (currentScreen === "Livelihood") {         
             layerCollection
                 .getArray()
                 .slice()
@@ -1770,7 +1861,9 @@ const MapComponent = () => {
 
             mapRef.current.addLayer(assetsLayerRefs[0].current);
             mapRef.current.addLayer(LivelihoodRefs[0].current);
+            
         }
+        setIsLoading(false);
     };
 
     const updateLulcLayer = async () => {
