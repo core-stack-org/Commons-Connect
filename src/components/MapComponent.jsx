@@ -536,15 +536,16 @@ const MapComponent = () => {
             });
         } catch (error) {
             console.error("Error loading boundary:", error);
-            setIsLoading(false);
             const view = mapRef.current.getView();
             view.setCenter([78.9, 23.6]);
             view.setZoom(5);
         }
+        setIsLoading(false);
     };
 
     const fetchResourcesLayers = async () => {
         setIsLoading(true);
+
 
         const settlementLayer = await getVectorLayers(
             "resources",
@@ -1468,7 +1469,7 @@ const MapComponent = () => {
 
     const updateLayersOnScreen = async () => {
         const layerCollection = mapRef.current.getLayers();
-
+        setIsLoading(true);
         if (currentScreen === "HomeScreen") {
             layerCollection
                 .getArray()
@@ -1511,251 +1512,341 @@ const MapComponent = () => {
             MainStore.setFeatureStat(false);
             MainStore.setMarkerPlaced(false);
         } else if (currentScreen === "Groundwater") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-
-            if (groundwaterRefs[0].current === null && currentStep === 0) {
-                const deltaGWellDepth = await getVectorLayers(
-                    "mws_layers",
-                    "deltaG_well_depth_" + `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[0].current = deltaGWellDepth;
-            }
-
-            if (groundwaterRefs[2].current === null && currentStep === 0) {
-                const deltaGWellDepthFortnight = await getVectorLayers(
-                    "mws_layers",
-                    "deltaG_fortnight_" + `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[2].current = deltaGWellDepthFortnight;
-            }
-
-            if (groundwaterRefs[1].current === null) {
-                const drainageLayer = await getWebglVectorLayers(
-                    "drainage",
-                    `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[1].current = drainageLayer;
-            }
-
-            if (ClartLayerRef.current === null) {
-                const ClartLayer = await getImageLayer(
-                    "clart",
-                    `${districtName}_${blockName}` + "_clart",
-                    true,
-                    "",
-                );
-                ClartLayer.setOpacity(0.4);
-                ClartLayerRef.current = ClartLayer;
-            }
-
-            groundwaterRefs[0].current.setStyle(function (feature) {
-                const status = feature.values_;
-                let tempColor;
-
-                if (status.Net2018_23 < -5) {
-                    tempColor = "rgba(255, 0, 0, 0.5)";
-                } else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) {
-                    tempColor = "rgba(255, 255, 0, 0.5)";
-                } else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) {
-                    tempColor = "rgba(0, 255, 0, 0.5)";
-                } else {
-                    tempColor = "rgba(0, 0, 255, 0.5)";
-                }
-
-                return new Style({
-                    stroke: new Stroke({
-                        color: "#1AA7EC",
-                        width: 1,
-                    }),
-                    fill: new Fill({
-                        color: tempColor,
-                    }),
-                });
-            });
-            mapRef.current.addLayer(groundwaterRefs[2].current);
-            mapRef.current.addLayer(groundwaterRefs[currentStep].current);
-            mapRef.current.addLayer(assetsLayerRefs[0].current);
-            mapRef.current.addLayer(groundwaterRefs[3].current);
-            assetsLayerRefs[2].current.setStyle(function (feature) {
-                if (
-                    shouldShowWaterStructure(
-                        feature.get("wbs_type"),
-                        "Groundwater",
-                    )
-                ) {
-                    return getWaterStructureStyle(feature);
-                }
-                return null;
-            });
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
-
-            LayersStore.setAdminBoundary(true);
-            LayersStore.setWellDepth(true);
-            LayersStore.setSettlementLayer(true);
-            LayersStore.setWaterStructure(true);
-            LayersStore.setWorkGroundwater(true);
-        } else if (currentScreen === "SurfaceWater") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-
-            if (WaterbodiesLayerRef.current === null && currentStep === 0) {
-                const waterBodyLayers = await getWebglVectorLayers(
-                    "swb",
-                    `surface_waterbodies_${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                WaterbodiesLayerRef.current = waterBodyLayers;
-            }
-            if (groundwaterRefs[1].current === null && currentStep === 0) {
-                const drainageLayer = await getWebglVectorLayers(
-                    "drainage",
-                    `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[1].current = drainageLayer;
-            }
-
-            assetsLayerRefs[2].current.setStyle(function (feature) {
-                if (
-                    shouldShowWaterStructure(
-                        feature.get("wbs_type"),
-                        "SurfaceWater",
-                    )
-                ) {
-                    return getWaterStructureStyle(feature);
-                }
-                return null;
-            });
-
-            mapRef.current.addLayer(NregaWorkLayerRef.current);
-            mapRef.current.addLayer(WaterbodiesLayerRef.current);
-            mapRef.current.addLayer(groundwaterRefs[1].current);
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
-        } else if (currentScreen === "Agriculture") {
-            layerCollection
-                .getArray()
-                .slice()
-                .forEach((layer) => {
-                    if (
-                        layer !== baseLayerRef.current &&
-                        layer !== AdminLayerRef.current
-                    ) {
-                        layerCollection.remove(layer);
-                    }
-                });
-
-            if (AgriLayersRefs[0].current === null) {
-                let CroppingIntensity = await getWebglVectorLayers(
-                    "crop_intensity",
-                    `${districtName}_${blockName}_intensity`,
-                    true,
-                    true,
-                );
-                AgriLayersRefs[0].current = CroppingIntensity;
-            }
-
-            if (AgriLayersRefs[1].current === null) {
-                let DroughtIntensity = await getWebglVectorLayers(
-                    "cropping_drought",
-                    `${districtName}_${blockName}_drought`,
-                    true,
-                    true,
-                );
-                AgriLayersRefs[1].current = DroughtIntensity;
-            }
-
-            if (LulcLayerRefs[0].current === null) {
-                let lulcLayer = await getImageLayer(
-                    "LULC_level_3",
-                    `LULC_17_18_${blockName}_level_3`,
-                    true,
-                    "",
-                );
-                LulcLayerRefs[0].current = lulcLayer;
-                LulcLayerRefs[0].current.setOpacity(0.6);
-            }
-
-            if (ClartLayerRef.current === null) {
-                const ClartLayer = await getImageLayer(
-                    "clart",
-                    `${districtName}_${blockName}` + "_clart",
-                    true,
-                    "",
-                );
-                ClartLayer.setOpacity(0.4);
-                ClartLayerRef.current = ClartLayer;
-            }
-
-            if (groundwaterRefs[1].current === null) {
-                const drainageLayer = await getWebglVectorLayers(
-                    "drainage",
-                    `${districtName}_${blockName}`,
-                    true,
-                    true,
-                );
-                groundwaterRefs[1].current = drainageLayer;
-            }
-
-            mapRef.current.addLayer(LulcLayerRefs[0].current);
-            mapRef.current.addLayer(AgriLayersRefs[0].current);
-            mapRef.current.addLayer(AgriLayersRefs[1].current);
-            mapRef.current.addLayer(AgriLayersRefs[2].current);
-            mapRef.current.addLayer(assetsLayerRefs[0].current);
-            mapRef.current.addLayer(assetsLayerRefs[1].current);
-
-            assetsLayerRefs[2].current.setStyle(function (feature) {
-                if (
-                    shouldShowWaterStructure(
-                        feature.get("wbs_type"),
-                        "Agriculture",
-                    )
-                ) {
-                    return getWaterStructureStyle(feature);
-                }
-                return null;
-            });
-
-            mapRef.current.addLayer(assetsLayerRefs[2].current);
-
-            LayersStore.setAdminBoundary(true);
-            LayersStore.setLULCLayer(true);
-            LayersStore.setWorkAgri(true);
-
-            if (
-                !layerCollection
+            // Show loader at the start
+            setIsLoading(true);
+            
+            try {
+                layerCollection
                     .getArray()
-                    .some((layer) => layer === ClartLayerRef.current)
-            ) {
-                LayersStore.setCLARTLayer(false);
+                    .slice()
+                    .forEach((layer) => {
+                        if (
+                            layer !== baseLayerRef.current &&
+                            layer !== AdminLayerRef.current
+                        ) {
+                            layerCollection.remove(layer);
+                        }
+                    });
+
+                // Collect all loading promises
+                const loadingPromises = [];
+
+                if (groundwaterRefs[0].current === null && currentStep === 0) {
+                    const deltaGWellDepth = await getVectorLayers(
+                        "mws_layers",
+                        "deltaG_well_depth_" + `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[0].current = deltaGWellDepth;
+                    if (deltaGWellDepth.loadPromise) {
+                        loadingPromises.push(deltaGWellDepth.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[2].current === null && currentStep === 0) {
+                    const deltaGWellDepthFortnight = await getVectorLayers(
+                        "mws_layers",
+                        "deltaG_fortnight_" + `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[2].current = deltaGWellDepthFortnight;
+                    if (deltaGWellDepthFortnight.loadPromise) {
+                        loadingPromises.push(deltaGWellDepthFortnight.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[1].current === null) {
+                    const drainageLayer = await getWebglVectorLayers(
+                        "drainage",
+                        `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[1].current = drainageLayer;
+                    if (drainageLayer.loadPromise) {
+                        loadingPromises.push(drainageLayer.loadPromise);
+                    }
+                }
+
+                if (ClartLayerRef.current === null) {
+                    const ClartLayer = await getImageLayer(
+                        "clart",
+                        `${districtName}_${blockName}` + "_clart",
+                        true,
+                        "",
+                    );
+                    ClartLayer.setOpacity(0.4);
+                    ClartLayerRef.current = ClartLayer;
+                    if (ClartLayer.loadPromise) {
+                        loadingPromises.push(ClartLayer.loadPromise);
+                    }
+                }
+
+                groundwaterRefs[0].current.setStyle(function (feature) {
+                    const status = feature.values_;
+                    let tempColor;
+
+                    if (status.Net2018_23 < -5) {
+                        tempColor = "rgba(255, 0, 0, 0.5)";
+                    } else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) {
+                        tempColor = "rgba(255, 255, 0, 0.5)";
+                    } else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) {
+                        tempColor = "rgba(0, 255, 0, 0.5)";
+                    } else {
+                        tempColor = "rgba(0, 0, 255, 0.5)";
+                    }
+
+                    return new Style({
+                        stroke: new Stroke({
+                            color: "#1AA7EC",
+                            width: 1,
+                        }),
+                        fill: new Fill({
+                            color: tempColor,
+                        }),
+                    });
+                });
+                
+                mapRef.current.addLayer(groundwaterRefs[2].current);
+                mapRef.current.addLayer(groundwaterRefs[currentStep].current);
+                mapRef.current.addLayer(assetsLayerRefs[0].current);
+                mapRef.current.addLayer(groundwaterRefs[3].current);
+                
+                assetsLayerRefs[2].current.setStyle(function (feature) {
+                    if (
+                        shouldShowWaterStructure(
+                            feature.get("wbs_type"),
+                            "Groundwater",
+                        )
+                    ) {
+                        return getWaterStructureStyle(feature);
+                    }
+                    return null;
+                });
+                mapRef.current.addLayer(assetsLayerRefs[2].current);
+
+                LayersStore.setAdminBoundary(true);
+                LayersStore.setWellDepth(true);
+                LayersStore.setSettlementLayer(true);
+                LayersStore.setWaterStructure(true);
+                LayersStore.setWorkGroundwater(true);
+                
+                // Wait for all layers to finish loading their data
+                await Promise.allSettled(loadingPromises);
+                
+            } catch (error) {
+                console.error("Error loading groundwater layers:", error);
+                // Optionally show error toast/notification to user
+            } finally {
+                // Hide loader when everything is done
+                setIsLoading(false);
             }
-        } else if (currentScreen === "Livelihood") {
+        } else if (currentScreen === "SurfaceWater") {
+            // Show loader at the start
+            setIsLoading(true);
+            
+            try {
+                layerCollection
+                    .getArray()
+                    .slice()
+                    .forEach((layer) => {
+                        if (
+                            layer !== baseLayerRef.current &&
+                            layer !== AdminLayerRef.current
+                        ) {
+                            layerCollection.remove(layer);
+                        }
+                    });
+
+                // Collect all loading promises
+                const loadingPromises = [];
+
+                if (WaterbodiesLayerRef.current === null && currentStep === 0) {
+                    const waterBodyLayers = await getWebglVectorLayers(
+                        "swb",
+                        `surface_waterbodies_${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    WaterbodiesLayerRef.current = waterBodyLayers;
+                    if (waterBodyLayers.loadPromise) {
+                        loadingPromises.push(waterBodyLayers.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[1].current === null && currentStep === 0) {
+                    const drainageLayer = await getWebglVectorLayers(
+                        "drainage",
+                        `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[1].current = drainageLayer;
+                    if (drainageLayer.loadPromise) {
+                        loadingPromises.push(drainageLayer.loadPromise);
+                    }
+                }
+
+                assetsLayerRefs[2].current.setStyle(function (feature) {
+                    if (
+                        shouldShowWaterStructure(
+                            feature.get("wbs_type"),
+                            "SurfaceWater",
+                        )
+                    ) {
+                        return getWaterStructureStyle(feature);
+                    }
+                    return null;
+                });
+
+                mapRef.current.addLayer(NregaWorkLayerRef.current);
+                mapRef.current.addLayer(WaterbodiesLayerRef.current);
+                mapRef.current.addLayer(groundwaterRefs[1].current);
+                mapRef.current.addLayer(assetsLayerRefs[2].current);
+                
+                // Wait for all layers to finish loading their data
+                await Promise.allSettled(loadingPromises);
+                
+            } catch (error) {
+                console.error("Error loading surface water layers:", error);
+                // Optionally show error toast/notification to user
+            } finally {
+                // Hide loader when everything is done
+                setIsLoading(false);
+            }
+        } else if (currentScreen === "Agriculture") {
+            // Show loader at the start
+            setIsLoading(true);
+            
+            try {
+                layerCollection
+                    .getArray()
+                    .slice()
+                    .forEach((layer) => {
+                        if (
+                            layer !== baseLayerRef.current &&
+                            layer !== AdminLayerRef.current
+                        ) {
+                            layerCollection.remove(layer);
+                        }
+                    });
+
+                // Collect all loading promises
+                const loadingPromises = [];
+
+                if (AgriLayersRefs[0].current === null) {
+                    let CroppingIntensity = await getWebglVectorLayers(
+                        "crop_intensity",
+                        `${districtName}_${blockName}_intensity`,
+                        true,
+                        true,
+                    );
+                    AgriLayersRefs[0].current = CroppingIntensity;
+                    if (CroppingIntensity.loadPromise) {
+                        loadingPromises.push(CroppingIntensity.loadPromise);
+                    }
+                }
+
+                if (AgriLayersRefs[1].current === null) {
+                    let DroughtIntensity = await getWebglVectorLayers(
+                        "cropping_drought",
+                        `${districtName}_${blockName}_drought`,
+                        true,
+                        true,
+                    );
+                    AgriLayersRefs[1].current = DroughtIntensity;
+                    if (DroughtIntensity.loadPromise) {
+                        loadingPromises.push(DroughtIntensity.loadPromise);
+                    }
+                }
+
+                if (LulcLayerRefs[0].current === null) {
+                    let lulcLayer = await getImageLayer(
+                        "LULC_level_3",
+                        `LULC_17_18_${blockName}_level_3`,
+                        true,
+                        "",
+                    );
+                    LulcLayerRefs[0].current = lulcLayer;
+                    LulcLayerRefs[0].current.setOpacity(0.6);
+                    if (lulcLayer.loadPromise) {
+                        loadingPromises.push(lulcLayer.loadPromise);
+                    }
+                }
+
+                if (ClartLayerRef.current === null) {
+                    const ClartLayer = await getImageLayer(
+                        "clart",
+                        `${districtName}_${blockName}` + "_clart",
+                        true,
+                        "",
+                    );
+                    ClartLayer.setOpacity(0.4);
+                    ClartLayerRef.current = ClartLayer;
+                    if (ClartLayer.loadPromise) {
+                        loadingPromises.push(ClartLayer.loadPromise);
+                    }
+                }
+
+                if (groundwaterRefs[1].current === null) {
+                    const drainageLayer = await getWebglVectorLayers(
+                        "drainage",
+                        `${districtName}_${blockName}`,
+                        true,
+                        true,
+                    );
+                    groundwaterRefs[1].current = drainageLayer;
+                    if (drainageLayer.loadPromise) {
+                        loadingPromises.push(drainageLayer.loadPromise);
+                    }
+                }
+
+                mapRef.current.addLayer(LulcLayerRefs[0].current);
+                mapRef.current.addLayer(AgriLayersRefs[0].current);
+                mapRef.current.addLayer(AgriLayersRefs[1].current);
+                mapRef.current.addLayer(AgriLayersRefs[2].current);
+                mapRef.current.addLayer(assetsLayerRefs[0].current);
+                mapRef.current.addLayer(assetsLayerRefs[1].current);
+
+                assetsLayerRefs[2].current.setStyle(function (feature) {
+                    if (
+                        shouldShowWaterStructure(
+                            feature.get("wbs_type"),
+                            "Agriculture",
+                        )
+                    ) {
+                        return getWaterStructureStyle(feature);
+                    }
+                    return null;
+                });
+
+                mapRef.current.addLayer(assetsLayerRefs[2].current);
+
+                LayersStore.setAdminBoundary(true);
+                LayersStore.setLULCLayer(true);
+                LayersStore.setWorkAgri(true);
+
+                if (
+                    !layerCollection
+                        .getArray()
+                        .some((layer) => layer === ClartLayerRef.current)
+                ) {
+                    LayersStore.setCLARTLayer(false);
+                }
+                
+                // Wait for all layers to finish loading their data
+                await Promise.allSettled(loadingPromises);
+                
+            } catch (error) {
+                console.error("Error loading agriculture layers:", error);
+                // Optionally show error toast/notification to user
+            } finally {
+                // Hide loader when everything is done
+                setIsLoading(false);
+            }
+        } else if (currentScreen === "Livelihood") {         
             layerCollection
                 .getArray()
                 .slice()
@@ -1770,7 +1861,9 @@ const MapComponent = () => {
 
             mapRef.current.addLayer(assetsLayerRefs[0].current);
             mapRef.current.addLayer(LivelihoodRefs[0].current);
+            
         }
+        setIsLoading(false);
     };
 
     const updateLulcLayer = async () => {
@@ -1798,120 +1891,176 @@ const MapComponent = () => {
     };
 
     useEffect(() => {
-        if (PositionFeatureRef.current === null && mapRef.current !== null) {
-            const positionFeature = new Feature();
-
-            positionFeature.setStyle(
-                new Style({
-                    image: new Icon({
-                        src: Man_icon,
-                        scale: 0.8,
-                        anchor: [0.5, 0.5],
-                        anchorXUnits: "fraction",
-                        anchorYUnits: "fraction",
-                    }),
-                }),
-            );
-
-            PositionFeatureRef.current = positionFeature;
-
-            let tempCoords = MainStore.gpsLocation;
-            if (tempCoords === null) {
+            const fetchLocationFromFlutter = async () => {
                 try {
-                    navigator.geolocation.getCurrentPosition(
-                        ({ coords }) => {
-                            tempCoords = [coords.longitude, coords.latitude];
-                            MainStore.setGpsLocation(tempCoords);
-                        },
-                        (err) => console.error("Geo error:", err),
-                    );
-
-                    if (tempCoords === null) {
-                        throw new Error("User Location missing");
+                    console.log("Fetching location from Flutter app...");
+                    const response = await fetch(`http://localhost:3000/api/v1/location`);
+                    
+                    if (response.ok) {
+                        const locationData = await response.json();
+                        
+                        // Check if we got valid location data
+                        if (locationData && locationData.latitude && locationData.longitude) {
+                            const newCoords = [locationData.longitude, locationData.latitude];
+                            MainStore.setGpsLocation(newCoords);
+                            return newCoords;
+                        } else if (locationData.error) {
+                            console.warn("Flutter app returned error:", locationData.error);
+                        }
+                    } else {
+                        console.error(`Failed to fetch from Flutter: ${response.status}`);
                     }
                 } catch (err) {
-                    GeolocationRef.current.on("change:position", function () {
-                        const coordinates =
-                            GeolocationRef.current.getPosition();
-                        if (coordinates) {
-                            MainStore.setGpsLocation(coordinates);
-
-                            positionFeature.setGeometry(new Point(coordinates));
-                        }
-                    });
+                    console.error("Error fetching location from Flutter:", err);
+                    
+                    // Fallback to browser geolocation
+                    try {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(
+                                (pos) => resolve(pos),
+                                (error) => reject(error),
+                                {
+                                    enableHighAccuracy: true,
+                                    timeout: 5000,
+                                    maximumAge: 0
+                                }
+                            );
+                        });
+                        
+                        const coords = [position.coords.longitude, position.coords.latitude];
+                        console.log("Fallback to browser location:", coords);
+                        MainStore.setGpsLocation(coords);
+                        return coords;
+                    } catch (geoError) {
+                        console.error("Browser geolocation error:", geoError);
+                        return null;
+                    }
                 }
-            }
-            // Animate to new position with smooth pan
-            const view = mapRef.current.getView();
-
-            if (tempCoords === null) {
-                toast("Getting GPS !");
-                return;
-            }
-
-            // First pan to location
-            view.animate({
-                center: tempCoords,
-                duration: 1000,
-                easing: easeOut,
-            });
-
-            // Then zoom in to level 17 with animation
-            view.animate({
-                zoom: 17,
-                duration: 1200,
-                easing: easeOut,
-            });
-
-            positionFeature.setGeometry(new Point(tempCoords));
-
-            // Create GPS layer
-            let gpsLayer = new VectorLayer({
-                map: mapRef.current,
-                source: new VectorSource({
-                    features: [positionFeature],
-                }),
-                zIndex: 99, // Ensure it's on top
-            });
-
-            GpsLayerRef.current = gpsLayer;
-
-            // Store cleanup references
+            };
+    
+            const initializeGPSLocation = async () => {
+                // Initialize position feature if not already created
+                if (PositionFeatureRef.current === null && mapRef.current !== null) {
+                    const positionFeature = new Feature();
+    
+                    positionFeature.setStyle(new Style({
+                        image: new Icon({
+                            src: Man_icon,
+                            scale: 0.8,
+                            anchor: [0.5, 0.5],
+                            anchorXUnits: 'fraction',
+                            anchorYUnits: 'fraction',
+                        }),
+                    }));
+    
+                    console.log("Initializing GPS position feature");
+                    PositionFeatureRef.current = positionFeature;
+    
+                    // Create GPS layer if it doesn't exist
+                    if (!GpsLayerRef.current) {
+                        let gpsLayer = new VectorLayer({
+                            map: mapRef.current,
+                            source: new VectorSource({
+                                features: [positionFeature],
+                            }),
+                            zIndex: 99, // Ensure it's on top
+                        });
+                        GpsLayerRef.current = gpsLayer;
+                    }
+                }
+    
+                // Fetch location when GPS button is clicked
+                if (MainStore.isGPSClick && mapRef.current !== null) {
+                    console.log("GPS button clicked - fetching current location");
+                    
+                    // Show loading toast with a unique ID so we can dismiss it later
+                    let loadingToastId = null;
+                    
+                    // Check which toast library you're using and use appropriate method
+                    if (toast.loading) {
+                        // For react-hot-toast
+                        loadingToastId = toast.loading("Getting GPS location...");
+                    } else if (toast.info && toast.dismiss) {
+                        // For react-toastify
+                        loadingToastId = toast.info("Getting GPS location...", { 
+                            autoClose: false,
+                            closeButton: false,
+                            draggable: false
+                        });
+                    } else {
+                        // Fallback for simple toast
+                        toast("Getting GPS location...");
+                    }
+                    
+                    // Fetch location from Flutter app (with fallback to browser)
+                    const currentLocation = await fetchLocationFromFlutter();
+                    
+                    // Dismiss the loading toast
+                    if (loadingToastId) {
+                        if (toast.dismiss) {
+                            toast.dismiss(loadingToastId);
+                        } else if (toast.remove) {
+                            toast.remove(loadingToastId);
+                        }
+                    }
+                    
+                    if (currentLocation !== null && PositionFeatureRef.current !== null) {
+                        // Update position feature geometry
+                        PositionFeatureRef.current.setGeometry(new Point(currentLocation));
+                        
+                        // Animate map to new position
+                        const view = mapRef.current.getView();
+                        
+                        // First pan to location
+                        view.animate({
+                            center: currentLocation,
+                            duration: 800,
+                            easing: easeOut,
+                        });
+    
+                        // Then zoom to level 17
+                        view.animate({
+                            zoom: 17,
+                            duration: 1000,
+                            easing: easeOut,
+                        });
+                        
+                        // Show success toast
+                        if (toast.success) {
+                            toast.success("Location updated!");
+                        } else {
+                            toast("Location updated!");
+                        }
+                    } else if (currentLocation === null) {
+                        // Show error toast
+                        if (toast.error) {
+                            toast.error("Failed to get GPS location");
+                        } else {
+                            toast("Failed to get GPS location");
+                        }
+                    }
+                    
+                    // Reset the GPS click state if needed
+                    // MainStore.setIsGPSClick(false); // Uncomment if you want to reset the state
+                }
+            };
+    
+            // Call the initialization function
+            initializeGPSLocation();
+    
+            // Cleanup function
             return () => {
-                //GeolocationRef.current.setTracking(false);
-                mapRef.current.removeLayer(gpsLayer);
+                if (GeolocationRef.current) {
+                    GeolocationRef.current.setTracking(false);
+                }
+                
+                if (GpsLayerRef.current && mapRef.current) {
+                    mapRef.current.removeLayer(GpsLayerRef.current);
+                    GpsLayerRef.current = null;
+                }
+                
                 PositionFeatureRef.current = null;
             };
-        }
-
-        // Handle GPS button click to center on current location
-        if (
-            PositionFeatureRef.current !== null &&
-            MainStore.gpsLocation !== null &&
-            MainStore.isGPSClick
-        ) {
-            const view = mapRef.current.getView();
-
-            if (MainStore.gpsLocation === null) {
-                toast.error("Not able to get Location !");
-                return;
-            }
-
-            // Sequence of animations for smoother experience
-            // 1. First start panning
-            view.animate({
-                center: MainStore.gpsLocation,
-                duration: 800,
-                easing: easeOut,
-            });
-
-            // 2. Then always animate to zoom level 17 regardless of current zoom
-            view.animate({
-                zoom: 17,
-                duration: 1000,
-                easing: easeOut,
-            });
-        }
     }, [MainStore.isGPSClick]);
 
     useEffect(() => {

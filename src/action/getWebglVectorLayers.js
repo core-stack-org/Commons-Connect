@@ -1,6 +1,5 @@
 import Vector from "ol/source/Vector";
 import GeoJSON from "ol/format/GeoJSON";
-
 import WebGLVectorLayer from "ol/layer/WebGLVector.js";
 
 export default async function getWebglVectorLayers(
@@ -36,43 +35,38 @@ export default async function getWebglVectorLayers(
               block +
               "&outputFormat=application/json&screen=main";
 
+    // Create the vector source without a custom loader
     const vectorSource = new Vector({
-        url: url,
         format: new GeoJSON(),
-        loader: async function (extent, resolution, projection) {
-            await fetch(url)
-                .then((response) => {
-                    if (!response.ok) {
-                        console.log(
-                            "Network response was not ok for " + layer_name,
-                        );
-                        return null;
-                    }
-                    return response.json();
-                })
-                .then((json) => {
-                    vectorSource.addFeatures(
-                        vectorSource
-                            .getFormat()
-                            .readFeatures(json)
-                            .map((item) => {
-                                if (layer_store === "drainage") {
-                                    item.values_.itemColor =
-                                        item.values_.ORDER - 1;
-                                }
-                                return item;
-                            }),
-                    );
-                })
-                .catch((error) => {
-                    console.log(error);
-                    console.log(
-                        `Failed to load the "${layer_store}" layer. Please check your connection or the map layer details.`,
-                        error,
-                    );
-                });
-        },
     });
+
+    // Load data immediately and create a promise for it
+    const loadPromise = fetch(url)
+        .then((response) => {
+            if (!response.ok) {
+                console.log("Network response was not ok for " + layer_name);
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((json) => {
+            const features = vectorSource.getFormat().readFeatures(json).map((item) => {
+                if (layer_store === "drainage") {
+                    item.values_.itemColor = item.values_.ORDER - 1;
+                }
+                return item;
+            });
+            vectorSource.addFeatures(features);
+            return true; // Indicate success
+        })
+        .catch((error) => {
+            console.log(error);
+            console.log(
+                `Failed to load the "${layer_store}" layer. Please check your connection or the map layer details.`,
+                error,
+            );
+            throw error; // Re-throw to maintain promise rejection
+        });
 
     let style = {};
 
@@ -126,6 +120,8 @@ export default async function getWebglVectorLayers(
         source: vectorSource,
         style,
     });
+
+    wmsLayer.loadPromise = loadPromise;
 
     return wmsLayer;
 }

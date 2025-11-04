@@ -92,11 +92,6 @@ const useMainStore = create((set) => ({
 
             if (response.ok) {
                 const plans = await response.json();
-                console.log(
-                    "Plans fetched successfully:",
-                    plans.length,
-                    "plans",
-                );
                 set({ plans: plans });
             } else {
                 set({ plans: [] });
