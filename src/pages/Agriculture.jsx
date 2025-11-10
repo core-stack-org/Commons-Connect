@@ -295,38 +295,108 @@ const Agriculture = () => {
                 </div>
             </div>
 
-            {/* ─── Slider + popup (step 0 only) - MOVED FURTHER DOWN TO AVOID OVERLAP ─── */}
+            {/* ─── Vertical Year Slider (step 0 only) - On left side ─── */}
             {MainStore.currentStep === 0 && (
-                <div className="absolute top-44 left-0 w-full px-4 z-10">
-                    <div className="relative w-3/4 max-w-md mx-auto">
-                        <input
-                            type="range"
-                            min="0"
-                            max={years.length - 1} // 0 … 6
-                            step="1"
-                            value={MainStore.lulcYearIdx}
-                            onChange={handleYearChange}
-                            onMouseDown={() => setDrag(true)}
-                            onMouseUp={() => setDrag(false)}
-                            onTouchStart={() => setDrag(true)}
-                            onTouchEnd={() => setDrag(false)}
-                            className="w-full accent-[#592941]"
-                        />
-
-                        {/* floating label */}
-                        {(dragging || true) && (
-                            <div
-                                className="absolute -top-8 px-2 py-1 rounded-md text-xs font-semibold text-white bg-black/60 pointer-events-none"
+                <div className="absolute top-69 left-4 z-10 pointer-events-auto">
+                    <div className="flex items-center gap-2">
+                        {/* Vertical slider */}
+                        <div className="relative" style={{ height: "280px" }}>
+                            <input
+                                type="range"
+                                min="0"
+                                max={years.length - 1}
+                                step="1"
+                                value={MainStore.lulcYearIdx}
+                                onChange={handleYearChange}
+                                orient="vertical"
+                                className="vertical-slider"
                                 style={{
-                                    left: `calc(${percent}% )`,
-                                    transform: "translateX(-50%)",
-                                    backdropFilter: "blur(2px)",
+                                    width: "280px",
+                                    height: "8px",
+                                    transform: "rotate(-90deg)",
+                                    transformOrigin: "left top",
+                                    position: "absolute",
+                                    left: "4px",
+                                    top: "280px",
                                 }}
-                            >
-                                {years[MainStore.lulcYearIdx]}
-                            </div>
-                        )}
+                            />
+                        </div>
+
+                        {/* Year labels with tick marks */}
+                        <div
+                            className="flex flex-col justify-between"
+                            style={{ height: "280px" }}
+                        >
+                            {years
+                                .slice()
+                                .reverse()
+                                .map((year, index) => {
+                                    const actualIndex =
+                                        years.length - 1 - index;
+                                    return (
+                                        <div
+                                            key={year}
+                                            className="flex items-center gap-1"
+                                        >
+                                            {/* Tick mark */}
+                                            <div
+                                                className={`h-0.5 w-3 transition-colors duration-200 ${
+                                                    actualIndex ===
+                                                    MainStore.lulcYearIdx
+                                                        ? "bg-[#592941]"
+                                                        : "bg-gray-400"
+                                                }`}
+                                            />
+                                            {/* Year label with capsule background */}
+                                            <span
+                                                className={`text-xs font-bold transition-all duration-200 px-2 py-1 rounded-lg ${
+                                                    actualIndex ===
+                                                    MainStore.lulcYearIdx
+                                                        ? "text-white bg-[#592941]"
+                                                        : "text-white bg-transparent"
+                                                }`}
+                                            >
+                                                {year}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                        </div>
                     </div>
+
+                    {/* Custom slider styles */}
+                    <style jsx>{`
+                        .vertical-slider {
+                            -webkit-appearance: none;
+                            appearance: none;
+                            background: #d1d5db;
+                            border-radius: 4px;
+                            outline: none;
+                            cursor: pointer;
+                        }
+
+                        .vertical-slider::-webkit-slider-thumb {
+                            -webkit-appearance: none;
+                            appearance: none;
+                            height: 20px;
+                            width: 20px;
+                            border-radius: 50%;
+                            background: #592941;
+                            cursor: pointer;
+                            border: 2px solid white;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+
+                        .vertical-slider::-moz-range-thumb {
+                            height: 20px;
+                            width: 20px;
+                            border-radius: 50%;
+                            background: #592941;
+                            cursor: pointer;
+                            border: 2px solid white;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+                    `}</style>
                 </div>
             )}
 
@@ -401,7 +471,7 @@ const Agriculture = () => {
                                         "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
                             >
-                                {t("Analyze")}
+                                {t("Microwatershed Analysis")}
                             </button>
                         </div>
 

@@ -144,7 +144,7 @@ const useMainStore = create((set) => ({
     markerCoords: null,
     selectedResource: null,
     fortnightData: null,
-    lulcYearIdx: 0,
+    lulcYearIdx: 6,
     isWaterbody: false,
     isGroundWater: false,
     isAgriculture: false,
