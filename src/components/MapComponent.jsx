@@ -1377,10 +1377,7 @@ const MapComponent = () => {
                     mapRef.current.addLayer(ClartLayerRef.current); // CLART layer
                 }
 
-                if (TerrainLayerRef.current != null) {
-                    TerrainLayerRef.current.setOpacity(0.4);
-                    mapRef.current.addLayer(TerrainLayerRef.current); // Terrain Layer
-                }
+                // Terrain layer is not added by default, only via toggle
 
                 if (groundwaterRefs[1].current !== null) {
                     mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
@@ -1394,6 +1391,7 @@ const MapComponent = () => {
                 LayersStore.setWellDepth(false);
                 LayersStore.setDrainageLayer(true);
                 LayersStore.setCLARTLayer(true);
+                LayersStore.setTerrainLayer(false);
                 LayersStore.setWaterStructure(false);
                 LayersStore.setWorkGroundwater(true);
             }
@@ -2352,6 +2350,15 @@ const MapComponent = () => {
                     mapRef.current.removeLayer(LivelihoodRefs[0].current);
                 }
             } else if (MainStore.layerClicked === "CLARTLayer") {
+                // Remove Terrain layer if it exists
+                if (
+                    layerCollection
+                        .getArray()
+                        .some((layer) => layer === TerrainLayerRef.current)
+                ) {
+                    mapRef.current.removeLayer(TerrainLayerRef.current);
+                }
+
                 if (
                     LayersStore[MainStore.layerClicked] &&
                     !layerCollection
@@ -2359,8 +2366,31 @@ const MapComponent = () => {
                         .some((layer) => layer === ClartLayerRef.current)
                 ) {
                     mapRef.current.addLayer(ClartLayerRef.current);
-                } else {
+                } else if (!LayersStore[MainStore.layerClicked]) {
                     mapRef.current.removeLayer(ClartLayerRef.current);
+                }
+            } else if (MainStore.layerClicked === "TerrainLayer") {
+                // Remove CLART layer if it exists
+                if (
+                    layerCollection
+                        .getArray()
+                        .some((layer) => layer === ClartLayerRef.current)
+                ) {
+                    mapRef.current.removeLayer(ClartLayerRef.current);
+                }
+
+                if (
+                    LayersStore[MainStore.layerClicked] &&
+                    !layerCollection
+                        .getArray()
+                        .some((layer) => layer === TerrainLayerRef.current)
+                ) {
+                    if (TerrainLayerRef.current !== null) {
+                        TerrainLayerRef.current.setOpacity(0.4);
+                        mapRef.current.addLayer(TerrainLayerRef.current);
+                    }
+                } else if (!LayersStore[MainStore.layerClicked]) {
+                    mapRef.current.removeLayer(TerrainLayerRef.current);
                 }
             }
         }
