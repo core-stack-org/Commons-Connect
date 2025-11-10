@@ -355,7 +355,7 @@ const Groundwater = () => {
                                     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
                                 }}
                             >
-                                {t("Analyze")}
+                                {t("Water Balance Analysis")}
                             </button>
                         </div>
 
