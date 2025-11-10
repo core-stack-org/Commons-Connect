@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
+import useLayersStore from "../store/LayerStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -7,6 +8,7 @@ import toast from "react-hot-toast";
 
 const Agriculture = () => {
     const MainStore = useMainStore((state) => state);
+    const LayersStore = useLayersStore((state) => state);
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -53,6 +55,7 @@ const Agriculture = () => {
         "23-24",
     ];
     const [dragging, setDrag] = useState(false);
+    const [selectedLayer, setSelectedLayer] = useState("CLART");
 
     const handleYearChange = (e) => {
         MainStore.setLulcYearIdx(Number(e.target.value));
@@ -148,6 +151,20 @@ const Agriculture = () => {
                 lineHeight: "1.5",
             },
         });
+    };
+
+    const handleLayerChange = (layerName) => {
+        setSelectedLayer(layerName);
+
+        if (layerName === "CLART") {
+            MainStore.setLayerClicked("CLARTLayer");
+            LayersStore.setCLARTLayer(true);
+            LayersStore.setTerrainLayer(false);
+        } else if (layerName === "Terrain") {
+            MainStore.setLayerClicked("TerrainLayer");
+            LayersStore.setTerrainLayer(true);
+            LayersStore.setCLARTLayer(false);
+        }
     };
 
     return (
@@ -309,6 +326,48 @@ const Agriculture = () => {
                                 {years[MainStore.lulcYearIdx]}
                             </div>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Layers Slider - Only show in step 1 */}
+            {MainStore.currentStep === 1 && (
+                <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
+                    <div className="flex gap-4 max-w-lg">
+                        <div
+                            className="relative inline-flex rounded-xl pb-0.5 pt-0.5"
+                            style={{ backgroundColor: "#D6D5C9" }}
+                        >
+                            {/* Sliding white pill background */}
+                            <div
+                                className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-in-out"
+                                style={{
+                                    height: "calc(100% - 4px)",
+                                    width: "50%",
+                                    transform:
+                                        selectedLayer === "Terrain"
+                                            ? "translateX(100%)"
+                                            : "translateX(0%)",
+                                }}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => handleLayerChange("CLART")}
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                                style={{ color: "#592941" }}
+                            >
+                                CLART
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleLayerChange("Terrain")}
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                                style={{ color: "#592941" }}
+                            >
+                                Terrain
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

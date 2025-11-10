@@ -1420,16 +1420,12 @@ const MapComponent = () => {
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
             }
             if (currentStep === 1) {
-                if (
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === ClartLayerRef.current)
-                ) {
+                if (ClartLayerRef.current !== null) {
+                    ClartLayerRef.current.setOpacity(0.4);
                     mapRef.current.addLayer(ClartLayerRef.current);
-                    LayersStore.setCLARTLayer(true);
-                } else {
-                    LayersStore.setCLARTLayer(false);
                 }
+
+                // Terrain layer is not added by default, only via toggle
 
                 if (
                     !layerCollection
@@ -1441,6 +1437,10 @@ const MapComponent = () => {
                 } else {
                     LayersStore.setDrainageLayer(false);
                 }
+
+                LayersStore.setCLARTLayer(true);
+                LayersStore.setTerrainLayer(false);
+
                 //mapRef.current.addLayer(assetsLayerRefs[1].current)
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
                 mapRef.current.addLayer(AgriLayersRefs[2].current);
