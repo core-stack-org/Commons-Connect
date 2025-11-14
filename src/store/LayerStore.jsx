@@ -19,6 +19,9 @@ const useLayersStore = create((set) => ({
     CLARTLayer: false,
     TerrainLayer: false,
     LULCLayer: false,
+    StreamOrderLayer: false,
+    DrainageLineLayer: false,
+    CatchmentAreaLayer: false,
 
     setAdminBoundary: (stat) => set({ AdminBoundary: stat }),
     setNregaLayer: (stat) => set({ NregaLayer: stat }),
@@ -36,6 +39,9 @@ const useLayersStore = create((set) => ({
     setCLARTLayer: (stat) => set({ CLARTLayer: stat }),
     setTerrainLayer: (stat) => set({ TerrainLayer: stat }),
     setLULCLayer: (stat) => set({ LULCLayer: stat }),
+    setStreamOrderLayer: (stat) => set({ StreamOrderLayer: stat }),
+    setDrainageLineLayer: (stat) => set({ DrainageLineLayer: stat }),
+    setCatchmentAreaLayer: (stat) => set({ CatchmentAreaLayer: stat }),
 }));
 
 export default useLayersStore;

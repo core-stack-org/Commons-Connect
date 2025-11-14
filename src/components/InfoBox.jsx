@@ -13,6 +13,7 @@ const InfoBox = () => {
     const currentStep = useMainStore((state) => state.currentStep);
     const currentMenuOption = useMainStore((state) => state.menuOption);
     const setMenuOption = useMainStore((state) => state.setMenuOption);
+    const layerClicked = useMainStore((state) => state.layerClicked);
 
     const { t, i18n } = useTranslation();
     const isHome = currentScreen === "HomeScreen";
@@ -172,35 +173,95 @@ const InfoBox = () => {
 
                 {currentStep === 1 ? (
                     <>
-                        <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                            CLART Legend
-                        </h3>
-                        <div className="mt-2 space-y-2">
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-gray-100 mr-3"></div>
-                                <span>Empty</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-green-400 mr-3"></div>
-                                <span>Good recharge</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
-                                <span>Moderate recharge</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-pink-700 mr-3"></div>
-                                <span>Regeneration</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-blue-500 mr-3"></div>
-                                <span>High runoff zone</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
-                                <span>Surface water harvesting</span>
-                            </div>
-                        </div>
+                        {layerClicked === "CLARTLayer" ? (
+                            <>
+                                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                                    CLART Legend
+                                </h3>
+                                <div className="mt-2 space-y-2">
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-gray-100 mr-3"></div>
+                                        <span>Empty</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-green-400 mr-3"></div>
+                                        <span>Good recharge</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
+                                        <span>Moderate recharge</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-pink-700 mr-3"></div>
+                                        <span>Regeneration</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-blue-500 mr-3"></div>
+                                        <span>High runoff zone</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
+                                        <span>Surface water harvesting</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : layerClicked === "TerrainLayer" ? (
+                            <>
+                                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                                    Terrain Legend
+                                </h3>
+                                <div className="mt-2 space-y-2">
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#313695", opacity: 0.7 }}></div>
+                                        <span>V-shape river valleys, Deep narrow canyons</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4575b4", opacity: 0.7 }}></div>
+                                        <span>Lateral midslope incised drainages, Local valleys in plains</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#a50026", opacity: 0.7 }}></div>
+                                        <span>Upland incised drainages, Stream headwaters</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#e0f3f8", opacity: 0.7 }}></div>
+                                        <span>U-shape valleys</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#fffc00", opacity: 0.7 }}></div>
+                                        <span>Broad Flat Areas</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#feb24c", opacity: 0.7 }}></div>
+                                        <span>Broad open slopes</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#f46d43", opacity: 0.7 }}></div>
+                                        <span>Mesa tops</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#d73027", opacity: 0.7 }}></div>
+                                        <span>Upper Slopes</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#91bfdb", opacity: 0.7 }}></div>
+                                        <span>Local ridge/hilltops within broad valleys</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#800000", opacity: 0.7 }}></div>
+                                        <span>Lateral midslope drainage divides, Local ridges in plains</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4d0000", opacity: 0.7 }}></div>
+                                        <span>Mountain tops, high ridges</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#ffffff", opacity: 0.7 }}></div>
+                                        <span>Background</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : null}
                     </>
                 ) : (
                     <>

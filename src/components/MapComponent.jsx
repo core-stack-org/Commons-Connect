@@ -168,6 +168,9 @@ const MapComponent = () => {
     const NregaWorkLayerRef = useRef(null);
     const ClartLayerRef = useRef(null);
     const TerrainLayerRef = useRef(null);
+    const StreamOrderLayerRef = useRef(null);
+    const DrainageLineLayerRef = useRef(null);
+    const CatchmentAreaLayerRef = useRef(null);
     const WaterbodiesLayerRef = useRef(null);
     const PositionFeatureRef = useRef(null);
     const GeolocationRef = useRef(null);
@@ -1395,6 +1398,31 @@ const MapComponent = () => {
                 LayersStore.setWaterStructure(false);
                 LayersStore.setWorkGroundwater(true);
             }
+
+            // Step 2: Planning Site Phase
+            if (currentStep === 2) {
+                if (StreamOrderLayerRef.current !== null) {
+                    StreamOrderLayerRef.current.setOpacity(0.6);
+                    mapRef.current.addLayer(StreamOrderLayerRef.current); // Stream Order layer
+                }
+
+                if (groundwaterRefs[1].current !== null) {
+                    mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
+                }
+                if (groundwaterRefs[3].current !== null) {
+                    mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
+                }
+                mapRef.current.addLayer(assetsLayerRefs[0].current); // Settlement layer
+                mapRef.current.addLayer(assetsLayerRefs[2].current); // Water structures
+
+                LayersStore.setSettlementLayer(true);
+                LayersStore.setWellDepth(false);
+                LayersStore.setDrainageLayer(true);
+                LayersStore.setCLARTLayer(false);
+                LayersStore.setTerrainLayer(false);
+                LayersStore.setWaterStructure(true);
+                LayersStore.setWorkGroundwater(true);
+            }
         } else if (currentScreen === "Agriculture") {
             layerCollection
                 .getArray()
@@ -1476,6 +1504,39 @@ const MapComponent = () => {
         const layerCollection = mapRef.current.getLayers();
         setIsLoading(true);
         if (currentScreen === "HomeScreen") {
+            // Explicitly remove all groundwater-related layers
+            groundwaterRefs.forEach((ref) => {
+                if (ref.current !== null) {
+                    try {
+                        mapRef.current.removeLayer(ref.current);
+                    } catch (e) {
+                        // Layer might not be in map
+                    }
+                }
+            });
+            
+            // Remove CLART, Terrain, and Stream Order layers
+            if (ClartLayerRef.current !== null) {
+                try {
+                    mapRef.current.removeLayer(ClartLayerRef.current);
+                } catch (e) {
+                }
+            }
+            if (TerrainLayerRef.current !== null) {
+                try {
+                    mapRef.current.removeLayer(TerrainLayerRef.current);
+                } catch (e) {
+                    
+                }
+            }
+            if (StreamOrderLayerRef.current !== null) {
+                try {
+                    mapRef.current.removeLayer(StreamOrderLayerRef.current);
+                } catch (e) {
+                }
+            }
+            
+            // Remove all other layers except base and admin
             layerCollection
                 .getArray()
                 .slice()
@@ -1484,9 +1545,15 @@ const MapComponent = () => {
                         layer !== baseLayerRef.current &&
                         layer !== AdminLayerRef.current
                     ) {
-                        layerCollection.remove(layer);
+                        try {
+                            layerCollection.remove(layer);
+                        } catch (e) {
+                            // Layer might already be removed
+                        }
                     }
                 });
+            
+            // Re-add only the home screen layers
             if (NregaWorkLayerRef.current !== null) {
                 mapRef.current.addLayer(NregaWorkLayerRef.current);
             }
@@ -1498,8 +1565,16 @@ const MapComponent = () => {
             }
             if (MapMarkerRef.current !== null) {
                 MapMarkerRef.current.setVisible(false);
+            }
+            if (tempSettlementLayer.current !== null) {
                 tempSettlementLayer.current.setVisible(false);
             }
+            MainStore.setMarkerPlaced(false);
+            MainStore.setFeatureStat(false);
+            
+            // Force map to re-render and update
+            mapRef.current.render();
+            mapRef.current.updateSize();
         } else if (currentScreen === "Resource_mapping") {
             layerCollection
                 .getArray()
@@ -1603,6 +1678,48 @@ const MapComponent = () => {
                     TerrainLayerRef.current = TerrainLayer;
                     if (TerrainLayer.loadPromise) {
                         loadingPromises.push(TerrainLayer.loadPromise);
+                    }
+                }
+
+                if (StreamOrderLayerRef.current === null) {
+                    const StreamOrderLayer = await getImageLayer(
+                        "stream_order",
+                        `stream_order_${districtName}_${blockName}_raster`,
+                        true,
+                        "",
+                    );
+                    StreamOrderLayer.setOpacity(0.6);
+                    StreamOrderLayerRef.current = StreamOrderLayer;
+                    if (StreamOrderLayer.loadPromise) {
+                        loadingPromises.push(StreamOrderLayer.loadPromise);
+                    }
+                }
+
+                if (DrainageLineLayerRef.current === null) {
+                    const DrainageLineLayer = await getImageLayer(
+                        "distance_nearest_upstream_DL",
+                        `distance_to_drainage_line_${districtName}_${blockName}_raster`,
+                        false,
+                        "",
+                    );
+                    DrainageLineLayer.setOpacity(0.6);
+                    DrainageLineLayerRef.current = DrainageLineLayer;
+                    if (DrainageLineLayer.loadPromise) {
+                        loadingPromises.push(DrainageLineLayer.loadPromise);
+                    }
+                }
+
+                if (CatchmentAreaLayerRef.current === null) {
+                    const CatchmentAreaLayer = await getImageLayer(
+                        "catchment_area_singleflow",
+                        `catchment_area_${districtName}_${blockName}_raster`,
+                        false,
+                        "",
+                    );
+                    CatchmentAreaLayer.setOpacity(0.6);
+                    CatchmentAreaLayerRef.current = CatchmentAreaLayer;
+                    if (CatchmentAreaLayer.loadPromise) {
+                        loadingPromises.push(CatchmentAreaLayer.loadPromise);
                     }
                 }
 

@@ -610,8 +610,7 @@ const Agriculture = () => {
 
                 {MainStore.currentStep === 1 && (
                     <div className="flex flex-col items-center justify-center w-full gap-3">
-                        {/* Propose Maintenance Button - Top pill */}
-                        <div className="flex items-center justify-center w-full">
+                        <div className="flex flex-col items-center justify-center w-full gap-3">
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
                                 onClick={() => toggleFormsUrl(true)}
@@ -631,6 +630,27 @@ const Agriculture = () => {
                                 }}
                             >
                                 {t("Propose Maintenance")}
+                            </button>
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => {
+                                    if (MainStore.markerCoords) {
+                                        MainStore.setSiteAnalysisCoords(MainStore.markerCoords);
+                                        MainStore.setIsSiteAnalysis(true);
+                                        MainStore.setIsOpen(true);
+                                    }
+                                }}
+                                style={{
+                                    backgroundColor: "#D6D5C9",
+                                    color: "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    width: "350px",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                }}
+                            >
+                                {t("Site Analysis")}
                             </button>
                         </div>
 
