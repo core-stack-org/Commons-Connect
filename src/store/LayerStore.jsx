@@ -22,6 +22,7 @@ const useLayersStore = create((set) => ({
     StreamOrderLayer: false,
     DrainageLineLayer: false,
     CatchmentAreaLayer: false,
+    NaturalDepressionLayer: false,
 
     setAdminBoundary: (stat) => set({ AdminBoundary: stat }),
     setNregaLayer: (stat) => set({ NregaLayer: stat }),
@@ -42,6 +43,7 @@ const useLayersStore = create((set) => ({
     setStreamOrderLayer: (stat) => set({ StreamOrderLayer: stat }),
     setDrainageLineLayer: (stat) => set({ DrainageLineLayer: stat }),
     setCatchmentAreaLayer: (stat) => set({ CatchmentAreaLayer: stat }),
+    setNaturalDepressionLayer: (stat) => set({ NaturalDepressionLayer: stat }),
 }));
 
 export default useLayersStore;

@@ -25,6 +25,7 @@ const Groundwater = () => {
     const navigate = useNavigate();
 
     const [selectedLayer, setSelectedLayer] = useState("CLART");
+    const [selectedSiteLayer, setSelectedSiteLayer] = useState("StreamOrder");
 
     useEffect(() => {
         MainStore.setMarkerPlaced(false);
@@ -150,6 +151,20 @@ const Groundwater = () => {
             MainStore.setLayerClicked("TerrainLayer");
             LayersStore.setTerrainLayer(true);
             LayersStore.setCLARTLayer(false);
+        }
+    };
+
+    const handleSiteLayerChange = (layerName) => {
+        setSelectedSiteLayer(layerName);
+
+        if (layerName === "StreamOrder") {
+            MainStore.setLayerClicked("StreamOrderLayer");
+            LayersStore.setStreamOrderLayer(true);
+            LayersStore.setNaturalDepressionLayer(false);
+        } else if (layerName === "NaturalDepression") {
+            MainStore.setLayerClicked("NaturalDepressionLayer");
+            LayersStore.setNaturalDepressionLayer(true);
+            LayersStore.setStreamOrderLayer(false);
         }
     };
 
@@ -388,6 +403,48 @@ const Groundwater = () => {
                                 style={{ color: "#592941" }}
                             >
                                 Terrain
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 5. Site Layers Slider - Only show in step 2 */}
+            {MainStore.currentStep === 2 && (
+                <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
+                    <div className="flex gap-4 max-w-lg">
+                        <div
+                            className="relative inline-flex rounded-xl pb-0.5 pt-0.5"
+                            style={{ backgroundColor: "#D6D5C9" }}
+                        >
+                            {/* Sliding white pill background */}
+                            <div
+                                className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-in-out"
+                                style={{
+                                    height: "calc(100% - 4px)",
+                                    width: "50%",
+                                    transform:
+                                        selectedSiteLayer === "NaturalDepression"
+                                            ? "translateX(100%)"
+                                            : "translateX(0%)",
+                                }}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => handleSiteLayerChange("StreamOrder")}
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                                style={{ color: "#592941" }}
+                            >
+                                Stream Order
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleSiteLayerChange("NaturalDepression")}
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                                style={{ color: "#592941" }}
+                            >
+                                Natural Depression
                             </button>
                         </div>
                     </div>

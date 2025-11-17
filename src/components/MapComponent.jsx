@@ -171,6 +171,7 @@ const MapComponent = () => {
     const StreamOrderLayerRef = useRef(null);
     const DrainageLineLayerRef = useRef(null);
     const CatchmentAreaLayerRef = useRef(null);
+    const NaturalDepressionLayerRef = useRef(null);
     const WaterbodiesLayerRef = useRef(null);
     const PositionFeatureRef = useRef(null);
     const GeolocationRef = useRef(null);
@@ -1422,6 +1423,8 @@ const MapComponent = () => {
                 LayersStore.setTerrainLayer(false);
                 LayersStore.setWaterStructure(true);
                 LayersStore.setWorkGroundwater(true);
+                LayersStore.setStreamOrderLayer(true);
+                LayersStore.setNaturalDepressionLayer(false);
             }
         } else if (currentScreen === "Agriculture") {
             layerCollection
@@ -1515,7 +1518,7 @@ const MapComponent = () => {
                 }
             });
             
-            // Remove CLART, Terrain, and Stream Order layers
+            // Remove CLART, Terrain, Stream Order, and Natural Depression layers
             if (ClartLayerRef.current !== null) {
                 try {
                     mapRef.current.removeLayer(ClartLayerRef.current);
@@ -1532,6 +1535,12 @@ const MapComponent = () => {
             if (StreamOrderLayerRef.current !== null) {
                 try {
                     mapRef.current.removeLayer(StreamOrderLayerRef.current);
+                } catch (e) {
+                }
+            }
+            if (NaturalDepressionLayerRef.current !== null) {
+                try {
+                    mapRef.current.removeLayer(NaturalDepressionLayerRef.current);
                 } catch (e) {
                 }
             }
@@ -1720,6 +1729,20 @@ const MapComponent = () => {
                     CatchmentAreaLayerRef.current = CatchmentAreaLayer;
                     if (CatchmentAreaLayer.loadPromise) {
                         loadingPromises.push(CatchmentAreaLayer.loadPromise);
+                    }
+                }
+
+                if (NaturalDepressionLayerRef.current === null) {
+                    const NaturalDepressionLayer = await getImageLayer(
+                        "natural_depression",
+                        `natural_depression_${districtName}_${blockName}_raster`,
+                        false,
+                        "",
+                    );
+                    NaturalDepressionLayer.setOpacity(0.6);
+                    NaturalDepressionLayerRef.current = NaturalDepressionLayer;
+                    if (NaturalDepressionLayer.loadPromise) {
+                        loadingPromises.push(NaturalDepressionLayer.loadPromise);
                     }
                 }
 
@@ -2508,6 +2531,52 @@ const MapComponent = () => {
                     }
                 } else if (!LayersStore[MainStore.layerClicked]) {
                     mapRef.current.removeLayer(TerrainLayerRef.current);
+                }
+            } else if (MainStore.layerClicked === "StreamOrderLayer") {
+                // Remove Natural Depression layer if it exists
+                if (
+                    layerCollection
+                        .getArray()
+                        .some((layer) => layer === NaturalDepressionLayerRef.current)
+                ) {
+                    mapRef.current.removeLayer(NaturalDepressionLayerRef.current);
+                }
+
+                if (
+                    LayersStore[MainStore.layerClicked] &&
+                    !layerCollection
+                        .getArray()
+                        .some((layer) => layer === StreamOrderLayerRef.current)
+                ) {
+                    if (StreamOrderLayerRef.current !== null) {
+                        StreamOrderLayerRef.current.setOpacity(0.6);
+                        mapRef.current.addLayer(StreamOrderLayerRef.current);
+                    }
+                } else if (!LayersStore[MainStore.layerClicked]) {
+                    mapRef.current.removeLayer(StreamOrderLayerRef.current);
+                }
+            } else if (MainStore.layerClicked === "NaturalDepressionLayer") {
+                // Remove Stream Order layer if it exists
+                if (
+                    layerCollection
+                        .getArray()
+                        .some((layer) => layer === StreamOrderLayerRef.current)
+                ) {
+                    mapRef.current.removeLayer(StreamOrderLayerRef.current);
+                }
+
+                if (
+                    LayersStore[MainStore.layerClicked] &&
+                    !layerCollection
+                        .getArray()
+                        .some((layer) => layer === NaturalDepressionLayerRef.current)
+                ) {
+                    if (NaturalDepressionLayerRef.current !== null) {
+                        NaturalDepressionLayerRef.current.setOpacity(0.6);
+                        mapRef.current.addLayer(NaturalDepressionLayerRef.current);
+                    }
+                } else if (!LayersStore[MainStore.layerClicked]) {
+                    mapRef.current.removeLayer(NaturalDepressionLayerRef.current);
                 }
             }
         }
