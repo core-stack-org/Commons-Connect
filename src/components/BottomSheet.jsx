@@ -194,7 +194,6 @@ const Bottomsheet = () => {
             }
             flg = false;
         } else {
-            console.log("Came here!");
             flg = true;
         }
     };
