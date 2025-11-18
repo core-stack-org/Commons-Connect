@@ -1371,6 +1371,8 @@ const MapComponent = () => {
                 LayersStore.setTerrainLayer(false);
                 LayersStore.setWaterStructure(false);
                 LayersStore.setWorkGroundwater(true);
+                LayersStore.setStreamOrderLayer(false);
+                LayersStore.setNaturalDepressionLayer(false);
             }
 
             // Step 1: In the planning step
@@ -1398,15 +1400,33 @@ const MapComponent = () => {
                 LayersStore.setTerrainLayer(false);
                 LayersStore.setWaterStructure(false);
                 LayersStore.setWorkGroundwater(true);
+                LayersStore.setStreamOrderLayer(false);
+                LayersStore.setNaturalDepressionLayer(false);
             }
 
             // Step 2: Planning Site Phase
             if (currentStep === 2) {
+                const layers = mapRef.current.getLayers();
+                
+                // Add Stream Order layer first (at the very bottom, position 1 after base layer)
                 if (StreamOrderLayerRef.current !== null) {
                     StreamOrderLayerRef.current.setOpacity(0.6);
-                    mapRef.current.addLayer(StreamOrderLayerRef.current); // Stream Order layer
+                    StreamOrderLayerRef.current.setZIndex(1); // Set low z-index
+                    
+                    // Insert at position 1 (after base layer which is at 0)
+                    layers.insertAt(1, StreamOrderLayerRef.current);
                 }
 
+                // Add admin boundary at position 2 (above stream order but below everything else)
+                if (AdminLayerRef.current !== null) {
+                    const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
+                    if (adminIndex > 2) {
+                        layers.remove(AdminLayerRef.current);
+                        layers.insertAt(2, AdminLayerRef.current);
+                    }
+                }
+
+                // Add other layers on top
                 if (groundwaterRefs[1].current !== null) {
                     mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
                 }
@@ -1562,7 +1582,22 @@ const MapComponent = () => {
                     }
                 });
             
-            // Re-add only the home screen layers
+            if (baseLayerRef.current !== null) {
+                baseLayerRef.current.setVisible(true);
+                baseLayerRef.current.setOpacity(1);
+            }
+            
+            if (AdminLayerRef.current !== null) {
+                const adminExists = layerCollection
+                    .getArray()
+                    .some((layer) => layer === AdminLayerRef.current);
+                if (!adminExists) {
+                    mapRef.current.addLayer(AdminLayerRef.current);
+                }
+                AdminLayerRef.current.setOpacity(1);
+            }
+            
+            // MARK: Home Screen Layers (Re-added)
             if (NregaWorkLayerRef.current !== null) {
                 mapRef.current.addLayer(NregaWorkLayerRef.current);
             }
@@ -1584,6 +1619,24 @@ const MapComponent = () => {
             // Force map to re-render and update
             mapRef.current.render();
             mapRef.current.updateSize();
+            // Defer additional size updates to after layout settles
+            if (mapRef.current) {
+                requestAnimationFrame(() => {
+                    try {
+                        mapRef.current.updateSize();
+                        mapRef.current.renderSync();
+                    } catch (e) {}
+                });
+                setTimeout(() => {
+                    try {
+                        mapRef.current.updateSize();
+                        mapRef.current.renderSync();
+                    } catch (e) {}
+                }, 200);
+            }
+            
+            // Hide loader after everything is set up
+            setIsLoading(false);
         } else if (currentScreen === "Resource_mapping") {
             layerCollection
                 .getArray()
@@ -2550,7 +2603,20 @@ const MapComponent = () => {
                 ) {
                     if (StreamOrderLayerRef.current !== null) {
                         StreamOrderLayerRef.current.setOpacity(0.6);
-                        mapRef.current.addLayer(StreamOrderLayerRef.current);
+                        StreamOrderLayerRef.current.setZIndex(1); // Set low z-index
+                        
+                        // Insert at position 1 (after base layer) to keep it at bottom
+                        const layers = mapRef.current.getLayers();
+                        layers.insertAt(1, StreamOrderLayerRef.current);
+                        
+                        // Ensure admin boundary stays at position 2
+                        if (AdminLayerRef.current !== null) {
+                            const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
+                            if (adminIndex !== 2 && adminIndex !== -1) {
+                                layers.remove(AdminLayerRef.current);
+                                layers.insertAt(2, AdminLayerRef.current);
+                            }
+                        }
                     }
                 } else if (!LayersStore[MainStore.layerClicked]) {
                     mapRef.current.removeLayer(StreamOrderLayerRef.current);
@@ -2573,7 +2639,20 @@ const MapComponent = () => {
                 ) {
                     if (NaturalDepressionLayerRef.current !== null) {
                         NaturalDepressionLayerRef.current.setOpacity(0.6);
-                        mapRef.current.addLayer(NaturalDepressionLayerRef.current);
+                        NaturalDepressionLayerRef.current.setZIndex(1); // Set low z-index
+                        
+                        // Insert at position 1 (after base layer) to keep it at bottom
+                        const layers = mapRef.current.getLayers();
+                        layers.insertAt(1, NaturalDepressionLayerRef.current);
+                        
+                        // Ensure admin boundary stays at position 2
+                        if (AdminLayerRef.current !== null) {
+                            const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
+                            if (adminIndex !== 2 && adminIndex !== -1) {
+                                layers.remove(AdminLayerRef.current);
+                                layers.insertAt(2, AdminLayerRef.current);
+                            }
+                        }
                     }
                 } else if (!LayersStore[MainStore.layerClicked]) {
                     mapRef.current.removeLayer(NaturalDepressionLayerRef.current);

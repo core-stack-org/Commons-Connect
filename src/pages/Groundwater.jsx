@@ -419,21 +419,18 @@ const Groundwater = () => {
                         >
                             {/* Sliding white pill background */}
                             <div
-                                className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-in-out"
+                                className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-all duration-300 ease-in-out"
                                 style={{
                                     height: "calc(100% - 4px)",
-                                    width: "50%",
-                                    transform:
-                                        selectedSiteLayer === "NaturalDepression"
-                                            ? "translateX(100%)"
-                                            : "translateX(0%)",
+                                    width: selectedSiteLayer === "NaturalDepression" ? "58%" : "42%",
+                                    left: selectedSiteLayer === "NaturalDepression" ? "42%" : "0%",
                                 }}
                             />
 
                             <button
                                 type="button"
                                 onClick={() => handleSiteLayerChange("StreamOrder")}
-                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap"
                                 style={{ color: "#592941" }}
                             >
                                 Stream Order
@@ -441,7 +438,7 @@ const Groundwater = () => {
                             <button
                                 type="button"
                                 onClick={() => handleSiteLayerChange("NaturalDepression")}
-                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap"
                                 style={{ color: "#592941" }}
                             >
                                 Natural Depression
