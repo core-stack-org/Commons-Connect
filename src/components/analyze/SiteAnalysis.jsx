@@ -5,6 +5,7 @@ import SquircleLoader from "../SquircleLoader.jsx";
 
 const SiteAnalysis = () => {
     const MainStore = useMainStore((state) => state);
+    const currentScreen = useMainStore((state) => state.currentScreen);
     const [loading, setLoading] = useState(true);
     const [analysisData, setAnalysisData] = useState(null);
 
@@ -157,13 +158,27 @@ const SiteAnalysis = () => {
 
                 {/* Info Note */}
                 <div className="bg-gray-50 rounded-2xl p-4">
-                    <div className="flex items-start">
-                        <svg className="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                            These parameters help assess the suitability of the location for water harvesting structures and understand the hydrological characteristics of the site.
-                        </p>
+                    <div className="flex flex-col">
+                        <div className="flex items-center mb-2">
+                            <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="text-sm text-gray-600 leading-relaxed">
+                            {currentScreen === "Groundwater" ? (
+                                <p>
+                                    Sites on drainage lines, having a reasonable catchment area but not too large (4 to 40 ha), in higher stream orders (1, 2, 3), and low slope (&lt; 15%) are good for checkdams. Sites in higher slopes and on drainage lines can sustain gully plugs. Sites in lower slopes and off drainage lines are good for contour trenches.
+                                </p>
+                            ) : currentScreen === "Agriculture" ? (
+                                <p>
+                                    Sites close to drainage lines (less than 50m), having a small catchment area (1 to 4 ha), in higher stream orders (1, 2, 3), and low slope (&lt; 5%) are good for farm ponds. Sites on drainage lines can be preferred.
+                                </p>
+                            ) : (
+                                <p>
+                                    These parameters help assess the suitability of the location for water harvesting structures and understand the hydrological characteristics of the site.
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

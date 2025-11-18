@@ -759,15 +759,22 @@ const Groundwater = () => {
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
                                 onClick={handleSiteAnalysis}
+                                disabled={!MainStore.isMarkerPlaced}
                                 style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
+                                    backgroundColor: !MainStore.isMarkerPlaced
+                                        ? "#696969"
+                                        : "#D6D5C9",
+                                    color: !MainStore.isMarkerPlaced
+                                        ? "#A8A8A8"
+                                        : "#592941",
                                     border: "none",
                                     borderRadius: "22px",
                                     height: "44px",
                                     width: "190px",
                                     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                    cursor: "pointer",
+                                    cursor: !MainStore.isMarkerPlaced
+                                        ? "not-allowed"
+                                        : "pointer",
                                     transition:
                                         "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}

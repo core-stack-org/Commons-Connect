@@ -1616,10 +1616,8 @@ const MapComponent = () => {
             MainStore.setMarkerPlaced(false);
             MainStore.setFeatureStat(false);
             
-            // Force map to re-render and update
             mapRef.current.render();
             mapRef.current.updateSize();
-            // Defer additional size updates to after layout settles
             if (mapRef.current) {
                 requestAnimationFrame(() => {
                     try {
