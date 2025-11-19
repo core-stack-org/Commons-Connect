@@ -633,28 +633,32 @@ const Agriculture = () => {
                             </button>
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => {
-                                    if (MainStore.markerCoords) {
-                                        MainStore.setSiteAnalysisCoords(MainStore.markerCoords);
-                                        MainStore.setIsSiteAnalysis(true);
-                                        MainStore.setIsOpen(true);
-                                    }
-                                }}
+                                onClick={() => toggleFormsUrl(false)}
+                                disabled={MainStore.isFeatureClicked}
                                 style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
+                                    backgroundColor: MainStore.isFeatureClicked
+                                        ? "#696969"
+                                        : "#D6D5C9",
+                                    color: MainStore.isFeatureClicked
+                                        ? "#A8A8A8"
+                                        : "#592941",
                                     border: "none",
                                     borderRadius: "22px",
                                     height: "44px",
                                     width: "350px",
                                     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                    cursor: MainStore.isFeatureClicked
+                                        ? "not-allowed"
+                                        : "pointer",
+                                    transition:
+                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
                             >
-                                {t("Site Analysis")}
+                                {t("New Irrigation Work")}
                             </button>
                         </div>
 
-                        {/* Separate Back, New Irrigation Work, and Finish Buttons - Bottom section */}
+                        {/* Separate Back, Site Analysis, and Finish Buttons - Bottom section */}
                         <div className="flex items-center justify-center w-full gap-3">
                             {/* Separate Back Button */}
                             <button
@@ -680,16 +684,22 @@ const Agriculture = () => {
                                 {t("Back")}
                             </button>
 
-                            {/* New Irrigation Work Button */}
+                            {/* Site Analysis Button */}
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => toggleFormsUrl(false)}
-                                disabled={MainStore.isFeatureClicked}
+                                onClick={() => {
+                                    if (MainStore.markerCoords) {
+                                        MainStore.setSiteAnalysisCoords(MainStore.markerCoords);
+                                        MainStore.setIsSiteAnalysis(true);
+                                        MainStore.setIsOpen(true);
+                                    }
+                                }}
+                                disabled={!MainStore.isMarkerPlaced}
                                 style={{
-                                    backgroundColor: MainStore.isFeatureClicked
+                                    backgroundColor: !MainStore.isMarkerPlaced
                                         ? "#696969"
                                         : "#D6D5C9",
-                                    color: MainStore.isFeatureClicked
+                                    color: !MainStore.isMarkerPlaced
                                         ? "#A8A8A8"
                                         : "#592941",
                                     border: "none",
@@ -697,14 +707,14 @@ const Agriculture = () => {
                                     height: "44px",
                                     width: "190px",
                                     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                    cursor: MainStore.isFeatureClicked
+                                    cursor: !MainStore.isMarkerPlaced
                                         ? "not-allowed"
                                         : "pointer",
                                     transition:
                                         "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
                             >
-                                {t("New Irrigation Work")}
+                                {t("Site Analysis")}
                             </button>
 
                             {/* Separate Finish Button */}
