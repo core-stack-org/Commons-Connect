@@ -48,10 +48,18 @@ const SiteAnalysis = () => {
                 lat
             );
 
+            const slopePercentageValue = await getRasterValue(
+                "slope_percentage",
+                `${districtName}_${blockName}_slope_percentage_raster`,
+                lon,
+                lat
+            );
+
             const data = {
                 drainageLine: drainageLineValue !== null ? drainageLineValue : "N/A",
                 catchmentArea: catchmentAreaValue !== null ? catchmentAreaValue : "N/A",
                 streamOrder: streamOrderValue !== null ? streamOrderValue : "N/A",
+                slopePercentage: slopePercentageValue !== null ? slopePercentageValue : "N/A",
                 coordinates: { lat, lon }
             };
 
@@ -149,6 +157,17 @@ const SiteAnalysis = () => {
                             <span className="ml-2 text-gray-900">
                                 {analysisData.streamOrder !== "N/A"
                                     ? analysisData.streamOrder
+                                    : "Data not available"
+                                }
+                            </span>
+                        </div>
+                        <div>
+                            <span className="font-medium text-gray-600">
+                                Slope Percentage:
+                            </span>
+                            <span className="ml-2 text-gray-900">
+                                {analysisData.slopePercentage !== "N/A"
+                                    ? `${parseFloat(analysisData.slopePercentage).toFixed(2)}%`
                                     : "Data not available"
                                 }
                             </span>
