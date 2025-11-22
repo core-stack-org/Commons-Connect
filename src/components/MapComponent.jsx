@@ -168,10 +168,8 @@ const MapComponent = () => {
     const NregaWorkLayerRef = useRef(null);
     const ClartLayerRef = useRef(null);
     const TerrainLayerRef = useRef(null);
-    const StreamOrderLayerRef = useRef(null);
     const DrainageLineLayerRef = useRef(null);
     const CatchmentAreaLayerRef = useRef(null);
-    const NaturalDepressionLayerRef = useRef(null);
     const WaterbodiesLayerRef = useRef(null);
     const PositionFeatureRef = useRef(null);
     const GeolocationRef = useRef(null);
@@ -201,33 +199,15 @@ const MapComponent = () => {
     const currentStep = useMainStore((state) => state.currentStep);
 
     //?                    Settlement       Well         Waterbody     CropGrid
-    let assetsLayerRefs = [
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-    ];
+    let assetsLayerRefs = [useRef(null),  useRef(null), useRef(null), useRef(null)];
 
-    //?                  deltag WellDepth   drainage    fortnight       Works
-    let groundwaterRefs = [
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-    ];
+    //?                  deltag WellDepth   drainage    fortnight       Works       Stream Order  Natural Depression
+    let groundwaterRefs = [useRef(null),  useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)];
 
     //?                     17-18       18-19           19-20       20-21           21-22         22-23         23-24
-    let LulcLayerRefs = [
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-        useRef(null),
-    ];
+    let LulcLayerRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null),];
 
-    //?                   Cropping      Drought        Works
+    //?                   Cropping       Drought        Works
     let AgriLayersRefs = [useRef(null), useRef(null), useRef(null)];
     let LulcYears = {
         0: "17_18",
@@ -636,36 +616,33 @@ const MapComponent = () => {
 
         wellLayer.setStyle(function (feature) {
             const status = feature.values_;
-            const m = status.Well_usage.match(
-                /'is_maintenance_required'\s*:\s*'([^']*)'/i,
-            );
-            const wellMaintenance = m ? m[1].toLowerCase() === "yes" : null;
+            let wellMaintenance = false
+            if(status.Well_usage !== undefined){
+                const m = status.Well_usage.match(/'is_maintenance_required'\s*:\s*'([^']*)'/i);
+                wellMaintenance = m ? m[1].toLowerCase() === 'yes' : wellMaintenance;
+            }
+            if(status.Well_condi !== undefined){
+                const m = status.Well_condi.match(/'select_one_maintenance'\s*:\s*'([^']*)'/i);
+                wellMaintenance = m ? m[1].toLowerCase() === 'yes' : wellMaintenance;
+            }
 
             if (status.status_re in iconsDetails.socialMapping_icons.well) {
                 return new Style({
                     image: new Icon({
-                        src: iconsDetails.socialMapping_icons.well[
-                            status.status_re
-                        ],
+                         image: new Icon({ src: iconsDetails.socialMapping_icons.well[status.status_re] }),
                     }),
                 });
             } else if (wellMaintenance) {
                 return new Style({
-                    image: new Icon({
-                        src: iconsDetails.socialMapping_icons.well[
-                            "maintenance"
-                        ],
-                        scale: 0.5,
-                    }),
+                    image: new Icon({src: iconsDetails.socialMapping_icons.well["maintenance"], scale: 0.5}),
                 });
             } else {
                 return new Style({
-                    image: new Icon({
-                        src: iconsDetails.socialMapping_icons.well["proposed"],
-                    }),
+                    image: new Icon({src: iconsDetails.socialMapping_icons.well["proposed"],}),
                 });
             }
         });
+
 
         waterStructureLayer.setStyle(function (feature) {
             const status = feature.values_;
@@ -1409,12 +1386,9 @@ const MapComponent = () => {
                 const layers = mapRef.current.getLayers();
                 
                 // Add Stream Order layer first (at the very bottom, position 1 after base layer)
-                if (StreamOrderLayerRef.current !== null) {
-                    StreamOrderLayerRef.current.setOpacity(0.6);
-                    StreamOrderLayerRef.current.setZIndex(1); // Set low z-index
-                    
-                    // Insert at position 1 (after base layer which is at 0)
-                    layers.insertAt(1, StreamOrderLayerRef.current);
+                if (groundwaterRefs[4].current !== null) {
+                    groundwaterRefs[4].current.setOpacity(0.6);
+                    mapRef.current.addLayer(groundwaterRefs[4].current);
                 }
 
                 // Add admin boundary at position 2 (above stream order but below everything else)
@@ -1527,46 +1501,7 @@ const MapComponent = () => {
         const layerCollection = mapRef.current.getLayers();
         setIsLoading(true);
         if (currentScreen === "HomeScreen") {
-            // Explicitly remove all groundwater-related layers
-            groundwaterRefs.forEach((ref) => {
-                if (ref.current !== null) {
-                    try {
-                        mapRef.current.removeLayer(ref.current);
-                    } catch (e) {
-                        // Layer might not be in map
-                    }
-                }
-            });
-            
-            // Remove CLART, Terrain, Stream Order, and Natural Depression layers
-            if (ClartLayerRef.current !== null) {
-                try {
-                    mapRef.current.removeLayer(ClartLayerRef.current);
-                } catch (e) {
-                }
-            }
-            if (TerrainLayerRef.current !== null) {
-                try {
-                    mapRef.current.removeLayer(TerrainLayerRef.current);
-                } catch (e) {
-                    
-                }
-            }
-            if (StreamOrderLayerRef.current !== null) {
-                try {
-                    mapRef.current.removeLayer(StreamOrderLayerRef.current);
-                } catch (e) {
-                }
-            }
-            if (NaturalDepressionLayerRef.current !== null) {
-                try {
-                    mapRef.current.removeLayer(NaturalDepressionLayerRef.current);
-                } catch (e) {
-                }
-            }
-            
-            // Remove all other layers except base and admin
-            layerCollection
+           layerCollection
                 .getArray()
                 .slice()
                 .forEach((layer) => {
@@ -1574,30 +1509,9 @@ const MapComponent = () => {
                         layer !== baseLayerRef.current &&
                         layer !== AdminLayerRef.current
                     ) {
-                        try {
-                            layerCollection.remove(layer);
-                        } catch (e) {
-                            // Layer might already be removed
-                        }
+                        layerCollection.remove(layer);
                     }
                 });
-            
-            if (baseLayerRef.current !== null) {
-                baseLayerRef.current.setVisible(true);
-                baseLayerRef.current.setOpacity(1);
-            }
-            
-            if (AdminLayerRef.current !== null) {
-                const adminExists = layerCollection
-                    .getArray()
-                    .some((layer) => layer === AdminLayerRef.current);
-                if (!adminExists) {
-                    mapRef.current.addLayer(AdminLayerRef.current);
-                }
-                AdminLayerRef.current.setOpacity(1);
-            }
-            
-            // MARK: Home Screen Layers (Re-added)
             if (NregaWorkLayerRef.current !== null) {
                 mapRef.current.addLayer(NregaWorkLayerRef.current);
             }
@@ -1609,32 +1523,8 @@ const MapComponent = () => {
             }
             if (MapMarkerRef.current !== null) {
                 MapMarkerRef.current.setVisible(false);
-            }
-            if (tempSettlementLayer.current !== null) {
                 tempSettlementLayer.current.setVisible(false);
             }
-            MainStore.setMarkerPlaced(false);
-            MainStore.setFeatureStat(false);
-            
-            mapRef.current.render();
-            mapRef.current.updateSize();
-            if (mapRef.current) {
-                requestAnimationFrame(() => {
-                    try {
-                        mapRef.current.updateSize();
-                        mapRef.current.renderSync();
-                    } catch (e) {}
-                });
-                setTimeout(() => {
-                    try {
-                        mapRef.current.updateSize();
-                        mapRef.current.renderSync();
-                    } catch (e) {}
-                }, 200);
-            }
-            
-            // Hide loader after everything is set up
-            setIsLoading(false);
         } else if (currentScreen === "Resource_mapping") {
             layerCollection
                 .getArray()
@@ -1741,7 +1631,7 @@ const MapComponent = () => {
                     }
                 }
 
-                if (StreamOrderLayerRef.current === null) {
+                if (groundwaterRefs[4].current === null) {
                     const StreamOrderLayer = await getImageLayer(
                         "stream_order",
                         `stream_order_${districtName}_${blockName}_raster`,
@@ -1749,7 +1639,7 @@ const MapComponent = () => {
                         "",
                     );
                     StreamOrderLayer.setOpacity(0.6);
-                    StreamOrderLayerRef.current = StreamOrderLayer;
+                    groundwaterRefs[4].current = StreamOrderLayer;
                     if (StreamOrderLayer.loadPromise) {
                         loadingPromises.push(StreamOrderLayer.loadPromise);
                     }
@@ -1783,7 +1673,7 @@ const MapComponent = () => {
                     }
                 }
 
-                if (NaturalDepressionLayerRef.current === null) {
+                if (groundwaterRefs[5].current === null) {
                     const NaturalDepressionLayer = await getImageLayer(
                         "natural_depression",
                         `natural_depression_${districtName}_${blockName}_raster`,
@@ -1791,7 +1681,7 @@ const MapComponent = () => {
                         "",
                     );
                     NaturalDepressionLayer.setOpacity(0.6);
-                    NaturalDepressionLayerRef.current = NaturalDepressionLayer;
+                    groundwaterRefs[5].current = NaturalDepressionLayer;
                     if (NaturalDepressionLayer.loadPromise) {
                         loadingPromises.push(NaturalDepressionLayer.loadPromise);
                     }
@@ -2109,7 +1999,6 @@ const MapComponent = () => {
     useEffect(() => {
         const fetchLocationFromFlutter = async () => {
             try {
-                console.log("Fetching location from Flutter app...");
                 const response = await fetch(
                     `http://localhost:3000/api/v1/location`,
                 );
@@ -2141,8 +2030,6 @@ const MapComponent = () => {
                     );
                 }
             } catch (err) {
-                console.error("Error fetching location from Flutter:", err);
-
                 // Fallback to browser geolocation
                 try {
                     const position = await new Promise((resolve, reject) => {
@@ -2173,10 +2060,7 @@ const MapComponent = () => {
 
         const initializeGPSLocation = async () => {
             // Initialize position feature if not already created
-            if (
-                PositionFeatureRef.current === null &&
-                mapRef.current !== null
-            ) {
+            if (PositionFeatureRef.current === null && mapRef.current !== null) {
                 const positionFeature = new Feature();
 
                 positionFeature.setStyle(
@@ -2190,8 +2074,6 @@ const MapComponent = () => {
                         }),
                     }),
                 );
-
-                console.log("Initializing GPS position feature");
                 PositionFeatureRef.current = positionFeature;
 
                 // Create GPS layer if it doesn't exist
@@ -2209,9 +2091,6 @@ const MapComponent = () => {
 
             // Fetch location when GPS button is clicked
             if (MainStore.isGPSClick && mapRef.current !== null) {
-                console.log("GPS button clicked - fetching current location");
-
-                // Show loading toast with a unique ID so we can dismiss it later
                 let loadingToastId = null;
 
                 // Check which toast library you're using and use appropriate method
@@ -2588,24 +2467,24 @@ const MapComponent = () => {
                 if (
                     layerCollection
                         .getArray()
-                        .some((layer) => layer === NaturalDepressionLayerRef.current)
+                        .some((layer) => layer === groundwaterRefs[5].current)
                 ) {
-                    mapRef.current.removeLayer(NaturalDepressionLayerRef.current);
+                    mapRef.current.removeLayer(groundwaterRefs[5].current);
                 }
 
                 if (
                     LayersStore[MainStore.layerClicked] &&
                     !layerCollection
                         .getArray()
-                        .some((layer) => layer === StreamOrderLayerRef.current)
+                        .some((layer) => layer === groundwaterRefs[4].current)
                 ) {
-                    if (StreamOrderLayerRef.current !== null) {
-                        StreamOrderLayerRef.current.setOpacity(0.6);
-                        StreamOrderLayerRef.current.setZIndex(1); // Set low z-index
+                    if (groundwaterRefs[4].current !== null) {
+                        groundwaterRefs[4].current.setOpacity(0.6);
+                        groundwaterRefs[4].current.setZIndex(1); // Set low z-index
                         
                         // Insert at position 1 (after base layer) to keep it at bottom
                         const layers = mapRef.current.getLayers();
-                        layers.insertAt(1, StreamOrderLayerRef.current);
+                        layers.insertAt(1, groundwaterRefs[4].current);
                         
                         // Ensure admin boundary stays at position 2
                         if (AdminLayerRef.current !== null) {
@@ -2617,31 +2496,31 @@ const MapComponent = () => {
                         }
                     }
                 } else if (!LayersStore[MainStore.layerClicked]) {
-                    mapRef.current.removeLayer(StreamOrderLayerRef.current);
+                    mapRef.current.removeLayer(groundwaterRefs[4].current);
                 }
             } else if (MainStore.layerClicked === "NaturalDepressionLayer") {
                 // Remove Stream Order layer if it exists
                 if (
                     layerCollection
                         .getArray()
-                        .some((layer) => layer === StreamOrderLayerRef.current)
+                        .some((layer) => layer === groundwaterRefs[4].current)
                 ) {
-                    mapRef.current.removeLayer(StreamOrderLayerRef.current);
+                    mapRef.current.removeLayer(groundwaterRefs[4].current);
                 }
 
                 if (
                     LayersStore[MainStore.layerClicked] &&
                     !layerCollection
                         .getArray()
-                        .some((layer) => layer === NaturalDepressionLayerRef.current)
+                        .some((layer) => layer === groundwaterRefs[5].current)
                 ) {
-                    if (NaturalDepressionLayerRef.current !== null) {
-                        NaturalDepressionLayerRef.current.setOpacity(0.6);
-                        NaturalDepressionLayerRef.current.setZIndex(1); // Set low z-index
+                    if (groundwaterRefs[5].current !== null) {
+                        groundwaterRefs[5].current.setOpacity(0.6);
+                        groundwaterRefs[5].current.setZIndex(1); // Set low z-index
                         
                         // Insert at position 1 (after base layer) to keep it at bottom
                         const layers = mapRef.current.getLayers();
-                        layers.insertAt(1, NaturalDepressionLayerRef.current);
+                        layers.insertAt(1, groundwaterRefs[5].current);
                         
                         // Ensure admin boundary stays at position 2
                         if (AdminLayerRef.current !== null) {
@@ -2653,7 +2532,7 @@ const MapComponent = () => {
                         }
                     }
                 } else if (!LayersStore[MainStore.layerClicked]) {
-                    mapRef.current.removeLayer(NaturalDepressionLayerRef.current);
+                    mapRef.current.removeLayer(groundwaterRefs[5].current);
                 }
             }
         }

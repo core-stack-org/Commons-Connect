@@ -482,7 +482,6 @@ const Bottomsheet = () => {
                                 resourceDetails[MainStore.resourceType],
                             ).flatMap((key, index) => {
                                 let rawValue = MainStore.selectedResource[key];
-                                console.log(key);
                                 if (
                                     rawValue &&
                                     (key === "Livestock_" ||
