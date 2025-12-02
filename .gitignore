@@ -27,3 +27,4 @@ version:1.yaml
 *.sln
 *.sw?
 .cursor
+plan.md

@@ -527,10 +527,9 @@ const PlanSheet = ({ isOpen, onClose }) => {
         return facilitators.sort();
     };
 
-    // MARK: check test plans
     const isTestPlan = (plan) => {
         const planName = plan.plan?.toLowerCase() || "";
-        return planName.includes("test plan") || planName.includes("test");
+        return planName.includes("test") || planName.includes("demo");
     };
 
     const applyFilters = (plans) => {
@@ -563,9 +562,11 @@ const PlanSheet = ({ isOpen, onClose }) => {
             filteredRegularPlans = filteredRegularPlans.filter(
                 (plan) => plan.facilitator_name === selectedFacilitatorFilter,
             );
-            filteredTestPlans = filteredTestPlans.filter(
-                (plan) => plan.facilitator_name === selectedFacilitatorFilter,
-            );
+            if (isSuperAdmin || isOrgAdmin) {
+                filteredTestPlans = filteredTestPlans.filter(
+                    (plan) => plan.facilitator_name === selectedFacilitatorFilter,
+                );
+            }
         }
 
         return {
