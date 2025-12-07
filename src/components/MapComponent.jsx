@@ -937,7 +937,6 @@ const MapComponent = () => {
                 } else if (layer === AgriLayersRefs[2].current) {
                     setFeatureStat(true);
                     setSelectedResource(feature.values_);
-                    console.log(feature);
                     MainStore.setResourceType("Irrigation");
                     mapRef.current.removeInteraction(selectSettleIcon);
                     MainStore.setIsResource(true);
@@ -1341,84 +1340,85 @@ const MapComponent = () => {
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
                 mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
 
-                LayersStore.setSettlementLayer(true);
-                LayersStore.setWellDepth(true);
-                LayersStore.setDrainageLayer(false);
-                LayersStore.setCLARTLayer(false);
-                LayersStore.setTerrainLayer(false);
-                LayersStore.setWaterStructure(false);
-                LayersStore.setWorkGroundwater(true);
-                LayersStore.setStreamOrderLayer(false);
-                LayersStore.setNaturalDepressionLayer(false);
+                // LayersStore.setSettlementLayer(true);
+                // LayersStore.setWellDepth(true);
+                // LayersStore.setDrainageLayer(false);
+                // LayersStore.setCLARTLayer(false);
+                // LayersStore.setTerrainLayer(false);
+                // LayersStore.setWaterStructure(false);
+                // LayersStore.setWorkGroundwater(true);
+                // LayersStore.setStreamOrderLayer(false);
+                // LayersStore.setNaturalDepressionLayer(false);
             }
 
             // Step 1: In the planning step
             // TODO: Should I show works layer in both the steps?
             if (currentStep === 1) {
-                if (ClartLayerRef.current !== null) {
-                    ClartLayerRef.current.setOpacity(0.4);
-                    mapRef.current.addLayer(ClartLayerRef.current); // CLART layer
-                }
-
-                // Terrain layer is not added by default, only via toggle
-
-                if (groundwaterRefs[1].current !== null) {
-                    mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
-                }
-                if (groundwaterRefs[3].current !== null) {
-                    mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
-                }
+                mapRef.current.addLayer(ClartLayerRef.current); // CLART layer
+                mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
+                mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
+                console.log("Reached Here !")
+                console.log(ClartLayerRef.current)
+                // if (groundwaterRefs[1].current !== null) {
+                //     mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
+                // }
+                // if (groundwaterRefs[3].current !== null) {
+                //     mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
+                // }
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
 
-                LayersStore.setSettlementLayer(true);
-                LayersStore.setWellDepth(false);
-                LayersStore.setDrainageLayer(true);
-                LayersStore.setCLARTLayer(true);
-                LayersStore.setTerrainLayer(false);
-                LayersStore.setWaterStructure(false);
-                LayersStore.setWorkGroundwater(true);
-                LayersStore.setStreamOrderLayer(false);
-                LayersStore.setNaturalDepressionLayer(false);
+                // LayersStore.setSettlementLayer(true);
+                // LayersStore.setWellDepth(false);
+                // LayersStore.setDrainageLayer(true);
+                // //LayersStore.setCLARTLayer(true);
+                // LayersStore.setTerrainLayer(false);
+                // LayersStore.setWaterStructure(false);
+                // LayersStore.setWorkGroundwater(true);
+                // LayersStore.setStreamOrderLayer(false);
+                // LayersStore.setNaturalDepressionLayer(false);
             }
 
             // Step 2: Planning Site Phase
             if (currentStep === 2) {
-                const layers = mapRef.current.getLayers();
+                //const layers = mapRef.current.getLayers();
                 
                 // Add Stream Order layer first (at the very bottom, position 1 after base layer)
-                if (groundwaterRefs[4].current !== null) {
-                    groundwaterRefs[4].current.setOpacity(0.6);
-                    mapRef.current.addLayer(groundwaterRefs[4].current);
-                }
+                mapRef.current.addLayer(groundwaterRefs[4].current);
+                // if (groundwaterRefs[4].current !== null) {
+                //     groundwaterRefs[4].current.setOpacity(0.6);
+                //     mapRef.current.addLayer(groundwaterRefs[4].current);
+                // }
 
                 // Add admin boundary at position 2 (above stream order but below everything else)
-                if (AdminLayerRef.current !== null) {
-                    const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
-                    if (adminIndex > 2) {
-                        layers.remove(AdminLayerRef.current);
-                        layers.insertAt(2, AdminLayerRef.current);
-                    }
-                }
+                // if (AdminLayerRef.current !== null) {
+                //     const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
+                //     if (adminIndex > 2) {
+                //         layers.remove(AdminLayerRef.current);
+                //         layers.insertAt(2, AdminLayerRef.current);
+                //     }
+                // }
 
                 // Add other layers on top
-                if (groundwaterRefs[1].current !== null) {
-                    mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
-                }
-                if (groundwaterRefs[3].current !== null) {
-                    mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
-                }
+                // if (groundwaterRefs[1].current !== null) {
+                //     mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
+                // }
+                // if (groundwaterRefs[3].current !== null) {
+                //     mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
+                // }
+                mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
+                 mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
                 mapRef.current.addLayer(assetsLayerRefs[0].current); // Settlement layer
                 mapRef.current.addLayer(assetsLayerRefs[2].current); // Water structures
 
-                LayersStore.setSettlementLayer(true);
-                LayersStore.setWellDepth(false);
-                LayersStore.setDrainageLayer(true);
-                LayersStore.setCLARTLayer(false);
-                LayersStore.setTerrainLayer(false);
-                LayersStore.setWaterStructure(true);
-                LayersStore.setWorkGroundwater(true);
-                LayersStore.setStreamOrderLayer(true);
-                LayersStore.setNaturalDepressionLayer(false);
+                // LayersStore.setSettlementLayer(true);
+                // LayersStore.setWellDepth(false);
+                // LayersStore.setDrainageLayer(true);
+                // LayersStore.setCLARTLayer(false);
+                // LayersStore.setTerrainLayer(false);
+                // LayersStore.setWaterStructure(true);
+                // LayersStore.setWorkGroundwater(true);
+                // LayersStore.setStreamOrderLayer(true);
+                // LayersStore.setNaturalDepressionLayer(false);
             }
         } else if (currentScreen === "Agriculture") {
             layerCollection
@@ -1445,23 +1445,18 @@ const MapComponent = () => {
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
             }
             if (currentStep === 1) {
-                if (ClartLayerRef.current !== null) {
-                    ClartLayerRef.current.setOpacity(0.4);
-                    mapRef.current.addLayer(ClartLayerRef.current);
-                }
-
-                // Terrain layer is not added by default, only via toggle
-
-                if (
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[1].current)
-                ) {
-                    mapRef.current.addLayer(groundwaterRefs[1].current);
-                    LayersStore.setDrainageLayer(true);
-                } else {
-                    LayersStore.setDrainageLayer(false);
-                }
+                mapRef.current.addLayer(ClartLayerRef.current);
+                mapRef.current.addLayer(groundwaterRefs[1].current);
+                // if (
+                //     !layerCollection
+                //         .getArray()
+                //         .some((layer) => layer === groundwaterRefs[1].current)
+                // ) {
+                //     mapRef.current.addLayer(groundwaterRefs[1].current);
+                //     LayersStore.setDrainageLayer(true);
+                // } else {
+                //     LayersStore.setDrainageLayer(false);
+                // }
 
                 LayersStore.setCLARTLayer(true);
                 LayersStore.setTerrainLayer(false);
@@ -1829,17 +1824,11 @@ const MapComponent = () => {
             setIsLoading(true);
 
             try {
-                layerCollection
-                    .getArray()
-                    .slice()
-                    .forEach((layer) => {
-                        if (
-                            layer !== baseLayerRef.current &&
-                            layer !== AdminLayerRef.current
-                        ) {
-                            layerCollection.remove(layer);
-                        }
-                    });
+                layerCollection.getArray().slice().forEach((layer) => {
+                    if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current) {
+                        layerCollection.remove(layer);
+                    }
+                });
 
                 // Collect all loading promises
                 const loadingPromises = [];
@@ -1856,7 +1845,6 @@ const MapComponent = () => {
                         loadingPromises.push(CroppingIntensity.loadPromise);
                     }
                 }
-
                 if (AgriLayersRefs[1].current === null) {
                     let DroughtIntensity = await getWebglVectorLayers(
                         "cropping_drought",
@@ -1869,7 +1857,6 @@ const MapComponent = () => {
                         loadingPromises.push(DroughtIntensity.loadPromise);
                     }
                 }
-
                 if (LulcLayerRefs[0].current === null) {
                     let lulcLayer = await getImageLayer(
                         "LULC_level_3",
@@ -1883,7 +1870,19 @@ const MapComponent = () => {
                         loadingPromises.push(lulcLayer.loadPromise);
                     }
                 }
-
+                if (TerrainLayerRef.current === null) {
+                    const TerrainLayer = await getImageLayer(
+                        "terrain",
+                        `${districtName}_${blockName}` + "_terrain_raster",
+                        true,
+                        "",
+                    );
+                    TerrainLayer.setOpacity(0.4);
+                    TerrainLayerRef.current = TerrainLayer;
+                    if (TerrainLayer.loadPromise) {
+                        loadingPromises.push(TerrainLayer.loadPromise);
+                    }
+                }
                 if (ClartLayerRef.current === null) {
                     const ClartLayer = await getImageLayer(
                         "clart",
@@ -1897,7 +1896,6 @@ const MapComponent = () => {
                         loadingPromises.push(ClartLayer.loadPromise);
                     }
                 }
-
                 if (groundwaterRefs[1].current === null) {
                     const drainageLayer = await getWebglVectorLayers(
                         "drainage",
@@ -1910,7 +1908,6 @@ const MapComponent = () => {
                         loadingPromises.push(drainageLayer.loadPromise);
                     }
                 }
-
                 mapRef.current.addLayer(LulcLayerRefs[0].current);
                 mapRef.current.addLayer(AgriLayersRefs[0].current);
                 mapRef.current.addLayer(AgriLayersRefs[1].current);
@@ -2306,237 +2303,156 @@ const MapComponent = () => {
     }, [MainStore.selectWellDepthYear]);
 
     useEffect(() => {
+        if(mapRef.current === null) return;
         const layerCollection = mapRef.current.getLayers();
+        if(currentStep > 0 && MainStore.agriLayerToggle !== null && MainStore.agriLayerToggle === "CLART"){
+            layerCollection.getArray().slice().forEach((layer) => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
 
-        if (MainStore.layerClicked !== null) {
-            if (MainStore.layerClicked === "AdminBoundary") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === AdminLayerRef.current)
-                ) {
-                    mapRef.current.addLayer(AdminLayerRef.current);
-                } else {
-                    mapRef.current.removeLayer(AdminLayerRef.current);
-                }
-            } else if (MainStore.layerClicked === "NregaLayer") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === NregaWorkLayerRef.current)
-                ) {
-                    mapRef.current.addLayer(NregaWorkLayerRef.current);
-                } else {
-                    mapRef.current.removeLayer(NregaWorkLayerRef.current);
-                }
-            } else if (MainStore.layerClicked === "WellDepth") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[0].current)
-                ) {
-                    mapRef.current.addLayer(groundwaterRefs[0].current);
-                } else {
-                    mapRef.current.removeLayer(groundwaterRefs[0].current);
-                }
-            } else if (MainStore.layerClicked === "DrainageLayer") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[1].current)
-                ) {
-                    mapRef.current.addLayer(groundwaterRefs[1].current);
-                } else {
-                    mapRef.current.removeLayer(groundwaterRefs[1].current);
-                }
-            } else if (MainStore.layerClicked === "SettlementLayer") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === assetsLayerRefs[0].current)
-                ) {
-                    mapRef.current.addLayer(assetsLayerRefs[0].current);
-                } else {
-                    mapRef.current.removeLayer(assetsLayerRefs[0].current);
-                }
-            } else if (MainStore.layerClicked === "WellLayer") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === assetsLayerRefs[1].current)
-                ) {
-                    mapRef.current.addLayer(assetsLayerRefs[1].current);
-                } else {
-                    mapRef.current.removeLayer(assetsLayerRefs[1].current);
-                }
-            } else if (MainStore.layerClicked === "WaterStructure") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === assetsLayerRefs[2].current)
-                ) {
-                    mapRef.current.addLayer(assetsLayerRefs[2].current);
-                } else {
-                    mapRef.current.removeLayer(assetsLayerRefs[2].current);
-                }
-            } else if (MainStore.layerClicked === "WorkAgri") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === AgriLayersRefs[2].current)
-                ) {
-                    mapRef.current.addLayer(AgriLayersRefs[2].current);
-                } else {
-                    mapRef.current.removeLayer(AgriLayersRefs[2].current);
-                }
-            } else if (MainStore.layerClicked === "WorkGroundwater") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[3].current)
-                ) {
-                    mapRef.current.addLayer(groundwaterRefs[3].current);
-                } else {
-                    mapRef.current.removeLayer(groundwaterRefs[3].current);
-                }
-            } else if (MainStore.layerClicked === "Livelihood") {
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === LivelihoodRefs[0].current)
-                ) {
-                    mapRef.current.addLayer(LivelihoodRefs[0].current);
-                } else {
-                    mapRef.current.removeLayer(LivelihoodRefs[0].current);
-                }
-            } else if (MainStore.layerClicked === "CLARTLayer") {
-                // Remove Terrain layer if it exists
-                if (
-                    layerCollection
-                        .getArray()
-                        .some((layer) => layer === TerrainLayerRef.current)
-                ) {
-                    mapRef.current.removeLayer(TerrainLayerRef.current);
-                }
-
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === ClartLayerRef.current)
-                ) {
-                    mapRef.current.addLayer(ClartLayerRef.current);
-                } else if (!LayersStore[MainStore.layerClicked]) {
-                    mapRef.current.removeLayer(ClartLayerRef.current);
-                }
-            } else if (MainStore.layerClicked === "TerrainLayer") {
-                // Remove CLART layer if it exists
-                if (
-                    layerCollection
-                        .getArray()
-                        .some((layer) => layer === ClartLayerRef.current)
-                ) {
-                    mapRef.current.removeLayer(ClartLayerRef.current);
-                }
-
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === TerrainLayerRef.current)
-                ) {
-                    if (TerrainLayerRef.current !== null) {
-                        TerrainLayerRef.current.setOpacity(0.4);
-                        mapRef.current.addLayer(TerrainLayerRef.current);
-                    }
-                } else if (!LayersStore[MainStore.layerClicked]) {
-                    mapRef.current.removeLayer(TerrainLayerRef.current);
-                }
-            } else if (MainStore.layerClicked === "StreamOrderLayer") {
-                // Remove Natural Depression layer if it exists
-                if (
-                    layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[5].current)
-                ) {
-                    mapRef.current.removeLayer(groundwaterRefs[5].current);
-                }
-
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[4].current)
-                ) {
-                    if (groundwaterRefs[4].current !== null) {
-                        groundwaterRefs[4].current.setOpacity(0.6);
-                        groundwaterRefs[4].current.setZIndex(1); // Set low z-index
-                        
-                        // Insert at position 1 (after base layer) to keep it at bottom
-                        const layers = mapRef.current.getLayers();
-                        layers.insertAt(1, groundwaterRefs[4].current);
-                        
-                        // Ensure admin boundary stays at position 2
-                        if (AdminLayerRef.current !== null) {
-                            const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
-                            if (adminIndex !== 2 && adminIndex !== -1) {
-                                layers.remove(AdminLayerRef.current);
-                                layers.insertAt(2, AdminLayerRef.current);
-                            }
-                        }
-                    }
-                } else if (!LayersStore[MainStore.layerClicked]) {
-                    mapRef.current.removeLayer(groundwaterRefs[4].current);
-                }
-            } else if (MainStore.layerClicked === "NaturalDepressionLayer") {
-                // Remove Stream Order layer if it exists
-                if (
-                    layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[4].current)
-                ) {
-                    mapRef.current.removeLayer(groundwaterRefs[4].current);
-                }
-
-                if (
-                    LayersStore[MainStore.layerClicked] &&
-                    !layerCollection
-                        .getArray()
-                        .some((layer) => layer === groundwaterRefs[5].current)
-                ) {
-                    if (groundwaterRefs[5].current !== null) {
-                        groundwaterRefs[5].current.setOpacity(0.6);
-                        groundwaterRefs[5].current.setZIndex(1); // Set low z-index
-                        
-                        // Insert at position 1 (after base layer) to keep it at bottom
-                        const layers = mapRef.current.getLayers();
-                        layers.insertAt(1, groundwaterRefs[5].current);
-                        
-                        // Ensure admin boundary stays at position 2
-                        if (AdminLayerRef.current !== null) {
-                            const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
-                            if (adminIndex !== 2 && adminIndex !== -1) {
-                                layers.remove(AdminLayerRef.current);
-                                layers.insertAt(2, AdminLayerRef.current);
-                            }
-                        }
-                    }
-                } else if (!LayersStore[MainStore.layerClicked]) {
-                    mapRef.current.removeLayer(groundwaterRefs[5].current);
-                }
-            }
+            mapRef.current.addLayer(ClartLayerRef.current);
+            mapRef.current.addLayer(groundwaterRefs[1].current);
+            mapRef.current.addLayer(assetsLayerRefs[2].current);
+            mapRef.current.addLayer(AgriLayersRefs[2].current);
         }
-    }, [LayersStore]);
+        if(currentStep > 0 && MainStore.agriLayerToggle !== null && MainStore.agriLayerToggle === "Terrain"){
+            layerCollection.getArray().slice().forEach((layer) => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+
+            mapRef.current.addLayer(TerrainLayerRef.current);
+            mapRef.current.addLayer(groundwaterRefs[1].current);
+            mapRef.current.addLayer(assetsLayerRefs[2].current);
+            mapRef.current.addLayer(AgriLayersRefs[2].current);
+        }
+    },[MainStore.agriLayerToggle])
+
+    useEffect(() => {
+        if(mapRef.current === null) return;
+        const layerCollection = mapRef.current.getLayers();
+        if(currentStep > 0 && MainStore.groudwaterLayerToggle !== null && MainStore.groudwaterLayerToggle === "CLART"){
+            layerCollection.getArray().slice().forEach((layer) => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+            mapRef.current.addLayer(ClartLayerRef.current);
+            mapRef.current.addLayer(groundwaterRefs[1].current);
+            mapRef.current.addLayer(groundwaterRefs[3].current);
+            mapRef.current.addLayer(assetsLayerRefs[2].current);
+        }
+        if(currentStep > 0 && MainStore.groudwaterLayerToggle !== null && MainStore.groudwaterLayerToggle === "Terrain"){
+            layerCollection.getArray().slice().forEach((layer) => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+
+            mapRef.current.addLayer(TerrainLayerRef.current);
+            mapRef.current.addLayer(groundwaterRefs[1].current);
+            mapRef.current.addLayer(groundwaterRefs[3].current);
+            mapRef.current.addLayer(assetsLayerRefs[2].current);
+        }
+        if(currentStep > 0 && MainStore.groudwaterLayerToggle !== null && MainStore.groudwaterLayerToggle === "StreamOrder"){
+            layerCollection.getArray().slice().forEach((layer) => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+
+            mapRef.current.addLayer(groundwaterRefs[4].current);
+            mapRef.current.addLayer(groundwaterRefs[1].current);
+            mapRef.current.addLayer(groundwaterRefs[3].current);
+            mapRef.current.addLayer(assetsLayerRefs[2].current);
+            
+        }
+        if(currentStep > 0 && MainStore.groudwaterLayerToggle !== null && MainStore.groudwaterLayerToggle === "NaturalDepression"){
+            layerCollection.getArray().slice().forEach((layer) => {
+                if (layer !== baseLayerRef.current && layer !== AdminLayerRef.current && layer !== MapMarkerRef.current) {
+                    layerCollection.remove(layer);
+                }
+            });
+
+            mapRef.current.addLayer(groundwaterRefs[5].current);
+            mapRef.current.addLayer(groundwaterRefs[1].current);
+            mapRef.current.addLayer(groundwaterRefs[3].current);
+            mapRef.current.addLayer(assetsLayerRefs[2].current);
+        }
+    },[MainStore.groudwaterLayerToggle])
+
+    // useEffect(() => {
+    //     if(mapRef.current === null) return;
+    //     const layerCollection = mapRef.current.getLayers();
+
+    //     if(MainStore.layerClicked !== null){
+    //         if(MainStore.layerClicked === "AdminBoundary"){
+    //                 if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === AdminLayerRef.current)){mapRef.current.addLayer(AdminLayerRef.current)}
+    //                 else{mapRef.current.removeLayer(AdminLayerRef.current)}
+    //         }
+    //         else if(MainStore.layerClicked === "NregaLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === NregaWorkLayerRef.current)){mapRef.current.addLayer(NregaWorkLayerRef.current)}
+    //             else{mapRef.current.removeLayer(NregaWorkLayerRef.current)}
+    //         }
+            
+    //         else if(MainStore.layerClicked === "WellDepth"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === groundwaterRefs[0].current)){mapRef.current.addLayer(groundwaterRefs[0].current)}
+    //             else{mapRef.current.removeLayer(groundwaterRefs[0].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "DrainageLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === groundwaterRefs[1].current)){mapRef.current.addLayer(groundwaterRefs[1].current)}
+    //             else{mapRef.current.removeLayer(groundwaterRefs[1].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "SettlementLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === assetsLayerRefs[0].current)){mapRef.current.addLayer(assetsLayerRefs[0].current)}
+    //             else{mapRef.current.removeLayer(assetsLayerRefs[0].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "WellLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === assetsLayerRefs[1].current)){mapRef.current.addLayer(assetsLayerRefs[1].current)}
+    //             else{mapRef.current.removeLayer(assetsLayerRefs[1].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "WaterStructure"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === assetsLayerRefs[2].current)){mapRef.current.addLayer(assetsLayerRefs[2].current)}
+    //             else{mapRef.current.removeLayer(assetsLayerRefs[2].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "WorkAgri"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === AgriLayersRefs[2].current)){mapRef.current.addLayer(AgriLayersRefs[2].current)}
+    //             else{mapRef.current.removeLayer(AgriLayersRefs[2].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "WorkGroundwater"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === groundwaterRefs[3].current)){mapRef.current.addLayer(groundwaterRefs[3].current)}
+    //             else{mapRef.current.removeLayer(groundwaterRefs[3].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "Livelihood"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === LivelihoodRefs[0].current)){mapRef.current.addLayer(LivelihoodRefs[0].current)}
+    //             else{mapRef.current.removeLayer(LivelihoodRefs[0].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "CLARTLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === ClartLayerRef.current)){mapRef.current.addLayer(ClartLayerRef.current)}
+    //             else{mapRef.current.removeLayer(ClartLayerRef.current)}
+    //         }
+    //         else if(MainStore.layerClicked === "LULCLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === LulcLayerRefs[MainStore.lulcYearIdx].current)){mapRef.current.addLayer(LulcLayerRefs[MainStore.lulcYearIdx].current)}
+    //             else{mapRef.current.removeLayer(LulcLayerRefs[MainStore.lulcYearIdx].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "TerrainLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === TerrainLayerRef.current)){mapRef.current.addLayer(TerrainLayerRef.current)}
+    //             else{mapRef.current.removeLayer(TerrainLayerRef.current)}
+    //         }
+    //         else if(MainStore.layerClicked === "NaturalDepressionLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === groundwaterRefs[5].current)){mapRef.current.addLayer(groundwaterRefs[5].current)}
+    //             else{mapRef.current.removeLayer(groundwaterRefs[5].current)}
+    //         }
+    //         else if(MainStore.layerClicked === "StreamOrderLayer"){
+    //             if(LayersStore[MainStore.layerClicked] && !layerCollection.getArray().some(layer => layer === groundwaterRefs[4].current)){mapRef.current.addLayer(groundwaterRefs[4].current)}
+    //             else{mapRef.current.removeLayer(groundwaterRefs[4].current)}
+    //         }
+    //     }
+
+    // },[LayersStore])
 
     return (
         <div className="relative h-full w-full">

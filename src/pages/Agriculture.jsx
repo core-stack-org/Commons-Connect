@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
-import useLayersStore from "../store/LayerStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -8,7 +7,6 @@ import toast from "react-hot-toast";
 
 const Agriculture = () => {
     const MainStore = useMainStore((state) => state);
-    const LayersStore = useLayersStore((state) => state);
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -54,13 +52,12 @@ const Agriculture = () => {
         "22-23",
         "23-24",
     ];
-    const [dragging, setDrag] = useState(false);
+
     const [selectedLayer, setSelectedLayer] = useState("CLART");
 
     const handleYearChange = (e) => {
         MainStore.setLulcYearIdx(Number(e.target.value));
     };
-    const percent = (MainStore.lulcYearIdx / (years.length - 1)) * 100; // 0 – 100 %
 
     const toggleFormsUrl = (toggle) => {
         let gpsCoords = MainStore.gpsLocation;
@@ -155,16 +152,7 @@ const Agriculture = () => {
 
     const handleLayerChange = (layerName) => {
         setSelectedLayer(layerName);
-
-        if (layerName === "CLART") {
-            MainStore.setLayerClicked("CLARTLayer");
-            LayersStore.setCLARTLayer(true);
-            LayersStore.setTerrainLayer(false);
-        } else if (layerName === "Terrain") {
-            MainStore.setLayerClicked("TerrainLayer");
-            LayersStore.setTerrainLayer(true);
-            LayersStore.setCLARTLayer(false);
-        }
+        MainStore.setAgriLayerToggle(layerName)
     };
 
     return (
@@ -667,6 +655,7 @@ const Agriculture = () => {
                                     let BACK = MainStore.currentStep - 1;
                                     if (MainStore.currentStep) {
                                         MainStore.setCurrentStep(BACK);
+                                        setSelectedLayer("CLART")
                                     }
                                 }}
                                 style={{

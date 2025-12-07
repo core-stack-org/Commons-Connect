@@ -468,161 +468,156 @@ const Bottomsheet = () => {
     );
 
     const resourceBody = (
-        <>
-            <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-                {t("Resource Info")}
-            </div>
+    <>
+        <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
+            {t("Resource Info")}
+        </div>
 
-            <div className="pt-8 px-4 pb-6">
-                <div className="w-full max-w-4xl mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        {MainStore.isResource &&
-                            MainStore.selectedResource !== null &&
-                            Object.keys(
-                                resourceDetails[MainStore.resourceType],
-                            ).flatMap((key, index) => {
-                                let rawValue = MainStore.selectedResource[key];
-                                if (
-                                    rawValue &&
-                                    (key === "Livestock_" ||
-                                        key === "farmer_fam" ||
-                                        key === "Well_condi")
-                                ) {
+        <div className="pt-8 px-4 pb-6">
+            <div className="w-full max-w-4xl mx-auto">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    {MainStore.isResource && 
+                     MainStore.selectedResource !== null && 
+                     Object.keys(resourceDetails[MainStore.resourceType])
+                        .flatMap((key, index) => {
+                            const label = resourceDetails[MainStore.resourceType][key];
+                            let rawValue = MainStore.selectedResource[key];
+
+                            // **Exclude if value doesn't exist in the object**
+                            if (rawValue === null || rawValue === undefined || rawValue === "") {
+                                return []; // Skip this field
+                            }
+
+                            // Handle nested objects (Livestock_, farmer_fam, Well_condi)
+                            if (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi") {
+                                try {
                                     const jsonReady = rawValue
                                         .replace(/'/g, '"')
                                         .replace(/\bNone\b/g, "null");
-                                    const data = new Function(
-                                        `return (${jsonReady})`,
-                                    )();
+                                    
+                                    const data = new Function(`return (${jsonReady})`)();
 
-                                    return Object.keys(data).map(
-                                        (innerKey, innerIndex) => (
+                                    return Object.keys(data)
+                                        .filter(innerKey => {
+                                            // **Exclude if nested value doesn't exist**
+                                            const value = data[innerKey];
+                                            return value !== null && value !== undefined && value !== "";
+                                        })
+                                        .map((innerKey, innerIndex) => (
                                             <div
                                                 key={innerKey}
                                                 className={`flex items-center min-h-[3rem] ${
-                                                    (index + innerIndex) % 2 ===
-                                                    0
+                                                    (index + innerIndex) % 2 === 0
                                                         ? "bg-gray-50"
                                                         : "bg-white"
                                                 } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
                                             >
                                                 <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
                                                     <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                                        {
-                                                            ResourceMetaKeys[
-                                                                innerKey
-                                                            ]
-                                                        }
+                                                        {ResourceMetaKeys[innerKey]}
                                                     </span>
                                                 </div>
                                                 <div className="flex-1 px-4 py-3">
                                                     <span className="text-sm text-gray-800 font-medium">
-                                                        {data[innerKey] ?? "—"}
+                                                        {data[innerKey]}
                                                     </span>
                                                 </div>
                                             </div>
-                                        ),
+                                        ));
+                                } catch (error) {
+                                    console.error(`Error parsing ${key}:`, error);
+                                    return [];
+                                }
+                            } 
+                            
+                            // Handle MNREGA_INF and Well_usage
+                            else if (key === "MNREGA_INF" || key === "Well_usage") {
+                                const searchKeys = [
+                                    "NREGA_applied",
+                                    "NREGA_have_job_card",
+                                    "select_one_Functional_Non_functional",
+                                    "select_one_well_used",
+                                    "select_one_change_water_quality",
+                                    "select_one_water_structure_near_you",
+                                ];
+                                const extracted = {};
+
+                                for (const searchKey of searchKeys) {
+                                    const pattern = new RegExp(
+                                        String.raw`['"]${searchKey}['"]\s*:\s*([^,}\n\r]+)`,
+                                        "i",
                                     );
-                                } else if (
-                                    rawValue &&
-                                    (key === "MNREGA_INF" ||
-                                        key === "Well_usage")
-                                ) {
-                                    const keys = [
-                                        "NREGA_applied",
-                                        "NREGA_have_job_card",
-                                        "select_one_Functional_Non_functional",
-                                        "select_one_well_used",
-                                        "select_one_change_water_quality",
-                                        "select_one_water_structure_near_you",
-                                    ];
-                                    const extracted = {};
 
-                                    for (const key of keys) {
-                                        //  String.raw lets us write \s, \n, etc. without escaping the \
-                                        const pattern = new RegExp(
-                                            String.raw`['"]${key}['"]\s*:\s*([^,}\n\r]+)`,
-                                            "i",
-                                        );
+                                    const match = rawValue.match(pattern);
+                                    if (!match) continue;
 
-                                        const match = rawValue.match(pattern);
-                                        if (!match) continue;
-
-                                        let value = match[1].trim();
-                                        if (value === "None") {
-                                            value = null;
-                                        } else if (/^['"]/.test(value)) {
-                                            value = value.replace(
-                                                /^['"]|['"]$/g,
-                                                "",
-                                            );
-                                        } else if (
-                                            /^\d+(\.\d+)?$/.test(value)
-                                        ) {
-                                            value = Number(value);
-                                        }
-                                        extracted[key] = value;
+                                    let value = match[1].trim();
+                                    if (value === "None") {
+                                        value = null;
+                                    } else if (/^['"]/.test(value)) {
+                                        value = value.replace(/^['"]|['"]$/g, "");
+                                    } else if (/^\d+(\.\d+)?$/.test(value)) {
+                                        value = Number(value);
                                     }
+                                    
+                                    // **Only add if value exists**
+                                    if (value !== null && value !== undefined && value !== "") {
+                                        extracted[searchKey] = value;
+                                    }
+                                }
 
-                                    // --- 2.  display them --------------------------------------------------------
-                                    return Object.keys(extracted).map(
-                                        (item, idx) => {
-                                            <div
-                                                key={item}
-                                                className={`flex items-center min-h-[3rem] ${
-                                                    idx % 2 === 0
-                                                        ? "bg-gray-50"
-                                                        : "bg-white"
-                                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                                            >
-                                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                                        {ResourceMetaKeys[item]}
-                                                    </span>
-                                                </div>
-                                                <div className="flex-1 px-4 py-3">
-                                                    <span className="text-sm text-gray-800 font-medium">
-                                                        {extracted[item] ?? "—"}
-                                                    </span>
-                                                </div>
-                                            </div>;
-                                        },
-                                    );
+                                // **Return empty array if nothing was extracted**
+                                if (Object.keys(extracted).length === 0) {
+                                    return [];
                                 }
-                                if (rawValue !== null) {
-                                    return (
-                                        <div
-                                            key={key}
-                                            className={`flex items-center min-h-[3rem] ${
-                                                index % 2 === 0
-                                                    ? "bg-gray-50"
-                                                    : "bg-white"
-                                            } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                                        >
-                                            <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                                <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                                    {
-                                                        resourceDetails[
-                                                            MainStore
-                                                                .resourceType
-                                                        ][key]
-                                                    }
-                                                </span>
-                                            </div>
-                                            <div className="flex-1 px-4 py-3">
-                                                <span className="text-sm text-gray-800 font-medium">
-                                                    {rawValue || "—"}
-                                                </span>
-                                            </div>
+
+                                return Object.keys(extracted).map((item, idx) => (
+                                    <div
+                                        key={item}
+                                        className={`flex items-center min-h-[3rem] ${
+                                            idx % 2 === 0 ? "bg-gray-50" : "bg-white"
+                                        } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                                    >
+                                        <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                            <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                                {ResourceMetaKeys[item]}
+                                            </span>
                                         </div>
-                                    );
-                                }
-                            })}
-                    </div>
+                                        <div className="flex-1 px-4 py-3">
+                                            <span className="text-sm text-gray-800 font-medium">
+                                                {extracted[item]}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ));
+                            }
+                            
+                            // Handle regular key-value pairs
+                            return (
+                                <div
+                                    key={key}
+                                    className={`flex items-center min-h-[3rem] ${
+                                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                                    } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                                >
+                                    <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                        <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                            {label}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 px-4 py-3">
+                                        <span className="text-sm text-gray-800 font-medium">
+                                            {rawValue}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
                 </div>
             </div>
-        </>
-    );
+        </div>
+    </>
+);
 
     const LayerStoreBody = (
         <>

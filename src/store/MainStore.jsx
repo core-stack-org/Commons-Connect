@@ -21,6 +21,8 @@ const useMainStore = create((set) => ({
     isGPSClick: false,
     gpsLocation: null,
     layerClicked: null,
+    agriLayerToggle : null,
+    groudwaterLayerToggle : null,
 
     setDistrictName: (name) => set({ districtName: name }),
     setBlockName: (name) => set({ blockName: name }),
@@ -28,6 +30,8 @@ const useMainStore = create((set) => ({
     setIsGPSClick: (stat) => set({ isGPSClick: stat }),
     setGpsLocation: (stat) => set({ gpsLocation: stat }),
     setLayerClicked: (stat) => set({ layerClicked: stat }),
+    setAgriLayerToggle: (stat) => set({ agriLayerToggle: stat }),
+    setGroudwaterLayerToggle: (stat) => set({ groudwaterLayerToggle: stat }),
 
     // Temporary Store
     startResourceMarking: () =>

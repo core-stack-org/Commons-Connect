@@ -142,30 +142,12 @@ const Groundwater = () => {
 
     const handleLayerChange = (layerName) => {
         setSelectedLayer(layerName);
-
-        if (layerName === "CLART") {
-            MainStore.setLayerClicked("CLARTLayer");
-            LayersStore.setCLARTLayer(true);
-            LayersStore.setTerrainLayer(false);
-        } else if (layerName === "Terrain") {
-            MainStore.setLayerClicked("TerrainLayer");
-            LayersStore.setTerrainLayer(true);
-            LayersStore.setCLARTLayer(false);
-        }
+        MainStore.setGroudwaterLayerToggle(layerName)
     };
 
     const handleSiteLayerChange = (layerName) => {
         setSelectedSiteLayer(layerName);
-
-        if (layerName === "StreamOrder") {
-            MainStore.setLayerClicked("StreamOrderLayer");
-            LayersStore.setStreamOrderLayer(true);
-            LayersStore.setNaturalDepressionLayer(false);
-        } else if (layerName === "NaturalDepression") {
-            MainStore.setLayerClicked("NaturalDepressionLayer");
-            LayersStore.setNaturalDepressionLayer(true);
-            LayersStore.setStreamOrderLayer(false);
-        }
+        MainStore.setGroudwaterLayerToggle(layerName)
     };
 
     const getPlanLabel = () => {
@@ -649,6 +631,7 @@ const Groundwater = () => {
                                     let BACK = MainStore.currentStep - 1;
                                     if (MainStore.currentStep) {
                                         MainStore.setCurrentStep(BACK);
+                                        setSelectedLayer("CLART")
                                     }
                                 }}
                                 style={{
@@ -738,6 +721,8 @@ const Groundwater = () => {
                                     let BACK = MainStore.currentStep - 1;
                                     if (MainStore.currentStep) {
                                         MainStore.setCurrentStep(BACK);
+                                        handleLayerChange("CLART")
+                                        setSelectedSiteLayer("StreamOrder")
                                     }
                                 }}
                                 style={{
