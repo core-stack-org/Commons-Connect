@@ -1339,16 +1339,6 @@ const MapComponent = () => {
                 mapRef.current.addLayer(assetsLayerRefs[0].current); // Settlement layer
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
                 mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
-
-                // LayersStore.setSettlementLayer(true);
-                // LayersStore.setWellDepth(true);
-                // LayersStore.setDrainageLayer(false);
-                // LayersStore.setCLARTLayer(false);
-                // LayersStore.setTerrainLayer(false);
-                // LayersStore.setWaterStructure(false);
-                // LayersStore.setWorkGroundwater(true);
-                // LayersStore.setStreamOrderLayer(false);
-                // LayersStore.setNaturalDepressionLayer(false);
             }
 
             // Step 1: In the planning step
@@ -1357,25 +1347,7 @@ const MapComponent = () => {
                 mapRef.current.addLayer(ClartLayerRef.current); // CLART layer
                 mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
                 mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
-                console.log("Reached Here !")
-                console.log(ClartLayerRef.current)
-                // if (groundwaterRefs[1].current !== null) {
-                //     mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
-                // }
-                // if (groundwaterRefs[3].current !== null) {
-                //     mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
-                // }
                 mapRef.current.addLayer(assetsLayerRefs[2].current);
-
-                // LayersStore.setSettlementLayer(true);
-                // LayersStore.setWellDepth(false);
-                // LayersStore.setDrainageLayer(true);
-                // //LayersStore.setCLARTLayer(true);
-                // LayersStore.setTerrainLayer(false);
-                // LayersStore.setWaterStructure(false);
-                // LayersStore.setWorkGroundwater(true);
-                // LayersStore.setStreamOrderLayer(false);
-                // LayersStore.setNaturalDepressionLayer(false);
             }
 
             // Step 2: Planning Site Phase
@@ -1384,41 +1356,11 @@ const MapComponent = () => {
                 
                 // Add Stream Order layer first (at the very bottom, position 1 after base layer)
                 mapRef.current.addLayer(groundwaterRefs[4].current);
-                // if (groundwaterRefs[4].current !== null) {
-                //     groundwaterRefs[4].current.setOpacity(0.6);
-                //     mapRef.current.addLayer(groundwaterRefs[4].current);
-                // }
 
-                // Add admin boundary at position 2 (above stream order but below everything else)
-                // if (AdminLayerRef.current !== null) {
-                //     const adminIndex = layers.getArray().indexOf(AdminLayerRef.current);
-                //     if (adminIndex > 2) {
-                //         layers.remove(AdminLayerRef.current);
-                //         layers.insertAt(2, AdminLayerRef.current);
-                //     }
-                // }
-
-                // Add other layers on top
-                // if (groundwaterRefs[1].current !== null) {
-                //     mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
-                // }
-                // if (groundwaterRefs[3].current !== null) {
-                //     mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
-                // }
                 mapRef.current.addLayer(groundwaterRefs[1].current); // Drainage layer
                  mapRef.current.addLayer(groundwaterRefs[3].current); // Works layer
                 mapRef.current.addLayer(assetsLayerRefs[0].current); // Settlement layer
                 mapRef.current.addLayer(assetsLayerRefs[2].current); // Water structures
-
-                // LayersStore.setSettlementLayer(true);
-                // LayersStore.setWellDepth(false);
-                // LayersStore.setDrainageLayer(true);
-                // LayersStore.setCLARTLayer(false);
-                // LayersStore.setTerrainLayer(false);
-                // LayersStore.setWaterStructure(true);
-                // LayersStore.setWorkGroundwater(true);
-                // LayersStore.setStreamOrderLayer(true);
-                // LayersStore.setNaturalDepressionLayer(false);
             }
         } else if (currentScreen === "Agriculture") {
             layerCollection
@@ -1447,16 +1389,6 @@ const MapComponent = () => {
             if (currentStep === 1) {
                 mapRef.current.addLayer(ClartLayerRef.current);
                 mapRef.current.addLayer(groundwaterRefs[1].current);
-                // if (
-                //     !layerCollection
-                //         .getArray()
-                //         .some((layer) => layer === groundwaterRefs[1].current)
-                // ) {
-                //     mapRef.current.addLayer(groundwaterRefs[1].current);
-                //     LayersStore.setDrainageLayer(true);
-                // } else {
-                //     LayersStore.setDrainageLayer(false);
-                // }
 
                 LayersStore.setCLARTLayer(true);
                 LayersStore.setTerrainLayer(false);
