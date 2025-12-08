@@ -92,6 +92,44 @@ export default function WorkDemandDialog({
     console.log('🎯 WorkDemandDialog - handleAccept called:', { item, isActionable });
     
     setIsProcessing(true);
+    console.log("🎯 WorkDemandDialog - handleAccept called:", { item, isActionable });
+
+  // 👉 NEW: If item_type is Story, skip API and just update + close dialog
+
+  console.log('item type ' +item.item_type)
+  if (item.item_type === "Story") {
+    console.log("📘 Story item detected — skipping API call.");
+
+    // Direct local update
+    const updatedItem = {
+      ...item,
+      ...(updatedCoordinates.lat !== 0 && updatedCoordinates.lng !== 0 && {
+        latitude: updatedCoordinates.lat,
+        longitude: updatedCoordinates.lng
+      })
+    };
+
+    MainStore.setAcceptedWorkDemandItem(updatedItem);
+    MainStore.setAcceptedFromDialog();
+
+    if (updatedCoordinates.lat !== 0 && updatedCoordinates.lng !== 0) {
+      MainStore.setAcceptedWorkDemandCoords([updatedCoordinates.lng, updatedCoordinates.lat]);
+    }
+      const requestBody = {
+        item_id: item.id,
+        state: 'ACCEPTED_STAGE_1',
+      };
+    
+      const res = await fetch(`${import.meta.env.VITE_API_URL}upsert_item/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
+
+    
+    onClose?.();
+    return; // EXIT EARLY
+  }
     try {
       const requestBody = {
         item_id: item.id,
@@ -138,6 +176,7 @@ export default function WorkDemandDialog({
       } else {
         console.log('⚠️ WorkDemandDialog - No valid coordinates available for accepted item');
       }
+      
 
       console.log('�� WorkDemandDialog - MainStore updated, navigating to /maps');
 
