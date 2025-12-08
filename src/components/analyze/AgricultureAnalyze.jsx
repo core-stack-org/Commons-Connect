@@ -4,8 +4,6 @@ import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
 import getOdkUrlForScreen from "../../action/getOdkUrl";
 
-const YEARS = [2017, 2018, 2019, 2020, 2021, 2022];
-
 const CAPSULE_KEYS = [
     "Mild Drought",
     "Moderate Drought",
@@ -20,7 +18,60 @@ const fmt = (v, d = 0) =>
         ? Number(v).toLocaleString("en-IN", { maximumFractionDigits: d })
         : "—";
 
+// Helper function to extract years from keys matching a pattern
+const extractYearsFromKeys = (obj, pattern) => {
+    if (!obj) return [];
+    const regex = new RegExp(pattern);
+    const years = new Set();
+    
+    Object.keys(obj).forEach((key) => {
+        const match = key.match(regex);
+        if (match && match[1]) {
+            const year = parseInt(match[1], 10);
+            if (!isNaN(year)) {
+                years.add(year);
+            }
+        }
+    });
+    
+    return Array.from(years).sort((a, b) => a - b);
+};
+
+// Helper function to find the total cropable area key
+const findTotalCropableAreaKey = (obj) => {
+    if (!obj) return null;
+    const keys = Object.keys(obj);
+    const matchingKey = keys.find((key) => 
+        key.startsWith("total_cropable_area_ever_hydroyear_")
+    );
+    return matchingKey || null;
+};
+
 const AgricultureAnalyze = () => {
+    const { t } = useTranslation();
+    const MainStore = useMainStore((s) => s);
+
+    const selectedMWSDrought = useMainStore(
+        (state) => state.selectedMWSDrought,
+    );
+    const selectedResource = useMainStore((state) => state.selectedResource);
+
+    // Dynamically extract available years
+    const droughtYears = useMemo(() => {
+        return extractYearsFromKeys(selectedMWSDrought, /^drlb_(\d{4})$/);
+    }, [selectedMWSDrought]);
+
+    const croppingYears = useMemo(() => {
+        return extractYearsFromKeys(selectedResource, /^cropping_intensity_(\d{4})$/);
+    }, [selectedResource]);
+
+    // Use cropping years as the primary years for the slider (typically more extensive)
+    const YEARS = useMemo(() => {
+        if (croppingYears.length > 0) return croppingYears;
+        if (droughtYears.length > 0) return droughtYears;
+        return [2017, 2018, 2019, 2020, 2021, 2022]; // fallback
+    }, [croppingYears, droughtYears]);
+
     const [idx, setIdx] = useState(YEARS.length - 1);
     const year = YEARS[idx];
 
@@ -31,29 +82,33 @@ const AgricultureAnalyze = () => {
     const lineChartRef = useRef(null);
     const lineChartInstanceRef = useRef(null);
 
-    const { t } = useTranslation();
-    const MainStore = useMainStore((s) => s);
-
-    const selectedMWSDrought = useMainStore(
-        (state) => state.selectedMWSDrought,
-    );
-    const selectedResource = useMainStore((state) => state.selectedResource);
+    // Find the total cropable area key dynamically
+    const totalCropableAreaKey = useMemo(() => {
+        return findTotalCropableAreaKey(selectedResource);
+    }, [selectedResource]);
 
     const annual = useMemo(() => {
         const drlbKey = `drlb_${year}`;
         const dryspKey = `drysp_${year}`;
 
-        if (!selectedMWSDrought || !selectedMWSDrought[drlbKey]) {
-            return {};
+        // Check if drought data exists for this year
+        const hasDroughtData = droughtYears.includes(year);
+        
+        let mildCount = 0;
+        let moderateCount = 0;
+        let severeCount = 0;
+        let dryspellCount = 0;
+
+        if (hasDroughtData && selectedMWSDrought) {
+            if (selectedMWSDrought[drlbKey]) {
+                const drlbArray = JSON.parse(selectedMWSDrought[drlbKey] || "[]");
+                mildCount = drlbArray.filter((v) => v === 1).length;
+                moderateCount = drlbArray.filter((v) => v === 2).length;
+                severeCount = drlbArray.filter((v) => v === 3).length;
+            }
+            dryspellCount = selectedMWSDrought[dryspKey] || 0;
         }
 
-        const drlbArray = JSON.parse(selectedMWSDrought[drlbKey] || "[]");
-        const mildCount = drlbArray.filter((v) => v === 1).length;
-        const moderateCount = drlbArray.filter((v) => v === 2).length;
-        const severeCount = drlbArray.filter((v) => v === 3).length;
-        const dryspellCount = selectedMWSDrought[dryspKey] || 0;
-
-        //const cropIntensityIdx = YEARS.indexOf(year) + 1;
         const cropIntensity = selectedResource
             ? selectedResource[`cropping_intensity_${year}`] || 0
             : 0;
@@ -65,15 +120,21 @@ const AgricultureAnalyze = () => {
             "Dry Spells": dryspellCount,
             "Cropping Intensity": cropIntensity,
         };
-    }, [year, selectedMWSDrought, selectedResource]);
+    }, [year, selectedMWSDrought, selectedResource, droughtYears]);
 
     const hasAnnual = Object.keys(annual).length > 0;
     const hasDroughtData =
         hasAnnual &&
+        droughtYears.includes(year) &&
         (annual["Mild Drought"] > 0 ||
             annual["Moderate Drought"] > 0 ||
             annual["Severe Drought"] > 0 ||
             annual["Dry Spells"] > 0);
+
+    // Update slider index when YEARS changes
+    useEffect(() => {
+        setIdx(YEARS.length - 1);
+    }, [YEARS]);
 
     useEffect(() => {
         if (!chartRef.current) return;
@@ -143,10 +204,9 @@ const AgricultureAnalyze = () => {
     }, [year, annual, hasDroughtData]);
 
     useEffect(() => {
-        if (!cropChartRef.current) return;
+        if (!cropChartRef.current || !totalCropableAreaKey) return;
 
-        const totalCrop =
-            selectedResource.total_cropable_area_ever_hydroyear_2017_2023 || 0;
+        const totalCrop = selectedResource[totalCropableAreaKey] || 0;
         const single = selectedResource[`single_cropped_area_${year}`] || 0;
         const doubled = selectedResource[`doubly_cropped_area_${year}`] || 0;
         const tripled = selectedResource[`triply_cropped_area_${year}`] || 0;
@@ -223,16 +283,18 @@ const AgricultureAnalyze = () => {
                 },
             });
         }
-    }, [year, selectedResource]);
+    }, [year, selectedResource, totalCropableAreaKey]);
 
-    // Line chart effect
+    // Line chart effect - use all available cropping years
     useEffect(() => {
-        if (!lineChartRef.current) return;
-        const dataPoints = YEARS.map(
-            (year, i) => selectedResource[`cropping_intensity_${year}`] || 0,
+        if (!lineChartRef.current || croppingYears.length === 0) return;
+        
+        const dataPoints = croppingYears.map(
+            (year) => selectedResource[`cropping_intensity_${year}`] || 0,
         );
+        
         const data = {
-            labels: YEARS.map(String),
+            labels: croppingYears.map(String),
             datasets: [
                 {
                     label: "Cropping Intensity",
@@ -249,6 +311,7 @@ const AgricultureAnalyze = () => {
                 },
             ],
         };
+        
         const ctx3 = lineChartRef.current.getContext("2d");
         if (lineChartInstanceRef.current) {
             lineChartInstanceRef.current.data = data;
@@ -273,7 +336,7 @@ const AgricultureAnalyze = () => {
                 },
             });
         }
-    }, [selectedResource]);
+    }, [selectedResource, croppingYears]);
 
     const toggleFormsUrl = () => {
         MainStore.setIsForm(true);
@@ -294,6 +357,11 @@ const AgricultureAnalyze = () => {
             ),
         );
     };
+
+    // Dynamic year range for the trend chart title
+    const trendYearRange = croppingYears.length > 0 
+        ? `${croppingYears[0]}-${croppingYears[croppingYears.length - 1]}`
+        : "2017-2022";
 
     return (
         <>
@@ -426,8 +494,7 @@ const AgricultureAnalyze = () => {
                     <h2 className="font-bold text-gray-700 mb-2">
                         {t("cropping_in_header")} ({year})
                     </h2>
-                    {selectedResource.total_cropable_area_ever_hydroyear_2017_2023 >
-                    0 ? (
+                    {totalCropableAreaKey && selectedResource[totalCropableAreaKey] > 0 ? (
                         <div className="relative h-72">
                             <canvas ref={cropChartRef} />
                         </div>
@@ -441,10 +508,9 @@ const AgricultureAnalyze = () => {
                 {/* Cropping Intensity Trend chart */}
                 <section>
                     <h2 className="font-bold text-gray-700 mb-2">
-                        {t("Cropping Intensity Trend (2017-2022)")}
+                        {t("Cropping Intensity Trend")} ({trendYearRange})
                     </h2>
-                    {selectedResource.total_cropable_area_ever_hydroyear_2017_2023 >
-                    0 ? (
+                    {totalCropableAreaKey && selectedResource[totalCropableAreaKey] > 0 ? (
                         <div className="relative h-72">
                             <canvas ref={lineChartRef} />
                         </div>
