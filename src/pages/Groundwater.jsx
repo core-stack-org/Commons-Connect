@@ -96,7 +96,7 @@ const Groundwater = () => {
             toggle,
             gpsCoords,
         );
-        
+
         MainStore.setIsForm(true);
         MainStore.setFormUrl(formUrl);
         MainStore.setIsOpen(true);
@@ -142,7 +142,9 @@ const Groundwater = () => {
 
     const handleLayerChange = (layerName) => {
         setSelectedLayer(layerName);
-        MainStore.setGroudwaterLayerToggle(layerName)
+        MainStore.setGroudwaterLayerToggle(layerName);
+        // Update layerClicked for InfoBox to show correct legend
+        MainStore.setLayerClicked(layerName === "CLART" ? "CLARTLayer" : "TerrainLayer");
     };
 
     const handleSiteLayerChange = (layerName) => {
@@ -314,7 +316,7 @@ const Groundwater = () => {
                                     width: "50%",
                                     transform:
                                         MainStore.selectWellDepthYear ===
-                                        "2018_23"
+                                            "2018_23"
                                             ? "translateX(100%)"
                                             : "translateX(0%)",
                                 }}

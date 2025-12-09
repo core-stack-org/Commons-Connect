@@ -134,6 +134,8 @@ const Agriculture = () => {
 
     const handleStartPlanning = () => {
         MainStore.setCurrentStep(1);
+        // Set default layer for InfoBox legend
+        MainStore.setLayerClicked("CLARTLayer");
         toast(t("toast_agri"), {
             duration: 5000,
             style: {
@@ -152,7 +154,9 @@ const Agriculture = () => {
 
     const handleLayerChange = (layerName) => {
         setSelectedLayer(layerName);
-        MainStore.setAgriLayerToggle(layerName)
+        MainStore.setAgriLayerToggle(layerName);
+        // Update layerClicked for InfoBox to show correct legend
+        MainStore.setLayerClicked(layerName === "CLART" ? "CLARTLayer" : "TerrainLayer");
     };
 
     return (
@@ -328,21 +332,19 @@ const Agriculture = () => {
                                         >
                                             {/* Tick mark */}
                                             <div
-                                                className={`h-0.5 w-3 transition-colors duration-200 ${
-                                                    actualIndex ===
-                                                    MainStore.lulcYearIdx
+                                                className={`h-0.5 w-3 transition-colors duration-200 ${actualIndex ===
+                                                        MainStore.lulcYearIdx
                                                         ? "bg-[#592941]"
                                                         : "bg-gray-400"
-                                                }`}
+                                                    }`}
                                             />
                                             {/* Year label with capsule background */}
                                             <span
-                                                className={`text-xs font-bold transition-all duration-200 px-2 py-1 rounded-lg ${
-                                                    actualIndex ===
-                                                    MainStore.lulcYearIdx
+                                                className={`text-xs font-bold transition-all duration-200 px-2 py-1 rounded-lg ${actualIndex ===
+                                                        MainStore.lulcYearIdx
                                                         ? "text-white bg-[#592941]"
                                                         : "text-white bg-transparent"
-                                                }`}
+                                                    }`}
                                             >
                                                 {year}
                                             </span>

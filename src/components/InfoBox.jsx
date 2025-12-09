@@ -130,7 +130,7 @@ const InfoBox = () => {
                 const errorData = await response.json().catch(() => ({}));
                 setUploadError(
                     errorData.message ||
-                        `Upload failed with status: ${response.status}`,
+                    `Upload failed with status: ${response.status}`,
                 );
             }
         } catch (error) {
@@ -355,35 +355,127 @@ const InfoBox = () => {
                     </>
                 ) : (
                     <>
-                        <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                            {t("CLART Legend")}
-                        </h3>
-                        <div className="mt-2 space-y-2">
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-gray-100 mr-3"></div>
-                                <span>{t("Empty")}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-green-400 mr-3"></div>
-                                <span>{t("Good recharge")}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
-                                <span>{t("Moderate recharge")}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-purple-700 mr-3"></div>
-                                <span>{t("Regeneration")}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-blue-500 mr-3"></div>
-                                <span>{t("High runoff zone")}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
-                                <span>{t("Surface water harvesting")}</span>
-                            </div>
-                        </div>
+                        {layerClicked === "CLARTLayer" ? (
+                            <>
+                                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                                    {t("CLART Legend")}
+                                </h3>
+                                <div className="mt-2 space-y-2">
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-gray-100 mr-3"></div>
+                                        <span>{t("Empty")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-green-400 mr-3"></div>
+                                        <span>{t("Good recharge")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
+                                        <span>{t("Moderate recharge")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-purple-700 mr-3"></div>
+                                        <span>{t("Regeneration")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-blue-500 mr-3"></div>
+                                        <span>{t("High runoff zone")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
+                                        <span>{t("Surface water harvesting")}</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : layerClicked === "TerrainLayer" ? (
+                            <>
+                                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                                    Terrain Legend
+                                </h3>
+                                <div className="mt-2 space-y-2">
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#313695", opacity: 0.7 }}></div>
+                                        <span>V-shape river valleys, Deep narrow canyons</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4575b4", opacity: 0.7 }}></div>
+                                        <span>Lateral midslope incised drainages, Local valleys in plains</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#a50026", opacity: 0.7 }}></div>
+                                        <span>Upland incised drainages, Stream headwaters</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#e0f3f8", opacity: 0.7 }}></div>
+                                        <span>U-shape valleys</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#fffc00", opacity: 0.7 }}></div>
+                                        <span>Broad Flat Areas</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#feb24c", opacity: 0.7 }}></div>
+                                        <span>Broad open slopes</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#f46d43", opacity: 0.7 }}></div>
+                                        <span>Mesa tops</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#d73027", opacity: 0.7 }}></div>
+                                        <span>Upper Slopes</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#91bfdb", opacity: 0.7 }}></div>
+                                        <span>Local ridge/hilltops within broad valleys</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#800000", opacity: 0.7 }}></div>
+                                        <span>Lateral midslope drainage divides, Local ridges in plains</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4d0000", opacity: 0.7 }}></div>
+                                        <span>Mountain tops, high ridges</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#ffffff", opacity: 0.7 }}></div>
+                                        <span>Background</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                                    {t("CLART Legend")}
+                                </h3>
+                                <div className="mt-2 space-y-2">
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-gray-100 mr-3"></div>
+                                        <span>{t("Empty")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-green-400 mr-3"></div>
+                                        <span>{t("Good recharge")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
+                                        <span>{t("Moderate recharge")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-purple-700 mr-3"></div>
+                                        <span>{t("Regeneration")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-blue-500 mr-3"></div>
+                                        <span>{t("High runoff zone")}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
+                                        <span>{t("Surface water harvesting")}</span>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </>
                 )}
             </>
@@ -428,12 +520,12 @@ const InfoBox = () => {
                         ? currentMenuOption === "language"
                             ? t("Select Language")
                             : currentMenuOption === "download dpr"
-                              ? t("Generate pre-DPR")
-                              : currentMenuOption === "upload kml"
-                                ? t("Upload KML")
-                                : currentMenuOption === "information"
-                                  ? t("Information")
-                                  : t("Information")
+                                ? t("Generate pre-DPR")
+                                : currentMenuOption === "upload kml"
+                                    ? t("Upload KML")
+                                    : currentMenuOption === "information"
+                                        ? t("Information")
+                                        : t("Information")
                         : t("Information")}
                 </h2>
 
@@ -483,12 +575,11 @@ const InfoBox = () => {
                                                     language.code,
                                                 )
                                             }
-                                            className={`w-full p-4 border-2 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                                                selectedLanguage ===
-                                                language.code
+                                            className={`w-full p-4 border-2 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${selectedLanguage ===
+                                                    language.code
                                                     ? "border-blue-500 bg-blue-50 shadow-md"
                                                     : "border-gray-200 hover:border-blue-300 hover:bg-white bg-white"
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-center space-x-4">
                                                 {/* Flag */}
@@ -512,12 +603,11 @@ const InfoBox = () => {
 
                                                         {/* Selection Indicator */}
                                                         <div
-                                                            className={`flex-shrink-0 transition-all duration-200 ${
-                                                                selectedLanguage ===
-                                                                language.code
+                                                            className={`flex-shrink-0 transition-all duration-200 ${selectedLanguage ===
+                                                                    language.code
                                                                     ? "opacity-100"
                                                                     : "opacity-0"
-                                                            }`}
+                                                                }`}
                                                         >
                                                             <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
                                                                 <svg
@@ -595,47 +685,47 @@ const InfoBox = () => {
                                                         ? "English"
                                                         : currentLanguage ===
                                                             "hi"
-                                                          ? "Hindi (हिन्दी)"
-                                                          : currentLanguage ===
-                                                              "mr"
-                                                            ? "Marathi (मराठी)"
+                                                            ? "Hindi (हिन्दी)"
                                                             : currentLanguage ===
-                                                                "bn"
-                                                              ? "Bengali (বাংলা)"
-                                                              : currentLanguage ===
-                                                                  "te"
-                                                                ? "Telugu (తెలుగు)"
+                                                                "mr"
+                                                                ? "Marathi (मराठी)"
                                                                 : currentLanguage ===
-                                                                    "ta"
-                                                                  ? "Tamil (தமிழ்)"
-                                                                  : currentLanguage ===
-                                                                      "gu"
-                                                                    ? "Gujarati (ગુજરાતી)"
+                                                                    "bn"
+                                                                    ? "Bengali (বাংলা)"
                                                                     : currentLanguage ===
-                                                                        "kn"
-                                                                      ? "Kannada (ಕನ್ನಡ)"
-                                                                      : currentLanguage ===
-                                                                          "ml"
-                                                                        ? "Malayalam (മലയാളം)"
+                                                                        "te"
+                                                                        ? "Telugu (తెలుగు)"
                                                                         : currentLanguage ===
-                                                                            "pa"
-                                                                          ? "Punjabi (ਪੰਜਾਬੀ)"
-                                                                          : currentLanguage ===
-                                                                              "or"
-                                                                            ? "Odia (ଓଡ଼ିଆ)"
+                                                                            "ta"
+                                                                            ? "Tamil (தமிழ்)"
                                                                             : currentLanguage ===
-                                                                                "as"
-                                                                              ? "Assamese (অসমীয়া)"
-                                                                              : currentLanguage ===
-                                                                                  "ur"
-                                                                                ? "Urdu (اردو)"
+                                                                                "gu"
+                                                                                ? "Gujarati (ગુજરાતી)"
                                                                                 : currentLanguage ===
-                                                                                    "ne"
-                                                                                  ? "Nepali (नेपाली)"
-                                                                                  : currentLanguage ===
-                                                                                      "si"
-                                                                                    ? "Sinhala (සිංහල)"
-                                                                                    : currentLanguage}
+                                                                                    "kn"
+                                                                                    ? "Kannada (ಕನ್ನಡ)"
+                                                                                    : currentLanguage ===
+                                                                                        "ml"
+                                                                                        ? "Malayalam (മലയാളം)"
+                                                                                        : currentLanguage ===
+                                                                                            "pa"
+                                                                                            ? "Punjabi (ਪੰਜਾਬੀ)"
+                                                                                            : currentLanguage ===
+                                                                                                "or"
+                                                                                                ? "Odia (ଓଡ଼ିଆ)"
+                                                                                                : currentLanguage ===
+                                                                                                    "as"
+                                                                                                    ? "Assamese (অসমীয়া)"
+                                                                                                    : currentLanguage ===
+                                                                                                        "ur"
+                                                                                                        ? "Urdu (اردو)"
+                                                                                                        : currentLanguage ===
+                                                                                                            "ne"
+                                                                                                            ? "Nepali (नेपाली)"
+                                                                                                            : currentLanguage ===
+                                                                                                                "si"
+                                                                                                                ? "Sinhala (සිංහල)"
+                                                                                                                : currentLanguage}
                                                 </p>
                                             </div>
                                         </div>
@@ -764,11 +854,10 @@ const InfoBox = () => {
                                                     setEmail(e.target.value)
                                                 }
                                                 disabled={!currentPlan}
-                                                className={`w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${
-                                                    !currentPlan
+                                                className={`w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${!currentPlan
                                                         ? "bg-gray-100 cursor-not-allowed opacity-60"
                                                         : ""
-                                                }`}
+                                                    }`}
                                             />
                                         </div>
                                         {email &&
@@ -794,20 +883,20 @@ const InfoBox = () => {
                                         style={{
                                             backgroundColor:
                                                 email &&
-                                                isValidEmail(email) &&
-                                                currentPlan
+                                                    isValidEmail(email) &&
+                                                    currentPlan
                                                     ? "#592941"
                                                     : "#D6D5C9",
                                             color:
                                                 email &&
-                                                isValidEmail(email) &&
-                                                currentPlan
+                                                    isValidEmail(email) &&
+                                                    currentPlan
                                                     ? "#FFFFFF"
                                                     : "#8B7355",
                                             boxShadow:
                                                 email &&
-                                                isValidEmail(email) &&
-                                                currentPlan
+                                                    isValidEmail(email) &&
+                                                    currentPlan
                                                     ? "0 4px 12px rgba(89, 41, 65, 0.3)"
                                                     : "none",
                                         }}

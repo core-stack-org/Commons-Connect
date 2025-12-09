@@ -123,56 +123,70 @@ const SiteAnalysis = () => {
                 </div>
 
                 {/* Analysis Parameters */}
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4">
-                    <h4 className="font-medium text-gray-900 mb-3">
-                        Hydrological Parameters
-                    </h4>
-                    <div className="space-y-3 text-sm">
-                        <div>
-                            <span className="font-medium text-gray-600">
-                                Distance to Nearest Upstream Drainage Line:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                                {analysisData.drainageLine !== "N/A" 
-                                    ? `${parseFloat(analysisData.drainageLine).toFixed(2)} m`
-                                    : "Data not available"
-                                }
-                            </span>
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-600">
-                                Single Flow Catchment Area:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                                {analysisData.catchmentArea !== "N/A"
-                                    ? `${parseFloat(analysisData.catchmentArea).toFixed(2)} m²`
-                                    : "Data not available"
-                                }
-                            </span>
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-600">
-                                Stream Order:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                                {analysisData.streamOrder !== "N/A"
-                                    ? analysisData.streamOrder
-                                    : "Data not available"
-                                }
-                            </span>
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-600">
-                                Slope Percentage:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                                {analysisData.slopePercentage !== "N/A"
-                                    ? `${parseFloat(analysisData.slopePercentage).toFixed(2)}%`
-                                    : "Data not available"
-                                }
-                            </span>
-                        </div>
+                <div className="overflow-hidden rounded-2xl border border-green-200">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3">
+                        <h4 className="font-medium text-gray-900">
+                            Hydrological Parameters
+                        </h4>
                     </div>
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="bg-green-100">
+                                <th className="px-4 py-2.5 text-left font-semibold text-gray-700 border-b border-green-200">
+                                    Parameter
+                                </th>
+                                <th className="px-4 py-2.5 text-right font-semibold text-gray-700 border-b border-green-200">
+                                    Value
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="bg-white hover:bg-green-50 transition-colors">
+                                <td className="px-4 py-3 text-gray-600 border-b border-green-100">
+                                    Distance to Nearest Upstream Drainage Line
+                                </td>
+                                <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
+                                    {analysisData.drainageLine !== "N/A"
+                                        ? `${parseFloat(analysisData.drainageLine).toFixed(2)} m`
+                                        : "Data not available"
+                                    }
+                                </td>
+                            </tr>
+                            <tr className="bg-green-50/50 hover:bg-green-50 transition-colors">
+                                <td className="px-4 py-3 text-gray-600 border-b border-green-100">
+                                    Single Flow Catchment Area
+                                </td>
+                                <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
+                                    {analysisData.catchmentArea !== "N/A"
+                                        ? `${parseFloat(analysisData.catchmentArea).toFixed(2)} m²`
+                                        : "Data not available"
+                                    }
+                                </td>
+                            </tr>
+                            <tr className="bg-white hover:bg-green-50 transition-colors">
+                                <td className="px-4 py-3 text-gray-600 border-b border-green-100">
+                                    Stream Order
+                                </td>
+                                <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
+                                    {analysisData.streamOrder !== "N/A"
+                                        ? analysisData.streamOrder
+                                        : "Data not available"
+                                    }
+                                </td>
+                            </tr>
+                            <tr className="bg-green-50/50 hover:bg-green-50 transition-colors">
+                                <td className="px-4 py-3 text-gray-600">
+                                    Slope Percentage
+                                </td>
+                                <td className="px-4 py-3 text-right font-medium text-gray-900">
+                                    {analysisData.slopePercentage !== "N/A"
+                                        ? `${parseFloat(analysisData.slopePercentage).toFixed(2)}%`
+                                        : "Data not available"
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 {/* Info Note */}
