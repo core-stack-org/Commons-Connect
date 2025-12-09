@@ -1498,14 +1498,16 @@ const InfoBox = () => {
                                 key={item.id}
                                 onClick={() => {
                                   setSelectedItem(item);
-                                  if (item.item_type === 'ASSET_DEMAND') {
+                                  if  (item.item_type === 'ASSET_DEMAND' || "Story"){
+                                    console.log("item")  
+                                    console.log(item.item_type);
                                     setMapDialogOpen(true);
                                   }
                                 }}
                                 className={`border rounded-lg p-4 hover:shadow-md cursor-pointer transition-all duration-200 ${
                                   item.item_type === 'ASSET_DEMAND'
                                     ? 'bg-orange-50 border-orange-200 hover:bg-orange-100' 
-                                    : item.item_type === 'GRIEVANCE'
+                                    : item.item_type === 'Story'
                                     ? 'bg-red-50 border-red-200 hover:bg-red-100'
                                     : item.item_type === 'CONTENT'
                                     ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
