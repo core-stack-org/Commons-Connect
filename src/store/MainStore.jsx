@@ -21,6 +21,8 @@ const useMainStore = create((set) => ({
     isGPSClick: false,
     gpsLocation: null,
     layerClicked: null,
+    agriLayerToggle : null,
+    groudwaterLayerToggle : null,
 
     setDistrictName: (name) => set({ districtName: name }),
     setBlockName: (name) => set({ blockName: name }),
@@ -28,6 +30,8 @@ const useMainStore = create((set) => ({
     setIsGPSClick: (stat) => set({ isGPSClick: stat }),
     setGpsLocation: (stat) => set({ gpsLocation: stat }),
     setLayerClicked: (stat) => set({ layerClicked: stat }),
+    setAgriLayerToggle: (stat) => set({ agriLayerToggle: stat }),
+    setGroudwaterLayerToggle: (stat) => set({ groudwaterLayerToggle: stat }),
 
     // Temporary Store
     startResourceMarking: () =>
@@ -197,6 +201,9 @@ const useMainStore = create((set) => ({
     resourceType: null,
     isAnalyze: false,
     isLayerStore: false,
+    isSiteAnalysis: false,
+    siteAnalysisData: null,
+    siteAnalysisCoords: null,
 
     setIsOpen: (stat) => set({ isOpen: stat }),
     setIsForm: (stat) => set({ isForm: stat }),
@@ -210,6 +217,9 @@ const useMainStore = create((set) => ({
     setIsAnalyze: (stat) => set({ isAnalyze: stat }),
     setIsLayerStore: (stat) => set({ isLayerStore: stat }),
     setIsResourceOpen: (stat) => set({ isResourceOpen: stat }),
+    setIsSiteAnalysis: (stat) => set({ isSiteAnalysis: stat }),
+    setSiteAnalysisData: (stat) => set({ siteAnalysisData: stat }),
+    setSiteAnalysisCoords: (stat) => set({ siteAnalysisCoords: stat }),
 }));
 
 export default useMainStore;

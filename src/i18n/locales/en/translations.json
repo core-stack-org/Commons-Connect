@@ -66,6 +66,9 @@
     "toast_groundwater" : "Tap anywhere on the map to raise demand for 'New Recharge Structure'",
     "toast_agri" : "Tap anywhere on the map to raise demand for 'New Irrigation work'",
 
+    "Propose Structure" : "Propose Structure",
+    "Site Analysis" : "Site Analysis",
+
     "nrega_works_info" : "NOTE: NREGA works are shown for the years 2016 to 2024.",
 
     "add_settlement_toast" : "Please place the pin anywhere on the map to add a settlement or select a settlement to mark resources for that settlement.",

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
-import useLayersStore from "../store/LayerStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -8,7 +7,6 @@ import toast from "react-hot-toast";
 
 const Agriculture = () => {
     const MainStore = useMainStore((state) => state);
-    const LayersStore = useLayersStore((state) => state);
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -54,13 +52,12 @@ const Agriculture = () => {
         "22-23",
         "23-24",
     ];
-    const [dragging, setDrag] = useState(false);
+
     const [selectedLayer, setSelectedLayer] = useState("CLART");
 
     const handleYearChange = (e) => {
         MainStore.setLulcYearIdx(Number(e.target.value));
     };
-    const percent = (MainStore.lulcYearIdx / (years.length - 1)) * 100; // 0 – 100 %
 
     const toggleFormsUrl = (toggle) => {
         let gpsCoords = MainStore.gpsLocation;
@@ -137,6 +134,8 @@ const Agriculture = () => {
 
     const handleStartPlanning = () => {
         MainStore.setCurrentStep(1);
+        // Set default layer for InfoBox legend
+        MainStore.setLayerClicked("CLARTLayer");
         toast(t("toast_agri"), {
             duration: 5000,
             style: {
@@ -155,16 +154,9 @@ const Agriculture = () => {
 
     const handleLayerChange = (layerName) => {
         setSelectedLayer(layerName);
-
-        if (layerName === "CLART") {
-            MainStore.setLayerClicked("CLARTLayer");
-            LayersStore.setCLARTLayer(true);
-            LayersStore.setTerrainLayer(false);
-        } else if (layerName === "Terrain") {
-            MainStore.setLayerClicked("TerrainLayer");
-            LayersStore.setTerrainLayer(true);
-            LayersStore.setCLARTLayer(false);
-        }
+        MainStore.setAgriLayerToggle(layerName);
+        // Update layerClicked for InfoBox to show correct legend
+        MainStore.setLayerClicked(layerName === "CLART" ? "CLARTLayer" : "TerrainLayer");
     };
 
     return (
@@ -340,21 +332,19 @@ const Agriculture = () => {
                                         >
                                             {/* Tick mark */}
                                             <div
-                                                className={`h-0.5 w-3 transition-colors duration-200 ${
-                                                    actualIndex ===
-                                                    MainStore.lulcYearIdx
+                                                className={`h-0.5 w-3 transition-colors duration-200 ${actualIndex ===
+                                                        MainStore.lulcYearIdx
                                                         ? "bg-[#592941]"
                                                         : "bg-gray-400"
-                                                }`}
+                                                    }`}
                                             />
                                             {/* Year label with capsule background */}
                                             <span
-                                                className={`text-xs font-bold transition-all duration-200 px-2 py-1 rounded-lg ${
-                                                    actualIndex ===
-                                                    MainStore.lulcYearIdx
+                                                className={`text-xs font-bold transition-all duration-200 px-2 py-1 rounded-lg ${actualIndex ===
+                                                        MainStore.lulcYearIdx
                                                         ? "text-white bg-[#592941]"
                                                         : "text-white bg-transparent"
-                                                }`}
+                                                    }`}
                                             >
                                                 {year}
                                             </span>
@@ -610,8 +600,7 @@ const Agriculture = () => {
 
                 {MainStore.currentStep === 1 && (
                     <div className="flex flex-col items-center justify-center w-full gap-3">
-                        {/* Propose Maintenance Button - Top pill */}
-                        <div className="flex items-center justify-center w-full">
+                        <div className="flex flex-col items-center justify-center w-full gap-3">
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
                                 onClick={() => toggleFormsUrl(true)}
@@ -632,9 +621,34 @@ const Agriculture = () => {
                             >
                                 {t("Propose Maintenance")}
                             </button>
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => toggleFormsUrl(false)}
+                                disabled={MainStore.isFeatureClicked}
+                                style={{
+                                    backgroundColor: MainStore.isFeatureClicked
+                                        ? "#696969"
+                                        : "#D6D5C9",
+                                    color: MainStore.isFeatureClicked
+                                        ? "#A8A8A8"
+                                        : "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    width: "350px",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                    cursor: MainStore.isFeatureClicked
+                                        ? "not-allowed"
+                                        : "pointer",
+                                    transition:
+                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                                }}
+                            >
+                                {t("New Irrigation Work")}
+                            </button>
                         </div>
 
-                        {/* Separate Back, New Irrigation Work, and Finish Buttons - Bottom section */}
+                        {/* Separate Back, Site Analysis, and Finish Buttons - Bottom section */}
                         <div className="flex items-center justify-center w-full gap-3">
                             {/* Separate Back Button */}
                             <button
@@ -643,6 +657,7 @@ const Agriculture = () => {
                                     let BACK = MainStore.currentStep - 1;
                                     if (MainStore.currentStep) {
                                         MainStore.setCurrentStep(BACK);
+                                        setSelectedLayer("CLART")
                                     }
                                 }}
                                 style={{
@@ -660,16 +675,22 @@ const Agriculture = () => {
                                 {t("Back")}
                             </button>
 
-                            {/* New Irrigation Work Button */}
+                            {/* Site Analysis Button */}
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => toggleFormsUrl(false)}
-                                disabled={MainStore.isFeatureClicked}
+                                onClick={() => {
+                                    if (MainStore.markerCoords) {
+                                        MainStore.setSiteAnalysisCoords(MainStore.markerCoords);
+                                        MainStore.setIsSiteAnalysis(true);
+                                        MainStore.setIsOpen(true);
+                                    }
+                                }}
+                                disabled={!MainStore.isMarkerPlaced}
                                 style={{
-                                    backgroundColor: MainStore.isFeatureClicked
+                                    backgroundColor: !MainStore.isMarkerPlaced
                                         ? "#696969"
                                         : "#D6D5C9",
-                                    color: MainStore.isFeatureClicked
+                                    color: !MainStore.isMarkerPlaced
                                         ? "#A8A8A8"
                                         : "#592941",
                                     border: "none",
@@ -677,14 +698,14 @@ const Agriculture = () => {
                                     height: "44px",
                                     width: "190px",
                                     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                    cursor: MainStore.isFeatureClicked
+                                    cursor: !MainStore.isMarkerPlaced
                                         ? "not-allowed"
                                         : "pointer",
                                     transition:
                                         "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
                             >
-                                {t("New Irrigation Work")}
+                                {t("Site Analysis")}
                             </button>
 
                             {/* Separate Finish Button */}

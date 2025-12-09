@@ -12,6 +12,9 @@ const Groundwater = () => {
             Screen: "analyze",
         },
         2: {
+            Screen: "planning_site",
+        },
+        3: {
             Screen: "add_maintain",
         },
     };
@@ -22,6 +25,7 @@ const Groundwater = () => {
     const navigate = useNavigate();
 
     const [selectedLayer, setSelectedLayer] = useState("CLART");
+    const [selectedSiteLayer, setSelectedSiteLayer] = useState("StreamOrder");
 
     useEffect(() => {
         MainStore.setMarkerPlaced(false);
@@ -69,25 +73,33 @@ const Groundwater = () => {
             MainStore.setGpsLocation(gpsCoords);
         }
 
-        if (MainStore.markerCoords) {
-            MainStore.setIsForm(true);
-            MainStore.setFormUrl(
-                getOdkUrlForScreen(
-                    MainStore.currentScreen,
-                    MainStore.currentStep,
-                    MainStore.markerCoords,
-                    MainStore.settlementName,
-                    "",
-                    MainStore.blockName,
-                    MainStore.currentPlan.plan_id,
-                    MainStore.currentPlan.plan,
-                    "",
-                    toggle,
-                    gpsCoords,
-                ),
-            );
-            MainStore.setIsOpen(true);
+        if (!MainStore.markerCoords) {
+            toast.error("Please place a marker first");
+            return;
         }
+
+        if (!MainStore.currentPlan) {
+            toast.error("Please select a plan first");
+            return;
+        }
+
+        const formUrl = getOdkUrlForScreen(
+            MainStore.currentScreen,
+            MainStore.currentStep,
+            MainStore.markerCoords,
+            MainStore.settlementName,
+            "",
+            MainStore.blockName,
+            MainStore.currentPlan.plan_id,
+            MainStore.currentPlan.plan,
+            "",
+            toggle,
+            gpsCoords,
+        );
+
+        MainStore.setIsForm(true);
+        MainStore.setFormUrl(formUrl);
+        MainStore.setIsOpen(true);
     };
 
     const handleAnalyze = () => {
@@ -99,8 +111,19 @@ const Groundwater = () => {
         MainStore.setIsOpen(true);
     };
 
+    const handleSiteAnalysis = () => {
+        if (MainStore.markerCoords) {
+            MainStore.setSiteAnalysisCoords(MainStore.markerCoords);
+            MainStore.setIsSiteAnalysis(true);
+            MainStore.setIsOpen(true);
+        }
+    };
+
     const handleStartPlanning = () => {
         MainStore.setCurrentStep(1);
+        MainStore.setLayerClicked("CLARTLayer");
+        LayersStore.setCLARTLayer(true);
+        LayersStore.setTerrainLayer(false);
         toast(t("toast_groundwater"), {
             duration: 5000,
             style: {
@@ -119,16 +142,14 @@ const Groundwater = () => {
 
     const handleLayerChange = (layerName) => {
         setSelectedLayer(layerName);
+        MainStore.setGroudwaterLayerToggle(layerName);
+        // Update layerClicked for InfoBox to show correct legend
+        MainStore.setLayerClicked(layerName === "CLART" ? "CLARTLayer" : "TerrainLayer");
+    };
 
-        if (layerName === "CLART") {
-            MainStore.setLayerClicked("CLARTLayer");
-            LayersStore.setCLARTLayer(true);
-            LayersStore.setTerrainLayer(false);
-        } else if (layerName === "Terrain") {
-            MainStore.setLayerClicked("TerrainLayer");
-            LayersStore.setTerrainLayer(true);
-            LayersStore.setCLARTLayer(false);
-        }
+    const handleSiteLayerChange = (layerName) => {
+        setSelectedSiteLayer(layerName);
+        MainStore.setGroudwaterLayerToggle(layerName)
     };
 
     const getPlanLabel = () => {
@@ -295,7 +316,7 @@ const Groundwater = () => {
                                     width: "50%",
                                     transform:
                                         MainStore.selectWellDepthYear ===
-                                        "2018_23"
+                                            "2018_23"
                                             ? "translateX(100%)"
                                             : "translateX(0%)",
                                 }}
@@ -372,6 +393,45 @@ const Groundwater = () => {
                 </div>
             )}
 
+            {/* 5. Site Layers Slider - Only show in step 2 */}
+            {MainStore.currentStep === 2 && (
+                <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
+                    <div className="flex gap-4 max-w-lg">
+                        <div
+                            className="relative inline-flex rounded-xl pb-0.5 pt-0.5"
+                            style={{ backgroundColor: "#D6D5C9" }}
+                        >
+                            {/* Sliding white pill background */}
+                            <div
+                                className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-all duration-300 ease-in-out"
+                                style={{
+                                    height: "calc(100% - 4px)",
+                                    width: selectedSiteLayer === "NaturalDepression" ? "58%" : "42%",
+                                    left: selectedSiteLayer === "NaturalDepression" ? "42%" : "0%",
+                                }}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => handleSiteLayerChange("StreamOrder")}
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap"
+                                style={{ color: "#592941" }}
+                            >
+                                Stream Order
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleSiteLayerChange("NaturalDepression")}
+                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap"
+                                style={{ color: "#592941" }}
+                            >
+                                Natural Depression
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
                 {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
@@ -405,7 +465,11 @@ const Groundwater = () => {
                             {/* Separate Back Button */}
                             <button
                                 className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => navigate("/maps")}
+                                onClick={() => {
+                                    MainStore.setCurrentStep(0);
+                                    MainStore.setCurrentScreen("HomeScreen");
+                                    navigate("/maps");
+                                }}
                                 style={{
                                     backgroundColor: "#D6D5C9",
                                     color: "#592941",
@@ -479,7 +543,11 @@ const Groundwater = () => {
                             {/* Separate Back Button */}
                             <button
                                 className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => navigate("/maps")}
+                                onClick={() => {
+                                    MainStore.setCurrentStep(0);
+                                    MainStore.setCurrentScreen("HomeScreen");
+                                    navigate("/maps");
+                                }}
                                 style={{
                                     backgroundColor: "#D6D5C9",
                                     color: "#592941",
@@ -565,6 +633,7 @@ const Groundwater = () => {
                                     let BACK = MainStore.currentStep - 1;
                                     if (MainStore.currentStep) {
                                         MainStore.setCurrentStep(BACK);
+                                        setSelectedLayer("CLART")
                                     }
                                 }}
                                 style={{
@@ -582,10 +651,10 @@ const Groundwater = () => {
                                 {t("Back")}
                             </button>
 
-                            {/* Recharge Structure Button */}
+                            {/* Plan for a new structure Button */}
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => toggleFormsUrl(false)}
+                                onClick={() => MainStore.setCurrentStep(2)}
                                 disabled={MainStore.isFeatureClicked}
                                 style={{
                                     backgroundColor: MainStore.isFeatureClicked
@@ -597,7 +666,7 @@ const Groundwater = () => {
                                     border: "none",
                                     borderRadius: "22px",
                                     height: "44px",
-                                    width: "190px",
+                                    width: "270px",
                                     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
                                     cursor: MainStore.isFeatureClicked
                                         ? "not-allowed"
@@ -606,13 +675,108 @@ const Groundwater = () => {
                                         "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
                             >
-                                {t("New Recharge Structure")}
+                                {t("Plan for a new structure")}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {MainStore.currentStep === 2 && (
+                    <div className="flex flex-col items-center justify-center w-full gap-3">
+                        {/* Propose Structure Button - Top pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => {
+                                    toggleFormsUrl(false);
+                                }}
+                                disabled={MainStore.isFeatureClicked}
+                                style={{
+                                    backgroundColor: MainStore.isFeatureClicked
+                                        ? "#696969"
+                                        : "#D6D5C9",
+                                    color: MainStore.isFeatureClicked
+                                        ? "#A8A8A8"
+                                        : "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    width: "350px",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                    cursor: MainStore.isFeatureClicked
+                                        ? "not-allowed"
+                                        : "pointer",
+                                    transition:
+                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                                }}
+                            >
+                                {t("Propose Structure")}
+                            </button>
+                        </div>
+
+                        {/* Separate Back, Site Analysis, and Finish Buttons - Bottom section */}
+                        <div className="flex items-center justify-center w-full gap-3">
+                            {/* Separate Back Button */}
+                            <button
+                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => {
+                                    let BACK = MainStore.currentStep - 1;
+                                    if (MainStore.currentStep) {
+                                        MainStore.setCurrentStep(BACK);
+                                        handleLayerChange("CLART")
+                                        setSelectedSiteLayer("StreamOrder")
+                                    }
+                                }}
+                                style={{
+                                    backgroundColor: "#D6D5C9",
+                                    color: "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    cursor: "pointer",
+                                    transition:
+                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                }}
+                            >
+                                {t("Back")}
+                            </button>
+
+                            {/* Site Analysis Button */}
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={handleSiteAnalysis}
+                                disabled={!MainStore.isMarkerPlaced}
+                                style={{
+                                    backgroundColor: !MainStore.isMarkerPlaced
+                                        ? "#696969"
+                                        : "#D6D5C9",
+                                    color: !MainStore.isMarkerPlaced
+                                        ? "#A8A8A8"
+                                        : "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    width: "190px",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                    cursor: !MainStore.isMarkerPlaced
+                                        ? "not-allowed"
+                                        : "pointer",
+                                    transition:
+                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                                }}
+                            >
+                                {t("Site Analysis")}
                             </button>
 
                             {/* Separate Finish Button */}
                             <button
                                 className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => navigate("/maps")}
+                                onClick={() => {
+                                    MainStore.setCurrentStep(0);
+                                    MainStore.setCurrentScreen("HomeScreen");
+                                    navigate("/maps");
+                                }}
                                 style={{
                                     backgroundColor: "#D6D5C9",
                                     color: "#592941",

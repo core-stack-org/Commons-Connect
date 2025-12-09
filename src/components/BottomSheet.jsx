@@ -1,119 +1,129 @@
-import { BottomSheet } from 'react-spring-bottom-sheet'
-import 'react-spring-bottom-sheet/dist/style.css'
+import { BottomSheet } from "react-spring-bottom-sheet";
+import "react-spring-bottom-sheet/dist/style.css";
 import useMainStore from "../store/MainStore.jsx";
-import useLayersStore from '../store/LayerStore.jsx';
+import useLayersStore from "../store/LayerStore.jsx";
 
-import nregaDetails from "../assets/nregaMapping.json"
-import resourceDetails from "../assets/resource_mapping.json"
-import SurfaceWaterBodies from './analyze/SurfaceWaterbodyAnalyze.jsx';
-import GroundwaterAnalyze from './analyze/GroundwaterAnalyze.jsx';
-import AgricultureAnalyze from './analyze/AgricultureAnalyze.jsx';
+import nregaDetails from "../assets/nregaMapping.json";
+import resourceDetails from "../assets/resource_mapping.json";
+import SurfaceWaterBodies from "./analyze/SurfaceWaterbodyAnalyze.jsx";
+import GroundwaterAnalyze from "./analyze/GroundwaterAnalyze.jsx";
+import AgricultureAnalyze from "./analyze/AgricultureAnalyze.jsx";
+import SiteAnalysis from "./analyze/SiteAnalysis.jsx";
 import { useTranslation } from "react-i18next";
 
-import { looksBroken, fixMojibake } from '../action/getEncoding.js'
+import { looksBroken, fixMojibake } from "../action/getEncoding.js";
 
 const Bottomsheet = () => {
-
     const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
-    const LayerStore = useLayersStore((state) => state)
-    let flg = false
+    const LayerStore = useLayersStore((state) => state);
+    let flg = false;
 
     const LayerNameMapping = {
-        0 : "settlement_layer",
-        1 : "well_layer",
-        2 : "waterbody_layer",
-        3 : "cropgrid_layer"
-    }
-    
+        0: "settlement_layer",
+        1: "well_layer",
+        2: "waterbody_layer",
+        3: "cropgrid_layer",
+    };
+
     const ResourceMapping = {
-        0 : "settlement",
-        1 : "well",
-        2 : "waterbody",
-        3 : "cropgrid"
-    }
+        0: "settlement",
+        1: "well",
+        2: "waterbody",
+        3: "cropgrid",
+    };
 
     const PlanningResource = {
-        "Agriculture" : "plan_agri",
-        "Groundwater" : "plan_gw",
-        "Livelihood" : "livelihood"
-    }
+        Agriculture: "plan_agri",
+        Groundwater: "plan_gw",
+        Livelihood: "livelihood",
+    };
 
     const LayerStoreKeysGW = [
-        "AdminBoundary", "NregaLayer", "WellDepth", "DrainageLayer",
-        "SettlementLayer", 
-        "WellLayer", "WaterStructure",
-        "WorkGroundwater", "CLARTLayer"
-    ]
+        "AdminBoundary",
+        "NregaLayer",
+        "WellDepth",
+        "DrainageLayer",
+        "SettlementLayer",
+        "WellLayer",
+        "WaterStructure",
+        "WorkGroundwater",
+        "CLARTLayer",
+    ];
 
     const LayerStoreKeysAgri = [
-        "AdminBoundary", "NregaLayer", "DrainageLayer",
-        "SettlementLayer", 
-        "WellLayer", "WaterStructure",
-        "WorkAgri", "CLARTLayer", "LULCLayer"
-    ]
-    
-    const ResourceMetaKeys = {
-        "Bail" : "Livestock Census : Ox (बैल)",
-        "Cattle" : "Livestock Census : Cattle",
-        "Goats" : "Livestock Census : Goats",
-        "Piggery" : "Livestock Census : Piggery",
-        "Poultry" : "Livestock Census : Poultry",
-        "Sheep" : "Livestock Census : Sheep",
-        "big_farmers" : "Farmer Census : Big Farmers",
-        "landless_farmers" : "Farmer Census : Landless Farmers",
-        "marginal_farmers" : "Farmer Census : Marginal Farmers",
-        "medium_farmers" : "Farmer Census : Medium Farmers",
-        "small_farmers" : "Farmer Census : Small Farmers",
-        "NREGA_applied" : "Households that have applied for NREGA Job cards",
-        "NREGA_have_job_card" : "Households that have NREGA job cards",
+        "AdminBoundary",
+        "NregaLayer",
+        "DrainageLayer",
+        "SettlementLayer",
+        "WellLayer",
+        "WaterStructure",
+        "WorkAgri",
+        "CLARTLayer",
+        "LULCLayer",
+    ];
 
-        
-        "select_one_Functional_Non_functional" : "Functional or not ?",
-        "select_one_well_used" : "Used for Irrigation or Drinking ?",
-        "select_one_well_used_other" : "Other usage",
-        "select_one_change_water_quality" : "Water Quality",
-        "select_one_water_structure_near_you" : "Any rainwater harvesting or groundwater recharge structures near your wells ?",
-        "select_one_maintenance" : "Requires Maintainence", 
-        "select_one_repairs_well" : "Type of Repair (if Maintainence required)",
-        "select_one_repairs_well_other" : "Other type of Repair"
-    }
+    const ResourceMetaKeys = {
+        Bail: "Livestock Census : Ox (बैल)",
+        Cattle: "Livestock Census : Cattle",
+        Goats: "Livestock Census : Goats",
+        Piggery: "Livestock Census : Piggery",
+        Poultry: "Livestock Census : Poultry",
+        Sheep: "Livestock Census : Sheep",
+        big_farmers: "Farmer Census : Big Farmers",
+        landless_farmers: "Farmer Census : Landless Farmers",
+        marginal_farmers: "Farmer Census : Marginal Farmers",
+        medium_farmers: "Farmer Census : Medium Farmers",
+        small_farmers: "Farmer Census : Small Farmers",
+        NREGA_applied: "Households that have applied for NREGA Job cards",
+        NREGA_have_job_card: "Households that have NREGA job cards",
+
+        select_one_Functional_Non_functional: "Functional or not ?",
+        select_one_well_used: "Used for Irrigation or Drinking ?",
+        select_one_well_used_other: "Other usage",
+        select_one_change_water_quality: "Water Quality",
+        select_one_water_structure_near_you:
+            "Any rainwater harvesting or groundwater recharge structures near your wells ?",
+        select_one_maintenance: "Requires Maintainence",
+        select_one_repairs_well: "Type of Repair (if Maintainence required)",
+        select_one_repairs_well_other: "Other type of Repair",
+    };
 
     const layerStoreNameMapping = {
-        "AdminBoundary" : "Admin Boundary",
-        "NregaLayer" : "NREGA Layer",
-        "WellDepth" : "Well Depth",
-        "DrainageLayer" : "Drainage Layer",
-        "SettlementLayer" : "Settlement Layer",
-        "WellLayer" : "Well Layer",
-        "WaterStructure" : "Water Structures",
-        "WorkAgri" : "Irrigation Structures",
-        "WorkGroundwater" : "Recharge Structures",
-        "Livelihood" : "Livelihood",
-        "CLARTLayer" : "CLART Layer",
-        "LULCLayer" : "LULC Layer"
-    }
+        AdminBoundary: "Admin Boundary",
+        NregaLayer: "NREGA Layer",
+        WellDepth: "Well Depth",
+        DrainageLayer: "Drainage Layer",
+        SettlementLayer: "Settlement Layer",
+        WellLayer: "Well Layer",
+        WaterStructure: "Water Structures",
+        WorkAgri: "Irrigation Structures",
+        WorkGroundwater: "Recharge Structures",
+        Livelihood: "Livelihood",
+        CLARTLayer: "CLART Layer",
+        LULCLayer: "LULC Layer",
+    };
 
     const layerStoreFuncMapping = {
-        "AdminBoundary" : "setAdminBoundary",
-        "NregaLayer" : "setNregaLayer",
-        "WellDepth" : "setWellDepth",
-        "DrainageLayer" : "setDrainageLayer",
-        "SettlementLayer" : "setSettlementLayer",
-        "WellLayer" : "setWellLayer",
-        "WaterStructure" : "setWaterStructure",
-        "WorkAgri" : "setWorkAgri",
-        "WorkGroundwater" : "setWorkGroundwater",
-        "Livelihood" : "setLivelihood",
-        "CLARTLayer" : "setCLARTLayer",
-        "LULCLayer" : "setLULCLayer"
-    }
+        AdminBoundary: "setAdminBoundary",
+        NregaLayer: "setNregaLayer",
+        WellDepth: "setWellDepth",
+        DrainageLayer: "setDrainageLayer",
+        SettlementLayer: "setSettlementLayer",
+        WellLayer: "setWellLayer",
+        WaterStructure: "setWaterStructure",
+        WorkAgri: "setWorkAgri",
+        WorkGroundwater: "setWorkGroundwater",
+        Livelihood: "setLivelihood",
+        CLARTLayer: "setCLARTLayer",
+        LULCLayer: "setLULCLayer",
+    };
 
-    const handleOnLoadEvent = async() => {
-        if(flg){
-            if (MainStore.currentScreen === "Resource_mapping"){
-                try{
-                    MainStore.setIsLoading(true)
+    const handleOnLoadEvent = async () => {
+        if (flg) {
+            if (MainStore.currentScreen === "Resource_mapping") {
+                try {
+                    MainStore.setIsLoading(true);
                     const payload = {
                         layer_name: LayerNameMapping[MainStore.currentStep],
                         resource_type: ResourceMapping[MainStore.currentStep],
@@ -121,32 +131,33 @@ const Bottomsheet = () => {
                         plan_name: MainStore.currentPlan.plan,
                         district_name: MainStore.districtName,
                         block_name: MainStore.blockName,
-                    }
+                    };
 
-                    const response = await fetch(`${import.meta.env.VITE_API_URL}add_resources/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
+                    const response = await fetch(
+                        `${import.meta.env.VITE_API_URL}add_resources/`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(payload),
                         },
-                        body: JSON.stringify(payload)
-                    })
+                    );
 
-                    const res = await response.json()
+                    const res = await response.json();
 
-                    MainStore.setIsLoading(false)
+                    MainStore.setIsLoading(false);
 
                     if (res.message === "Success") {
-                        MainStore.setIsSubmissionSuccess(true)
+                        MainStore.setIsSubmissionSuccess(true);
                     }
-                    onDismiss()
-
-                }catch(err){
-                    console.log(err)
+                    onDismiss();
+                } catch (err) {
+                    console.log(err);
                 }
-            }
-            else{
-                try{
-                    MainStore.setIsLoading(true)
+            } else {
+                try {
+                    MainStore.setIsLoading(true);
                     const payload = {
                         layer_name: "planning_layer",
                         work_type: PlanningResource[MainStore.currentScreen],
@@ -154,104 +165,108 @@ const Bottomsheet = () => {
                         plan_name: MainStore.currentPlan.plan,
                         district_name: MainStore.districtName,
                         block_name: MainStore.blockName,
-                    }
-                    console.log(payload)
-                    const response = await fetch(`${import.meta.env.VITE_API_URL}add_works/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
+                    };
+                    console.log(payload);
+                    const response = await fetch(
+                        `${import.meta.env.VITE_API_URL}add_works/`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(payload),
                         },
-                        body: JSON.stringify(payload)
-                    })
+                    );
 
-                    const res = await response.json()
+                    const res = await response.json();
 
-                    MainStore.setIsLoading(false)
+                    MainStore.setIsLoading(false);
 
-                    console.log(res)
+                    console.log(res);
 
                     if (res.message === "Success") {
-                        MainStore.setIsSubmissionSuccess(true)
+                        MainStore.setIsSubmissionSuccess(true);
                     }
-                    onDismiss()
-                }
-                catch(err){
-                    console.log(err)
+                    onDismiss();
+                } catch (err) {
+                    console.log(err);
                 }
             }
             flg = false;
+        } else {
+            flg = true;
         }
-        else{
-            console.log("Came here!")
-            flg = true
-        }
-    }
+    };
 
-    const handleYearAdd = (tempYear) =>{
-        let active_years = []
+    const handleYearAdd = (tempYear) => {
+        let active_years = [];
 
-        if(MainStore.selectNregaYears.includes(tempYear)){
-            active_years = MainStore.selectNregaYears.filter((year) => year != tempYear);
+        if (MainStore.selectNregaYears.includes(tempYear)) {
+            active_years = MainStore.selectNregaYears.filter(
+                (year) => year != tempYear,
+            );
             MainStore.setNregaYears(active_years);
-        }
-        else{
+        } else {
             active_years = [...MainStore.selectNregaYears];
             active_years.push(tempYear);
             MainStore.setNregaYears(active_years);
         }
 
-        console.log(active_years)
+        console.log(active_years);
 
-        let tempFilter = ['in', ['get', 'workYear'], active_years]
+        let tempFilter = ["in", ["get", "workYear"], active_years];
 
-        console.log(tempFilter)
+        console.log(tempFilter);
 
         let tempNregaStyle = {
             filter: tempFilter,
-            'shape-points': MainStore.nregaStyle['shape-points'],
-            'shape-radius': MainStore.nregaStyle['shape-radius'],
-            'shape-fill-color': MainStore.nregaStyle['shape-fill-color']
-        }
-        
+            "shape-points": MainStore.nregaStyle["shape-points"],
+            "shape-radius": MainStore.nregaStyle["shape-radius"],
+            "shape-fill-color": MainStore.nregaStyle["shape-fill-color"],
+        };
+
         MainStore.setNregaStyle(tempNregaStyle);
-    }
+    };
 
     const handleWorkdAdd = (work) => {
-        let checked = MainStore.nregaWorks.includes(nregaDetails.workToNumMapping[work])
-        let tempWorks
-        
-        if(!checked){
-            tempWorks = [...MainStore.nregaWorks]
-            tempWorks.push(nregaDetails.workToNumMapping[work])
-        }
-        else{
-            tempWorks = MainStore.nregaWorks.filter((y) => y != nregaDetails.workToNumMapping[work]);
+        let checked = MainStore.nregaWorks.includes(
+            nregaDetails.workToNumMapping[work],
+        );
+        let tempWorks;
+
+        if (!checked) {
+            tempWorks = [...MainStore.nregaWorks];
+            tempWorks.push(nregaDetails.workToNumMapping[work]);
+        } else {
+            tempWorks = MainStore.nregaWorks.filter(
+                (y) => y != nregaDetails.workToNumMapping[work],
+            );
         }
 
-        MainStore.setNregaWorks(tempWorks)
+        MainStore.setNregaWorks(tempWorks);
 
-        let styleFillColor = ['match', ['get', 'itemColor']]
-        
+        let styleFillColor = ["match", ["get", "itemColor"]];
+
         tempWorks.map((item, idx) => {
             styleFillColor.push(item);
-            styleFillColor.push(nregaDetails.NumToColorMapping[item])
-        })
+            styleFillColor.push(nregaDetails.NumToColorMapping[item]);
+        });
 
-        styleFillColor.push('#00000000')
+        styleFillColor.push("#00000000");
 
         if (tempWorks.length === 0) {
-            styleFillColor = '#00000000'
+            styleFillColor = "#00000000";
         }
 
-        let tempNregaStyle =  {
+        let tempNregaStyle = {
             filter: MainStore.nregaStyle.filter,
-            'shape-points': MainStore.nregaStyle['shape-points'],
-            'shape-radius': MainStore.nregaStyle['shape-radius'],
-            'shape-fill-color': styleFillColor
-        }
+            "shape-points": MainStore.nregaStyle["shape-points"],
+            "shape-radius": MainStore.nregaStyle["shape-radius"],
+            "shape-fill-color": styleFillColor,
+        };
 
         MainStore.setNregaStyle(tempNregaStyle);
-    }
+    };
 
     const nregaBody = (
         <>
@@ -261,7 +276,7 @@ const Bottomsheet = () => {
                     {t("NREGA Assets")}
                 </h1>
             </div>
-    
+
             <div className="px-6 pb-8">
                 {/* Enhanced Work Categories Section */}
                 <div className="mb-8">
@@ -271,28 +286,31 @@ const Bottomsheet = () => {
                             {t("NREGA Work Categories")}
                         </h2>
                     </div>
-    
+
                     {/* Improved button grid layout */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {nregaDetails.works.map((item, idx) => {
                             const color = [
                                 nregaDetails.buttonColorMapping[item],
-                                nregaDetails.buttonColorMapping.Default
+                                nregaDetails.buttonColorMapping.Default,
                             ];
-                            const isSelected = MainStore.nregaWorks.includes(nregaDetails.workToNumMapping[item]);
+                            const isSelected = MainStore.nregaWorks.includes(
+                                nregaDetails.workToNumMapping[item],
+                            );
                             return (
                                 <button
                                     key={idx}
                                     style={{
                                         backgroundColor: isSelected
                                             ? `rgba(${color[0].join(",")})`
-                                            : ""
+                                            : "",
                                     }}
                                     className={`
                                         flex items-center justify-between p-4 rounded-lg border transition-all duration-200
-                                        ${isSelected 
-                                            ? 'border-gray-400 shadow-md transform scale-[1.02]' 
-                                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                                        ${
+                                            isSelected
+                                                ? "border-gray-400 shadow-md transform scale-[1.02]"
+                                                : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                                         }
                                         bg-white text-gray-700 font-medium text-sm text-left
                                         focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300
@@ -301,19 +319,33 @@ const Bottomsheet = () => {
                                 >
                                     <div className="flex items-center">
                                         {/* Color indicator dot */}
-                                        <div 
+                                        <div
                                             className="w-3 h-3 rounded-full mr-3 flex-shrink-0"
-                                            style={{ backgroundColor: `rgba(${color[0].join(",")})` }}
+                                            style={{
+                                                backgroundColor: `rgba(${color[0].join(",")})`,
+                                            }}
                                         ></div>
                                         <span className="leading-tight">
-                                            {t(nregaDetails.properWorkNames[idx])}
+                                            {t(
+                                                nregaDetails.properWorkNames[
+                                                    idx
+                                                ],
+                                            )}
                                         </span>
                                     </div>
-                                    
+
                                     {/* Selection indicator */}
                                     {isSelected && (
-                                        <svg className="w-4 h-4 text-gray-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        <svg
+                                            className="w-4 h-4 text-gray-600 flex-shrink-0 ml-2"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clipRule="evenodd"
+                                            />
                                         </svg>
                                     )}
                                 </button>
@@ -321,7 +353,7 @@ const Bottomsheet = () => {
                         })}
                     </div>
                 </div>
-    
+
                 {/* Enhanced NREGA Work Years Section */}
                 {/* <div className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center mb-6">
@@ -330,17 +362,17 @@ const Bottomsheet = () => {
                             NREGA Work Years
                         </h2>
                     </div>
-    
+
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         {MainStore.allNregaYears.map((year, idx) => {
                             const isChecked = MainStore.selectNregaYears.includes(year);
                             return (
-                                <label 
-                                    key={idx} 
+                                <label
+                                    key={idx}
                                     className={`
                                         flex items-center p-3 rounded-lg border cursor-pointer transition-all duration-200
-                                        ${isChecked 
-                                            ? 'bg-blue-50 border-blue-200 shadow-sm' 
+                                        ${isChecked
+                                            ? 'bg-blue-50 border-blue-200 shadow-sm'
                                             : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                         }
                                     `}
@@ -368,58 +400,75 @@ const Bottomsheet = () => {
                 </div>
             </div>
         </>
-    )
+    );
 
     const metaDataBody = (
         <>
             <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-            {t("Asset Info")}
+                {t("Asset Info")}
             </div>
 
             <div className="pt-8 px-4 pb-6">
                 <div className="w-full max-w-4xl mx-auto">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        {MainStore.isMetadata && MainStore.metadata !== null && Object.keys(nregaDetails.NameDisplayMapping).map((key, index) => {
-                            const rawValue = MainStore.metadata[key];
-                            const formattedValue = (() => {
-                                let value = rawValue;
+                        {MainStore.isMetadata &&
+                            MainStore.metadata !== null &&
+                            Object.keys(nregaDetails.NameDisplayMapping).map(
+                                (key, index) => {
+                                    const rawValue = MainStore.metadata[key];
+                                    const formattedValue = (() => {
+                                        let value = rawValue;
 
-                                // Only try to repair strings that look corrupted
-                                if (typeof value === 'string' && looksBroken(value)) {
-                                    value = fixMojibake(value);
-                                }
+                                        // Only try to repair strings that look corrupted
+                                        if (
+                                            typeof value === "string" &&
+                                            looksBroken(value)
+                                        ) {
+                                            value = fixMojibake(value);
+                                        }
 
-                                // Keep your existing ₹ formatting
-                                return (key === 'Material' || key === 'Total_Expe') ? `₹${value}` : value;
-                            })();
-                            return (
-                            <div
-                                key={key}
-                                className={`flex items-center min-h-[3rem] ${
-                                    index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                            >
-                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                        {nregaDetails.NameDisplayMapping[key]}
-                                    </span>
-                                </div>
-                                <div className="flex-1 px-4 py-3">
-                                    <span className="text-sm text-gray-800 font-medium">
-                                        {formattedValue}
-                                    </span>
-                                </div>
-                            </div>
-                            );
-                        })}
+                                        // Keep your existing ₹ formatting
+                                        return key === "Material" ||
+                                            key === "Total_Expe"
+                                            ? `₹${value}`
+                                            : value;
+                                    })();
+                                    return (
+                                        <div
+                                            key={key}
+                                            className={`flex items-center min-h-[3rem] ${
+                                                index % 2 === 0
+                                                    ? "bg-gray-50"
+                                                    : "bg-white"
+                                            } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                                        >
+                                            <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                                <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                                    {
+                                                        nregaDetails
+                                                            .NameDisplayMapping[
+                                                            key
+                                                        ]
+                                                    }
+                                                </span>
+                                            </div>
+                                            <div className="flex-1 px-4 py-3">
+                                                <span className="text-sm text-gray-800 font-medium">
+                                                    {formattedValue}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                },
+                            )}
                     </div>
                 </div>
             </div>
         </>
-    )
+    );
 
     const resourceBody = (
-        <>
+    <>
         <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
             {t("Resource Info")}
         </div>
@@ -427,247 +476,302 @@ const Bottomsheet = () => {
         <div className="pt-8 px-4 pb-6">
             <div className="w-full max-w-4xl mx-auto">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    {MainStore.isResource && MainStore.selectedResource !== null &&
-                        Object.keys(resourceDetails[MainStore.resourceType]).flatMap((key, index) => {
-                        let rawValue = MainStore.selectedResource[key];
-                        console.log(key)
-                        if (rawValue && (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi")) {
-                            const jsonReady = rawValue.replace(/'/g, '"').replace(/\bNone\b/g, 'null');
-                            const data = (new Function(`return (${jsonReady})`))();
+                    {MainStore.isResource && 
+                     MainStore.selectedResource !== null && 
+                     Object.keys(resourceDetails[MainStore.resourceType])
+                        .flatMap((key, index) => {
+                            const label = resourceDetails[MainStore.resourceType][key];
+                            let rawValue = MainStore.selectedResource[key];
 
-                            return Object.keys(data).map((innerKey, innerIndex) => (
-                            <div
-                                key={innerKey}
-                                className={`flex items-center min-h-[3rem] ${
-                                    (index + innerIndex) % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                            >
-                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                        {ResourceMetaKeys[innerKey]}
-                                    </span>
-                                </div>
-                                <div className="flex-1 px-4 py-3">
-                                    <span className="text-sm text-gray-800 font-medium">
-                                        {data[innerKey] ?? "—"}
-                                    </span>
-                                </div>
-                            </div>
-                            ));
-                        }
-                        else if(rawValue && (key === "MNREGA_INF" || key === "Well_usage")){
-
-                            const keys = ["NREGA_applied", "NREGA_have_job_card", "select_one_Functional_Non_functional", "select_one_well_used", 
-                                "select_one_change_water_quality", "select_one_water_structure_near_you"];
-                            const extracted = {};
-
-                            for (const key of keys) {
-                                //  String.raw lets us write \s, \n, etc. without escaping the \
-                                const pattern = new RegExp(
-                                    String.raw`['"]${key}['"]\s*:\s*([^,}\n\r]+)`,
-                                    "i"
-                                );
-
-                                const match = rawValue.match(pattern);
-                                if (!match) continue;
-
-                                let value = match[1].trim();
-                                if (value === "None") {
-                                    value = null;
-                                } else if (/^['"]/.test(value)) {
-                                    value = value.replace(/^['"]|['"]$/g, "");
-                                } else if (/^\d+(\.\d+)?$/.test(value)) {
-                                    value = Number(value);
-                                }
-                                extracted[key] = value;
+                            // **Exclude if value doesn't exist in the object**
+                            if (rawValue === null || rawValue === undefined || rawValue === "") {
+                                return []; // Skip this field
                             }
 
-                            // --- 2.  display them --------------------------------------------------------
-                            return Object.keys(extracted).map((item, idx) => {
-                                <div
-                                    key={item}
-                                    className={`flex items-center min-h-[3rem] ${
-                                    idx % 2 === 0 ? "bg-gray-50" : "bg-white"
-                                    } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                                >
-                                    <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                        <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                            {ResourceMetaKeys[item]}
-                                        </span>
+                            // Handle nested objects (Livestock_, farmer_fam, Well_condi)
+                            if (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi") {
+                                try {
+                                    const jsonReady = rawValue
+                                        .replace(/'/g, '"')
+                                        .replace(/\bNone\b/g, "null");
+                                    
+                                    const data = new Function(`return (${jsonReady})`)();
+
+                                    return Object.keys(data)
+                                        .filter(innerKey => {
+                                            // **Exclude if nested value doesn't exist**
+                                            const value = data[innerKey];
+                                            return value !== null && value !== undefined && value !== "";
+                                        })
+                                        .map((innerKey, innerIndex) => (
+                                            <div
+                                                key={innerKey}
+                                                className={`flex items-center min-h-[3rem] ${
+                                                    (index + innerIndex) % 2 === 0
+                                                        ? "bg-gray-50"
+                                                        : "bg-white"
+                                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                                            >
+                                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                                        {ResourceMetaKeys[innerKey]}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1 px-4 py-3">
+                                                    <span className="text-sm text-gray-800 font-medium">
+                                                        {data[innerKey]}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ));
+                                } catch (error) {
+                                    console.error(`Error parsing ${key}:`, error);
+                                    return [];
+                                }
+                            } 
+                            
+                            // Handle MNREGA_INF and Well_usage
+                            else if (key === "MNREGA_INF" || key === "Well_usage") {
+                                const searchKeys = [
+                                    "NREGA_applied",
+                                    "NREGA_have_job_card",
+                                    "select_one_Functional_Non_functional",
+                                    "select_one_well_used",
+                                    "select_one_change_water_quality",
+                                    "select_one_water_structure_near_you",
+                                ];
+                                const extracted = {};
+
+                                for (const searchKey of searchKeys) {
+                                    const pattern = new RegExp(
+                                        String.raw`['"]${searchKey}['"]\s*:\s*([^,}\n\r]+)`,
+                                        "i",
+                                    );
+
+                                    const match = rawValue.match(pattern);
+                                    if (!match) continue;
+
+                                    let value = match[1].trim();
+                                    if (value === "None") {
+                                        value = null;
+                                    } else if (/^['"]/.test(value)) {
+                                        value = value.replace(/^['"]|['"]$/g, "");
+                                    } else if (/^\d+(\.\d+)?$/.test(value)) {
+                                        value = Number(value);
+                                    }
+                                    
+                                    // **Only add if value exists**
+                                    if (value !== null && value !== undefined && value !== "") {
+                                        extracted[searchKey] = value;
+                                    }
+                                }
+
+                                // **Return empty array if nothing was extracted**
+                                if (Object.keys(extracted).length === 0) {
+                                    return [];
+                                }
+
+                                return Object.keys(extracted).map((item, idx) => (
+                                    <div
+                                        key={item}
+                                        className={`flex items-center min-h-[3rem] ${
+                                            idx % 2 === 0 ? "bg-gray-50" : "bg-white"
+                                        } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                                    >
+                                        <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
+                                            <span className="text-sm font-semibold text-gray-700 tracking-wide">
+                                                {ResourceMetaKeys[item]}
+                                            </span>
+                                        </div>
+                                        <div className="flex-1 px-4 py-3">
+                                            <span className="text-sm text-gray-800 font-medium">
+                                                {extracted[item]}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="flex-1 px-4 py-3">
-                                        <span className="text-sm text-gray-800 font-medium">
-                                            {extracted[item] ?? "—"}
-                                        </span>
-                                    </div>
-                                </div>
-                            });
-                        }
-                        if(rawValue !== null){
+                                ));
+                            }
+                            
+                            // Handle regular key-value pairs
                             return (
                                 <div
                                     key={key}
                                     className={`flex items-center min-h-[3rem] ${
-                                        index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
                                     } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
                                 >
                                     <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
                                         <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                            {resourceDetails[MainStore.resourceType][key]}
+                                            {label}
                                         </span>
                                     </div>
                                     <div className="flex-1 px-4 py-3">
                                         <span className="text-sm text-gray-800 font-medium">
-                                        {rawValue || "—"}
+                                            {rawValue}
                                         </span>
                                     </div>
                                 </div>
-                                );
-                            }
+                            );
                         })}
                 </div>
             </div>
         </div>
-        </>
-
-    )
+    </>
+);
 
     const LayerStoreBody = (
         <>
-        <div className="sticky top-12 z-10 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
-            <div className="text-xl font-bold text-gray-800">Layers Store</div>
-            <div className="text-sm text-gray-600 font-normal mt-1">
-                {MainStore.currentScreen === 'Groundwater' ? 'Groundwater Layers' : 'Agriculture Layers'}
+            <div className="sticky top-12 z-10 bg-white text-center text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-3 mb-5">
+                <div className="text-xl font-bold text-gray-800">
+                    Layers Store
+                </div>
+                <div className="text-sm text-gray-600 font-normal mt-1">
+                    {MainStore.currentScreen === "Groundwater"
+                        ? "Groundwater Layers"
+                        : "Agriculture Layers"}
+                </div>
             </div>
-        </div>
-        
-        {MainStore.currentScreen === 'Groundwater' && <div className="grid grid-cols-2 gap-4 p-1">
-            {LayerStoreKeysGW.map((key) => (
-            <button
-                key={key}
-                onClick={() => {
-                    LayerStore[layerStoreFuncMapping[key]](!LayerStore[key])
-                    MainStore.setLayerClicked(key)
-                }}
-                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
-                ${LayerStore[key]
-                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+
+            {MainStore.currentScreen === "Groundwater" && (
+                <div className="grid grid-cols-2 gap-4 p-1">
+                    {LayerStoreKeysGW.map((key) => (
+                        <button
+                            key={key}
+                            onClick={() => {
+                                LayerStore[layerStoreFuncMapping[key]](
+                                    !LayerStore[key],
+                                );
+                                MainStore.setLayerClicked(key);
+                            }}
+                            className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
+                ${
+                    LayerStore[key]
+                        ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
                 }
                 `}
-            >
-                <div className="flex items-center justify-center space-x-2">
-                    {LayerStore[key] && (
-                        <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    )}
-                    <span className="text-center leading-tight">
-                        {layerStoreNameMapping[key]}
-                    </span>
+                        >
+                            <div className="flex items-center justify-center space-x-2">
+                                {LayerStore[key] && (
+                                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                                )}
+                                <span className="text-center leading-tight">
+                                    {layerStoreNameMapping[key]}
+                                </span>
+                            </div>
+                        </button>
+                    ))}
                 </div>
-            </button>
-            ))}
-        </div>}
-    
-        {MainStore.currentScreen === 'Agriculture' && <div className="grid grid-cols-2 gap-4 p-1">
-            {LayerStoreKeysAgri.map((key) => (
-            <button
-                key={key}
-                onClick={() => {
-                    LayerStore[layerStoreFuncMapping[key]](!LayerStore[key])
-                    MainStore.setLayerClicked(key)
-                    console.log("IN BOTTOM SHEET")
-                }}
-                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
-                ${LayerStore[key]
-                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+            )}
+
+            {MainStore.currentScreen === "Agriculture" && (
+                <div className="grid grid-cols-2 gap-4 p-1">
+                    {LayerStoreKeysAgri.map((key) => (
+                        <button
+                            key={key}
+                            onClick={() => {
+                                LayerStore[layerStoreFuncMapping[key]](
+                                    !LayerStore[key],
+                                );
+                                MainStore.setLayerClicked(key);
+                                console.log("IN BOTTOM SHEET");
+                            }}
+                            className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md
+                ${
+                    LayerStore[key]
+                        ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
                 }
                 `}
-            >
-                <div className="flex items-center justify-center space-x-2">
-                    {LayerStore[key] && (
-                        <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    )}
-                    <span className="text-center leading-tight">
-                        {layerStoreNameMapping[key]}
-                    </span>
+                        >
+                            <div className="flex items-center justify-center space-x-2">
+                                {LayerStore[key] && (
+                                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                                )}
+                                <span className="text-center leading-tight">
+                                    {layerStoreNameMapping[key]}
+                                </span>
+                            </div>
+                        </button>
+                    ))}
                 </div>
-            </button>
-            ))}
-        </div>}
-    
+            )}
         </>
-    )
+    );
 
     const onDismiss = () => {
+        MainStore.setIsForm(false);
 
-        MainStore.setIsForm(false)
+        MainStore.setNregaSheet(false);
 
-        MainStore.setNregaSheet(false)
+        MainStore.setIsMetadata(false);
 
-        MainStore.setIsMetadata(false)
+        MainStore.setIsResource(false);
 
-        MainStore.setIsResource(false)
+        MainStore.setIsWaterBody(false);
 
-        MainStore.setIsWaterBody(false)
+        MainStore.setIsGroundWater(false);
 
+        MainStore.setIsAgriculture(false);
 
-        MainStore.setIsGroundWater(false)
+        MainStore.setIsLayerStore(false);
 
-
-        MainStore.setIsAgriculture(false)
-
-        MainStore.setIsLayerStore(false)
-
-        MainStore.setIsResourceOpen(false)
-        MainStore.setIsOpen(false)
-    }
+        MainStore.setIsResourceOpen(false);
+        MainStore.setIsOpen(false);
+        MainStore.setIsSiteAnalysis(false);
+    };
 
     const renderBody = () => {
         switch (true) {
-          case MainStore.isForm && MainStore.formUrl !== "":
-            return (
-              <iframe
-                id="odk-frame"
-                src={MainStore.formUrl}
-                style={{ width: "100vw", height: "100vh" }}
-                onLoad={handleOnLoadEvent}
-              />
-            );
-    
-          case MainStore.isNregaSheet:
-            return nregaBody;
-    
-          case MainStore.isMetadata && MainStore.metadata !== null:
-            return metaDataBody;
-    
-          case MainStore.isResource && MainStore.selectedResource !== null:
-            return resourceBody;
-    
-          case MainStore.isWaterbody:
-            return <SurfaceWaterBodies />;
-    
-          case MainStore.isGroundWater:
-            return <GroundwaterAnalyze />;
-    
-          case MainStore.isAgriculture && MainStore.currentStep === 0:
-            return <AgricultureAnalyze />;
-            
-          case MainStore.isLayerStore:
-            return LayerStoreBody
+            case MainStore.isForm && MainStore.formUrl !== "":
+                return (
+                    <iframe
+                        id="odk-frame"
+                        src={MainStore.formUrl}
+                        style={{ width: "100vw", height: "100vh" }}
+                        onLoad={handleOnLoadEvent}
+                    />
+                );
 
-          default:
-            return null;
+            case MainStore.isNregaSheet:
+                return nregaBody;
+
+            case MainStore.isMetadata && MainStore.metadata !== null:
+                return metaDataBody;
+
+            case MainStore.isResource && MainStore.selectedResource !== null:
+                return resourceBody;
+
+            case MainStore.isWaterbody:
+                return <SurfaceWaterBodies />;
+
+            case MainStore.isGroundWater:
+                return <GroundwaterAnalyze />;
+
+            case MainStore.isAgriculture && MainStore.currentStep === 0:
+                return <AgricultureAnalyze />;
+
+            case MainStore.isLayerStore:
+                return LayerStoreBody;
+
+            case MainStore.isSiteAnalysis:
+                return <SiteAnalysis />;
+
+            default:
+                return null;
         }
     };
-    
 
     return (
         <BottomSheet
-        open={MainStore.isOpen || (MainStore.isResourceOpen && MainStore.currentScreen === "HomeScreen")}
-        onDismiss={onDismiss}
-        snapPoints={({ maxHeight }) =>
-          MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
+            open={
+                MainStore.isOpen ||
+                (MainStore.isResourceOpen &&
+                    MainStore.currentScreen === "HomeScreen")
+            }
+            onDismiss={onDismiss}
+            snapPoints={({ maxHeight }) =>
+                MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
             }
         >
             {/* Conditional header buttons based on content type */}
@@ -675,8 +779,8 @@ const Bottomsheet = () => {
                 <>
                     {/* Cancel button for NREGA sheet */}
                     <button
-                    onClick={onDismiss}
-                    className="
+                        onClick={onDismiss}
+                        className="
                         absolute left-3 top-3 z-10
                         px-4 py-2 rounded-lg
                         bg-gray-100 hover:bg-gray-200
@@ -685,15 +789,15 @@ const Bottomsheet = () => {
                         shadow-sm transition
                         border border-gray-300
                     "
-                    aria-label="Cancel"
+                        aria-label="Cancel"
                     >
-                    {t("Cancel")}
+                        {t("Cancel")}
                     </button>
-                    
+
                     {/* Done button for NREGA sheet */}
                     <button
-                    onClick={onDismiss}
-                    className="
+                        onClick={onDismiss}
+                        className="
                         absolute right-3 top-3 z-10
                         px-4 py-2 rounded-lg
                         bg-blue-600 hover:bg-blue-700
@@ -701,16 +805,16 @@ const Bottomsheet = () => {
                         text-sm font-medium
                         shadow-sm transition
                     "
-                    aria-label="Done"
+                        aria-label="Done"
                     >
-                    {t("Done")}
+                        {t("Done")}
                     </button>
                 </>
             ) : (
                 /* Cancel button for other sheets */
                 <button
-                onClick={onDismiss}
-                className="
+                    onClick={onDismiss}
+                    className="
                     absolute left-3 top-3 z-10
                     px-4 py-2 rounded-lg
                     bg-gray-100 hover:bg-gray-200
@@ -719,16 +823,14 @@ const Bottomsheet = () => {
                     shadow-sm transition
                     border border-gray-300
                 "
-                aria-label="Cancel"
+                    aria-label="Cancel"
                 >
-                {t("Cancel")}
+                    {t("Cancel")}
                 </button>
             )}
-            <div className="pt-6">
-            {renderBody()}
-            </div>
+            <div className="pt-6">{renderBody()}</div>
         </BottomSheet>
-    )
-}
+    );
+};
 
-export default Bottomsheet
+export default Bottomsheet;
