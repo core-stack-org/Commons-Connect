@@ -200,11 +200,11 @@ const SiteAnalysis = () => {
                         <div className="text-sm text-gray-600 leading-relaxed">
                             {currentScreen === "Groundwater" ? (
                                 <p>
-                                    Sites on drainage lines, having a reasonable catchment area but not too large (4 to 40 ha), in higher stream orders (1, 2, 3), and low slope (&lt; 15%) are good for checkdams. Sites in higher slopes and on drainage lines can sustain gully plugs. Sites in lower slopes and off drainage lines are good for contour trenches.
+                                    Sites on drainage lines, having a reasonable catchment area but not too large (4 to 40 ha), in higher stream orders (2, 3), and low slope (&lt; 15%) are good for checkdams. Sites in higher slopes and on drainage lines can sustain gully plugs. Sites in lower slopes and off drainage lines are good for contour trenches.
                                 </p>
                             ) : currentScreen === "Agriculture" ? (
                                 <p>
-                                    Sites close to drainage lines (less than 50m), having a small catchment area (1 to 4 ha), in higher stream orders (1, 2, 3), and low slope (&lt; 5%) are good for farm ponds. Sites on drainage lines can be preferred.
+                                    Sites close to drainage lines (less than 50m), having a small catchment area (1 to 4 ha), in higher stream orders (3, 4), and low slope (&lt; 5%) are good for farm ponds. Sites on drainage lines can be preferred.
                                 </p>
                             ) : (
                                 <p>
