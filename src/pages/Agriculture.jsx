@@ -333,17 +333,17 @@ const Agriculture = () => {
                                             {/* Tick mark */}
                                             <div
                                                 className={`h-0.5 w-3 transition-colors duration-200 ${actualIndex ===
-                                                        MainStore.lulcYearIdx
-                                                        ? "bg-[#592941]"
-                                                        : "bg-gray-400"
+                                                    MainStore.lulcYearIdx
+                                                    ? "bg-[#592941]"
+                                                    : "bg-gray-400"
                                                     }`}
                                             />
                                             {/* Year label with capsule background */}
                                             <span
                                                 className={`text-xs font-bold transition-all duration-200 px-2 py-1 rounded-lg ${actualIndex ===
-                                                        MainStore.lulcYearIdx
-                                                        ? "text-white bg-[#592941]"
-                                                        : "text-white bg-transparent"
+                                                    MainStore.lulcYearIdx
+                                                    ? "text-white bg-[#592941]"
+                                                    : "text-white bg-transparent"
                                                     }`}
                                             >
                                                 {year}
@@ -461,7 +461,7 @@ const Agriculture = () => {
                                         "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
                             >
-                                {t("Microwatershed Analysis")}
+                                {t("Cropping Pattern Analysis")}
                             </button>
                         </div>
 
