@@ -554,9 +554,9 @@ const MapComponent = () => {
         const settlementLayer = await getVectorLayers(
             "resources",
             "settlement_" +
-                currentPlan.plan_id +
-                "_" +
-                `${districtName}_${blockName}`,
+            currentPlan.plan_id +
+            "_" +
+            `${districtName}_${blockName}`,
             true,
             true,
         );
@@ -564,9 +564,9 @@ const MapComponent = () => {
         const wellLayer = await getVectorLayers(
             "resources",
             "well_" +
-                currentPlan.plan_id +
-                "_" +
-                `${districtName}_${blockName}`,
+            currentPlan.plan_id +
+            "_" +
+            `${districtName}_${blockName}`,
             true,
             true,
         );
@@ -574,9 +574,9 @@ const MapComponent = () => {
         const waterStructureLayer = await getVectorLayers(
             "resources",
             "waterbody_" +
-                currentPlan.plan_id +
-                "_" +
-                `${districtName}_${blockName}`,
+            currentPlan.plan_id +
+            "_" +
+            `${districtName}_${blockName}`,
             true,
             true,
         );
@@ -983,9 +983,9 @@ const MapComponent = () => {
 
                 if (
                     feature.geometryChangeKey_.target.flatCoordinates[0] ===
-                        GeolocationRef.current.position_[0] &&
+                    GeolocationRef.current.position_[0] &&
                     feature.geometryChangeKey_.target.flatCoordinates[1] ===
-                        GeolocationRef.current.position_[1]
+                    GeolocationRef.current.position_[1]
                 ) {
                     mapRef.current.removeInteraction(selectSettleIcon);
                 }
@@ -1002,9 +1002,9 @@ const MapComponent = () => {
                 const settlementLayer = await getVectorLayers(
                     "resources",
                     "settlement_" +
-                        currentPlan.plan_id +
-                        "_" +
-                        `${districtName}_${blockName}`,
+                    currentPlan.plan_id +
+                    "_" +
+                    `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1042,9 +1042,9 @@ const MapComponent = () => {
                 const wellLayer = await getVectorLayers(
                     "resources",
                     "well_" +
-                        currentPlan.plan_id +
-                        "_" +
-                        `${districtName}_${blockName}`,
+                    currentPlan.plan_id +
+                    "_" +
+                    `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1094,9 +1094,9 @@ const MapComponent = () => {
                 const waterStructureLayer = await getVectorLayers(
                     "resources",
                     "waterbody_" +
-                        currentPlan.plan_id +
-                        "_" +
-                        `${districtName}_${blockName}`,
+                    currentPlan.plan_id +
+                    "_" +
+                    `${districtName}_${blockName}`,
                     true,
                     true,
                 );
@@ -1109,9 +1109,9 @@ const MapComponent = () => {
                             if (
                                 status.wbs_type === "Trench cum bund network" ||
                                 status.wbs_type ===
-                                    "Water absorption trenches(WAT)" ||
+                                "Water absorption trenches(WAT)" ||
                                 status.wbs_type ===
-                                    "Staggered Contour trenches(SCT)"
+                                "Staggered Contour trenches(SCT)"
                             ) {
                                 return new Style({
                                     image: new Icon({
@@ -1825,7 +1825,7 @@ const MapComponent = () => {
                 }
                 if (AgriLayersRefs[1].current === null) {
                     let DroughtIntensity = await getWebglVectorLayers(
-                        "cropping_drought",
+                        "drought",
                         `${districtName}_${blockName}_drought`,
                         true,
                         true,
