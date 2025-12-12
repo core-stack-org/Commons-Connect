@@ -489,6 +489,38 @@ const InfoBox = () => {
                 </p>
             </>
         ),
+        Agroforestry: (
+            <>
+                <p className="text-gray-700 text-sm mb-4">
+                    {t("info_agroforestry_1")}
+                </p>
+                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                    {t("Site Suitability Legend")}
+                </h3>
+                <div className="mt-2 space-y-2">
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#2E7D32" }}></div>
+                        <span>{t("Very Good")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#66BB6A" }}></div>
+                        <span>{t("Good")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#FDD835" }}></div>
+                        <span>{t("Moderate")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#FF8F00" }}></div>
+                        <span>{t("Marginally Suitable")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#D32F2F" }}></div>
+                        <span>{t("Unsuitable")}</span>
+                    </div>
+                </div>
+            </>
+        ),
     };
 
     const isValidEmail = (email) => {
@@ -576,9 +608,9 @@ const InfoBox = () => {
                                                 )
                                             }
                                             className={`w-full p-4 border-2 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${selectedLanguage ===
-                                                    language.code
-                                                    ? "border-blue-500 bg-blue-50 shadow-md"
-                                                    : "border-gray-200 hover:border-blue-300 hover:bg-white bg-white"
+                                                language.code
+                                                ? "border-blue-500 bg-blue-50 shadow-md"
+                                                : "border-gray-200 hover:border-blue-300 hover:bg-white bg-white"
                                                 }`}
                                         >
                                             <div className="flex items-center space-x-4">
@@ -604,9 +636,9 @@ const InfoBox = () => {
                                                         {/* Selection Indicator */}
                                                         <div
                                                             className={`flex-shrink-0 transition-all duration-200 ${selectedLanguage ===
-                                                                    language.code
-                                                                    ? "opacity-100"
-                                                                    : "opacity-0"
+                                                                language.code
+                                                                ? "opacity-100"
+                                                                : "opacity-0"
                                                                 }`}
                                                         >
                                                             <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
@@ -855,8 +887,8 @@ const InfoBox = () => {
                                                 }
                                                 disabled={!currentPlan}
                                                 className={`w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${!currentPlan
-                                                        ? "bg-gray-100 cursor-not-allowed opacity-60"
-                                                        : ""
+                                                    ? "bg-gray-100 cursor-not-allowed opacity-60"
+                                                    : ""
                                                     }`}
                                             />
                                         </div>

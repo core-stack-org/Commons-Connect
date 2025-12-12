@@ -241,6 +241,9 @@ const MapComponent = () => {
 
     let LivelihoodRefs = [useRef(null)];
 
+    //?                   Site Suitability Raster
+    let AgroforestryRefs = [useRef(null)];
+
     const initializeMap = async () => {
         const baseLayer = new TileLayer({
             source: new XYZ({
@@ -1459,6 +1462,25 @@ const MapComponent = () => {
                 mapRef.current.addLayer(LivelihoodRefs[0].current);
                 tempSettlementLayer.current.setVisible(true);
             }
+        } else if (currentScreen === "Agroforestry") {
+            layerCollection
+                .getArray()
+                .slice()
+                .forEach((layer) => {
+                    if (
+                        layer !== baseLayerRef.current &&
+                        layer !== AdminLayerRef.current
+                    ) {
+                        layerCollection.remove(layer);
+                    }
+                });
+
+            // Add site suitability layer if available
+            if (AgroforestryRefs[0].current !== null) {
+                mapRef.current.addLayer(AgroforestryRefs[0].current);
+            }
+
+            mapRef.current.addLayer(assetsLayerRefs[0].current);
         }
     };
 
@@ -1943,6 +1965,37 @@ const MapComponent = () => {
 
             mapRef.current.addLayer(assetsLayerRefs[0].current);
             mapRef.current.addLayer(LivelihoodRefs[0].current);
+        } else if (currentScreen === "Agroforestry") {
+            layerCollection
+                .getArray()
+                .slice()
+                .forEach((layer) => {
+                    if (
+                        layer !== baseLayerRef.current &&
+                        layer !== AdminLayerRef.current
+                    ) {
+                        layerCollection.remove(layer);
+                    }
+                });
+
+            // Fetch Site Suitability raster layer if not already loaded
+            if (AgroforestryRefs[0].current === null) {
+                const SiteSuitabilityLayer = await getImageLayer(
+                    "plantation",
+                    `${districtName}_${blockName}_site_suitability_raster`,
+                    true,
+                    "site_suitability",
+                );
+                SiteSuitabilityLayer.setOpacity(0.6);
+                AgroforestryRefs[0].current = SiteSuitabilityLayer;
+            }
+
+            // Add site suitability layer first (at bottom)
+            if (AgroforestryRefs[0].current !== null) {
+                mapRef.current.addLayer(AgroforestryRefs[0].current);
+            }
+
+            mapRef.current.addLayer(assetsLayerRefs[0].current);
         }
         setIsLoading(false);
     };
