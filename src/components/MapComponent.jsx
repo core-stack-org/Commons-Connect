@@ -1838,7 +1838,7 @@ const MapComponent = () => {
                 if (LulcLayerRefs[0].current === null) {
                     let lulcLayer = await getImageLayer(
                         "LULC_level_3",
-                        `LULC_17_18_${blockName}_level_3`,
+                        `LULC_17_18_${districtName}_${blockName}_level_3`,
                         true,
                         "",
                     );
