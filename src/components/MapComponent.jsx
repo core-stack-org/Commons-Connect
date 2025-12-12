@@ -1952,7 +1952,7 @@ const MapComponent = () => {
             if (LulcLayerRefs[MainStore.lulcYearIdx].current === null) {
                 let lulcLayer = await getImageLayer(
                     "LULC_level_3",
-                    `LULC_${LulcYears[MainStore.lulcYearIdx]}_${blockName}_level_3`,
+                    `LULC_${LulcYears[MainStore.lulcYearIdx]}_${districtName}_${blockName}_level_3`,
                     true,
                     "",
                 );
