@@ -287,6 +287,27 @@ export default function getOdkUrlForScreen(
             "&d[/data/beneficiary_settlement]=" +
             settlement_name +
             "&d[/data/meta/instanceID]=";
+    } else if (screen === "Agroforestry") {
+        // Agroforestry plantation proposal form
+        odk_url =
+            "https://odk.core-stack.org/-/single/QINFvk8Jc7G8vKp9sBJapIBIeWeDvbO?st=xytFqn$JL$T5HlTEIAKkWc0TwweqVrUfFTsjOF5Tj2mSgB2!Dl08lEdtuQDbzwCC" +
+            "&d[/data/GPS_point/point_mapsappearance]=" +
+            latlong[1].toString() +
+            "%20" +
+            latlong[0].toString() +
+            "&d[/data/block_name]=" +
+            block_name +
+            "&d[/data/plan_id]=" +
+            plan_id +
+            "&d[/data/plan_name]=" +
+            plan_name +
+            "&d[/data/user_latlon]=" +
+            userLatLong[0].toString() +
+            "," +
+            userLatLong[1].toString() +
+            "&d[/data/beneficiary_settlement]=" +
+            settlement_name +
+            "&d[/data/meta/instanceID]=";
     }
 
     return odk_url;

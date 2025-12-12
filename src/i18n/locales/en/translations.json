@@ -63,5 +63,8 @@
     "Good": "Good",
     "Moderate": "Moderate",
     "Marginally Suitable": "Marginally Suitable",
-    "Unsuitable": "Unsuitable"
+    "Unsuitable": "Unsuitable",
+    "Propose Plantation": "Propose Plantation",
+    "Please place a marker first": "Please place a marker first",
+    "Please select a plan first": "Please select a plan first"
 }

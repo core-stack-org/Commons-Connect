@@ -21,8 +21,8 @@ const useMainStore = create((set) => ({
     isGPSClick: false,
     gpsLocation: null,
     layerClicked: null,
-    agriLayerToggle : null,
-    groudwaterLayerToggle : null,
+    agriLayerToggle: null,
+    groudwaterLayerToggle: null,
 
     setDistrictName: (name) => set({ districtName: name }),
     setBlockName: (name) => set({ blockName: name }),
