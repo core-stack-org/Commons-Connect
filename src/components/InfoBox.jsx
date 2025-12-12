@@ -6,8 +6,15 @@ import toast from 'react-hot-toast';
 import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import SquircleLoader from "./SquircleLoader.jsx";
+import { useSearchParams } from "react-router-dom";
+
+
 
 const InfoBox = () => {
+    const [searchParams] = useSearchParams();
+    const districtName = searchParams.get("dist_name");
+    console.log(districtName);
+    const blockID = searchParams.get("block_id");
     const isInfoOpen = useMainStore((state) => state.isInfoOpen);
     const setIsInfoOpen = useMainStore((state) => state.setIsInfoOpen);
     const currentScreen = useMainStore((state) => state.currentScreen);
@@ -414,7 +421,8 @@ const InfoBox = () => {
     
     if (currentMenuOption === 'communities') {
       console.log('🔄 InfoBox - Opening communities menu');
-      fetchCommunities();
+      console.log('from fetch community hit' +districtName)
+      fetchCommunities({ districtName, blockID });
       
       // 🎯 NEW: Auto-select community if we have stored community info from work demand
       console.log('🔄 InfoBox - Checking for stored community info:', {
@@ -470,20 +478,17 @@ const InfoBox = () => {
   }, [selectedCommunityId, selectedItemType, selectedItemState]);
 
 
-  const fetchCommunities = async () => {
+  const fetchCommunities = async ({distName, blockID}) => {
+    console.log('fetch communtiies')
+    console.log(districtName);
+    console.log(blockID);
     setIsCommunitiesLoading(true);
     setCommunityError(null);
     try {
       let url = ""
-      if(blockName === "poreyahat"){
-        url = `${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=20&district_id=64&block_id=741`
-      }
-      else if(blockName === "jamui"){
-        url = `${import.meta.env.VITE_API_URL}get_communities_by_location/?state_id=10&district_id=56&block_id=654`
-      }
-      else{
-        throw new Error("Failed to fetch communities");
-      }
+      url = `${import.meta.env.VITE_API_URL}get_communities_by_location/?district_name=${districtName}&block_id=${blockID}`;
+
+      console.log(url)
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch communities");
       const data = await res.json();
