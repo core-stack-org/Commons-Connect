@@ -158,7 +158,7 @@ const SiteAnalysis = () => {
                                 </td>
                                 <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
                                     {analysisData.catchmentArea !== "N/A"
-                                        ? `${parseFloat(analysisData.catchmentArea).toFixed(2)} m²`
+                                        ? `${parseFloat(analysisData.catchmentArea).toFixed(2)} hectares`
                                         : "Data not available"
                                     }
                                 </td>

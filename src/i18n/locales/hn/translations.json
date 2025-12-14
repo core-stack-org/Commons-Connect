@@ -239,5 +239,15 @@
     "Unsuitable": "अनुपयुक्त",
     "Propose Plantation": "वृक्षारोपण का प्रस्ताव",
     "Please place a marker first": "कृपया पहले मार्कर लगाएं",
-    "Please select a plan first": "कृपया पहले एक योजना चुनें"
+    "Please select a plan first": "कृपया पहले एक योजना चुनें",
+    "Terrain Mask Legend": "भू-भाग मास्क मानक-सूची",
+    "Showing suitable terrain types for plantation": "वृक्षारोपण के लिए उपयुक्त भू-भाग प्रकार दिखा रहे हैं",
+    "U-shape valleys": "U-आकार की घाटियाँ",
+    "Broad Flat Areas": "विस्तृत समतल क्षेत्र",
+    "Broad open slopes": "विस्तृत खुली ढलानें",
+    "Flat tops": "समतल शीर्ष",
+    "Toggle Terrain Mask": "भू-भाग फ़िल्टर टॉगल करें",
+    "Filtered View Active": "फ़िल्टर्ड दृश्य सक्रिय",
+    "Showing site suitability only for favorable terrain types": "केवल अनुकूल भू-भाग (U-आकार की घाटियाँ, विस्तृत समतल क्षेत्र, विस्तृत खुली ढलानें और समतल शीर्ष) के लिए स्थल उपयुक्तता दिखा रहे हैं",
+    "info_agroforestry_1": "यह स्क्रीन भू-भाग और स्थल उपयुक्तता विश्लेषण के आधार पर कृषि वानिकी वृक्षारोपण के लिए उपयुक्त क्षेत्रों की पहचान करने में मदद करती है। अनुकूल भू-भाग स्थितियों वाले क्षेत्रों के लिए स्थल उपयुक्तता देखने हेतु फ़िल्टर बटन का उपयोग करें।"
 }

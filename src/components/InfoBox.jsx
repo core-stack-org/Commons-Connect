@@ -14,6 +14,7 @@ const InfoBox = () => {
     const currentMenuOption = useMainStore((state) => state.menuOption);
     const setMenuOption = useMainStore((state) => state.setMenuOption);
     const layerClicked = useMainStore((state) => state.layerClicked);
+    const isAgroforestryMaskActive = useMainStore((state) => state.isAgroforestryMaskActive);
 
     const { t, i18n } = useTranslation();
     const isHome = currentScreen === "HomeScreen";
@@ -538,14 +539,49 @@ const InfoBox = () => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+            {/* Animation Styles */}
+            <style>
+                {`
+                    @keyframes overlayFadeIn {
+                        from {
+                            opacity: 0;
+                        }
+                        to {
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes modalExpand {
+                        0% {
+                            opacity: 0;
+                            transform: scale(0.7);
+                        }
+                        50% {
+                            transform: scale(1.02);
+                        }
+                        100% {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                    }
+                `}
+            </style>
+
             {/* Overlay */}
             <div
                 className="absolute inset-0 bg-white/10 backdrop-blur-md"
+                style={{
+                    animation: "overlayFadeIn 0.3s ease-out forwards"
+                }}
                 onClick={() => setIsInfoOpen(false)}
             />
 
             {/* Modal */}
-            <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 z-10 pointer-events-auto">
+            <div
+                className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 z-10 pointer-events-auto max-h-[80vh] overflow-y-auto"
+                style={{
+                    animation: "modalExpand 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+                }}
+            >
                 {/* Header */}
                 <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
                     {currentMenuOption

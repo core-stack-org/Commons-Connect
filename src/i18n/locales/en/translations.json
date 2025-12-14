@@ -66,5 +66,15 @@
     "Unsuitable": "Unsuitable",
     "Propose Plantation": "Propose Plantation",
     "Please place a marker first": "Please place a marker first",
-    "Please select a plan first": "Please select a plan first"
+    "Please select a plan first": "Please select a plan first",
+    "Terrain Mask Legend": "Terrain Mask Legend",
+    "Showing suitable terrain types for plantation": "Showing suitable terrain types for plantation",
+    "U-shape valleys": "U-shape valleys",
+    "Broad Flat Areas": "Broad Flat Areas",
+    "Broad open slopes": "Broad open slopes",
+    "Flat tops": "Flat tops",
+    "Toggle Terrain Mask": "Toggle Terrain Filter",
+    "Filtered View Active": "Filtered View Active",
+    "Showing site suitability only for favorable terrain types": "Showing site suitability only for areas with favorable terrain (U-shape valleys, Broad Flat Areas, Broad open slopes, and Flat tops)",
+    "info_agroforestry_1": "This screen helps identify suitable areas for agroforestry plantations based on terrain and site suitability analysis. Use the filter button to show site suitability only for areas with favorable terrain conditions."
 }
