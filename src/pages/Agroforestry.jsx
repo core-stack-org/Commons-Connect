@@ -193,69 +193,7 @@ const Agroforestry = () => {
                             </svg>
                         </button>
 
-                        {/* MASK Button - Toggle Terrain Mask Layer */}
-                        <button
-                            className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-                            style={{
-                                backgroundColor: MainStore.isAgroforestryMaskActive
-                                    ? "#592941"
-                                    : "#D6D5C9",
-                                color: MainStore.isAgroforestryMaskActive
-                                    ? "#FFFFFF"
-                                    : "#592941",
-                                border: "none",
-                                transition:
-                                    "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                            }}
-                            onClick={() =>
-                                MainStore.setIsAgroforestryMaskActive(
-                                    !MainStore.isAgroforestryMaskActive,
-                                )
-                            }
-                            title={t("Toggle Terrain Mask")}
-                        >
-                            <svg
-                                viewBox="0 0 100 100"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                            >
-                                {/* Stacked layers icon representing mask/overlay */}
-                                <ellipse
-                                    cx="50"
-                                    cy="70"
-                                    rx="35"
-                                    ry="15"
-                                    fill={
-                                        MainStore.isAgroforestryMaskActive
-                                            ? "#FFFFFF80"
-                                            : "#59294180"
-                                    }
-                                />
-                                <ellipse
-                                    cx="50"
-                                    cy="55"
-                                    rx="35"
-                                    ry="15"
-                                    fill={
-                                        MainStore.isAgroforestryMaskActive
-                                            ? "#FFFFFFB0"
-                                            : "#592941B0"
-                                    }
-                                />
-                                <ellipse
-                                    cx="50"
-                                    cy="40"
-                                    rx="35"
-                                    ry="15"
-                                    fill={
-                                        MainStore.isAgroforestryMaskActive
-                                            ? "#FFFFFF"
-                                            : "#592941"
-                                    }
-                                />
-                            </svg>
-                        </button>
+
                     </div>
 
                     {/* Plan selector */}

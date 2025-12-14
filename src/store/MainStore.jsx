@@ -204,7 +204,7 @@ const useMainStore = create((set) => ({
     isSiteAnalysis: false,
     siteAnalysisData: null,
     siteAnalysisCoords: null,
-    isAgroforestryMaskActive: false,
+    isAgroforestryMaskActive: true,
 
     setIsOpen: (stat) => set({ isOpen: stat }),
     setIsAgroforestryMaskActive: (stat) => set({ isAgroforestryMaskActive: stat }),

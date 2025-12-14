@@ -2005,8 +2005,13 @@ const MapComponent = () => {
                 mapRef.current.addLayer(AgroforestryRefs[0].current);
             }
 
-            // Reset the mask state when entering the screen
-            MainStore.setIsAgroforestryMaskActive(false);
+            // Add the mask layer on top by default (filters to terrain values 4, 5, 6, 7)
+            if (AgroforestryRefs[1].current !== null) {
+                mapRef.current.addLayer(AgroforestryRefs[1].current);
+            }
+
+            // Set mask state to true (mask is active by default)
+            MainStore.setIsAgroforestryMaskActive(true);
 
             mapRef.current.addLayer(assetsLayerRefs[0].current);
         }
