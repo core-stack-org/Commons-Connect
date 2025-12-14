@@ -21,8 +21,8 @@ const useMainStore = create((set) => ({
     isGPSClick: false,
     gpsLocation: null,
     layerClicked: null,
-    agriLayerToggle : null,
-    groudwaterLayerToggle : null,
+    agriLayerToggle: null,
+    groudwaterLayerToggle: null,
 
     setDistrictName: (name) => set({ districtName: name }),
     setBlockName: (name) => set({ blockName: name }),
@@ -204,8 +204,10 @@ const useMainStore = create((set) => ({
     isSiteAnalysis: false,
     siteAnalysisData: null,
     siteAnalysisCoords: null,
+    isAgroforestryMaskActive: false,
 
     setIsOpen: (stat) => set({ isOpen: stat }),
+    setIsAgroforestryMaskActive: (stat) => set({ isAgroforestryMaskActive: stat }),
     setIsForm: (stat) => set({ isForm: stat }),
     setIsMetadata: (stat) => set({ isMetadata: stat }),
     setIsResource: (stat) => set({ isResource: stat }),

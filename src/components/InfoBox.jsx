@@ -14,6 +14,7 @@ const InfoBox = () => {
     const currentMenuOption = useMainStore((state) => state.menuOption);
     const setMenuOption = useMainStore((state) => state.setMenuOption);
     const layerClicked = useMainStore((state) => state.layerClicked);
+    const isAgroforestryMaskActive = useMainStore((state) => state.isAgroforestryMaskActive);
 
     const { t, i18n } = useTranslation();
     const isHome = currentScreen === "HomeScreen";
@@ -489,6 +490,38 @@ const InfoBox = () => {
                 </p>
             </>
         ),
+        Agroforestry: (
+            <>
+                <p className="text-gray-700 text-sm mb-4">
+                    {t("info_agroforestry_1")}
+                </p>
+                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                    {t("Site Suitability Legend")}
+                </h3>
+                <div className="mt-2 space-y-2">
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#2E7D32" }}></div>
+                        <span>{t("Very Good")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#66BB6A" }}></div>
+                        <span>{t("Good")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#FDD835" }}></div>
+                        <span>{t("Moderate")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#FF8F00" }}></div>
+                        <span>{t("Marginally Suitable")}</span>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#D32F2F" }}></div>
+                        <span>{t("Unsuitable")}</span>
+                    </div>
+                </div>
+            </>
+        ),
     };
 
     const isValidEmail = (email) => {
@@ -505,30 +538,64 @@ const InfoBox = () => {
     if (!isInfoOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none h-dvh">
-    {/* Overlay */}
-    <div
-        className="absolute inset-0 bg-white/10 backdrop-blur-md"
-        onClick={() => setIsInfoOpen(false)}
-    />
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+            {/* Animation Styles */}
+            <style>
+                {`
+                    @keyframes overlayFadeIn {
+                        from {
+                            opacity: 0;
+                        }
+                        to {
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes modalExpand {
+                        0% {
+                            opacity: 0;
+                            transform: scale(0.7);
+                        }
+                        50% {
+                            transform: scale(1.02);
+                        }
+                        100% {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                    }
+                `}
+            </style>
 
-    {/* Modal - Fixed size */}
-    <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 max-h-[85vh] flex flex-col z-10 pointer-events-auto">
-        {/* Header - Fixed */}
-        <div className="p-6 pb-3 flex-shrink-0">
-            <h2 className="text-xl font-bold text-gray-800 mb-0 text-center">
-                {currentMenuOption
-                    ? currentMenuOption === "language"
-                        ? t("Select Language")
-                        : currentMenuOption === "download dpr"
-                            ? t("Generate pre-DPR")
-                            : currentMenuOption === "upload kml"
-                                ? t("Upload KML")
-                                : currentMenuOption === "information"
-                                    ? t("Information")
-                                    : t("Information")
-                    : t("Information")}
-            </h2>
+            {/* Overlay */}
+            <div
+                className="absolute inset-0 bg-white/10 backdrop-blur-md"
+                style={{
+                    animation: "overlayFadeIn 0.3s ease-out forwards"
+                }}
+                onClick={() => setIsInfoOpen(false)}
+            />
+
+            {/* Modal */}
+            <div
+                className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 z-10 pointer-events-auto max-h-[80vh] overflow-y-auto"
+                style={{
+                    animation: "modalExpand 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+                }}
+            >
+                {/* Header */}
+                <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
+                    {currentMenuOption
+                        ? currentMenuOption === "language"
+                            ? t("Select Language")
+                            : currentMenuOption === "download dpr"
+                                ? t("Generate pre-DPR")
+                                : currentMenuOption === "upload kml"
+                                    ? t("Upload KML")
+                                    : currentMenuOption === "information"
+                                        ? t("Information")
+                                        : t("Information")
+                        : t("Information")}
+                </h2>
 
             {/* Close */}
             <button
@@ -556,40 +623,40 @@ const InfoBox = () => {
                                 </p>
                             </div>
 
-                            {/* Language Options - Scrollable */}
-                            <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-3 bg-gray-50">
-                                {[
-                                    {
-                                        code: "en",
-                                        name: "English",
-                                        native: "English",
-                                        flag: "🇺🇸",
-                                    },
-                                    {
-                                        code: "hi",
-                                        name: "Hindi",
-                                        native: "हिन्दी",
-                                        flag: "🇮🇳",
-                                    },
-                                ].map((language) => (
-                                    <button
-                                        key={language.code}
-                                        onClick={() =>
-                                            handleLanguageSelect(
-                                                language.code,
-                                            )
-                                        }
-                                        className={`w-full p-4 border-2 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${selectedLanguage ===
+                                {/* Language Options - Scrollable */}
+                                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-3 bg-gray-50">
+                                    {[
+                                        {
+                                            code: "en",
+                                            name: "English",
+                                            native: "English",
+                                            flag: "🇺🇸",
+                                        },
+                                        {
+                                            code: "hi",
+                                            name: "Hindi",
+                                            native: "हिन्दी",
+                                            flag: "🇮🇳",
+                                        },
+                                    ].map((language) => (
+                                        <button
+                                            key={language.code}
+                                            onClick={() =>
+                                                handleLanguageSelect(
+                                                    language.code,
+                                                )
+                                            }
+                                            className={`w-full p-4 border-2 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${selectedLanguage ===
                                                 language.code
                                                 ? "border-blue-500 bg-blue-50 shadow-md"
                                                 : "border-gray-200 hover:border-blue-300 hover:bg-white bg-white"
-                                            }`}
-                                    >
-                                        <div className="flex items-center space-x-4">
-                                            {/* Flag */}
-                                            <div className="text-2xl flex-shrink-0">
-                                                {language.flag}
-                                            </div>
+                                                }`}
+                                        >
+                                            <div className="flex items-center space-x-4">
+                                                {/* Flag */}
+                                                <div className="text-2xl flex-shrink-0">
+                                                    {language.flag}
+                                                </div>
 
                                             {/* Language Info */}
                                             <div className="flex-1 text-left">
@@ -605,30 +672,31 @@ const InfoBox = () => {
                                                         </p>
                                                     </div>
 
-                                                    {/* Selection Indicator */}
-                                                    <div
-                                                        className={`flex-shrink-0 transition-all duration-200 ${selectedLanguage ===
+                                                        {/* Selection Indicator */}
+                                                        <div
+                                                            className={`flex-shrink-0 transition-all duration-200 ${selectedLanguage ===
                                                                 language.code
                                                                 ? "opacity-100"
                                                                 : "opacity-0"
-                                                            }`}
-                                                    >
-                                                        <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                                                            <svg
-                                                                className="w-3 h-3 text-white"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={
-                                                                        3
-                                                                    }
-                                                                    d="M5 13l4 4L19 7"
-                                                                />
-                                                            </svg>
+                                                                }`}
+                                                        >
+                                                            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                                                                <svg
+                                                                    className="w-3 h-3 text-white"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={
+                                                                            3
+                                                                        }
+                                                                        d="M5 13l4 4L19 7"
+                                                                    />
+                                                                </svg>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -937,13 +1005,61 @@ const InfoBox = () => {
                                         >
                                             <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
                                         </svg>
-                                        <div className="text-sm">
-                                            <p className="font-medium mb-2 text-left">
-                                                {t("What to expect")}:
-                                            </p>
-                                            <ul className="space-y-1 text-left">
-                                                <li>
-                                                    •{" "}
+                                        <p className="text-sm leading-relaxed text-left">
+                                            {t(
+                                                "Enter your email to receive the DPR document.",
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Input Section */}
+                                <div
+                                    className="rounded-2xl p-4 space-y-4"
+                                    style={{ border: "1px solid #592941" }}
+                                >
+                                    <div className="relative">
+                                        <label
+                                            htmlFor="email-input"
+                                            className="block text-sm font-bold text-gray-700 mb-2"
+                                        >
+                                            {t("Enter your email address")}
+                                        </label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg
+                                                    className="h-5 w-5 text-gray-400"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <input
+                                                id="email-input"
+                                                type="email"
+                                                placeholder="your.email@example.com"
+                                                value={email}
+                                                onChange={(e) =>
+                                                    setEmail(e.target.value)
+                                                }
+                                                disabled={!currentPlan}
+                                                className={`w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${!currentPlan
+                                                    ? "bg-gray-100 cursor-not-allowed opacity-60"
+                                                    : ""
+                                                    }`}
+                                            />
+                                        </div>
+                                        {email &&
+                                            !isValidEmail(email) &&
+                                            currentPlan && (
+                                                <p className="mt-1 text-sm text-red-600">
                                                     {t(
                                                         "Document will be sent to your email",
                                                     )}

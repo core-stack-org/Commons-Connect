@@ -117,6 +117,9 @@ const Homepage = () => {
         } else if (section === "Livelihood") {
             MainStore.setCurrentScreen("Livelihood");
             navigate("/livelihood");
+        } else if (section === "Agroforestry") {
+            MainStore.setCurrentScreen("Agroforestry");
+            navigate("/agroforestry");
         }
     };
 
@@ -159,13 +162,13 @@ const Homepage = () => {
                     >
                         {MainStore.blockName
                             ? MainStore.blockName
-                                  .split("_")
-                                  .map(
-                                      (w) =>
-                                          w.charAt(0).toUpperCase() +
-                                          w.slice(1),
-                                  )
-                                  .join(" ")
+                                .split("_")
+                                .map(
+                                    (w) =>
+                                        w.charAt(0).toUpperCase() +
+                                        w.slice(1),
+                                )
+                                .join(" ")
                             : "Homepage"}
                     </div>
                 </div>
@@ -407,6 +410,7 @@ const Homepage = () => {
                                     "Surface Waterbodies",
                                     "Agriculture",
                                     "Livelihood",
+                                    "Agroforestry",
                                 ].map((item) => (
                                     <button
                                         key={item}
