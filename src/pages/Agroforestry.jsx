@@ -217,6 +217,43 @@ const Agroforestry = () => {
             {/* Bottom Controls */}
             <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
                 <div className="flex flex-col items-center justify-center w-full gap-3">
+                    {/* Suitability Score Button */}
+                    <div className="flex items-center justify-center w-full">
+                        <button
+                            className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                            onClick={() => {
+                                if (!MainStore.markerCoords) {
+                                    toast.error(t("Please place a marker first"));
+                                    return;
+                                }
+                                // Set the coordinates from marker and open bottom sheet
+                                MainStore.setSiteSuitabilityPixelCoords(MainStore.markerCoords);
+                                MainStore.setIsSiteSuitabilityPopupOpen(true);
+                            }}
+                            disabled={!MainStore.isMarkerPlaced}
+                            style={{
+                                backgroundColor: !MainStore.isMarkerPlaced
+                                    ? "#696969"
+                                    : "#2E7D32",
+                                color: !MainStore.isMarkerPlaced
+                                    ? "#A8A8A8"
+                                    : "#FFFFFF",
+                                border: "none",
+                                borderRadius: "22px",
+                                height: "44px",
+                                width: "350px",
+                                cursor: !MainStore.isMarkerPlaced
+                                    ? "not-allowed"
+                                    : "pointer",
+                                transition:
+                                    "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                            }}
+                        >
+                            {t("Suitability Score")}
+                        </button>
+                    </div>
+
                     {/* Propose Plantation Button */}
                     <div className="flex items-center justify-center w-full">
                         <button
