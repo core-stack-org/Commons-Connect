@@ -172,7 +172,7 @@ const InfoBox = () => {
                 </h3>
                 <p>{t("info_gw_3")}</p>
 
-                {currentStep === 1 ? (
+                {(currentStep === 1 || currentStep === 2) ? (
                     <>
                         {layerClicked === "CLARTLayer" ? (
                             <>
@@ -259,6 +259,94 @@ const InfoBox = () => {
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#ffffff", opacity: 0.7 }}></div>
                                         <span>Background</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : layerClicked === "StreamOrderLayer" ? (
+                            <>
+                                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                                    Stream Order Legend
+                                </h3>
+                                <div className="mt-2 space-y-2">
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#f7fbff" }}></div>
+                                        <span>1</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#e4eff9" }}></div>
+                                        <span>2</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#d1e2f3" }}></div>
+                                        <span>3</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#bad6eb" }}></div>
+                                        <span>4</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#9ac8e0" }}></div>
+                                        <span>5</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#73b2d8" }}></div>
+                                        <span>6</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#529dcc" }}></div>
+                                        <span>7</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#3585bf" }}></div>
+                                        <span>8</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#1d6cb1" }}></div>
+                                        <span>9</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#08519c" }}></div>
+                                        <span>10</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#08306b" }}></div>
+                                        <span>11</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : layerClicked === "NaturalDepressionLayer" ? (
+                            <>
+                                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                                    Natural Depression Legend
+                                </h3>
+                                <div className="mt-2 space-y-2">
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#ffffcc" }}></div>
+                                        <span>≤ 1</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#a1dab4" }}></div>
+                                        <span>1 - 3</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#2c7fb8" }}></div>
+                                        <span>3 - 5</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#253494" }}></div>
+                                        <span>5 - 10</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#2e004f" }}></div>
+                                        <span>10 - 20</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#67001f" }}></div>
+                                        <span>20 - 50</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#990000" }}></div>
+                                        <span>&gt; 50</span>
                                     </div>
                                 </div>
                             </>

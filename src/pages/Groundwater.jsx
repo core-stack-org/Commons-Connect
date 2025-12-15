@@ -149,7 +149,9 @@ const Groundwater = () => {
 
     const handleSiteLayerChange = (layerName) => {
         setSelectedSiteLayer(layerName);
-        MainStore.setGroudwaterLayerToggle(layerName)
+        MainStore.setGroudwaterLayerToggle(layerName);
+        // Update layerClicked for InfoBox to show correct legend
+        MainStore.setLayerClicked(layerName === "StreamOrder" ? "StreamOrderLayer" : "NaturalDepressionLayer");
     };
 
     const getPlanLabel = () => {
@@ -654,7 +656,10 @@ const Groundwater = () => {
                             {/* Plan for a new structure Button */}
                             <button
                                 className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => MainStore.setCurrentStep(2)}
+                                onClick={() => {
+                                    MainStore.setCurrentStep(2);
+                                    MainStore.setLayerClicked("StreamOrderLayer");
+                                }}
                                 disabled={MainStore.isFeatureClicked}
                                 style={{
                                     backgroundColor: MainStore.isFeatureClicked

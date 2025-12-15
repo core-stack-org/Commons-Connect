@@ -23,7 +23,7 @@ const extractYearsFromKeys = (obj, pattern) => {
     if (!obj) return [];
     const regex = new RegExp(pattern);
     const years = new Set();
-    
+
     Object.keys(obj).forEach((key) => {
         const match = key.match(regex);
         if (match && match[1]) {
@@ -33,7 +33,7 @@ const extractYearsFromKeys = (obj, pattern) => {
             }
         }
     });
-    
+
     return Array.from(years).sort((a, b) => a - b);
 };
 
@@ -41,7 +41,7 @@ const extractYearsFromKeys = (obj, pattern) => {
 const findTotalCropableAreaKey = (obj) => {
     if (!obj) return null;
     const keys = Object.keys(obj);
-    const matchingKey = keys.find((key) => 
+    const matchingKey = keys.find((key) =>
         key.startsWith("total_cropable_area_ever_hydroyear_")
     );
     return matchingKey || null;
@@ -93,7 +93,7 @@ const AgricultureAnalyze = () => {
 
         // Check if drought data exists for this year
         const hasDroughtData = droughtYears.includes(year);
-        
+
         let mildCount = 0;
         let moderateCount = 0;
         let severeCount = 0;
@@ -288,11 +288,11 @@ const AgricultureAnalyze = () => {
     // Line chart effect - use all available cropping years
     useEffect(() => {
         if (!lineChartRef.current || croppingYears.length === 0) return;
-        
+
         const dataPoints = croppingYears.map(
             (year) => selectedResource[`cropping_intensity_${year}`] || 0,
         );
-        
+
         const data = {
             labels: croppingYears.map(String),
             datasets: [
@@ -311,7 +311,7 @@ const AgricultureAnalyze = () => {
                 },
             ],
         };
-        
+
         const ctx3 = lineChartRef.current.getContext("2d");
         if (lineChartInstanceRef.current) {
             lineChartInstanceRef.current.data = data;
@@ -359,7 +359,7 @@ const AgricultureAnalyze = () => {
     };
 
     // Dynamic year range for the trend chart title
-    const trendYearRange = croppingYears.length > 0 
+    const trendYearRange = croppingYears.length > 0
         ? `${croppingYears[0]}-${croppingYears[croppingYears.length - 1]}`
         : "2017-2022";
 
@@ -422,35 +422,44 @@ const AgricultureAnalyze = () => {
                 </section>
 
                 {/* year slider */}
-                <div className="w-3/4 max-w-lg mx-auto pt-4 pb-8">
+                <div className="w-full max-w-md mx-auto pt-4 pb-8 px-4">
+                    {/* Currently selected year - prominent display */}
+                    <div className="text-center mb-4">
+                        <span className="text-2xl font-bold text-[#0f766e]">{year}</span>
+                    </div>
+
                     {/* Year marks above slider */}
                     <div className="relative mb-2">
                         <div className="flex justify-between relative">
-                            {YEARS.map((year, index) => (
-                                <div
-                                    key={year}
-                                    className="flex flex-col items-center relative"
-                                >
-                                    {/* Tick mark */}
+                            {YEARS.map((y, index) => {
+                                // Show label only for first, last, and selected year
+                                const showLabel = index === 0 || index === YEARS.length - 1 || index === idx;
+                                return (
                                     <div
-                                        className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
-                                            index === idx
-                                                ? "bg-[#0f766e]"
-                                                : "bg-gray-400"
-                                        }`}
-                                    />
-                                    {/* Year label */}
-                                    <span
-                                        className={`text-sm font-bold transition-colors duration-200 ${
-                                            index === idx
-                                                ? "text-[#0f766e]"
-                                                : "text-gray-600"
-                                        }`}
+                                        key={y}
+                                        className="flex flex-col items-center relative flex-1"
                                     >
-                                        {year}
-                                    </span>
-                                </div>
-                            ))}
+                                        {/* Tick mark */}
+                                        <div
+                                            className={`w-0.5 transition-all duration-200 ${index === idx
+                                                    ? "h-4 bg-[#0f766e]"
+                                                    : "h-2 bg-gray-400"
+                                                }`}
+                                        />
+                                        {/* Year label - abbreviated */}
+                                        {showLabel && (
+                                            <span
+                                                className={`text-xs font-medium mt-1 transition-colors duration-200 ${index === idx
+                                                        ? "text-[#0f766e] font-bold"
+                                                        : "text-gray-500"
+                                                    }`}
+                                            >
+                                                '{String(y).slice(-2)}
+                                            </span>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
