@@ -206,6 +206,12 @@ const useMainStore = create((set) => ({
     siteAnalysisCoords: null,
     isAgroforestryMaskActive: true,
 
+    // Site Suitability Pixel Info - for showing band values on tap
+    siteSuitabilityPixelData: null,
+    siteSuitabilityPixelCoords: null,
+    isSiteSuitabilityPopupOpen: false,
+    isSiteSuitabilityLoading: false,
+
     setIsOpen: (stat) => set({ isOpen: stat }),
     setIsAgroforestryMaskActive: (stat) => set({ isAgroforestryMaskActive: stat }),
     setIsForm: (stat) => set({ isForm: stat }),
@@ -222,6 +228,12 @@ const useMainStore = create((set) => ({
     setIsSiteAnalysis: (stat) => set({ isSiteAnalysis: stat }),
     setSiteAnalysisData: (stat) => set({ siteAnalysisData: stat }),
     setSiteAnalysisCoords: (stat) => set({ siteAnalysisCoords: stat }),
+
+    // Site Suitability Pixel Info setters
+    setSiteSuitabilityPixelData: (stat) => set({ siteSuitabilityPixelData: stat }),
+    setSiteSuitabilityPixelCoords: (stat) => set({ siteSuitabilityPixelCoords: stat }),
+    setIsSiteSuitabilityPopupOpen: (stat) => set({ isSiteSuitabilityPopupOpen: stat }),
+    setIsSiteSuitabilityLoading: (stat) => set({ isSiteSuitabilityLoading: stat }),
 }));
 
 export default useMainStore;
