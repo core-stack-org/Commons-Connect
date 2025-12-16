@@ -94,14 +94,13 @@ const SiteSuitabilityAnalysis = () => {
         );
     }
 
-    // Define the order of bands for display
+    // Define the order of bands for display (excluding Constant)
     const bandOrder = [
         "Climate",
         "Soil",
         "Socioeconomic",
         "Ecology",
-        "Topography",
-        "Constant"
+        "Topography"
     ];
 
     return (
@@ -154,7 +153,7 @@ const SiteSuitabilityAnalysis = () => {
                                 </h3>
                                 <p className="text-3xl font-bold mt-1">
                                     {typeof analysisData["Site Suitability Score"] === 'number'
-                                        ? analysisData["Site Suitability Score"].toFixed(2)
+                                        ? Math.round(analysisData["Site Suitability Score"])
                                         : analysisData["Site Suitability Score"]}
                                 </p>
                             </div>
