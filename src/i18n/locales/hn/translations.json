@@ -270,5 +270,7 @@
     "About Site Suitability": "स्थल उपयुक्तता के बारे में",
     "The site suitability score is calculated based on multiple factors including climate conditions, soil quality, socioeconomic factors, ecological considerations, and topography. Higher scores indicate better suitability for agroforestry plantations.": "स्थल उपयुक्तता स्कोर की गणना कई कारकों के आधार पर की जाती है जिसमें जलवायु स्थितियां, मृदा गुणवत्ता, सामाजिक-आर्थिक कारक, पारिस्थितिक विचार और स्थलाकृति शामिल हैं। उच्च स्कोर कृषि वानिकी वृक्षारोपण के लिए बेहतर उपयुक्तता दर्शाते हैं।",
     "Please tap on a different location on the map": "कृपया मानचित्र पर किसी अन्य स्थान पर टैप करें",
-    "Suitability Score": "उपयुक्तता स्कोर"
+    "Suitability Score": "उपयुक्तता स्कोर",
+    "Checking...": "जाँच हो रही है...",
+    "No suitability data at this location": "इस स्थान पर उपयुक्तता डेटा उपलब्ध नहीं है"
 }

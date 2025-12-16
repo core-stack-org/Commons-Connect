@@ -97,5 +97,7 @@
     "About Site Suitability": "About Site Suitability",
     "The site suitability score is calculated based on multiple factors including climate conditions, soil quality, socioeconomic factors, ecological considerations, and topography. Higher scores indicate better suitability for agroforestry plantations.": "The site suitability score is calculated based on multiple factors including climate conditions, soil quality, socioeconomic factors, ecological considerations, and topography. Higher scores indicate better suitability for agroforestry plantations.",
     "Please tap on a different location on the map": "Please tap on a different location on the map",
-    "Suitability Score": "Suitability Score"
+    "Suitability Score": "Suitability Score",
+    "Checking...": "Checking...",
+    "No suitability data at this location": "No suitability data at this location"
 }

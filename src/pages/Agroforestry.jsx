@@ -1,13 +1,79 @@
+import { useState, useEffect } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
+import getSiteSuitabilityBandValues from "../action/getSiteSuitabilityBandValues.js";
+import getRasterValue from "../action/getRasterValue.js";
 
 const Agroforestry = () => {
     const MainStore = useMainStore((state) => state);
     const navigate = useNavigate();
     const { t } = useTranslation();
+
+    // State to track if valid suitability data exists at marker location
+    const [hasSuitabilityData, setHasSuitabilityData] = useState(false);
+    const [isCheckingData, setIsCheckingData] = useState(false);
+
+    // Favorable terrain types: 4 = U-shape valleys, 5 = Broad Flat Areas, 6 = Broad open slopes, 7 = Flat tops
+    const FAVORABLE_TERRAIN_VALUES = [4, 5, 6, 7];
+
+    // Check if valid site suitability data exists when marker is placed
+    useEffect(() => {
+        const checkSuitabilityData = async () => {
+            if (!MainStore.markerCoords || !MainStore.isMarkerPlaced) {
+                setHasSuitabilityData(false);
+                return;
+            }
+
+            setIsCheckingData(true);
+            const [lon, lat] = MainStore.markerCoords;
+            const districtName = MainStore.districtName?.toLowerCase();
+            const blockName = MainStore.blockName?.toLowerCase();
+
+            if (!districtName || !blockName) {
+                setHasSuitabilityData(false);
+                setIsCheckingData(false);
+                return;
+            }
+
+            try {
+                // Check both suitability score and terrain value in parallel
+                const [bandValues, terrainValue] = await Promise.all([
+                    getSiteSuitabilityBandValues(districtName, blockName, lon, lat),
+                    getRasterValue("terrain", `${districtName}_${blockName}_terrain_raster`, lon, lat)
+                ]);
+
+                // Check if terrain is in favorable area (not black/masked)
+                const terrainNum = terrainValue !== null ? Math.round(terrainValue) : null;
+                const isValidTerrain = terrainNum !== null && FAVORABLE_TERRAIN_VALUES.includes(terrainNum);
+
+                // Check if we got valid suitability data with a valid score (1-5)
+                const hasValidScore = bandValues &&
+                    bandValues["Site Suitability Score"] !== undefined &&
+                    Math.round(bandValues["Site Suitability Score"]) >= 1 &&
+                    Math.round(bandValues["Site Suitability Score"]) <= 5;
+
+                // Only enable button if both terrain and suitability are valid
+                setHasSuitabilityData(isValidTerrain && hasValidScore);
+
+                if (!isValidTerrain) {
+                    console.log("Terrain value not in favorable range:", terrainNum);
+                }
+                if (!hasValidScore) {
+                    console.log("Suitability score not valid:", bandValues?.["Site Suitability Score"]);
+                }
+            } catch (error) {
+                console.error("Error checking suitability data:", error);
+                setHasSuitabilityData(false);
+            }
+
+            setIsCheckingData(false);
+        };
+
+        checkSuitabilityData();
+    }, [MainStore.markerCoords, MainStore.isMarkerPlaced, MainStore.districtName, MainStore.blockName]);
 
     const getPlanLabel = () => {
         const plan = MainStore.currentPlan?.plan ?? t("Select Plan");
@@ -226,23 +292,27 @@ const Agroforestry = () => {
                                     toast.error(t("Please place a marker first"));
                                     return;
                                 }
+                                if (!hasSuitabilityData) {
+                                    toast.error(t("No suitability data at this location"));
+                                    return;
+                                }
                                 // Set the coordinates from marker and open bottom sheet
                                 MainStore.setSiteSuitabilityPixelCoords(MainStore.markerCoords);
                                 MainStore.setIsSiteSuitabilityPopupOpen(true);
                             }}
-                            disabled={!MainStore.isMarkerPlaced}
+                            disabled={!MainStore.isMarkerPlaced || !hasSuitabilityData || isCheckingData}
                             style={{
-                                backgroundColor: !MainStore.isMarkerPlaced
+                                backgroundColor: (!MainStore.isMarkerPlaced || !hasSuitabilityData || isCheckingData)
                                     ? "#696969"
                                     : "#2E7D32",
-                                color: !MainStore.isMarkerPlaced
+                                color: (!MainStore.isMarkerPlaced || !hasSuitabilityData || isCheckingData)
                                     ? "#A8A8A8"
                                     : "#FFFFFF",
                                 border: "none",
                                 borderRadius: "22px",
                                 height: "44px",
                                 width: "350px",
-                                cursor: !MainStore.isMarkerPlaced
+                                cursor: (!MainStore.isMarkerPlaced || !hasSuitabilityData || isCheckingData)
                                     ? "not-allowed"
                                     : "pointer",
                                 transition:
@@ -250,7 +320,7 @@ const Agroforestry = () => {
                                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
                             }}
                         >
-                            {t("Suitability Score")}
+                            {isCheckingData ? t("Checking...") : t("Suitability Score")}
                         </button>
                     </div>
 
