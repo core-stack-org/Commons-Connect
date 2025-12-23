@@ -204,7 +204,7 @@ const useMainStore = create((set) => ({
     isSiteAnalysis: false,
     siteAnalysisData: null,
     siteAnalysisCoords: null,
-    isAgroforestryMaskActive: true,
+    isAgrohorticultureMaskActive: true,
 
     // Site Suitability Pixel Info - for showing band values on tap
     siteSuitabilityPixelData: null,
@@ -213,7 +213,7 @@ const useMainStore = create((set) => ({
     isSiteSuitabilityLoading: false,
 
     setIsOpen: (stat) => set({ isOpen: stat }),
-    setIsAgroforestryMaskActive: (stat) => set({ isAgroforestryMaskActive: stat }),
+    setIsAgrohorticultureMaskActive: (stat) => set({ isAgrohorticultureMaskActive: stat }),
     setIsForm: (stat) => set({ isForm: stat }),
     setIsMetadata: (stat) => set({ isMetadata: stat }),
     setIsResource: (stat) => set({ isResource: stat }),

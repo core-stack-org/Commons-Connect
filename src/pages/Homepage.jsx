@@ -117,9 +117,9 @@ const Homepage = () => {
         } else if (section === "Livelihood") {
             MainStore.setCurrentScreen("Livelihood");
             navigate("/livelihood");
-        } else if (section === "Agroforestry") {
-            MainStore.setCurrentScreen("Agroforestry");
-            navigate("/agroforestry");
+        } else if (section === "Agrohorticulture") {
+            MainStore.setCurrentScreen("Agrohorticulture");
+            navigate("/agrohorticulture");
         }
     };
 
@@ -410,7 +410,7 @@ const Homepage = () => {
                                     "Surface Waterbodies",
                                     "Agriculture",
                                     "Livelihood",
-                                    "Agroforestry",
+                                    "Agrohorticulture",
                                 ].map((item) => (
                                     <button
                                         key={item}

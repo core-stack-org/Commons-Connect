@@ -14,7 +14,7 @@ const InfoBox = () => {
     const currentMenuOption = useMainStore((state) => state.menuOption);
     const setMenuOption = useMainStore((state) => state.setMenuOption);
     const layerClicked = useMainStore((state) => state.layerClicked);
-    const isAgroforestryMaskActive = useMainStore((state) => state.isAgroforestryMaskActive);
+    const isAgrohorticultureMaskActive = useMainStore((state) => state.isAgrohorticultureMaskActive);
 
     const { t, i18n } = useTranslation();
     const isHome = currentScreen === "HomeScreen";
@@ -578,10 +578,10 @@ const InfoBox = () => {
                 </p>
             </>
         ),
-        Agroforestry: (
+        Agrohorticulture: (
             <>
                 <p className="text-gray-700 text-sm mb-4">
-                    {t("info_agroforestry_1")}
+                    {t("info_agrohorticulture_1")}
                 </p>
                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
                     {t("Site Suitability Legend")}

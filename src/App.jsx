@@ -17,7 +17,7 @@ import Groundwater from "./pages/Groundwater";
 import SurfaceWaterBodies from "./pages/SurfaceWaterbodies";
 import Agriculture from "./pages/Agriculture";
 import Livelihood from "./pages/Livelihood";
-import Agroforestry from "./pages/Agroforestry";
+import Agrohorticulture from "./pages/Agrohorticulture";
 import InfoBox from "./components/InfoBox";
 
 function App() {
@@ -114,8 +114,8 @@ function App() {
                                     element={<Livelihood />}
                                 />
                                 <Route
-                                    path="/agroforestry"
-                                    element={<Agroforestry />}
+                                    path="/agrohorticulture"
+                                    element={<Agrohorticulture />}
                                 />
                             </Routes>
                         </BrowserRouter>

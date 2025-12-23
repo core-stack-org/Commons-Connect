@@ -7,7 +7,7 @@ import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import getSiteSuitabilityBandValues from "../action/getSiteSuitabilityBandValues.js";
 import getRasterValue from "../action/getRasterValue.js";
 
-const Agroforestry = () => {
+const Agrohorticulture = () => {
     const MainStore = useMainStore((state) => state);
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -155,7 +155,7 @@ const Agroforestry = () => {
             <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        {t("Agroforestry")}
+                        {t("Agrohorticulture")}
                     </div>
                 </div>
             </div>
@@ -320,7 +320,7 @@ const Agroforestry = () => {
                                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
                             }}
                         >
-                            {isCheckingData ? t("Checking...") : t("Suitability Score")}
+                            {isCheckingData ? t("Checking...") : t("Site Suitability")}
                         </button>
                     </div>
 
@@ -380,5 +380,4 @@ const Agroforestry = () => {
     );
 };
 
-export default Agroforestry;
-
+export default Agrohorticulture;

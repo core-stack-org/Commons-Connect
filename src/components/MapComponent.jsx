@@ -243,7 +243,7 @@ const MapComponent = () => {
     let LivelihoodRefs = [useRef(null)];
 
     //?                   Site Suitability Raster, Terrain Mask Layer
-    let AgroforestryRefs = [useRef(null), useRef(null)];
+    let AgrohorticulureRefs = [useRef(null), useRef(null)];
 
     const initializeMap = async () => {
         const baseLayer = new TileLayer({
@@ -1463,7 +1463,7 @@ const MapComponent = () => {
                 mapRef.current.addLayer(LivelihoodRefs[0].current);
                 tempSettlementLayer.current.setVisible(true);
             }
-        } else if (currentScreen === "Agroforestry") {
+        } else if (currentScreen === "Agrohorticulture") {
             layerCollection
                 .getArray()
                 .slice()
@@ -1477,8 +1477,8 @@ const MapComponent = () => {
                 });
 
             // Add site suitability layer if available
-            if (AgroforestryRefs[0].current !== null) {
-                mapRef.current.addLayer(AgroforestryRefs[0].current);
+            if (AgrohorticulureRefs[0].current !== null) {
+                mapRef.current.addLayer(AgrohorticulureRefs[0].current);
             }
 
             mapRef.current.addLayer(assetsLayerRefs[0].current);
@@ -1966,7 +1966,7 @@ const MapComponent = () => {
 
             mapRef.current.addLayer(assetsLayerRefs[0].current);
             mapRef.current.addLayer(LivelihoodRefs[0].current);
-        } else if (currentScreen === "Agroforestry") {
+        } else if (currentScreen === "Agrohorticulture") {
             layerCollection
                 .getArray()
                 .slice()
@@ -1980,7 +1980,7 @@ const MapComponent = () => {
                 });
 
             // Fetch Site Suitability raster layer if not already loaded
-            if (AgroforestryRefs[0].current === null) {
+            if (AgrohorticulureRefs[0].current === null) {
                 const SiteSuitabilityLayer = await getImageLayer(
                     "plantation",
                     `${districtName}_${blockName}_site_suitability_raster`,
@@ -1988,30 +1988,30 @@ const MapComponent = () => {
                     "site_suitability",
                 );
                 SiteSuitabilityLayer.setOpacity(0.6);
-                AgroforestryRefs[0].current = SiteSuitabilityLayer;
+                AgrohorticulureRefs[0].current = SiteSuitabilityLayer;
             }
 
             // Fetch Terrain Cutout Mask layer (darkens areas where terrain is NOT 4, 5, 6, 7)
-            if (AgroforestryRefs[1].current === null) {
+            if (AgrohorticulureRefs[1].current === null) {
                 const MaskedLayer = await getMaskedSiteSuitabilityLayer(
                     districtName,
                     blockName,
                 );
-                AgroforestryRefs[1].current = MaskedLayer;
+                AgrohorticulureRefs[1].current = MaskedLayer;
             }
 
             // Add site suitability layer first (at bottom)
-            if (AgroforestryRefs[0].current !== null) {
-                mapRef.current.addLayer(AgroforestryRefs[0].current);
+            if (AgrohorticulureRefs[0].current !== null) {
+                mapRef.current.addLayer(AgrohorticulureRefs[0].current);
             }
 
             // Add the mask layer on top by default (filters to terrain values 4, 5, 6, 7)
-            if (AgroforestryRefs[1].current !== null) {
-                mapRef.current.addLayer(AgroforestryRefs[1].current);
+            if (AgrohorticulureRefs[1].current !== null) {
+                mapRef.current.addLayer(AgrohorticulureRefs[1].current);
             }
 
             // Set mask state to true (mask is active by default)
-            MainStore.setIsAgroforestryMaskActive(true);
+            MainStore.setIsAgrohorticultureMaskActive(true);
 
             mapRef.current.addLayer(assetsLayerRefs[0].current);
         }
@@ -2291,47 +2291,40 @@ const MapComponent = () => {
         }
     }, [MainStore.isSubmissionSuccess]);
 
-    // Handle Agroforestry Terrain Mask toggle - Add mask overlay on top
+    // Handle Agrohorticulture Terrain Mask toggle - Add mask overlay on top
     useEffect(() => {
-        console.log('Mask toggle effect triggered:', {
-            mapExists: mapRef.current !== null,
+        // Debug logging
+        console.log("Agrohorticulture Mask Effect:", {
             currentScreen,
-            maskLayerExists: AgroforestryRefs[1].current !== null,
-            isActive: MainStore.isAgroforestryMaskActive
+            maskLayerExists: AgrohorticulureRefs[1].current !== null,
+            isActive: MainStore.isAgrohorticultureMaskActive
         });
 
         if (
-            mapRef.current === null ||
-            currentScreen !== "Agroforestry" ||
-            AgroforestryRefs[1].current === null
+            currentScreen !== "Agrohorticulture" ||
+            AgrohorticulureRefs[1].current === null
         ) {
-            console.log('Early return - conditions not met');
             return;
         }
 
-        const layerCollection = mapRef.current.getLayers();
-        const maskLayer = AgroforestryRefs[1].current;
+        // Get the mask layer
+        const maskLayer = AgrohorticulureRefs[1].current;
 
-        console.log('Current layer count:', layerCollection.getLength());
-        console.log('Mask layer in collection:', layerCollection.getArray().includes(maskLayer));
-
-        if (MainStore.isAgroforestryMaskActive) {
-            // Add the mask layer on top to hide non-matching terrain areas
-            if (!layerCollection.getArray().includes(maskLayer)) {
-                console.log('Adding mask layer to map');
+        // Show or hide the mask layer based on the toggle state
+        if (MainStore.isAgrohorticultureMaskActive) {
+            // Add mask layer if not already on map
+            if (!mapRef.current.getLayers().getArray().includes(maskLayer)) {
                 mapRef.current.addLayer(maskLayer);
-                console.log('Layer count after add:', mapRef.current.getLayers().getLength());
-            } else {
-                console.log('Mask layer already in map');
+                console.log("Added Agrohorticulture mask layer");
             }
         } else {
-            // Remove the mask layer
-            if (layerCollection.getArray().includes(maskLayer)) {
-                console.log('Removing mask layer from map');
+            // Remove mask layer if it's on the map
+            if (mapRef.current.getLayers().getArray().includes(maskLayer)) {
                 mapRef.current.removeLayer(maskLayer);
+                console.log("Removed Agrohorticulture mask layer");
             }
         }
-    }, [MainStore.isAgroforestryMaskActive, currentScreen]);
+    }, [MainStore.isAgrohorticultureMaskActive, currentScreen]);
 
     useEffect(() => {
         if (groundwaterRefs[0].current !== null) {
