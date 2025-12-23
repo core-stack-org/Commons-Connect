@@ -149,16 +149,11 @@ const SiteSuitabilityAnalysis = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-medium opacity-90">
-                                    {t("Site Suitability Score")}
+                                    {t("Site Suitability")}
                                 </h3>
-                                <p className="text-3xl font-bold mt-1">
-                                    {typeof analysisData["Site Suitability Score"] === 'number'
-                                        ? Math.round(analysisData["Site Suitability Score"])
-                                        : analysisData["Site Suitability Score"]}
-                                </p>
                             </div>
                             <div className="text-right">
-                                <span className="text-lg font-semibold bg-white/20 px-4 py-2 rounded-full">
+                                <span className="text-2xl font-bold">
                                     {getSuitabilityLabel(analysisData["Site Suitability Score"])}
                                 </span>
                             </div>
@@ -177,10 +172,10 @@ const SiteSuitabilityAnalysis = () => {
                         <thead>
                             <tr className="bg-green-100">
                                 <th className="px-4 py-2.5 text-left font-semibold text-gray-700 border-b border-green-200">
-                                    {t("Parameter")}
+                                    {t("Component")}
                                 </th>
                                 <th className="px-4 py-2.5 text-right font-semibold text-gray-700 border-b border-green-200">
-                                    {t("Value")}
+                                    {t("Suitability")}
                                 </th>
                             </tr>
                         </thead>
@@ -196,10 +191,21 @@ const SiteSuitabilityAnalysis = () => {
                                         <td className="px-4 py-3 text-gray-600 border-b border-green-100">
                                             {t(band)}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
-                                            {typeof analysisData[band] === 'number'
-                                                ? analysisData[band].toFixed(2)
-                                                : analysisData[band]}
+                                        <td className="px-4 py-3 text-right border-b border-green-100">
+                                            {typeof analysisData[band] === 'number' ? (
+                                                <span
+                                                    className="inline-block px-3 py-1 rounded-full text-sm font-semibold text-white"
+                                                    style={{
+                                                        backgroundColor: getSuitabilityColor(analysisData[band])
+                                                    }}
+                                                >
+                                                    {getSuitabilityLabel(analysisData[band])}
+                                                </span>
+                                            ) : (
+                                                <span className="font-medium text-gray-900">
+                                                    {analysisData[band]}
+                                                </span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
@@ -217,7 +223,7 @@ const SiteSuitabilityAnalysis = () => {
                         </div>
                         <div className="text-sm text-gray-600 leading-relaxed">
                             <p>
-                                {t("The site suitability score is calculated based on multiple factors including climate conditions, soil quality, socioeconomic factors, ecological considerations, and topography. Higher scores indicate better suitability for agroforestry plantations.")}
+                                {t("The site suitability score is calculated based on multiple factors including climate conditions, soil quality, socioeconomic factors, ecological considerations, and topography. Higher scores indicate better suitability for agrohorticulture plantations.")}
                             </p>
                         </div>
                     </div>

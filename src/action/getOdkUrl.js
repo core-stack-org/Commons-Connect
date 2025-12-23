@@ -287,8 +287,8 @@ export default function getOdkUrlForScreen(
             "&d[/data/beneficiary_settlement]=" +
             settlement_name +
             "&d[/data/meta/instanceID]=";
-    } else if (screen === "Agroforestry") {
-        // Agroforestry plantation proposal form
+    } else if (screen === "Agrohorticulture") {
+        // Agrohorticulture plantation proposal form
         odk_url =
             "https://odk.core-stack.org/-/single/QINFvk8Jc7G8vKp9sBJapIBIeWeDvbO?st=xytFqn$JL$T5HlTEIAKkWc0TwweqVrUfFTsjOF5Tj2mSgB2!Dl08lEdtuQDbzwCC" +
             "&d[/data/GPS_point/point_mapsappearance]=" +
