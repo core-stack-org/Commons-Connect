@@ -28,7 +28,6 @@ const Groundwater = () => {
     const [selectedSiteLayer, setSelectedSiteLayer] = useState("StreamOrder");
 
     useEffect(() => {
-        MainStore.setMarkerPlaced(false);
         const handleBackButton = () => {
             let BACK = MainStore.currentStep - 1;
 
