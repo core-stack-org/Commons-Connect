@@ -162,15 +162,26 @@ const InfoBox = () => {
         Groundwater: (
             <>
                 <p className="text-gray-700 text-sm">{t("info_gw_1")}</p>
-                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                    {t("Analyze")}
-                </h3>
-                <p>{t("info_gw_2")}</p>
 
-                <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                    {t("Start Planning")}
-                </h3>
-                <p>{t("info_gw_3")}</p>
+                {(currentStep !== 1 && currentStep !== 2) || !layerClicked ? (
+                    <>
+                        <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                            {t("Analyse")}
+                        </h3>
+                        <p>{t("info_gw_2")}</p>
+                    </>
+                ) : null}
+
+                {((currentStep === 1 || currentStep === 2) && !layerClicked) || currentStep === 0 ? (
+                    <>
+                        <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
+                            {t("Start Planning")}
+                        </h3>
+                        <p>{t("info_gw_3")}</p>
+                    </>
+                ) : (
+                    <p>{t("info_gw_3")}</p>
+                )}
 
                 {(currentStep === 1 || currentStep === 2) ? (
                     <>
@@ -213,16 +224,12 @@ const InfoBox = () => {
                                 </h3>
                                 <div className="mt-2 space-y-2">
                                     <div className="flex items-center">
-                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#313695", opacity: 0.7 }}></div>
-                                        <span>V-shape river valleys, Deep narrow canyons</span>
-                                    </div>
-                                    <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4575b4", opacity: 0.7 }}></div>
-                                        <span>Lateral midslope incised drainages, Local valleys in plains</span>
+                                        <span>Incised drainages and low ridges</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#a50026", opacity: 0.7 }}></div>
-                                        <span>Upland incised drainages, Stream headwaters</span>
+                                        <span>Mountain tops and high ridges</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#e0f3f8", opacity: 0.7 }}></div>
@@ -238,7 +245,7 @@ const InfoBox = () => {
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#f46d43", opacity: 0.7 }}></div>
-                                        <span>Mesa tops</span>
+                                        <span>Flat tops</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#d73027", opacity: 0.7 }}></div>
@@ -246,27 +253,26 @@ const InfoBox = () => {
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#91bfdb", opacity: 0.7 }}></div>
-                                        <span>Local ridge/hilltops within broad valleys</span>
+                                        <span>Deep valleys and canyons</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#800000", opacity: 0.7 }}></div>
-                                        <span>Lateral midslope drainage divides, Local ridges in plains</span>
+                                        <span>Incised drainages and low ridges</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4d0000", opacity: 0.7 }}></div>
-                                        <span>Mountain tops, high ridges</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#ffffff", opacity: 0.7 }}></div>
-                                        <span>Background</span>
+                                        <span>Mountain tops and high ridges</span>
                                     </div>
                                 </div>
                             </>
                         ) : layerClicked === "StreamOrderLayer" ? (
                             <>
                                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                                    Stream Order Legend
+                                    {t("Stream Order Legend")}
                                 </h3>
+                                <p className="text-gray-700 text-sm mb-3">
+                                    {t("stream_order_info")}
+                                </p>
                                 <div className="mt-2 space-y-2">
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#f7fbff" }}></div>
@@ -319,34 +325,37 @@ const InfoBox = () => {
                                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
                                     Natural Depression Legend
                                 </h3>
+                                <p className="text-gray-700 text-sm mb-3">
+                                    The natural depressions map shows areas which are at lower elevations than surrounding areas and hence sinks for surface water.
+                                </p>
                                 <div className="mt-2 space-y-2">
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#ffffcc" }}></div>
-                                        <span>≤ 1</span>
+                                        <span>≤ 1 meters</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#a1dab4" }}></div>
-                                        <span>1 - 3</span>
+                                        <span>1 - 3 meters</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#2c7fb8" }}></div>
-                                        <span>3 - 5</span>
+                                        <span>3 - 5 meters</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#253494" }}></div>
-                                        <span>5 - 10</span>
+                                        <span>5 - 10 meters</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#2e004f" }}></div>
-                                        <span>10 - 20</span>
+                                        <span>10 - 20 meters</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#67001f" }}></div>
-                                        <span>20 - 50</span>
+                                        <span>20 - 50 meters</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#990000" }}></div>
-                                        <span>&gt; 50</span>
+                                        <span>&gt; 50 meters</span>
                                     </div>
                                 </div>
                             </>
@@ -383,7 +392,7 @@ const InfoBox = () => {
             <>
                 <p className="text-gray-700 text-sm">{t("info_wb_1")}</p>
                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                    {t("Analyze")}
+                    {t("Analyse")}
                 </h3>
                 <p>{t("info_wb_2")}</p>
                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
@@ -396,7 +405,7 @@ const InfoBox = () => {
             <>
                 <p className="text-gray-700 text-sm">{t("info_gw_1")}</p>
                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                    {t("Analyze")}
+                    {t("Analyse")}
                 </h3>
                 <p>{t("info_gw_2")}</p>
 
