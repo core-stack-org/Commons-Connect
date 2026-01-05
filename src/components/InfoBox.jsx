@@ -403,16 +403,16 @@ const InfoBox = () => {
         ),
         Agriculture: (
             <>
-                <p className="text-gray-700 text-sm">{t("info_gw_1")}</p>
+                <p className="text-gray-700 text-sm">{t("info_agri_1")}</p>
                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
                     {t("Analyse")}
                 </h3>
-                <p>{t("info_gw_2")}</p>
+                <p>{t("info_agri_2")}</p>
 
                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
                     {t("Start Planning")}
                 </h3>
-                <p>{t("info_gw_3")}</p>
+                <p>{t("info_agri_3")}</p>
 
                 <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
                     {t("Irrigation")}
@@ -492,16 +492,12 @@ const InfoBox = () => {
                                 </h3>
                                 <div className="mt-2 space-y-2">
                                     <div className="flex items-center">
-                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#313695", opacity: 0.7 }}></div>
-                                        <span>V-shape river valleys, Deep narrow canyons</span>
-                                    </div>
-                                    <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4575b4", opacity: 0.7 }}></div>
-                                        <span>Lateral midslope incised drainages, Local valleys in plains</span>
+                                        <span>Incised drainages and low ridges</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#a50026", opacity: 0.7 }}></div>
-                                        <span>Upland incised drainages, Stream headwaters</span>
+                                        <span>Mountain tops and high ridges</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#e0f3f8", opacity: 0.7 }}></div>
@@ -517,7 +513,7 @@ const InfoBox = () => {
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#f46d43", opacity: 0.7 }}></div>
-                                        <span>Mesa tops</span>
+                                        <span>Flat tops</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#d73027", opacity: 0.7 }}></div>
@@ -525,19 +521,15 @@ const InfoBox = () => {
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#91bfdb", opacity: 0.7 }}></div>
-                                        <span>Local ridge/hilltops within broad valleys</span>
+                                        <span>Deep valleys and canyons</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#800000", opacity: 0.7 }}></div>
-                                        <span>Lateral midslope drainage divides, Local ridges in plains</span>
+                                        <span>Incised drainages and low ridges</span>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4d0000", opacity: 0.7 }}></div>
-                                        <span>Mountain tops, high ridges</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#ffffff", opacity: 0.7 }}></div>
-                                        <span>Background</span>
+                                        <span>Mountain tops and high ridges</span>
                                     </div>
                                 </div>
                             </>

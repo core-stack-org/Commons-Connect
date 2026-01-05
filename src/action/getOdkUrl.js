@@ -290,7 +290,7 @@ export default function getOdkUrlForScreen(
     } else if (screen === "Agrohorticulture") {
         // Agrohorticulture plantation proposal form
         odk_url =
-            "https://odk.core-stack.org/-/single/QINFvk8Jc7G8vKp9sBJapIBIeWeDvbO?st=xytFqn$JL$T5HlTEIAKkWc0TwweqVrUfFTsjOF5Tj2mSgB2!Dl08lEdtuQDbzwCC" +
+            "https://odk.core-stack.org/-/single/eIAYhvehcKQyKUfWmiKwCgnYn1f5YNH?st=a!Vg65gANI!xeQ1BKWPOwnynOKiWmeu1fmbIS8e5uAoZUKKrcn!jMun$I$YU!OA5" +
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
