@@ -101,5 +101,12 @@
     "Checking...": "Checking...",
     "No suitability data at this location": "No suitability data at this location",
     "Stream Order Legend": "Stream Order Legend",
-    "stream_order_info": "The stream order map helps differentiate up-land areas (lower stream order) from low-land areas (higher stream order). Up-lands often face problems of retaining surface water, which flows into higher stream order areas through surface drainage channels and sub-surface flows."
+    "stream_order_info": "The stream order map helps differentiate up-land areas (lower stream order) from low-land areas (higher stream order). Up-lands often face problems of retaining surface water, which flows into higher stream order areas through surface drainage channels and sub-surface flows.",
+    "Confirm Completion": "Confirm Completion",
+    "Have you completed the following?": "Have you completed the following?",
+    "Added Settlements": "Added Settlements",
+    "Added Wells": "Added Wells",
+    "Added Water Structures": "Added Water Structures",
+    "Added Cropping Pattern": "Added Cropping Pattern",
+    "Go Back": "Go Back"
 }

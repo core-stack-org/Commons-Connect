@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
@@ -11,6 +11,8 @@ const ResourceMapping = () => {
     const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const navigate = useNavigate();
+    const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+    const [checkedItems, setCheckedItems] = useState({});
 
     const STATE_MACHINE = {
         1: {
@@ -655,7 +657,7 @@ const ResourceMapping = () => {
                         {/* Separate Finish Button */}
                         <button
                             className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                            onClick={() => withLoading(() => navigate("/maps"))}
+                            onClick={() => setShowFinishConfirm(true)}
                             style={{
                                 backgroundColor: "#D6D5C9",
                                 color: "#592941",
@@ -673,6 +675,94 @@ const ResourceMapping = () => {
                     </div>
                 )}
             </div>
+
+            {showFinishConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={() => setShowFinishConfirm(false)}
+                    />
+                    <div
+                        className="relative bg-white rounded-2xl shadow-xl max-w-sm w-full mx-4 p-6 z-10"
+                        style={{
+                            animation: "modalExpand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+                        }}
+                    >
+                        <style>
+                            {`
+                                @keyframes modalExpand {
+                                    0% { opacity: 0; transform: scale(0.8); }
+                                    100% { opacity: 1; transform: scale(1); }
+                                }
+                            `}
+                        </style>
+                        <button
+                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
+                            onClick={() => setShowFinishConfirm(false)}
+                        >
+                            ✕
+                        </button>
+                        <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                            {t("Confirm Completion")}
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-4 text-center">
+                            {t("Have you completed the following?")}
+                        </p>
+                        <div className="space-y-3 mb-6">
+                            {[
+                                { key: 1, label: "Added Settlements" },
+                                { key: 2, label: "Added Wells" },
+                                { key: 3, label: "Added Water Structures" },
+                                { key: 4, label: "Added Cropping Pattern" },
+                            ].map(({ key, label }) => (
+                                <div
+                                    key={key}
+                                    className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+                                    style={{
+                                        backgroundColor: checkedItems[key] ? "#dcfce7" : "#f9fafb",
+                                    }}
+                                    onClick={() => setCheckedItems(prev => ({ ...prev, [key]: !prev[key] }))}
+                                >
+                                    <div
+                                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold transition-colors"
+                                        style={{ backgroundColor: checkedItems[key] ? "#16a34a" : "#592941" }}
+                                    >
+                                        {checkedItems[key] ? "✓" : key}
+                                    </div>
+                                    <span className="text-sm" style={{ color: checkedItems[key] ? "#15803d" : "#374151" }}>
+                                        {t(label)}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                className="flex-1 px-4 py-3 text-sm font-medium rounded-xl"
+                                onClick={() => setShowFinishConfirm(false)}
+                                style={{
+                                    backgroundColor: "#f3f4f6",
+                                    color: "#374151",
+                                }}
+                            >
+                                {t("Go Back")}
+                            </button>
+                            <button
+                                className="flex-1 px-4 py-3 text-sm font-medium rounded-xl"
+                                onClick={() => {
+                                    setShowFinishConfirm(false);
+                                    withLoading(() => navigate("/maps"));
+                                }}
+                                style={{
+                                    backgroundColor: "#592941",
+                                    color: "#ffffff",
+                                }}
+                            >
+                                {t("Finish")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
