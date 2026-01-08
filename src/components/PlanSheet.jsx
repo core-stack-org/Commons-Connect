@@ -46,7 +46,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const fetchGlobalPlans = useCallback(async () => {
         setLoading(true);
         try {
-            const url = `${import.meta.env.VITE_API_URL}watershed/plans/?block=${blockId}`;
+            const url = `${import.meta.env.VITE_API_URL}watershed/plans/?tehsil=${blockId}`;
             const response = await authService.makeAuthenticatedRequest(url);
 
             if (response.ok) {
@@ -82,8 +82,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         );
                         const hasMatchingPlans = projectPlans.some(
                             (plan) =>
-                                plan.block === blockId ||
-                                plan.block === parseInt(blockId),
+                                plan.tehsil_soi === blockId ||
+                                plan.tehsil_soi === parseInt(blockId),
                         );
                         if (!hasMatchingPlans) {
                             warningsMap.set(project.id, true);
@@ -117,7 +117,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
             try {
                 let url = `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/`;
                 if (blockId) {
-                    url += `?block=${blockId}`;
+                    url += `?tehsil=${blockId}`;
                 }
 
                 const response =
@@ -128,20 +128,20 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                     if (blockId && plans.length > 0) {
                         const hasBlockProperty = plans.some((plan) =>
-                            Object.prototype.hasOwnProperty.call(plan, "block"),
+                            Object.prototype.hasOwnProperty.call(plan, "tehsil_soi"),
                         );
                         if (hasBlockProperty) {
                             const allPlansMatchBlock = plans.every(
                                 (plan) =>
-                                    plan.block === blockId ||
-                                    plan.block === parseInt(blockId),
+                                    plan.tehsil_soi === blockId ||
+                                    plan.tehsil_soi === parseInt(blockId),
                             );
 
                             if (!allPlansMatchBlock) {
                                 plans = plans.filter(
                                     (plan) =>
-                                        plan.block === blockId ||
-                                        plan.block === parseInt(blockId),
+                                        plan.tehsil_soi === blockId ||
+                                        plan.tehsil_soi === parseInt(blockId),
                                 );
                             }
                         }
@@ -188,8 +188,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
                     const plans = await response.json();
                     const hasMatchingPlans = plans.some(
                         (plan) =>
-                            plan.block === blockId ||
-                            plan.block === parseInt(blockId),
+                            plan.tehsil_soi === blockId ||
+                            plan.tehsil_soi === parseInt(blockId),
                     );
                     return hasMatchingPlans;
                 }
@@ -258,7 +258,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                 try {
                     let url = `${import.meta.env.VITE_API_URL}projects/${project.project_id}/watershed/plans/`;
                     if (blockId) {
-                        url += `?block=${blockId}`;
+                        url += `?tehsil=${blockId}`;
                     }
 
                     const response =
@@ -271,21 +271,21 @@ const PlanSheet = ({ isOpen, onClose }) => {
                             const hasBlockProperty = plans.some((plan) =>
                                 Object.prototype.hasOwnProperty.call(
                                     plan,
-                                    "block",
+                                    "tehsil_soi",
                                 ),
                             );
                             if (hasBlockProperty) {
                                 const allPlansMatchBlock = plans.every(
                                     (plan) =>
-                                        plan.block === blockId ||
-                                        plan.block === parseInt(blockId),
+                                        plan.tehsil_soi === blockId ||
+                                        plan.tehsil_soi === parseInt(blockId),
                                 );
 
                                 if (!allPlansMatchBlock) {
                                     plans = plans.filter(
                                         (plan) =>
-                                            plan.block === blockId ||
-                                            plan.block === parseInt(blockId),
+                                            plan.tehsil_soi === blockId ||
+                                            plan.tehsil_soi === parseInt(blockId),
                                     );
                                 }
                             }
@@ -1105,7 +1105,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                     {t("State ID")}:
                                 </span>
                                 <span className="ml-2 text-gray-900">
-                                    {showPlanDetails.state}
+                                    {showPlanDetails.state_soi}
                                 </span>
                             </div>
                             <div>
@@ -1113,7 +1113,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                     {t("District ID")}:
                                 </span>
                                 <span className="ml-2 text-gray-900">
-                                    {showPlanDetails.district}
+                                    {showPlanDetails.district_soi}
                                 </span>
                             </div>
                             <div>
@@ -1121,7 +1121,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                     {t("Tehsil ID")}:
                                 </span>
                                 <span className="ml-2 text-gray-900">
-                                    {showPlanDetails.block}
+                                    {showPlanDetails.tehsil_soi}
                                 </span>
                             </div>
                         </div>
