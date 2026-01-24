@@ -460,15 +460,14 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
         setSelectedPlanId(plan.id);
 
-        if (isSuperAdmin || isOrgAdmin) {
-            const currentPlans = MainStore.plans || [];
-            const planExists = currentPlans.find((p) => p.id === plan.id);
+        // Add plan to MainStore.plans if it doesn't exist (needed for all user types)
+        const currentPlans = MainStore.plans || [];
+        const planExists = currentPlans.find((p) => p.id === plan.id);
 
-            if (!planExists) {
-                useMainStore.setState((state) => ({
-                    plans: [...(state.plans || []), plan],
-                }));
-            }
+        if (!planExists) {
+            useMainStore.setState((state) => ({
+                plans: [...(state.plans || []), plan],
+            }));
         }
 
         MainStore.setCurrentPlan(plan.id);
