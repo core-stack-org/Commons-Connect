@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,9 +26,6 @@ ChartJS.register(
   Legend
 );
 
-/* → 1.  Years are now fixed */
-const YEAR_LABELS = ["2017", "2018", "2019", "2020", "2021", "2022"];
-
 /* pretty-print */
 const fmt = (v, d = 0) =>
   v !== undefined
@@ -43,9 +40,44 @@ const GroundwaterAnalyze = () => {
   const { t } = useTranslation();
   const MainStore = useMainStore((s) => s);
 
+  /* Dynamically generate year labels from available data */
+  const YEAR_LABELS = useMemo(() => {
+    const years = new Set();
+    
+    // Extract years from yearlyData keys (e.g., "2017_2018" -> "2017")
+    if (yearlyData) {
+      Object.keys(yearlyData).forEach(key => {
+        if (key.match(/^\d{4}_\d{4}$/)) {
+          const startYear = key.split('_')[0];
+          years.add(startYear);
+        }
+      });
+    }
+    
+    // Extract years from fortnightData keys (e.g., "2017-07-01" -> "2017")
+    if (fortnightData) {
+      Object.keys(fortnightData).forEach(key => {
+        if (key.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          const year = key.split('-')[0];
+          years.add(year);
+        }
+      });
+    }
+    
+    return Array.from(years).sort();
+  }, [yearlyData, fortnightData]);
+
   /* slider index */
-  const [idx, setIdx] = useState(YEAR_LABELS.length - 1);
-  const yearFour = YEAR_LABELS[idx]; // "2017" … "2022"
+  const [idx, setIdx] = useState(0);
+  
+  /* Set slider to last year on initial load */
+  useEffect(() => {
+    if (YEAR_LABELS.length > 0) {
+      setIdx(YEAR_LABELS.length - 1);
+    }
+  }, [YEAR_LABELS.length]);
+
+  const yearFour = YEAR_LABELS[idx] || ""; // "2017" … "2025"
 
 
   const annual = useMemo(() => {

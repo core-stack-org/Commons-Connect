@@ -37,9 +37,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const userData = authService.getUserData();
     const organizationName = authService.getOrganization();
     const isSuperAdmin = userData?.is_superadmin || false;
-    const isOrgAdmin =
-        userData?.groups?.some((group) => group.name === "Administrator") ||
-        false;
+    const isOrgAdmin =userData?.groups?.some((group) => group.name === "Administrator") || false;
     const blockId = MainStore.block_id || searchParams.get("block_id");
 
     // MARK: Super Admin
