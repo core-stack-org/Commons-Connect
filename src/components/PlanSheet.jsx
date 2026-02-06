@@ -38,6 +38,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const organizationName = authService.getOrganization();
     const isSuperAdmin = userData?.is_superadmin || false;
     const isOrgAdmin =userData?.groups?.some((group) => group.name === "Administrator") || false;
+    const isPlanReviewer = userData?.groups?.some((group) => group.name === "Test Plan Reviewer") || false;
     const blockId = MainStore.block_id || searchParams.get("block_id");
 
     // MARK: Super Admin
@@ -178,18 +179,13 @@ const PlanSheet = ({ isOpen, onClose }) => {
             if (!blockId) return true;
 
             try {
-                let url = `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/`;
+                const url = `${import.meta.env.VITE_API_URL}projects/${projectId}/watershed/plans/?tehsil=${blockId}`;
                 const response =
                     await authService.makeAuthenticatedRequest(url);
 
                 if (response.ok) {
                     const plans = await response.json();
-                    const hasMatchingPlans = plans.some(
-                        (plan) =>
-                            plan.tehsil_soi === blockId ||
-                            plan.tehsil_soi === parseInt(blockId),
-                    );
-                    return hasMatchingPlans;
+                    return plans.length > 0;
                 }
             } catch (error) {
                 console.error(
@@ -211,19 +207,24 @@ const PlanSheet = ({ isOpen, onClose }) => {
                 organization_name: organizationName,
             }));
 
-            if (blockId && (isSuperAdmin || isOrgAdmin)) {
+            setAvailableProjects(projects);
+            setShowProjectSelector(true);
+
+            if (blockId && (isSuperAdmin || isOrgAdmin || isPlanReviewer)) {
+                const results = await Promise.all(
+                    projects.map(async (project) => ({
+                        id: project.id,
+                        hasMatch: await checkProjectTehsilMatch(project.id),
+                    })),
+                );
                 const warningsMap = new Map();
-                for (const project of projects) {
-                    const hasMatch = await checkProjectTehsilMatch(project.id);
+                for (const { id, hasMatch } of results) {
                     if (!hasMatch) {
-                        warningsMap.set(project.id, true);
+                        warningsMap.set(id, true);
                     }
                 }
                 setProjectTehsilWarnings(warningsMap);
             }
-
-            setAvailableProjects(projects);
-            setShowProjectSelector(true);
         } else if (
             userData?.project_details &&
             userData.project_details.length === 1
@@ -244,6 +245,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         checkProjectTehsilMatch,
         isSuperAdmin,
         isOrgAdmin,
+        isPlanReviewer,
     ]);
 
     // MARK: Regular Users
@@ -318,7 +320,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
             setManuallyCleared(false);
             if (isSuperAdmin && blockId) {
                 fetchGlobalPlans();
-            } else if (isOrgAdmin && userData?.project_details) {
+            } else if ((isOrgAdmin || isPlanReviewer) && userData?.project_details) {
                 handleOrgAdminProjects();
             } else if (userData?.project_details) {
                 fetchAllProjectPlans();
@@ -331,6 +333,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         userData,
         isSuperAdmin,
         isOrgAdmin,
+        isPlanReviewer,
         blockId,
         fetchGlobalPlans,
         handleOrgAdminProjects,
@@ -368,6 +371,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         if (
             !isSuperAdmin &&
             !isOrgAdmin &&
+            !isPlanReviewer &&
             projectPlans.length > 0 &&
             userData &&
             !manuallyCleared
@@ -405,6 +409,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         userData,
         isSuperAdmin,
         isOrgAdmin,
+        isPlanReviewer,
         selectedFacilitatorFilter,
         manuallyCleared,
     ]);
@@ -477,7 +482,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
         setSelectedProject(project);
         setShowProjectSelector(false);
 
-        if (isOrgAdmin) {
+        if (isOrgAdmin || isPlanReviewer) {
             fetchOrgAdminPlans(project.id);
         }
     };
@@ -559,7 +564,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
             filteredRegularPlans = filteredRegularPlans.filter(
                 (plan) => plan.facilitator_name === selectedFacilitatorFilter,
             );
-            if (isSuperAdmin || isOrgAdmin) {
+            if (isSuperAdmin || isOrgAdmin || isPlanReviewer) {
                 filteredTestPlans = filteredTestPlans.filter(
                     (plan) => plan.facilitator_name === selectedFacilitatorFilter,
                 );
@@ -596,7 +601,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const FilterMenu = () => {
         if (!showFilterMenu) return null;
 
-        const isRegularUser = !isSuperAdmin && !isOrgAdmin;
+        const isRegularUser = !isSuperAdmin && !isOrgAdmin && !isPlanReviewer;
         const hasActiveFilters =
             selectedVillageFilter || selectedFacilitatorFilter;
 
@@ -822,7 +827,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                     </div>
 
                     {blockId &&
-                        (isSuperAdmin || isOrgAdmin) &&
+                        (isSuperAdmin || isOrgAdmin || isPlanReviewer) &&
                         projectTehsilWarnings.size > 0 && (
                             <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
                                 <div className="flex items-start space-x-2">
@@ -855,66 +860,91 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         )}
 
                     <div className="space-y-3">
-                        {availableProjects.map((project) => (
-                            <div
-                                key={project.id}
-                                onClick={() => handleProjectSelection(project)}
-                                className={`border rounded-2xl p-4 cursor-pointer transition-all ${
-                                    projectTehsilWarnings.has(project.id)
-                                        ? "border-amber-200 bg-amber-50 hover:border-amber-300 hover:bg-amber-100"
-                                        : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-                                }`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-2">
-                                            <h3 className="font-medium text-gray-900">
-                                                {project.name}
-                                            </h3>
+                        {(() => {
+                            const matchingProjects = availableProjects.filter(
+                                (p) => !projectTehsilWarnings.has(p.id),
+                            );
+                            const nonMatchingProjects = availableProjects.filter(
+                                (p) => projectTehsilWarnings.has(p.id),
+                            );
+
+                            const renderProjectCard = (project) => (
+                                <div
+                                    key={project.id}
+                                    onClick={() => handleProjectSelection(project)}
+                                    className={`border rounded-2xl p-4 cursor-pointer transition-all ${
+                                        projectTehsilWarnings.has(project.id)
+                                            ? "border-amber-200 bg-amber-50 hover:border-amber-300 hover:bg-amber-100"
+                                            : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center space-x-2">
+                                                <h3 className="font-medium text-gray-900">
+                                                    {project.name}
+                                                </h3>
+                                                {projectTehsilWarnings.has(
+                                                    project.id,
+                                                ) && (
+                                                    <svg
+                                                        className="w-4 h-4 text-amber-500"
+                                                        fill="currentColor"
+                                                        viewBox="0 0 20 20"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-gray-600">
+                                                {project.organization_name}
+                                            </p>
                                             {projectTehsilWarnings.has(
                                                 project.id,
-                                            ) && (
-                                                <svg
-                                                    className="w-4 h-4 text-amber-500"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 20 20"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            )}
+                                            ) &&
+                                                blockId && (
+                                                    <p className="text-xs text-amber-600 mt-1">
+                                                        {t(
+                                                            "No plans found for Tehsil ID:",
+                                                        )}{" "}
+                                                        {blockId}
+                                                    </p>
+                                                )}
                                         </div>
-                                        <p className="text-sm text-gray-600">
-                                            {project.organization_name}
-                                        </p>
-                                        {projectTehsilWarnings.has(
-                                            project.id,
-                                        ) &&
-                                            blockId && (
-                                                <p className="text-xs text-amber-600 mt-1">
-                                                    {t(
-                                                        "No plans found for Tehsil ID:",
-                                                    )}{" "}
-                                                    {blockId}
-                                                </p>
-                                            )}
+                                        {isSuperAdmin && (
+                                            <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                                {project.count} plans
+                                            </div>
+                                        )}
+                                        {(isOrgAdmin || isPlanReviewer) && (
+                                            <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                                {t("View Plans")}
+                                            </div>
+                                        )}
                                     </div>
-                                    {isSuperAdmin && (
-                                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                            {project.count} plans
-                                        </div>
-                                    )}
-                                    {isOrgAdmin && (
-                                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                            {t("View Plans")}
-                                        </div>
-                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            );
+
+                            return (
+                                <>
+                                    {matchingProjects.map(renderProjectCard)}
+                                    {matchingProjects.length > 0 && nonMatchingProjects.length > 0 && (
+                                        <div className="flex items-center gap-3 py-2">
+                                            <hr className="flex-1 border-gray-300" />
+                                            <span className="text-xs text-gray-400 whitespace-nowrap">
+                                                {t("Other projects")}
+                                            </span>
+                                            <hr className="flex-1 border-gray-300" />
+                                        </div>
+                                    )}
+                                    {nonMatchingProjects.map(renderProjectCard)}
+                                </>
+                            );
+                        })()}
 
                         {/* Option to view plans without projects - only for super admins */}
                         {isSuperAdmin &&
@@ -1627,8 +1657,8 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                     "No tehsil ID provided, please contact: support@core-stack.org",
                                 )}
                             </div>
-                        ) : isOrgAdmin ? (
-                            /* Organization Admin view */
+                        ) : isOrgAdmin || isPlanReviewer ? (
+                            /* Organization Admin / Plan Reviewer view */
                             <>
                                 {/* Project selector button for org admins with multiple projects */}
                                 {userData?.project_details?.length > 1 && (
