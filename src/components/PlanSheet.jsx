@@ -826,125 +826,37 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         </button>
                     </div>
 
-                    {blockId &&
-                        (isSuperAdmin || isOrgAdmin || isPlanReviewer) &&
-                        projectTehsilWarnings.size > 0 && (
-                            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                                <div className="flex items-start space-x-2">
-                                    <svg
-                                        className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-amber-800">
-                                            {t(
-                                                "Some projects are not for Tehsil ID",
-                                            )}{" "}
-                                            {blockId}
-                                        </p>
-                                        <p className="text-xs text-amber-700 mt-1">
-                                            {t(
-                                                "Please select the right Tehsil to view plans from the respective projects.",
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                     <div className="space-y-3">
-                        {(() => {
-                            const matchingProjects = availableProjects.filter(
-                                (p) => !projectTehsilWarnings.has(p.id),
-                            );
-                            const nonMatchingProjects = availableProjects.filter(
-                                (p) => projectTehsilWarnings.has(p.id),
-                            );
-
-                            const renderProjectCard = (project) => (
-                                <div
-                                    key={project.id}
-                                    onClick={() => handleProjectSelection(project)}
-                                    className={`border rounded-2xl p-4 cursor-pointer transition-all ${
-                                        projectTehsilWarnings.has(project.id)
-                                            ? "border-amber-200 bg-amber-50 hover:border-amber-300 hover:bg-amber-100"
-                                            : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-                                    }`}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-1">
-                                            <div className="flex items-center space-x-2">
-                                                <h3 className="font-medium text-gray-900">
-                                                    {project.name}
-                                                </h3>
-                                                {projectTehsilWarnings.has(
-                                                    project.id,
-                                                ) && (
-                                                    <svg
-                                                        className="w-4 h-4 text-amber-500"
-                                                        fill="currentColor"
-                                                        viewBox="0 0 20 20"
-                                                    >
-                                                        <path
-                                                            fillRule="evenodd"
-                                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                            clipRule="evenodd"
-                                                        />
-                                                    </svg>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-gray-600">
-                                                {project.organization_name}
-                                            </p>
-                                            {projectTehsilWarnings.has(
-                                                project.id,
-                                            ) &&
-                                                blockId && (
-                                                    <p className="text-xs text-amber-600 mt-1">
-                                                        {t(
-                                                            "No plans found for Tehsil ID:",
-                                                        )}{" "}
-                                                        {blockId}
-                                                    </p>
-                                                )}
-                                        </div>
-                                        {isSuperAdmin && (
-                                            <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                                {project.count} plans
-                                            </div>
-                                        )}
-                                        {(isOrgAdmin || isPlanReviewer) && (
-                                            <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                                {t("View Plans")}
-                                            </div>
-                                        )}
+                        {availableProjects
+                            .filter((p) => !projectTehsilWarnings.has(p.id))
+                            .map((project) => (
+                            <div
+                                key={project.id}
+                                onClick={() => handleProjectSelection(project)}
+                                className="border border-gray-200 rounded-2xl p-4 cursor-pointer transition-all hover:border-blue-300 hover:bg-blue-50"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <h3 className="font-medium text-gray-900">
+                                            {project.name}
+                                        </h3>
+                                        <p className="text-sm text-gray-600">
+                                            {project.organization_name}
+                                        </p>
                                     </div>
-                                </div>
-                            );
-
-                            return (
-                                <>
-                                    {matchingProjects.map(renderProjectCard)}
-                                    {matchingProjects.length > 0 && nonMatchingProjects.length > 0 && (
-                                        <div className="flex items-center gap-3 py-2">
-                                            <hr className="flex-1 border-gray-300" />
-                                            <span className="text-xs text-gray-400 whitespace-nowrap">
-                                                {t("Other projects")}
-                                            </span>
-                                            <hr className="flex-1 border-gray-300" />
+                                    {isSuperAdmin && (
+                                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                            {project.count} plans
                                         </div>
                                     )}
-                                    {nonMatchingProjects.map(renderProjectCard)}
-                                </>
-                            );
-                        })()}
+                                    {(isOrgAdmin || isPlanReviewer) && (
+                                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                            {t("View Plans")}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
 
                         {/* Option to view plans without projects - only for super admins */}
                         {isSuperAdmin &&
