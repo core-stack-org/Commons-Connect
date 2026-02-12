@@ -31,6 +31,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
     const [selectedFacilitatorFilter, setSelectedFacilitatorFilter] = useState(null);
     const [manuallyCleared, setManuallyCleared] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [filteringByTehsil, setFilteringByTehsil] = useState(false);
 
     const filterMenuRef = useRef(null);
 
@@ -211,19 +212,24 @@ const PlanSheet = ({ isOpen, onClose }) => {
             setShowProjectSelector(true);
 
             if (blockId && (isSuperAdmin || isOrgAdmin || isPlanReviewer)) {
-                const results = await Promise.all(
-                    projects.map(async (project) => ({
-                        id: project.id,
-                        hasMatch: await checkProjectTehsilMatch(project.id),
-                    })),
-                );
-                const warningsMap = new Map();
-                for (const { id, hasMatch } of results) {
-                    if (!hasMatch) {
-                        warningsMap.set(id, true);
+                setFilteringByTehsil(true);
+                try {
+                    const results = await Promise.all(
+                        projects.map(async (project) => ({
+                            id: project.id,
+                            hasMatch: await checkProjectTehsilMatch(project.id),
+                        })),
+                    );
+                    const warningsMap = new Map();
+                    for (const { id, hasMatch } of results) {
+                        if (!hasMatch) {
+                            warningsMap.set(id, true);
+                        }
                     }
+                    setProjectTehsilWarnings(warningsMap);
+                } finally {
+                    setFilteringByTehsil(false);
                 }
-                setProjectTehsilWarnings(warningsMap);
             }
         } else if (
             userData?.project_details &&
@@ -827,68 +833,82 @@ const PlanSheet = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="space-y-3">
-                        {availableProjects
-                            .filter((p) => !projectTehsilWarnings.has(p.id))
-                            .map((project) => (
-                            <div
-                                key={project.id}
-                                onClick={() => handleProjectSelection(project)}
-                                className="border border-gray-200 rounded-2xl p-4 cursor-pointer transition-all hover:border-blue-300 hover:bg-blue-50"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1">
-                                        <h3 className="font-medium text-gray-900">
-                                            {project.name}
-                                        </h3>
-                                        <p className="text-sm text-gray-600">
-                                            {project.organization_name}
-                                        </p>
-                                    </div>
-                                    {isSuperAdmin && (
-                                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                            {project.count} plans
-                                        </div>
-                                    )}
-                                    {(isOrgAdmin || isPlanReviewer) && (
-                                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                            {t("View Plans")}
-                                        </div>
-                                    )}
-                                </div>
+                        {filteringByTehsil ? (
+                            <div className="flex flex-col items-center justify-center py-8 gap-3">
+                                <SquircleLoader
+                                    size={32}
+                                    strokeWidth={3}
+                                    color="#2563eb"
+                                />
+                                <p className="text-sm text-gray-500">
+                                    {t("Filtering projects for tehsil...")}
+                                </p>
                             </div>
-                        ))}
-
-                        {/* Option to view plans without projects - only for super admins */}
-                        {isSuperAdmin &&
-                            globalPlans.filter((plan) => !plan.project).length >
-                                0 && (
-                                <div
-                                    onClick={() => {
-                                        setSelectedProject(null);
-                                        setShowProjectSelector(false);
-                                    }}
-                                    className="border border-gray-200 rounded-2xl p-4 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h3 className="font-medium text-gray-900">
-                                                Plans without Project
-                                            </h3>
-                                            <p className="text-sm text-gray-600">
-                                                Unassigned plans
-                                            </p>
-                                        </div>
-                                        <div className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                            {
-                                                globalPlans.filter(
-                                                    (plan) => !plan.project,
-                                                ).length
-                                            }{" "}
-                                            plans
+                        ) : (
+                            <>
+                                {availableProjects
+                                    .filter((p) => !projectTehsilWarnings.has(p.id))
+                                    .map((project) => (
+                                    <div
+                                        key={project.id}
+                                        onClick={() => handleProjectSelection(project)}
+                                        className="border border-gray-200 rounded-2xl p-4 cursor-pointer transition-all hover:border-blue-300 hover:bg-blue-50"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                                <h3 className="font-medium text-gray-900">
+                                                    {project.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-600">
+                                                    {project.organization_name}
+                                                </p>
+                                            </div>
+                                            {isSuperAdmin && (
+                                                <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                                    {project.count} plans
+                                                </div>
+                                            )}
+                                            {(isOrgAdmin || isPlanReviewer) && (
+                                                <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                                    {t("View Plans")}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                ))}
+
+                                {isSuperAdmin &&
+                                    globalPlans.filter((plan) => !plan.project).length >
+                                        0 && (
+                                        <div
+                                            onClick={() => {
+                                                setSelectedProject(null);
+                                                setShowProjectSelector(false);
+                                            }}
+                                            className="border border-gray-200 rounded-2xl p-4 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="font-medium text-gray-900">
+                                                        Plans without Project
+                                                    </h3>
+                                                    <p className="text-sm text-gray-600">
+                                                        Unassigned plans
+                                                    </p>
+                                                </div>
+                                                <div className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                                    {
+                                                        globalPlans.filter(
+                                                            (plan) => !plan.project,
+                                                        ).length
+                                                    }{" "}
+                                                    plans
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                            </>
+                        )}
                     </div>
                 </div>
             </BottomSheet>

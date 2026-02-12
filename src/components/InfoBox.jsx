@@ -364,7 +364,7 @@ const InfoBox = () => {
                 ) : (
                     <>
                         <h3 className="font-extrabold mt-1 mb-1 text-lg underline">
-                            {t("Well Depth Legend")}
+                            {t("Change in depth to water in wells")}
                         </h3>
                         <div className="mt-2 space-y-2">
                             <div className="flex items-center">

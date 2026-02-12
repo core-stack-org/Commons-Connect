@@ -105,7 +105,7 @@ const Homepage = () => {
         }
         setIsPlanningOpen(false);
 
-        if (section === "Groundwater") {
+        if (section === "Water Balance") {
             MainStore.setCurrentScreen("Groundwater");
             navigate("/groundwater");
         } else if (section === "Surface Waterbodies") {
@@ -406,7 +406,7 @@ const Homepage = () => {
                   "
                             >
                                 {[
-                                    "Groundwater",
+                                    "Water Balance",
                                     "Surface Waterbodies",
                                     "Agriculture",
                                     "Livelihood",
