@@ -29,7 +29,8 @@ const Homepage = () => {
                     if (!name) return name;
                     return name
                         .replace(/[()]/g, "") 
-                        .replace(/[-\s]+/g, "_") 
+                        // .replace(/-+/g, "_")
+                        .replace(/\s+/g, "_")
                         .replace(/_+/g, "_") 
                         .replace(/^_|_$/g, "") 
                         .toLowerCase();
