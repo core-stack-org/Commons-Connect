@@ -36,37 +36,30 @@ export default async function getWebGlLayers(layer_store, layer_name, setAllNreg
             item.values_.itemColor = colorMapping[item.values_.WorkCatego] ? colorMapping[item.values_.WorkCatego] : colorMapping["Default"]
             
             let temp_year = new Date(Date.parse(item.values_.creation_t)).getFullYear()
-            item.values_.workYear = temp_year.toString();
+            item.values_.workYear = temp_year;
 
-            if (!nregaYears_temp.includes(temp_year)) {
+            if (!isNaN(temp_year) && !nregaYears_temp.includes(temp_year)) {
               nregaYears_temp.push(temp_year);
             }
-            nregaYears_temp.sort();
-            //console.log(item)
             return item;
   
           }));
+          nregaYears_temp.sort();
+          setAllNregaYears([...nregaYears_temp]);
         }).catch(error => {
           console.log(error);
         });
       }
     });
 
-    let tempActiveYears = [2022]
-
     const NregaStyle = {
       'shape-points': 12,
       'shape-radius': 6,
       'shape-fill-color':'#00000000',
     }
-    
-    setAllNregaYears(nregaYears_temp);
-  
+
     let wmsLayer = new WebGLVectorLayer({
-      source : vectorSource,
-      variables : {
-        activeYears : tempActiveYears
-      },
+      source: vectorSource,
       style: NregaStyle,
     })
   

@@ -173,10 +173,9 @@ const useMainStore = create((set) => ({
     //? NREGA Hooks
     isNregaSheet: false,
     allNregaYears: [],
-    selectNregaYears: [2018],
+    selectNregaYears: [],
     nregaWorks: [],
     nregaStyle: {
-        filter: ["in", ["get", "workYear"], [2018]],
         "shape-points": 12,
         "shape-radius": 8,
         "shape-fill-color": "#00000000",
