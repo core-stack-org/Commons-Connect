@@ -199,74 +199,62 @@ const Bottomsheet = () => {
         }
     };
 
-    const handleYearAdd = (tempYear) => {
-        let active_years = [];
+    const getCategoryFillColor = (works) => {
+        if (works.length === 0) return "#00000000";
+        const expr = ["match", ["get", "itemColor"]];
+        works.forEach((id) => {
+            expr.push(id);
+            expr.push(nregaDetails.NumToColorMapping[id]);
+        });
+        expr.push("#00000000");
+        return expr;
+    };
 
-        if (MainStore.selectNregaYears.includes(tempYear)) {
-            active_years = MainStore.selectNregaYears.filter(
-                (year) => year != tempYear,
-            );
-            MainStore.setNregaYears(active_years);
-        } else {
-            active_years = [...MainStore.selectNregaYears];
-            active_years.push(tempYear);
-            MainStore.setNregaYears(active_years);
+    const buildNregaStyle = (works, years) => {
+        let fillColor = getCategoryFillColor(works);
+
+        if (years.length > 0) {
+            const yearMatch = ["match", ["get", "workYear"]];
+            years.forEach((y) => {
+                yearMatch.push(y, true);
+            });
+            yearMatch.push(false);
+            fillColor = ["case", yearMatch, fillColor, "#00000000"];
         }
 
-        console.log(active_years);
-
-        let tempFilter = ["in", ["get", "workYear"], active_years];
-
-        console.log(tempFilter);
-
-        let tempNregaStyle = {
-            filter: tempFilter,
-            "shape-points": MainStore.nregaStyle["shape-points"],
-            "shape-radius": MainStore.nregaStyle["shape-radius"],
-            "shape-fill-color": MainStore.nregaStyle["shape-fill-color"],
+        return {
+            "shape-points": 12,
+            "shape-radius": 8,
+            "shape-fill-color": fillColor,
         };
+    };
 
-        MainStore.setNregaStyle(tempNregaStyle);
+    const handleYearAdd = (tempYear) => {
+        let active_years;
+
+        if (tempYear === "all") {
+            active_years = MainStore.selectNregaYears.length === MainStore.allNregaYears.length
+                ? []
+                : [...MainStore.allNregaYears];
+        } else if (MainStore.selectNregaYears.includes(tempYear)) {
+            active_years = MainStore.selectNregaYears.filter((year) => year !== tempYear);
+        } else {
+            active_years = [...MainStore.selectNregaYears, tempYear];
+        }
+
+        MainStore.setNregaYears(active_years);
+        MainStore.setNregaStyle(buildNregaStyle(MainStore.nregaWorks, active_years));
     };
 
     const handleWorkdAdd = (work) => {
-        let checked = MainStore.nregaWorks.includes(
-            nregaDetails.workToNumMapping[work],
-        );
-        let tempWorks;
-
-        if (!checked) {
-            tempWorks = [...MainStore.nregaWorks];
-            tempWorks.push(nregaDetails.workToNumMapping[work]);
-        } else {
-            tempWorks = MainStore.nregaWorks.filter(
-                (y) => y != nregaDetails.workToNumMapping[work],
-            );
-        }
+        const workNum = nregaDetails.workToNumMapping[work];
+        const isSelected = MainStore.nregaWorks.includes(workNum);
+        const tempWorks = isSelected
+            ? MainStore.nregaWorks.filter((w) => w !== workNum)
+            : [...MainStore.nregaWorks, workNum];
 
         MainStore.setNregaWorks(tempWorks);
-
-        let styleFillColor = ["match", ["get", "itemColor"]];
-
-        tempWorks.map((item, idx) => {
-            styleFillColor.push(item);
-            styleFillColor.push(nregaDetails.NumToColorMapping[item]);
-        });
-
-        styleFillColor.push("#00000000");
-
-        if (tempWorks.length === 0) {
-            styleFillColor = "#00000000";
-        }
-
-        let tempNregaStyle = {
-            filter: MainStore.nregaStyle.filter,
-            "shape-points": MainStore.nregaStyle["shape-points"],
-            "shape-radius": MainStore.nregaStyle["shape-radius"],
-            "shape-fill-color": styleFillColor,
-        };
-
-        MainStore.setNregaStyle(tempNregaStyle);
+        MainStore.setNregaStyle(buildNregaStyle(tempWorks, MainStore.selectNregaYears));
     };
 
     const nregaBody = (
@@ -354,50 +342,58 @@ const Bottomsheet = () => {
                     </div>
                 </div>
 
-                {/* Enhanced NREGA Work Years Section */}
-                {/* <div className="bg-gray-50 rounded-xl p-6">
-                    <div className="flex items-center mb-6">
-                        <div className="w-1 h-6 bg-green-500 rounded-full mr-3"></div>
-                        <h2 className="text-lg font-medium text-gray-700">
-                            NREGA Work Years
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {MainStore.allNregaYears.map((year, idx) => {
-                            const isChecked = MainStore.selectNregaYears.includes(year);
-                            return (
-                                <label
-                                    key={idx}
-                                    className={`
-                                        flex items-center p-3 rounded-lg border cursor-pointer transition-all duration-200
-                                        ${isChecked
-                                            ? 'bg-blue-50 border-blue-200 shadow-sm'
-                                            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                        }
-                                    `}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={isChecked}
-                                        onChange={() => handleYearAdd(year)}
-                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3"
-                                    />
-                                    <span className={`text-sm font-medium ${isChecked ? 'text-blue-700' : 'text-gray-700'}`}>
+                {/* NREGA Work Years Section */}
+                {MainStore.allNregaYears.length > 0 && (
+                    <div className="bg-gray-50 rounded-2xl p-5 mb-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center">
+                                <div className="w-1 h-5 bg-green-500 rounded-full mr-3"></div>
+                                <h2 className="text-base font-semibold text-gray-700">
+                                    {t("NREGA Work Years")}
+                                </h2>
+                            </div>
+                            <button
+                                onClick={() => handleYearAdd("all")}
+                                className={`
+                                    text-xs font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
+                                    ${MainStore.selectNregaYears.length === MainStore.allNregaYears.length
+                                        ? "bg-green-100 border-green-400 text-green-700"
+                                        : "bg-white border-gray-300 text-gray-500 hover:border-green-400 hover:text-green-600"
+                                    }
+                                `}
+                            >
+                                {MainStore.selectNregaYears.length === MainStore.allNregaYears.length
+                                    ? t("nrega_deselect_all")
+                                    : t("nrega_select_all")}
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-4">
+                            {MainStore.selectNregaYears.length === 0
+                                ? t("nrega_all_years_shown")
+                                : t("nrega_year_filter_hint")}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {MainStore.allNregaYears.map((year, idx) => {
+                                const isChecked = MainStore.selectNregaYears.includes(year);
+                                return (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleYearAdd(year)}
+                                        className={`
+                                            px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200
+                                            ${isChecked
+                                                ? "bg-green-500 border-green-500 text-white shadow-sm"
+                                                : "bg-white border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-600"
+                                            }
+                                        `}
+                                    >
                                         {year}
-                                    </span>
-                                </label>
-                            );
-                        })}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div> */}
-
-                {/* NREGA Works Information */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                    <p className="text-sm text-blue-800 text-left font-medium">
-                        {t("nrega_works_info")}
-                    </p>
-                </div>
+                )}
             </div>
         </>
     );
