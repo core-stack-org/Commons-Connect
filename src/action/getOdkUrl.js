@@ -20,7 +20,7 @@ export default function getOdkUrlForScreen(
 
     if (screen === "Resource_mapping" && step === 0) {
         odk_url =
-            `${import.meta.env.VITE_ODK_ADD_SETTLEMENT}$zzXyj!5bZs6Q20MejPCDCdNmX7IO9MqzRB6DkJ$PEOpl` +
+            "https://odk.core-stack.org/-/single/AOV0NchVMqkZVpCgZyWwJylCdnOIXwi?st=TBomGhMfOetjH6thCwy$zzXyj!5bZs6Q20MejPCDCdNmX7IO9MqzRB6DkJ$PEOpl" + // settlement form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -38,7 +38,7 @@ export default function getOdkUrlForScreen(
             "&d[/data/meta/instanceID]=";
     } else if (screen === "Resource_mapping" && step === 1) {
         odk_url =
-            `${import.meta.env.VITE_ODK_ADD_WELL}$OA0uqHioc3xYYZ8lNwrar` +
+            "https://odk.core-stack.org/-/single/iB707x5CMdklU3QbjvopaeNlBiG3WLc?st=19BTDQ31numlgTB5vTjZZZxrgPRtYv1TZtNw2662Md$OA0uqHioc3xYYZ8lNwrar" + // well form
             "&d[/data/GPS_point/point_mapappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -60,7 +60,7 @@ export default function getOdkUrlForScreen(
             "&d[/data/meta/instanceID]=";
     } else if (screen === "Resource_mapping" && step === 2) {
         odk_url =
-            `${import.meta.env.VITE_ODK_ADD_WATERSTRUCTURE}` +
+            "https://odk.core-stack.org/-/single/JlbwXkMvol1fIoCRpMN07AxbZawhW2e?st=XidlpvnHZfCMxcDlxXr4Jbxr6eKwtsclHZki7s9pbiIb14rPh7uNYCalXHs0M6ht" + // water structure form
             "&d[/data/GPS_point/point_mapappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -82,7 +82,7 @@ export default function getOdkUrlForScreen(
             "&d[/data/meta/instanceID]=";
     } else if (screen === "Resource_mapping" && step > 2) {
         odk_url =
-            `${import.meta.env.VITE_ODK_CROP_GRID}$smauFD3` +
+            "https://odk.core-stack.org/-/single/Jg7MnKeZ1W9oQkwlDb2iCV7BhXgXDN8?st=z44571PIPvbF2lpzcaRZruzCVIucT8Agm!ZfbrhUxUwhY6l78V8Vs5P!$smauFD3" + // cropping pattern form
             "&d[/data/hamlet_id]=" +
             settlement_id +
             "&d[/data/crop_Grid_id]=" +
@@ -105,7 +105,7 @@ export default function getOdkUrlForScreen(
         !isFeedback
     ) {
         odk_url =
-            `${import.meta.env.VITE_ODK_GROUNDWATER_BUILD_RECHARGE}$seU5QjKkgGjdav$pga66iH972V93scb8BxwvuBuQVxIUxLo$gf8F` +
+            "https://odk.core-stack.org/-/single/ecGG8zVLDoj4xRDUJyUE69w4dVMLPxe?st=dzcP1R16z3P$seU5QjKkgGjdav$pga66iH972V93scb8BxwvuBuQVxIUxLo$gf8F" + // recharge structureform
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -132,7 +132,7 @@ export default function getOdkUrlForScreen(
         !isFeedback
     ) {
         odk_url =
-            `${import.meta.env.VITE_ODK_GROUNDWATER_PROVIDE_MAINTAIN}` +
+            "https://odk.core-stack.org/-/single/URUgyGL068WK4Y6bh1ej0zslzgSuRJ5?st=HC0EoYBiODabcQ3y6GJQ5EnjsMtKbiwJWA2ZRSptVG!C0PgMUX6wu4N29kYp9NF8" + // maintenance recharge structure form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -159,7 +159,7 @@ export default function getOdkUrlForScreen(
         !isFeedback
     ) {
         odk_url =
-            `${import.meta.env.VITE_ODK_GROUNDWATER_BUILD_RECHARGE}$seU5QjKkgGjdav$pga66iH972V93scb8BxwvuBuQVxIUxLo$gf8F` +
+            "https://odk.core-stack.org/-/single/ecGG8zVLDoj4xRDUJyUE69w4dVMLPxe?st=dzcP1R16z3P$seU5QjKkgGjdav$pga66iH972V93scb8BxwvuBuQVxIUxLo$gf8F" + // recharge structure form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -181,11 +181,11 @@ export default function getOdkUrlForScreen(
             "&d[/data/meta/instanceID]=";
     } else if (screen === "Groundwater" && isFeedback) {
         odk_url =
-            `${import.meta.env.VITE_ODK_GROUNDWATER_PROVIDE_FEEDBACK}` +
+            "https://odk.core-stack.org/-/single/IUkvzpDp4lUuCZUJUCLqScMcc18uSzT?st=ON$m7z2cCyJYE5bhwFHWa4$vJNmVNQ7$YpHkMUqCyM!8YC0$GIJGQYnH6nWrFQ1k" + // feedback recharge structure form
             "$m7z2cCyJYE5bhwFHWa4$vJNmVNQ7$YpHkMUqCyM!8YC0$GIJGQYnH6nWrFQ1k";
     } else if (screen === "SurfaceWater" && !maintain && !isFeedback) {
         odk_url =
-            `${import.meta.env.VITE_ODK_SURFACEWATER_BODIES}` +
+            "https://odk.core-stack.org/-/single/G5z8BfpmN7rD5T0Mng3lSPdRmUUVSmD?st=jCR5wJ!ZjU5!yrQt0e7KoV9eOmvHgKiLwRIiL40IuoZ53yQ8VNH4yb!N7k0Of7Tp" + // surface water bodies form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -204,7 +204,7 @@ export default function getOdkUrlForScreen(
             settlement_name;
     } else if (screen === "SurfaceWater" && maintain && !isFeedback) {
         odk_url =
-            `${import.meta.env.VITE_ODK_SURFACEWATER_BODIES_MAINTAIN}` +
+            "https://odk.core-stack.org/-/single/mnx5heyWfp6Hjz629gd7jsmo03QzGOW?st=H04pS4tz1fE9nOREeKEFC0FrvF8OdFeE7czhpOVTWJQ2ehC!IFP7fke4jg!ZQf3V" + // maintenance surface water bodies remote sensed form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -223,11 +223,11 @@ export default function getOdkUrlForScreen(
             settlement_name;
     } else if (screen === "SurfaceWater" && isFeedback) {
         odk_url =
-            `${import.meta.env.VITE_ODK_SURFACEWATER_BODIES_FEEDBACK}` +
+            "https://odk.core-stack.org/-/single/x8UqSCODwgUUffe4TdkUv0v4TexOocG?st=BwL42ECSlE$DnSOQUBn4156isxk2IyJ2WKRz9W8PS!IfiNp4pSFFSpF3qBITGpfY" + // feedback surface water bodies form
             "$DnSOQUBn4156isxk2IyJ2WKRz9W8PS!IfiNp4pSFFSpF3qBITGpfY";
     } else if (screen === "Agriculture" && !maintain && !isFeedback) {
         odk_url =
-            `${import.meta.env.VITE_ODK_AGRICULTURE_WORK}` +
+            "https://odk.core-stack.org/-/single/FwXC1tLB8dRyaSE5jssmUqeC1IFebbQ?st=2sWYsnvVeFdkr12RHgZA6IzyYV1cIqpY5n4thlMP3AxQ0vS!ilXolTVwGSy7Eo9P" + // agriculture work form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -246,7 +246,7 @@ export default function getOdkUrlForScreen(
             settlement_name;
     } else if (screen === "Agriculture" && maintain && !isFeedback) {
         odk_url =
-            `${import.meta.env.VITE_ODK_AGRICULTURE_MAINTAIN}` +
+            "https://odk.core-stack.org/-/single/PqmivgmYiOzdRjKkHRFfvI7RZY62nbb?st=Uffu7PhVnyd0vmikK64kDVZEpS7cV41!ymiq2lIrkWSKJTSUeQHwTyUP6mhn2typ" + // maintenance agriculture work form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -265,11 +265,11 @@ export default function getOdkUrlForScreen(
             settlement_name;
     } else if (screen === "Agriculture" && isFeedback) {
         odk_url =
-            `${import.meta.env.VITE_ODK_AGRICULTURE_FEEDBACK}` +
+            "https://odk.core-stack.org/-/single/tDBfbsyi8PwukkWJtijMur5xipWzE4A?st=4CQ8YLJgpsTpICSK8P!yv4Z$yAwLAzsh9W$5pkFSxzKWIEDJ37IZHBv7DV2E8SXX" + // feedback agriculture work form
             "$yAwLAzsh9W$5pkFSxzKWIEDJ37IZHBv7DV2E8SXX";
     } else if (screen === "Livelihood") {
         odk_url =
-            `${import.meta.env.VITE_ODK_ADD_LIVELIHOOD}` +
+            "https://odk.core-stack.org/-/single/f3FNR4k440c3O2mIid3bapu5GMrXeM1?st=1PZrxqQxTnyseflapUolLDE6a5U1rw98FDgTuiORL7Of532h3zsnV!fnhA2ZbL1w" + // livelihood form
             "&d[/data/GPS_point/point_mapappearance]=" +
             latlong[1].toString() +
             "%20" +
@@ -290,7 +290,7 @@ export default function getOdkUrlForScreen(
     } else if (screen === "Agrohorticulture") {
         // Agrohorticulture plantation proposal form
         odk_url =
-            "https://odk.core-stack.org/-/single/eIAYhvehcKQyKUfWmiKwCgnYn1f5YNH?st=a!Vg65gANI!xeQ1BKWPOwnynOKiWmeu1fmbIS8e5uAoZUKKrcn!jMun$I$YU!OA5" +
+            "https://odk.core-stack.org/-/single/42RMnD3mfbjOqBTqm5SmY3oPhEzuHJH?st=a!Vg65gANI!xeQ1BKWPOwnynOKiWmeu1fmbIS8e5uAoZUKKrcn!jMun$I$YU!OA5" + // agrohorticulture plantation proposal form
             "&d[/data/GPS_point/point_mapsappearance]=" +
             latlong[1].toString() +
             "%20" +
