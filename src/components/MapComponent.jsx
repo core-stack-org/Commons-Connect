@@ -897,6 +897,8 @@ const MapComponent = () => {
     tempSettlementLayer.current.setVisible(false);
 
     mapRef.current.on("click", (e) => {
+      if (useMainStore.getState().currentScreen === "HomeScreen") return;
+
       setFeatureStat(false);
       setMarkerPlaced(true);
       setMarkerCoords(e.coordinate);
@@ -1461,8 +1463,13 @@ const MapComponent = () => {
       }
       if (MapMarkerRef.current !== null) {
         MapMarkerRef.current.setVisible(false);
+        MapMarkerRef.current.getSource().getFeatures().forEach(
+          (f) => f.setGeometry(undefined),
+        );
         tempSettlementLayer.current.setVisible(false);
       }
+      setMarkerPlaced(false);
+      setFeatureStat(false);
     } else if (currentScreen === "Resource_mapping") {
       layerCollection
         .getArray()
