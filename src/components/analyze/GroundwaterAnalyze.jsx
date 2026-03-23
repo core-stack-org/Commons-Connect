@@ -214,32 +214,37 @@ const GroundwaterAnalyze = () => {
         </h2>
 
         {/* year slider */}
-        <div className="w-3/4 max-w-lg mx-auto">
-            {/* Year marks above slider */}
+        <div className="w-full max-w-md mx-auto pt-4 pb-8 px-4">
+            <div className="text-center mb-4">
+                <span className="text-2xl font-bold text-[#0f766e]">{yearFour}</span>
+            </div>
+
             <div className="relative mb-2">
                 <div className="flex justify-between relative">
-                    {YEAR_LABELS.map((year, index) => (
-                        <div key={year} className="flex flex-col items-center relative">
-                            {/* Tick mark */}
-                            <div 
-                                className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
-                                    index === idx ? 'bg-[#0f766e]' : 'bg-gray-400'
-                                }`}
-                            />
-                            {/* Year label */}
-                            <span 
-                                className={`text-xs font-semibold transition-colors duration-200 ${
-                                    index === idx ? 'text-[#0f766e]' : 'text-gray-600'
-                                }`}
-                            >
-                                {year}
-                            </span>
-                        </div>
-                    ))}
+                    {YEAR_LABELS.map((year, index) => {
+                        const showLabel = index === 0 || index === YEAR_LABELS.length - 1 || index === idx;
+                        return (
+                            <div key={year} className="flex flex-col items-center relative flex-1">
+                                <div
+                                    className={`w-0.5 transition-all duration-200 ${
+                                        index === idx ? 'h-4 bg-[#0f766e]' : 'h-2 bg-gray-400'
+                                    }`}
+                                />
+                                {showLabel && (
+                                    <span
+                                        className={`text-xs font-medium mt-1 transition-colors duration-200 ${
+                                            index === idx ? 'text-[#0f766e] font-bold' : 'text-gray-500'
+                                        }`}
+                                    >
+                                        '{year.slice(-2)}
+                                    </span>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
-            
-            {/* Slider */}
+
             <input
                 type="range"
                 min="0"
@@ -248,8 +253,7 @@ const GroundwaterAnalyze = () => {
                 onChange={(e) => setIdx(Number(e.target.value))}
                 className="w-full accent-[#0f766e] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
             />
-            
-            {/* Add custom slider styles */}
+
             <style jsx>{`
                 .slider-custom::-webkit-slider-thumb {
                     appearance: none;
@@ -261,7 +265,6 @@ const GroundwaterAnalyze = () => {
                     border: 2px solid white;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                 }
-                
                 .slider-custom::-moz-range-thumb {
                     height: 20px;
                     width: 20px;
