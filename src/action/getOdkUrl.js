@@ -180,9 +180,7 @@ export default function getOdkUrlForScreen(
             "007101" +
             "&d[/data/meta/instanceID]=";
     } else if (screen === "Groundwater" && isFeedback) {
-        odk_url =
-            "https://odk.core-stack.org/-/single/IUkvzpDp4lUuCZUJUCLqScMcc18uSzT?st=ON$m7z2cCyJYE5bhwFHWa4$vJNmVNQ7$YpHkMUqCyM!8YC0$GIJGQYnH6nWrFQ1k" + // feedback recharge structure form
-            "$m7z2cCyJYE5bhwFHWa4$vJNmVNQ7$YpHkMUqCyM!8YC0$GIJGQYnH6nWrFQ1k";
+        odk_url = "https://odk.core-stack.org/-/single/IUkvzpDp4lUuCZUJUCLqScMcc18uSzT?st=ON$m7z2cCyJYE5bhwFHWa4$vJNmVNQ7$YpHkMUqCyM!8YC0$GIJGQYnH6nWrFQ1k"; // feedback recharge structure form
     } else if (screen === "SurfaceWater" && !maintain && !isFeedback) {
         odk_url =
             "https://odk.core-stack.org/-/single/G5z8BfpmN7rD5T0Mng3lSPdRmUUVSmD?st=jCR5wJ!ZjU5!yrQt0e7KoV9eOmvHgKiLwRIiL40IuoZ53yQ8VNH4yb!N7k0Of7Tp" + // surface water bodies form
@@ -222,9 +220,7 @@ export default function getOdkUrlForScreen(
             "&d[/data/beneficiary_settlement]=" +
             settlement_name;
     } else if (screen === "SurfaceWater" && isFeedback) {
-        odk_url =
-            "https://odk.core-stack.org/-/single/x8UqSCODwgUUffe4TdkUv0v4TexOocG?st=BwL42ECSlE$DnSOQUBn4156isxk2IyJ2WKRz9W8PS!IfiNp4pSFFSpF3qBITGpfY" + // feedback surface water bodies form
-            "$DnSOQUBn4156isxk2IyJ2WKRz9W8PS!IfiNp4pSFFSpF3qBITGpfY";
+        odk_url = "https://odk.core-stack.org/-/single/x8UqSCODwgUUffe4TdkUv0v4TexOocG?st=BwL42ECSlE$DnSOQUBn4156isxk2IyJ2WKRz9W8PS!IfiNp4pSFFSpF3qBITGpfY"; // feedback surface water bodies form
     } else if (screen === "Agriculture" && !maintain && !isFeedback) {
         odk_url =
             "https://odk.core-stack.org/-/single/FwXC1tLB8dRyaSE5jssmUqeC1IFebbQ?st=2sWYsnvVeFdkr12RHgZA6IzyYV1cIqpY5n4thlMP3AxQ0vS!ilXolTVwGSy7Eo9P" + // agriculture work form
@@ -264,9 +260,7 @@ export default function getOdkUrlForScreen(
             "&d[/data/beneficiary_settlement]=" +
             settlement_name;
     } else if (screen === "Agriculture" && isFeedback) {
-        odk_url =
-            "https://odk.core-stack.org/-/single/tDBfbsyi8PwukkWJtijMur5xipWzE4A?st=4CQ8YLJgpsTpICSK8P!yv4Z$yAwLAzsh9W$5pkFSxzKWIEDJ37IZHBv7DV2E8SXX" + // feedback agriculture work form
-            "$yAwLAzsh9W$5pkFSxzKWIEDJ37IZHBv7DV2E8SXX";
+        odk_url = "https://odk.core-stack.org/-/single/tDBfbsyi8PwukkWJtijMur5xipWzE4A?st=4CQ8YLJgpsTpICSK8P!yv4Z$yAwLAzsh9W$5pkFSxzKWIEDJ37IZHBv7DV2E8SXX"; // feedback agriculture work form
     } else if (screen === "Livelihood") {
         odk_url =
             "https://odk.core-stack.org/-/single/f3FNR4k440c3O2mIid3bapu5GMrXeM1?st=1PZrxqQxTnyseflapUolLDE6a5U1rw98FDgTuiORL7Of532h3zsnV!fnhA2ZbL1w" + // livelihood form
@@ -288,7 +282,6 @@ export default function getOdkUrlForScreen(
             settlement_name +
             "&d[/data/meta/instanceID]=";
     } else if (screen === "Agrohorticulture") {
-        // Agrohorticulture plantation proposal form
         odk_url =
             "https://odk.core-stack.org/-/single/42RMnD3mfbjOqBTqm5SmY3oPhEzuHJH?st=a!Vg65gANI!xeQ1BKWPOwnynOKiWmeu1fmbIS8e5uAoZUKKrcn!jMun$I$YU!OA5" + // agrohorticulture plantation proposal form
             "&d[/data/GPS_point/point_mapsappearance]=" +
