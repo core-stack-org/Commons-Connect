@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import useMainStore from "../store/MainStore.jsx";
@@ -18,7 +19,7 @@ const Bottomsheet = () => {
     const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const LayerStore = useLayersStore((state) => state);
-    let flg = false;
+    const flgRef = useRef(false);
 
     const LayerNameMapping = {
         0: "settlement_layer",
@@ -121,7 +122,8 @@ const Bottomsheet = () => {
     };
 
     const handleOnLoadEvent = async () => {
-        if (flg) {
+        if (flgRef.current) {
+            flgRef.current = false;
             if (MainStore.currentScreen === "Resource_mapping") {
                 try {
                     MainStore.setIsLoading(true);
@@ -193,9 +195,8 @@ const Bottomsheet = () => {
                     console.log(err);
                 }
             }
-            flg = false;
         } else {
-            flg = true;
+            flgRef.current = true;
         }
     };
 
