@@ -1,4 +1,3 @@
-import { useRef, useEffect, useCallback } from "react";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import useMainStore from "../store/MainStore.jsx";
@@ -19,8 +18,6 @@ const Bottomsheet = () => {
     const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const LayerStore = useLayersStore((state) => state);
-    const submittedRef = useRef(false);
-
     const LayerNameMapping = {
         0: "settlement_layer",
         1: "well_layer",
@@ -121,10 +118,7 @@ const Bottomsheet = () => {
         LULCLayer: "setLULCLayer",
     };
 
-    const handleFormSubmission = useCallback(async () => {
-        if (submittedRef.current) return;
-        submittedRef.current = true;
-
+    const syncFormSubmission = async () => {
         try {
             MainStore.setIsLoading(true);
 
@@ -163,28 +157,11 @@ const Bottomsheet = () => {
             if (res.message === "Success") {
                 MainStore.setIsSubmissionSuccess(true);
             }
-            onDismiss();
         } catch (err) {
             console.log(err);
             MainStore.setIsLoading(false);
         }
-    }, [MainStore.currentScreen, MainStore.currentStep, MainStore.currentPlan, MainStore.districtName, MainStore.blockName]);
-
-    useEffect(() => {
-        if (!MainStore.isForm) {
-            submittedRef.current = false;
-            return;
-        }
-
-        const onMessage = (event) => {
-            if (event.data?.enketoEvent === "submissionsuccess") {
-                handleFormSubmission();
-            }
-        };
-
-        window.addEventListener("message", onMessage);
-        return () => window.removeEventListener("message", onMessage);
-    }, [MainStore.isForm, handleFormSubmission]);
+    };
 
     const getCategoryFillColor = (works) => {
         if (works.length === 0) return "#00000000";
@@ -677,22 +654,18 @@ const Bottomsheet = () => {
     );
 
     const onDismiss = () => {
+        if (MainStore.isForm) {
+            syncFormSubmission();
+        }
+
         MainStore.setIsForm(false);
-
         MainStore.setNregaSheet(false);
-
         MainStore.setIsMetadata(false);
-
         MainStore.setIsResource(false);
-
         MainStore.setIsWaterBody(false);
-
         MainStore.setIsGroundWater(false);
-
         MainStore.setIsAgriculture(false);
-
         MainStore.setIsLayerStore(false);
-
         MainStore.setIsResourceOpen(false);
         MainStore.setIsOpen(false);
         MainStore.setIsSiteAnalysis(false);
@@ -703,23 +676,11 @@ const Bottomsheet = () => {
         switch (true) {
             case MainStore.isForm && MainStore.formUrl !== "":
                 return (
-                    <>
-                        <iframe
-                            id="odk-frame"
-                            src={MainStore.formUrl}
-                            style={{ width: "100vw", height: "calc(100vh - 56px)" }}
-                        />
-                        <div className="sticky bottom-0 z-20 bg-white border-t border-gray-200 px-4 py-3 flex justify-center">
-                            <button
-                                onClick={handleFormSubmission}
-                                disabled={submittedRef.current}
-                                style={{ backgroundColor: submittedRef.current ? undefined : "#76c893" }}
-                                className="w-full max-w-md px-6 py-3 rounded-full disabled:bg-gray-400 text-white text-sm font-semibold shadow-md transition hover:opacity-90"
-                            >
-                                {t("Mark as Submitted")}
-                            </button>
-                        </div>
-                    </>
+                    <iframe
+                        id="odk-frame"
+                        src={MainStore.formUrl}
+                        style={{ width: "100vw", height: "100vh" }}
+                    />
                 );
 
             case MainStore.isNregaSheet:
