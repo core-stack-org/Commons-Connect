@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import useLayersStore from "../store/LayerStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
@@ -24,8 +24,17 @@ const Groundwater = () => {
     const LayersStore = useLayersStore((state) => state);
     const navigate = useNavigate();
 
+    const NET_YEARS = [
+        { value: "2017_22", label: "2017-2022" },
+        { value: "2018_23", label: "2018-2023" },
+        { value: "2019_24", label: "2019-2024" },
+        { value: "2020_25", label: "2020-2025" },
+    ];
+
     const [selectedLayer, setSelectedLayer] = useState("CLART");
     const [selectedSiteLayer, setSelectedSiteLayer] = useState("StreamOrder");
+    const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
+    const yearDropdownRef = useRef(null);
 
     useEffect(() => {
         const handleBackButton = () => {
@@ -49,6 +58,16 @@ const Groundwater = () => {
             window.removeEventListener("popstate", handleBackButton);
         };
     }, [MainStore.currentStep]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (yearDropdownRef.current && !yearDropdownRef.current.contains(e.target)) {
+                setYearDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const toggleFormsUrl = (toggle) => {
         let gpsCoords = MainStore.gpsLocation;
@@ -181,7 +200,7 @@ const Groundwater = () => {
             <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
                 <div className="relative w-full max-w-lg mx-auto flex items-center">
                     <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        {t("GroundWater")}
+                        {t("Water Balance")}
                     </div>
                 </div>
             </div>
@@ -301,53 +320,56 @@ const Groundwater = () => {
                 </div>
             </div>
 
-            {/* 3. WellDepth Toggle button - Hide when planning starts */}
+            {/* 3. WellDepth Year Dropdown - Hide when planning starts */}
             {MainStore.currentStep === 0 && (
                 <div className="absolute top-31.5 left-13 w-full px-4 z-10 flex justify-start pointer-events-auto">
-                    <div className="flex gap-4 max-w-lg">
-                        <div
-                            className={`relative inline-flex rounded-xl pb-0.5 pt-0.5`}
-                            style={{ backgroundColor: "#D6D5C9" }}
+                    <div className="relative inline-block" ref={yearDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setYearDropdownOpen((o) => !o)}
+                            className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium shadow-sm cursor-pointer"
+                            style={{ backgroundColor: "#D6D5C9", color: "#592941" }}
                         >
-                            {/* Sliding white pill background */}
-                            <div
-                                className="absolute top-0.5 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-in-out"
-                                style={{
-                                    height: "calc(100% - 4px)",
-                                    width: "50%",
-                                    transform:
-                                        MainStore.selectWellDepthYear ===
-                                            "2018_23"
-                                            ? "translateX(100%)"
-                                            : "translateX(0%)",
-                                }}
-                            />
+                            <span>{NET_YEARS.find((y) => y.value === MainStore.selectWellDepthYear)?.label}</span>
+                            <svg
+                                width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                stroke="#592941" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                className={`transition-transform duration-200 ${yearDropdownOpen ? "rotate-180" : ""}`}
+                            >
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </button>
 
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    MainStore.setSelectedWellDepthYear(
-                                        "2017_22",
-                                    )
-                                }
-                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
-                                style={{ color: "#592941" }}
+                        {yearDropdownOpen && (
+                            <div
+                                className="absolute left-0 top-full mt-1 rounded-xl shadow-lg overflow-hidden z-20"
+                                style={{ backgroundColor: "#D6D5C9", minWidth: "100%" }}
                             >
-                                {"2017-2022"}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    MainStore.setSelectedWellDepthYear(
-                                        "2018_23",
-                                    )
-                                }
-                                className="relative z-10 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
-                                style={{ color: "#592941" }}
-                            >
-                                {"2018-2023"}
-                            </button>
-                        </div>
+                                {NET_YEARS.map((yr) => (
+                                    <button
+                                        key={yr.value}
+                                        type="button"
+                                        onClick={() => {
+                                            MainStore.setSelectedWellDepthYear(yr.value);
+                                            setYearDropdownOpen(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer"
+                                        style={{
+                                            color: "#592941",
+                                            backgroundColor: yr.value === MainStore.selectWellDepthYear ? "#ffffff" : "transparent",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (yr.value !== MainStore.selectWellDepthYear) e.currentTarget.style.backgroundColor = "#c8c7bb";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.backgroundColor = yr.value === MainStore.selectWellDepthYear ? "#ffffff" : "transparent";
+                                        }}
+                                    >
+                                        {yr.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

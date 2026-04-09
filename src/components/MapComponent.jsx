@@ -2242,47 +2242,26 @@ const MapComponent = () => {
         const status = feature.values_;
         let tempColor;
 
-        if (MainStore.selectWellDepthYear === "2018_23") {
-          if (status.Net2018_23 < -5) {
-            tempColor = "rgba(255, 0, 0, 0.5)";
-          } else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) {
-            tempColor = "rgba(255, 255, 0, 0.5)";
-          } else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) {
-            tempColor = "rgba(0, 255, 0, 0.5)";
-          } else {
-            tempColor = "rgba(0, 0, 255, 0.5)";
-          }
-
-          return new Style({
-            stroke: new Stroke({
-              color: "#1AA7EC",
-              width: 1,
-            }),
-            fill: new Fill({
-              color: tempColor,
-            }),
-          });
+        const netValue = status[`Net${MainStore.selectWellDepthYear}`];
+        if (netValue < -5) {
+          tempColor = "rgba(255, 0, 0, 0.5)";
+        } else if (netValue >= -5 && netValue < -1) {
+          tempColor = "rgba(255, 255, 0, 0.5)";
+        } else if (netValue >= -1 && netValue <= 1) {
+          tempColor = "rgba(0, 255, 0, 0.5)";
         } else {
-          if (status.Net2017_22 < -5) {
-            tempColor = "rgba(255, 0, 0, 0.5)";
-          } else if (status.Net2017_22 >= -5 && status.Net2017_22 < -1) {
-            tempColor = "rgba(255, 255, 0, 0.5)";
-          } else if (status.Net2017_22 >= -1 && status.Net2017_22 <= 1) {
-            tempColor = "rgba(0, 255, 0, 0.5)";
-          } else {
-            tempColor = "rgba(0, 0, 255, 0.5)";
-          }
-
-          return new Style({
-            stroke: new Stroke({
-              color: "#1AA7EC",
-              width: 1,
-            }),
-            fill: new Fill({
-              color: tempColor,
-            }),
-          });
+          tempColor = "rgba(0, 0, 255, 0.5)";
         }
+
+        return new Style({
+          stroke: new Stroke({
+            color: "#1AA7EC",
+            width: 1,
+          }),
+          fill: new Fill({
+            color: tempColor,
+          }),
+        });
       });
     }
   }, [MainStore.selectWellDepthYear]);
