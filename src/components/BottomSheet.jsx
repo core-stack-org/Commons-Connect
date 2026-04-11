@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import useMainStore from "../store/MainStore.jsx";
@@ -118,9 +119,22 @@ const Bottomsheet = () => {
         LULCLayer: "setLULCLayer",
     };
 
-    const syncFormSubmission = async () => {
+    const pollTimerRef = useRef(null);
+    const syncDoneRef = useRef(false);
+
+    const POLL_DELAYS_MS = [45000, 15000, 15000, 15000, 15000, 15000];
+
+    const stopPolling = () => {
+        if (pollTimerRef.current) {
+            clearTimeout(pollTimerRef.current);
+            pollTimerRef.current = null;
+        }
+    };
+
+    const syncFormSubmission = async (silent = false) => {
+        if (syncDoneRef.current) return true;
         try {
-            MainStore.setIsLoading(true);
+            if (!silent) MainStore.setIsLoading(true);
 
             const isResource = MainStore.currentScreen === "Resource_mapping";
             const url = isResource
@@ -152,16 +166,43 @@ const Bottomsheet = () => {
             });
 
             const res = await response.json();
-            MainStore.setIsLoading(false);
+            if (!silent) MainStore.setIsLoading(false);
 
             if (res.message === "Success") {
+                syncDoneRef.current = true;
                 MainStore.setIsSubmissionSuccess(true);
+                stopPolling();
+                return true;
             }
+            return false;
         } catch (err) {
             console.log(err);
-            MainStore.setIsLoading(false);
+            if (!silent) MainStore.setIsLoading(false);
+            return false;
         }
     };
+
+    useEffect(() => {
+        if (MainStore.isForm && MainStore.formUrl) {
+            syncDoneRef.current = false;
+            let attempt = 0;
+
+            const poll = async () => {
+                if (syncDoneRef.current || attempt >= POLL_DELAYS_MS.length) return;
+                const success = await syncFormSubmission(true);
+                if (success) return;
+                attempt++;
+                if (attempt < POLL_DELAYS_MS.length) {
+                    pollTimerRef.current = setTimeout(poll, POLL_DELAYS_MS[attempt]);
+                }
+            };
+
+            pollTimerRef.current = setTimeout(poll, POLL_DELAYS_MS[0]);
+        } else {
+            stopPolling();
+        }
+        return () => stopPolling();
+    }, [MainStore.isForm, MainStore.formUrl]);
 
     const getCategoryFillColor = (works) => {
         if (works.length === 0) return "#00000000";
@@ -655,7 +696,10 @@ const Bottomsheet = () => {
 
     const onDismiss = () => {
         if (MainStore.isForm) {
-            syncFormSubmission();
+            stopPolling();
+            if (!syncDoneRef.current) {
+                syncFormSubmission();
+            }
         }
 
         MainStore.setIsForm(false);
