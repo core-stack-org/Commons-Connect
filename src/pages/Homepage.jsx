@@ -7,6 +7,7 @@ import HamburgerMenu from "../components/HamburgerMenu.jsx";
 import PlanSheet from "../components/PlanSheet.jsx";
 import { useTranslation } from "react-i18next";
 import authService from "../services/authService.js";
+import NorthIndicator from "../components/NorthIndicator.jsx";
 
 const Homepage = () => {
   const [searchParams] = useSearchParams();
@@ -161,6 +162,11 @@ const Homepage = () => {
                   .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
                   .join(" ")
               : "Homepage"}
+          </div>
+
+          {/* North indicator */}
+          <div className="pointer-events-auto ml-2 flex-shrink-0">
+            <NorthIndicator />
           </div>
         </div>
       </div>
