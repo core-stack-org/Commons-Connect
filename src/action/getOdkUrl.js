@@ -38,7 +38,7 @@ export default function getOdkUrlForScreen(
       "&d[/data/meta/instanceID]=";
   } else if (screen === "Resource_mapping" && step === 1) {
     odk_url =
-      "https://odk.core-stack.org/f/iB707x5CMdklU3QbjvopaeNlBiG3WLc?st=19BTDQ31numlgTB5vTjZZZxrgPRtYv1TZtNw2662Md$OA0uqHioc3xYYZ8lNwrar" + // well form
+      "https://odk.core-stack.org/f/XGQhsczjxxcicadpOwTLhJMK8USlAAt?st=gUeGYGPMzDxyU95ZQjfkwcEXFlP2MmD!2eLCQvhh2QpOByBJHNgSAqYQhpwuHnqY" + // well form
       "&d[/data/GPS_point/point_mapappearance]=" +
       latlong[1].toString() +
       "%20" +
