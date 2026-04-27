@@ -259,6 +259,29 @@ const MapComponent = () => {
 
   const fetchLocationFromFlutter = async () => {
     try {
+      if (window.flutter_inappwebview?.callHandler) {
+        const locationData = await window.flutter_inappwebview.callHandler(
+          "GetCurrentLocation",
+        );
+        const longitude = Number(locationData?.longitude);
+        const latitude = Number(locationData?.latitude);
+
+        if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+          return {
+            coords: [longitude, latitude],
+            accuracy: Number(locationData.accuracy) || null,
+          };
+        }
+
+        if (locationData?.error) {
+          console.warn("Flutter app returned error:", locationData.error);
+        }
+      }
+    } catch (err) {
+      console.warn("Flutter location handler unavailable:", err);
+    }
+
+    try {
       const response = await fetch(`http://localhost:3000/api/v1/location`, {
         cache: "no-store",
       });
@@ -288,6 +311,32 @@ const MapComponent = () => {
 
     return null;
   };
+
+  const fetchLocationFromBrowser = () =>
+    new Promise((resolve) => {
+      if (!navigator.geolocation?.getCurrentPosition) {
+        resolve(null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            coords: [position.coords.longitude, position.coords.latitude],
+            accuracy: position.coords.accuracy,
+          });
+        },
+        (geoError) => {
+          console.warn("Browser geolocation getCurrentPosition error:", geoError);
+          resolve(null);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
+    });
 
   const updateLiveGpsPosition = (coords, accuracy = null, shouldCenter = false) => {
     if (!mapRef.current || !PositionFeatureRef.current || !isValidCoordinate(coords)) {
@@ -2158,6 +2207,25 @@ const MapComponent = () => {
 
         GpsPollIntervalRef.current = window.setInterval(async () => {
           const nextLocation = await fetchLocationFromFlutter();
+          if (nextLocation) {
+            updateLiveGpsPosition(nextLocation.coords, nextLocation.accuracy);
+          }
+        }, 2500);
+
+        return;
+      }
+
+      const firstBrowserLocation = await fetchLocationFromBrowser();
+      if (firstBrowserLocation) {
+        updateLiveGpsPosition(
+          firstBrowserLocation.coords,
+          firstBrowserLocation.accuracy,
+          true,
+        );
+        toast.success?.("Live GPS tracking started");
+
+        GpsPollIntervalRef.current = window.setInterval(async () => {
+          const nextLocation = await fetchLocationFromBrowser();
           if (nextLocation) {
             updateLiveGpsPosition(nextLocation.coords, nextLocation.accuracy);
           }
