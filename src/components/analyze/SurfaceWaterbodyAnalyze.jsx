@@ -14,11 +14,21 @@ import getOdkUrlForScreen from "../../action/getOdkUrl"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const years = ["17-18", "18-19", "19-20", "20-21", "21-22", "22-23", "23-24"];
+// 2017 → "2017-18"
+const agrFullLabel = (y) => `${y}-${String(y + 1).slice(-2)}`;
+
+// 2017 → "17-18"  (matches data keys: k_17-18, kr_17-18 …)
+const agrShortKey = (y) => `${String(y).slice(-2)}-${String(y + 1).slice(-2)}`;
+
+// 2017 → "'17-18"  (compact slider tick)
+const agrShortLabel = (y) => `'${agrShortKey(y)}`;
+
+const YEARS = [2017, 2018, 2019, 2020, 2021, 2022, 2023];
 
 const SurfaceWaterBodies = () => {
-  const [idx, setIdx] = useState(years.length - 1);
-  const yearLabel = years[idx];
+  const [idx, setIdx] = useState(YEARS.length - 1);
+  const year = YEARS[idx];
+  const yearKey = agrShortKey(year);
   const MainStore = useMainStore((s) => s);
   const { t } = useTranslation();
 
@@ -32,16 +42,16 @@ const SurfaceWaterBodies = () => {
   const { chartData, isZero } = useMemo(() => {
     const safe = (k) => Number(MainStore.selectedResource?.[k] ?? 0);
     const dataArr = [
-      safe(`k_${yearLabel}`),
-      safe(`kr_${yearLabel}`),
-      safe(`krz_${yearLabel}`),
+      safe(`k_${yearKey}`),
+      safe(`kr_${yearKey}`),
+      safe(`krz_${yearKey}`),
     ];
     return {
       chartData: {
         labels: [t("Kharif"), t("Kharif-Rabi"), t("Kharif-Rabi-Zaid")],
         datasets: [
           {
-            label: yearLabel,
+            label: agrFullLabel(year),
             backgroundColor: ["#E38627", "#C13C37", "#6A2135"],
             borderRadius: 4,
             data: dataArr,
@@ -50,7 +60,7 @@ const SurfaceWaterBodies = () => {
       },
       isZero: dataArr.every((v) => v === 0),
     };
-  }, [idx, MainStore.selectedResource, yearLabel, t]);
+  }, [idx, MainStore.selectedResource, yearKey, year, t]);
 
   const toggleFormsUrl = () => {
     MainStore.setIsForm(true)
@@ -114,45 +124,51 @@ const SurfaceWaterBodies = () => {
         </div>
 
         {/* year slider */}
-        <div className="mt-6 w-3/4 max-w-lg mx-auto">
-          {/* Year marks above slider */}
+        <div className="w-full max-w-md mx-auto pt-4 pb-8 px-4">
+          <div className="text-center mb-4">
+            <span className="text-2xl font-bold text-[#592941]">
+              {agrFullLabel(year)}
+            </span>
+          </div>
+
           <div className="relative mb-2">
             <div className="flex justify-between relative">
-              {years.map((year, index) => (
-                <div key={year} className="flex flex-col items-center relative">
-                  {/* Tick mark */}
-                  <div 
-                    className={`w-0.5 h-3 mb-1 transition-colors duration-200 ${
-                      index === idx ? 'bg-[#592941]' : 'bg-gray-400'
-                    }`}
-                  />
-                  {/* Year label */}
-                  <span 
-                    className={`text-xs font-bold transition-colors duration-200 ${
-                      index === idx ? 'text-[#592941]' : 'text-gray-700'
-                    }`}
-                  >
-                    {year}
-                  </span>
-                </div>
-              ))}
+              {YEARS.map((y, index) => {
+                const showLabel = index === 0 || index === YEARS.length - 1 || index === idx;
+                return (
+                  <div key={y} className="flex flex-col items-center relative flex-1">
+                    <div
+                      className={`w-0.5 transition-all duration-200 ${
+                        index === idx ? "h-4 bg-[#592941]" : "h-2 bg-gray-400"
+                      }`}
+                    />
+                    {showLabel && (
+                      <span
+                        className={`text-xs font-medium mt-1 transition-colors duration-200 ${
+                          index === idx ? "text-[#592941] font-bold" : "text-gray-500"
+                        }`}
+                      >
+                        {agrShortLabel(y)}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
-          
-          {/* Slider */}
+
           <input
             type="range"
             min="0"
-            max={years.length - 1}
+            max={YEARS.length - 1}
             step="1"
             value={idx}
             onChange={(e) => setIdx(Number(e.target.value))}
-            className="w-full accent-[#592941] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
+            className="w-full accent-[#592941] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-swb"
           />
-          
-          {/* Add custom slider styles */}
+
           <style jsx>{`
-            .slider-custom::-webkit-slider-thumb {
+            .slider-swb::-webkit-slider-thumb {
               appearance: none;
               height: 20px;
               width: 20px;
@@ -160,17 +176,16 @@ const SurfaceWaterBodies = () => {
               background: #592941;
               cursor: pointer;
               border: 2px solid white;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             }
-            
-            .slider-custom::-moz-range-thumb {
+            .slider-swb::-moz-range-thumb {
               height: 20px;
               width: 20px;
               border-radius: 50%;
               background: #592941;
               cursor: pointer;
               border: 2px solid white;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             }
           `}</style>
         </div>
