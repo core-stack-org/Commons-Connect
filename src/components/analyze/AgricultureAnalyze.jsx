@@ -18,6 +18,12 @@ const fmt = (v, d = 0) =>
         ? Number(v).toLocaleString("en-IN", { maximumFractionDigits: d })
         : "—";
 
+// 2020 → "2020-21"
+const agrFullLabel = (y) => `${y}-${String(y + 1).slice(-2)}`;
+
+// 2020 → "'20-21"
+const agrShortLabel = (y) => `'${String(y).slice(-2)}-${String(y + 1).slice(-2)}`;
+
 // Helper function to extract years from keys matching a pattern
 const extractYearsFromKeys = (obj, pattern) => {
     if (!obj) return [];
@@ -151,7 +157,7 @@ const AgricultureAnalyze = () => {
             labels: ["Mild", "Moderate", "Severe", "Dryspell"],
             datasets: [
                 {
-                    label: `Drought Frequency (${year})`,
+                    label: `Drought Frequency (${agrFullLabel(year)})`,
                     data: [
                         annual["Mild Drought"],
                         annual["Moderate Drought"],
@@ -173,7 +179,7 @@ const AgricultureAnalyze = () => {
         const ctx = chartRef.current.getContext("2d");
         if (chartInstanceRef.current) {
             chartInstanceRef.current.data = data;
-            chartInstanceRef.current.options.scales.x.title.text = `Year: ${year}`;
+            chartInstanceRef.current.options.scales.x.title.text = `Year: ${agrFullLabel(year)}`;
             chartInstanceRef.current.update();
         } else {
             chartInstanceRef.current = new Chart(ctx, {
@@ -192,7 +198,7 @@ const AgricultureAnalyze = () => {
                             },
                         },
                         x: {
-                            title: { display: true, text: `Year: ${year}` },
+                            title: { display: true, text: `Year: ${agrFullLabel(year)}` },
                         },
                     },
                     plugins: {
@@ -228,7 +234,7 @@ const AgricultureAnalyze = () => {
         );
 
         const data = {
-            labels: [`${year}`],
+            labels: [agrFullLabel(year)],
             datasets: [
                 {
                     label: "Single",
@@ -294,7 +300,7 @@ const AgricultureAnalyze = () => {
         );
 
         const data = {
-            labels: croppingYears.map(String),
+            labels: croppingYears.map(agrFullLabel),
             datasets: [
                 {
                     label: "Cropping Intensity",
@@ -360,8 +366,8 @@ const AgricultureAnalyze = () => {
 
     // Dynamic year range for the trend chart title
     const trendYearRange = croppingYears.length > 0
-        ? `${croppingYears[0]}-${croppingYears[croppingYears.length - 1]}`
-        : "2017-2022";
+        ? `${agrFullLabel(croppingYears[0])} – ${agrFullLabel(croppingYears[croppingYears.length - 1])}`
+        : "2017-18 – 2021-22";
 
     return (
         <>
@@ -397,7 +403,7 @@ const AgricultureAnalyze = () => {
                     </div>
                 ) : (
                     <p className="text-center text-gray-500">
-                        {t("info_blank")} {year}
+                        {t("info_blank")} {agrFullLabel(year)}
                     </p>
                 )}
 
@@ -408,7 +414,7 @@ const AgricultureAnalyze = () => {
                 {/* Drought chart */}
                 <section>
                     <h2 className="font-bold text-gray-700 mb-2">
-                        {t("drought_header")} ({year})
+                        {t("drought_header")} ({agrFullLabel(year)})
                     </h2>
                     {hasDroughtData ? (
                         <div className="relative h-72">
@@ -425,7 +431,7 @@ const AgricultureAnalyze = () => {
                 <div className="w-full max-w-md mx-auto pt-4 pb-8 px-4">
                     {/* Currently selected year - prominent display */}
                     <div className="text-center mb-4">
-                        <span className="text-2xl font-bold text-[#0f766e]">{year}</span>
+                        <span className="text-2xl font-bold text-[#0f766e]">{agrFullLabel(year)}</span>
                     </div>
 
                     {/* Year marks above slider */}
@@ -454,7 +460,7 @@ const AgricultureAnalyze = () => {
                                                         : "text-gray-500"
                                                     }`}
                                             >
-                                                '{String(y).slice(-2)}
+                                                {agrShortLabel(y)}
                                             </span>
                                         )}
                                     </div>
@@ -501,7 +507,7 @@ const AgricultureAnalyze = () => {
                 {/* Cropping Pattern chart */}
                 <section>
                     <h2 className="font-bold text-gray-700 mb-2">
-                        {t("cropping_in_header")} ({year})
+                        {t("cropping_in_header")} ({agrFullLabel(year)})
                     </h2>
                     {totalCropableAreaKey && selectedResource[totalCropableAreaKey] > 0 ? (
                         <div className="relative h-72">
