@@ -20,7 +20,7 @@ export default function getOdkUrlForScreen(
 
   if (screen === "Resource_mapping" && step === 0) {
     odk_url =
-      "https://odk.core-stack.org/f/HTlXO3NNYQpChvES0syxi5dREOamesu?st=oI!zXDRmVpsBukqyGd$hjFcXNRJiO4Nyx$iwVVmvcSNuU$TGfXIJWKOOf2jz$Hzv" + // settlement form
+      "https://odk.core-stack.org/f/AOV0NchVMqkZVpCgZyWwJylCdnOIXwi?st=TBomGhMfOetjH6thCwy$zzXyj!5bZs6Q20MejPCDCdNmX7IO9MqzRB6DkJ$PEOpl" + // settlement form
       "&d[/data/GPS_point/point_mapsappearance]=" +
       latlong[1].toString() +
       "%20" +
@@ -39,7 +39,7 @@ export default function getOdkUrlForScreen(
   } else if (screen === "Resource_mapping" && step === 1) {
     odk_url =
      odk_url =
-      "https://odk.core-stack.org/f/9hXWcqP3aDqHA0FGJQC8JYntAvoi072?st=gLQVQmT!TJZbZLvwi5gUqV9qSWjdLv$t6!FSLdJb3KT2$wdDvk1HmIlJcoXvsTg7" + // well form
+      "https://odk.core-stack.org/f/iB707x5CMdklU3QbjvopaeNlBiG3WLc?st=19BTDQ31numlgTB5vTjZZZxrgPRtYv1TZtNw2662Md$OA0uqHioc3xYYZ8lNwrar" + // well form
       "&d[/data/GPS_point/point_mapappearance]=" +
       latlong[1].toString() +
       "%20" +

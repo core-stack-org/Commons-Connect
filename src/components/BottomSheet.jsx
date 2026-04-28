@@ -753,6 +753,7 @@ const Bottomsheet = () => {
                         id="odk-frame"
                         src={MainStore.formUrl}
                         style={{ width: "100vw", height: "100vh" }}
+                        allow="camera; microphone; geolocation"
                     />
                 );
 
