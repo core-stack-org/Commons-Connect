@@ -51,6 +51,7 @@ const Agriculture = () => {
         "21-22",
         "22-23",
         "23-24",
+        "24-25",
     ];
 
     const [selectedLayer, setSelectedLayer] = useState("CLART");

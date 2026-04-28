@@ -226,6 +226,7 @@ const MapComponent = () => {
     useRef(null),
     useRef(null),
     useRef(null),
+    useRef(null),
   ];
 
   //?                   Cropping       Drought        Works
@@ -238,6 +239,7 @@ const MapComponent = () => {
     4: "21_22",
     5: "22_23",
     6: "23_24",
+    7: "24_25",
   };
 
   let LivelihoodRefs = [useRef(null)];
@@ -1372,7 +1374,9 @@ const MapComponent = () => {
         });
 
       if (currentStep === 0) {
-        mapRef.current.addLayer(LulcLayerRefs[0].current);
+        if (LulcLayerRefs[MainStore.lulcYearIdx].current !== null) {
+          mapRef.current.addLayer(LulcLayerRefs[MainStore.lulcYearIdx].current);
+        }
         mapRef.current.addLayer(AgriLayersRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[1].current);
         mapRef.current.addLayer(AgriLayersRefs[2].current);
@@ -1799,15 +1803,15 @@ const MapComponent = () => {
             loadingPromises.push(DroughtIntensity.loadPromise);
           }
         }
-        if (LulcLayerRefs[0].current === null) {
+        if (LulcLayerRefs[MainStore.lulcYearIdx].current === null) {
           let lulcLayer = await getImageLayer(
             "LULC_level_3",
-            `LULC_17_18_${districtName}_${blockName}_level_3`,
+            `LULC_${LulcYears[MainStore.lulcYearIdx]}_${districtName}_${blockName}_level_3`,
             true,
             "",
           );
-          LulcLayerRefs[0].current = lulcLayer;
-          LulcLayerRefs[0].current.setOpacity(0.6);
+          LulcLayerRefs[MainStore.lulcYearIdx].current = lulcLayer;
+          LulcLayerRefs[MainStore.lulcYearIdx].current.setOpacity(0.6);
           if (lulcLayer.loadPromise) {
             loadingPromises.push(lulcLayer.loadPromise);
           }
@@ -1850,7 +1854,7 @@ const MapComponent = () => {
             loadingPromises.push(drainageLayer.loadPromise);
           }
         }
-        mapRef.current.addLayer(LulcLayerRefs[0].current);
+        mapRef.current.addLayer(LulcLayerRefs[MainStore.lulcYearIdx].current);
         mapRef.current.addLayer(AgriLayersRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[1].current);
         mapRef.current.addLayer(AgriLayersRefs[2].current);
