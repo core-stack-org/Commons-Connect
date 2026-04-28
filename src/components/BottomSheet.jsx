@@ -403,6 +403,28 @@ const Bottomsheet = () => {
         </>
     );
 
+    // Helper function to get value with underscore fallback
+    const getMetadataValue = (obj, key) => {
+        // Try the exact key first
+        if (key in obj) {
+            return obj[key];
+        }
+        
+        // Try with underscores replaced by spaces
+        const spaceVersion = key.replace(/_/g, " ");
+        if (spaceVersion !== key && spaceVersion in obj) {
+            return obj[spaceVersion];
+        }
+        
+        // Try with spaces replaced by underscores
+        const underscoreVersion = key.replace(/ /g, "_");
+        if (underscoreVersion !== key && underscoreVersion in obj) {
+            return obj[underscoreVersion];
+        }
+        
+        return undefined;
+    };
+
     const metaDataBody = (
         <>
             <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
@@ -416,7 +438,12 @@ const Bottomsheet = () => {
                             MainStore.metadata !== null &&
                             Object.keys(nregaDetails.NameDisplayMapping).map(
                                 (key, index) => {
-                                    const rawValue = MainStore.metadata[key];
+                                    // Use helper function to get value with fallback
+                                    const rawValue = getMetadataValue(
+                                        MainStore.metadata,
+                                        key
+                                    );
+                                    
                                     const formattedValue = (() => {
                                         let value = rawValue;
 
@@ -434,20 +461,22 @@ const Bottomsheet = () => {
                                             ? `₹${value}`
                                             : value;
                                     })();
+                                    
                                     return (
                                         <div
                                             key={key}
-                                            className={`flex items-center min-h-[3rem] ${index % 2 === 0
-                                                ? "bg-gray-50"
-                                                : "bg-white"
-                                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
+                                            className={`flex items-center min-h-[3rem] ${
+                                                index % 2 === 0
+                                                    ? "bg-gray-50"
+                                                    : "bg-white"
+                                            } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
                                         >
                                             <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
                                                 <span className="text-sm font-semibold text-gray-700 tracking-wide">
                                                     {
                                                         nregaDetails
                                                             .NameDisplayMapping[
-                                                        key
+                                                            key
                                                         ]
                                                     }
                                                 </span>
