@@ -17,11 +17,9 @@ import TileLayer from "ol/layer/Tile";
 import Control from "ol/control/Control.js";
 import { defaults as defaultControls } from "ol/control/defaults.js";
 import { Map, View, Feature, Geolocation } from "ol";
-import { Stroke, Fill, Style, Icon, Text, Circle as CircleStyle } from "ol/style.js";
+import { Stroke, Fill, Style, Icon, Text } from "ol/style.js";
 import VectorLayer from "ol/layer/Vector.js";
 import Point from "ol/geom/Point.js";
-import LineString from "ol/geom/LineString.js";
-import CircleGeom from "ol/geom/Circle.js";
 import Select from "ol/interaction/Select.js";
 import WebGLVectorLayer from "ol/layer/WebGLVector.js";
 import VectorSource from "ol/source/Vector.js";
@@ -36,6 +34,7 @@ import mapMarker from "../assets/map_marker.svg";
 import farm_pond_proposed from "../assets/farm_pond_proposed.svg";
 import land_leveling_proposed from "../assets/land_leveling_proposed.svg";
 import well_mrker from "../assets/well_icon.svg";
+import Man_icon from "../assets/Man_icon.png";
 import livelihoodIcon from "../assets/livelihood_proposed.svg";
 import fisheriesIcon from "../assets/Fisheries.svg";
 import plantationsIcon from "../assets/Plantation.svg";
@@ -174,13 +173,8 @@ const MapComponent = () => {
   const CatchmentAreaLayerRef = useRef(null);
   const WaterbodiesLayerRef = useRef(null);
   const PositionFeatureRef = useRef(null);
-  const AccuracyFeatureRef = useRef(null);
-  const TrailFeatureRef = useRef(null);
   const GeolocationRef = useRef(null);
   const GpsLayerRef = useRef(null);
-  const GpsPollIntervalRef = useRef(null);
-  const GpsWatchIdRef = useRef(null);
-  const GpsTrailCoordsRef = useRef([]);
 
   const tempSettlementFeature = useRef(null);
   const tempSettlementLayer = useRef(null);
@@ -250,101 +244,6 @@ const MapComponent = () => {
 
   //?                   Site Suitability Raster, Terrain Mask Layer
   let AgrohorticulureRefs = [useRef(null), useRef(null)];
-
-  const isValidCoordinate = (coords) =>
-    Array.isArray(coords) &&
-    coords.length === 2 &&
-    Number.isFinite(coords[0]) &&
-    Number.isFinite(coords[1]);
-
-  const fetchLocationFromFlutter = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/v1/location`, {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        console.error(`Failed to fetch from Flutter: ${response.status}`);
-        return null;
-      }
-
-      const locationData = await response.json();
-      const longitude = Number(locationData?.longitude);
-      const latitude = Number(locationData?.latitude);
-
-      if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-        return {
-          coords: [longitude, latitude],
-          accuracy: Number(locationData.accuracy) || null,
-        };
-      }
-
-      if (locationData?.error) {
-        console.warn("Flutter app returned error:", locationData.error);
-      }
-    } catch (err) {
-      console.warn("Flutter location endpoint unavailable:", err);
-    }
-
-    return null;
-  };
-
-  const updateLiveGpsPosition = (coords, accuracy = null, shouldCenter = false) => {
-    if (!mapRef.current || !PositionFeatureRef.current || !isValidCoordinate(coords)) {
-      return;
-    }
-
-    MainStore.setGpsLocation(coords);
-    PositionFeatureRef.current.setGeometry(new Point(coords));
-
-    if (AccuracyFeatureRef.current && Number.isFinite(accuracy) && accuracy > 0) {
-      AccuracyFeatureRef.current.setGeometry(
-        new CircleGeom(coords, accuracy / 111320),
-      );
-    }
-
-    const lastCoord =
-      GpsTrailCoordsRef.current[GpsTrailCoordsRef.current.length - 1];
-    const movedEnough =
-      !lastCoord ||
-      Math.abs(lastCoord[0] - coords[0]) > 0.000005 ||
-      Math.abs(lastCoord[1] - coords[1]) > 0.000005;
-
-    if (movedEnough) {
-      GpsTrailCoordsRef.current = [...GpsTrailCoordsRef.current, coords].slice(-300);
-      TrailFeatureRef.current?.setGeometry(
-        new LineString(GpsTrailCoordsRef.current),
-      );
-    }
-
-    if (shouldCenter) {
-      const view = mapRef.current.getView();
-      view.animate(
-        {
-          center: coords,
-          duration: 800,
-          easing: easeOut,
-        },
-        {
-          zoom: 17,
-          duration: 1000,
-          easing: easeOut,
-        },
-      );
-    }
-  };
-
-  const stopLiveGpsTracking = () => {
-    if (GpsPollIntervalRef.current) {
-      clearInterval(GpsPollIntervalRef.current);
-      GpsPollIntervalRef.current = null;
-    }
-
-    if (GpsWatchIdRef.current !== null && navigator.geolocation) {
-      navigator.geolocation.clearWatch(GpsWatchIdRef.current);
-      GpsWatchIdRef.current = null;
-    }
-  };
 
   const initializeMap = async () => {
     const baseLayer = new TileLayer({
@@ -2079,123 +1978,159 @@ const MapComponent = () => {
   };
 
   useEffect(() => {
-    const initializeGPSLocation = async () => {
-      if (!MainStore.isGPSClick) {
-        return;
-      }
+    const fetchLocationFromFlutter = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/v1/location`);
 
+        if (response.ok) {
+          const locationData = await response.json();
+
+          // Check if we got valid location data
+          if (locationData && locationData.latitude && locationData.longitude) {
+            const newCoords = [locationData.longitude, locationData.latitude];
+            MainStore.setGpsLocation(newCoords);
+            return newCoords;
+          } else if (locationData.error) {
+            console.warn("Flutter app returned error:", locationData.error);
+          }
+        } else {
+          console.error(`Failed to fetch from Flutter: ${response.status}`);
+        }
+      } catch (err) {
+        // Fallback to browser geolocation
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => resolve(pos),
+              (error) => reject(error),
+              {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0,
+              },
+            );
+          });
+
+          const coords = [position.coords.longitude, position.coords.latitude];
+          console.log("Fallback to browser location:", coords);
+          MainStore.setGpsLocation(coords);
+          return coords;
+        } catch (geoError) {
+          console.error("Browser geolocation error:", geoError);
+          return null;
+        }
+      }
+    };
+
+    const initializeGPSLocation = async () => {
+      // Initialize position feature if not already created
       if (PositionFeatureRef.current === null && mapRef.current !== null) {
         const positionFeature = new Feature();
-        const accuracyFeature = new Feature();
-        const trailFeature = new Feature({
-          geometry: new LineString([]),
-        });
-
-        trailFeature.setStyle(
-          new Style({
-            stroke: new Stroke({
-              color: "rgba(30, 136, 229, 0.75)",
-              width: 4,
-              lineCap: "round",
-              lineJoin: "round",
-            }),
-          }),
-        );
 
         positionFeature.setStyle(
           new Style({
-            image: new CircleStyle({
-              radius: 8,
-              fill: new Fill({ color: "#1a73e8" }),
-              stroke: new Stroke({ color: "#ffffff", width: 3 }),
+            image: new Icon({
+              src: Man_icon,
+              scale: 0.8,
+              anchor: [0.5, 0.5],
+              anchorXUnits: "fraction",
+              anchorYUnits: "fraction",
             }),
           }),
         );
-
-        accuracyFeature.setStyle(
-          new Style({
-            fill: new Fill({ color: "rgba(26, 115, 232, 0.16)" }),
-            stroke: new Stroke({
-              color: "rgba(26, 115, 232, 0.35)",
-              width: 1,
-            }),
-          }),
-        );
-
-        TrailFeatureRef.current = trailFeature;
-        AccuracyFeatureRef.current = accuracyFeature;
         PositionFeatureRef.current = positionFeature;
 
+        // Create GPS layer if it doesn't exist
         if (!GpsLayerRef.current) {
           let gpsLayer = new VectorLayer({
             map: mapRef.current,
             source: new VectorSource({
-              features: [accuracyFeature, trailFeature, positionFeature],
+              features: [positionFeature],
             }),
-            zIndex: 99,
+            zIndex: 99, // Ensure it's on top
           });
           GpsLayerRef.current = gpsLayer;
         }
       }
 
-      if (mapRef.current === null) {
-        return;
-      }
+      // Fetch location when GPS button is clicked
+      if (MainStore.isGPSClick && mapRef.current !== null) {
+        let loadingToastId = null;
 
-      stopLiveGpsTracking();
-      GpsTrailCoordsRef.current = [];
+        // Check which toast library you're using and use appropriate method
+        if (toast.loading) {
+          // For react-hot-toast
+          loadingToastId = toast.loading("Getting GPS location...");
+        } else if (toast.info && toast.dismiss) {
+          // For react-toastify
+          loadingToastId = toast.info("Getting GPS location...", {
+            autoClose: false,
+            closeButton: false,
+            draggable: false,
+          });
+        } else {
+          // Fallback for simple toast
+          toast("Getting GPS location...");
+        }
 
-      const loadingToastId = toast.loading?.("Getting GPS location...");
-      const firstLocation = await fetchLocationFromFlutter();
+        // Fetch location from Flutter app (with fallback to browser)
+        const currentLocation = await fetchLocationFromFlutter();
 
-      if (loadingToastId) {
-        toast.dismiss(loadingToastId);
-      }
-
-      if (firstLocation) {
-        updateLiveGpsPosition(firstLocation.coords, firstLocation.accuracy, true);
-        toast.success?.("Live GPS tracking started");
-
-        GpsPollIntervalRef.current = window.setInterval(async () => {
-          const nextLocation = await fetchLocationFromFlutter();
-          if (nextLocation) {
-            updateLiveGpsPosition(nextLocation.coords, nextLocation.accuracy);
+        // Dismiss the loading toast
+        if (loadingToastId) {
+          if (toast.dismiss) {
+            toast.dismiss(loadingToastId);
+          } else if (toast.remove) {
+            toast.remove(loadingToastId);
           }
-        }, 2500);
+        }
 
-        return;
+        if (currentLocation !== null && PositionFeatureRef.current !== null) {
+          // Update position feature geometry
+          PositionFeatureRef.current.setGeometry(new Point(currentLocation));
+
+          // Animate map to new position
+          const view = mapRef.current.getView();
+
+          // First pan to location
+          view.animate({
+            center: currentLocation,
+            duration: 800,
+            easing: easeOut,
+          });
+
+          // Then zoom to level 17
+          view.animate({
+            zoom: 17,
+            duration: 1000,
+            easing: easeOut,
+          });
+
+          // Show success toast
+          if (toast.success) {
+            toast.success("Location updated!");
+          } else {
+            toast("Location updated!");
+          }
+        } else if (currentLocation === null) {
+          // Show error toast
+          if (toast.error) {
+            toast.error("Failed to get GPS location");
+          } else {
+            toast("Failed to get GPS location");
+          }
+        }
+
+        // Reset the GPS click state if needed
+        // MainStore.setIsGPSClick(false); // Uncomment if you want to reset the state
       }
-
-      if (!navigator.geolocation) {
-        toast.error?.("GPS location is not available");
-        return;
-      }
-
-      GpsWatchIdRef.current = navigator.geolocation.watchPosition(
-        (position) => {
-          updateLiveGpsPosition(
-            [position.coords.longitude, position.coords.latitude],
-            position.coords.accuracy,
-            GpsTrailCoordsRef.current.length === 0,
-          );
-        },
-        (geoError) => {
-          console.error("Browser geolocation error:", geoError);
-          toast.error?.("Failed to get GPS location");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        },
-      );
     };
 
+    // Call the initialization function
     initializeGPSLocation();
 
+    // Cleanup function
     return () => {
-      stopLiveGpsTracking();
-
       if (GeolocationRef.current) {
         GeolocationRef.current.setTracking(false);
       }
@@ -2206,12 +2141,8 @@ const MapComponent = () => {
         GpsLayerRef.current = null;
       }
 
-      AccuracyFeatureRef.current = null;
-      TrailFeatureRef.current = null;
       PositionFeatureRef.current = null;
     };
-    // GPS tracking is intentionally keyed only to the button trigger.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [MainStore.isGPSClick]);
 
   useEffect(() => {
