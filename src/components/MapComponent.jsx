@@ -17,9 +17,11 @@ import TileLayer from "ol/layer/Tile";
 import Control from "ol/control/Control.js";
 import { defaults as defaultControls } from "ol/control/defaults.js";
 import { Map, View, Feature, Geolocation } from "ol";
-import { Stroke, Fill, Style, Icon, Text } from "ol/style.js";
+import { Stroke, Fill, Style, Icon, Text, Circle as CircleStyle } from "ol/style.js";
 import VectorLayer from "ol/layer/Vector.js";
 import Point from "ol/geom/Point.js";
+import LineString from "ol/geom/LineString.js";
+import CircleGeom from "ol/geom/Circle.js";
 import Select from "ol/interaction/Select.js";
 import WebGLVectorLayer from "ol/layer/WebGLVector.js";
 import VectorSource from "ol/source/Vector.js";
@@ -34,7 +36,6 @@ import mapMarker from "../assets/map_marker.svg";
 import farm_pond_proposed from "../assets/farm_pond_proposed.svg";
 import land_leveling_proposed from "../assets/land_leveling_proposed.svg";
 import well_mrker from "../assets/well_icon.svg";
-import Man_icon from "../assets/Man_icon.png";
 import livelihoodIcon from "../assets/livelihood_proposed.svg";
 import fisheriesIcon from "../assets/Fisheries.svg";
 import plantationsIcon from "../assets/Plantation.svg";
@@ -173,8 +174,13 @@ const MapComponent = () => {
   const CatchmentAreaLayerRef = useRef(null);
   const WaterbodiesLayerRef = useRef(null);
   const PositionFeatureRef = useRef(null);
+  const AccuracyFeatureRef = useRef(null);
+  const TrailFeatureRef = useRef(null);
   const GeolocationRef = useRef(null);
   const GpsLayerRef = useRef(null);
+  const GpsPollIntervalRef = useRef(null);
+  const GpsWatchIdRef = useRef(null);
+  const GpsTrailCoordsRef = useRef([]);
 
   const tempSettlementFeature = useRef(null);
   const tempSettlementLayer = useRef(null);
@@ -226,7 +232,6 @@ const MapComponent = () => {
     useRef(null),
     useRef(null),
     useRef(null),
-    useRef(null),
   ];
 
   //?                   Cropping       Drought        Works
@@ -239,7 +244,6 @@ const MapComponent = () => {
     4: "21_22",
     5: "22_23",
     6: "23_24",
-    7: "24_25",
   };
 
   let LivelihoodRefs = [useRef(null)];
@@ -1151,7 +1155,6 @@ const MapComponent = () => {
         );
         assetsLayerRefs[0].current = settlementLayer;
 
-        // Auto-select the newly added settlement and advance to well marking
         try {
           await settlementLayer.loadPromise;
           const tol = 1e-6;
@@ -1535,9 +1538,7 @@ const MapComponent = () => {
         });
 
       if (currentStep === 0) {
-        if (LulcLayerRefs[MainStore.lulcYearIdx].current !== null) {
-          mapRef.current.addLayer(LulcLayerRefs[MainStore.lulcYearIdx].current);
-        }
+        mapRef.current.addLayer(LulcLayerRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[1].current);
         mapRef.current.addLayer(AgriLayersRefs[2].current);
@@ -1964,15 +1965,15 @@ const MapComponent = () => {
             loadingPromises.push(DroughtIntensity.loadPromise);
           }
         }
-        if (LulcLayerRefs[MainStore.lulcYearIdx].current === null) {
+        if (LulcLayerRefs[0].current === null) {
           let lulcLayer = await getImageLayer(
             "LULC_level_3",
-            `LULC_${LulcYears[MainStore.lulcYearIdx]}_${districtName}_${blockName}_level_3`,
+            `LULC_17_18_${districtName}_${blockName}_level_3`,
             true,
             "",
           );
-          LulcLayerRefs[MainStore.lulcYearIdx].current = lulcLayer;
-          LulcLayerRefs[MainStore.lulcYearIdx].current.setOpacity(0.6);
+          LulcLayerRefs[0].current = lulcLayer;
+          LulcLayerRefs[0].current.setOpacity(0.6);
           if (lulcLayer.loadPromise) {
             loadingPromises.push(lulcLayer.loadPromise);
           }
@@ -2015,7 +2016,7 @@ const MapComponent = () => {
             loadingPromises.push(drainageLayer.loadPromise);
           }
         }
-        mapRef.current.addLayer(LulcLayerRefs[MainStore.lulcYearIdx].current);
+        mapRef.current.addLayer(LulcLayerRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[1].current);
         mapRef.current.addLayer(AgriLayersRefs[2].current);
@@ -2143,103 +2144,74 @@ const MapComponent = () => {
   };
 
   useEffect(() => {
-    const fetchLocationFromFlutter = async () => {
-      try {
-        const response = await fetch(`http://localhost:3000/api/v1/location`);
-
-        if (response.ok) {
-          const locationData = await response.json();
-
-          // Check if we got valid location data
-          if (locationData && locationData.latitude && locationData.longitude) {
-            const newCoords = [locationData.longitude, locationData.latitude];
-            MainStore.setGpsLocation(newCoords);
-            return newCoords;
-          } else if (locationData.error) {
-            console.warn("Flutter app returned error:", locationData.error);
-          }
-        } else {
-          console.error(`Failed to fetch from Flutter: ${response.status}`);
-        }
-      } catch (err) {
-        // Fallback to browser geolocation
-        try {
-          const position = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => resolve(pos),
-              (error) => reject(error),
-              {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0,
-              },
-            );
-          });
-
-          const coords = [position.coords.longitude, position.coords.latitude];
-          console.log("Fallback to browser location:", coords);
-          MainStore.setGpsLocation(coords);
-          return coords;
-        } catch (geoError) {
-          console.error("Browser geolocation error:", geoError);
-          return null;
-        }
-      }
-    };
-
     const initializeGPSLocation = async () => {
-      // Initialize position feature if not already created
+      if (!MainStore.isGPSClick) {
+        return;
+      }
+
       if (PositionFeatureRef.current === null && mapRef.current !== null) {
         const positionFeature = new Feature();
+        const accuracyFeature = new Feature();
+        const trailFeature = new Feature({
+          geometry: new LineString([]),
+        });
 
-        positionFeature.setStyle(
+        trailFeature.setStyle(
           new Style({
-            image: new Icon({
-              src: Man_icon,
-              scale: 0.8,
-              anchor: [0.5, 0.5],
-              anchorXUnits: "fraction",
-              anchorYUnits: "fraction",
+            stroke: new Stroke({
+              color: "rgba(30, 136, 229, 0.75)",
+              width: 4,
+              lineCap: "round",
+              lineJoin: "round",
             }),
           }),
         );
+
+        positionFeature.setStyle(
+          new Style({
+            image: new CircleStyle({
+              radius: 8,
+              fill: new Fill({ color: "#1a73e8" }),
+              stroke: new Stroke({ color: "#ffffff", width: 3 }),
+            }),
+          }),
+        );
+
+        accuracyFeature.setStyle(
+          new Style({
+            fill: new Fill({ color: "rgba(26, 115, 232, 0.16)" }),
+            stroke: new Stroke({
+              color: "rgba(26, 115, 232, 0.35)",
+              width: 1,
+            }),
+          }),
+        );
+
+        TrailFeatureRef.current = trailFeature;
+        AccuracyFeatureRef.current = accuracyFeature;
         PositionFeatureRef.current = positionFeature;
 
-        // Create GPS layer if it doesn't exist
         if (!GpsLayerRef.current) {
           let gpsLayer = new VectorLayer({
             map: mapRef.current,
             source: new VectorSource({
-              features: [positionFeature],
+              features: [accuracyFeature, trailFeature, positionFeature],
             }),
-            zIndex: 99, // Ensure it's on top
+            zIndex: 99,
           });
           GpsLayerRef.current = gpsLayer;
         }
       }
 
-      // Fetch location when GPS button is clicked
-      if (MainStore.isGPSClick && mapRef.current !== null) {
-        let loadingToastId = null;
+      if (mapRef.current === null) {
+        return;
+      }
 
-        // Check which toast library you're using and use appropriate method
-        if (toast.loading) {
-          // For react-hot-toast
-          loadingToastId = toast.loading("Getting GPS location...");
-        } else if (toast.info && toast.dismiss) {
-          // For react-toastify
-          loadingToastId = toast.info("Getting GPS location...", {
-            autoClose: false,
-            closeButton: false,
-            draggable: false,
-          });
-        } else {
-          // Fallback for simple toast
-          toast("Getting GPS location...");
-        }
+      stopLiveGpsTracking();
+      GpsTrailCoordsRef.current = [];
 
-        // Fetch location from Flutter app (with fallback to browser)
-        const currentLocation = await fetchLocationFromFlutter();
+      const loadingToastId = toast.loading?.("Getting GPS location...");
+      const firstLocation = await fetchLocationFromFlutter();
 
       if (loadingToastId) {
         toast.dismiss(loadingToastId);
@@ -2305,8 +2277,9 @@ const MapComponent = () => {
 
     initializeGPSLocation();
 
-    // Cleanup function
     return () => {
+      stopLiveGpsTracking();
+
       if (GeolocationRef.current) {
         GeolocationRef.current.setTracking(false);
       }
@@ -2317,8 +2290,12 @@ const MapComponent = () => {
         GpsLayerRef.current = null;
       }
 
+      AccuracyFeatureRef.current = null;
+      TrailFeatureRef.current = null;
       PositionFeatureRef.current = null;
     };
+    // GPS tracking is intentionally keyed only to the button trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [MainStore.isGPSClick]);
 
   useEffect(() => {
