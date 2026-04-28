@@ -987,17 +987,7 @@ const MapComponent = () => {
           true,
         );
 
-        const tol = 1e-6;
-
         settlementLayer.setStyle(function (feature) {
-          const geom = feature.getGeometry();
-          const [x, y] = geom.getCoordinates();
-          if (
-            Math.abs(x - MainStore.markerCoords[0]) < tol &&
-            Math.abs(y - MainStore.markerCoords[1]) < tol
-          ) {
-            MainStore.setSettlementName(feature.values_.sett_name);
-          }
           return new Style({
             image: new Icon({ src: settlementIcon, scale: 0.4 }),
             text: new Text({
@@ -1016,6 +1006,33 @@ const MapComponent = () => {
           new Point(MainStore.markerCoords),
         );
         assetsLayerRefs[0].current = settlementLayer;
+
+        // Auto-select the newly added settlement and advance to well marking
+        try {
+          await settlementLayer.loadPromise;
+          const tol = 1e-6;
+          const newFeature = settlementLayer
+            .getSource()
+            .getFeatures()
+            .find((feature) => {
+              const [x, y] = feature.getGeometry().getCoordinates();
+              return (
+                Math.abs(x - MainStore.markerCoords[0]) < tol &&
+                Math.abs(y - MainStore.markerCoords[1]) < tol
+              );
+            });
+
+          if (newFeature) {
+            MainStore.setSettlementName(newFeature.values_.sett_name);
+            MainStore.setSelectedResource(newFeature.values_);
+            MainStore.setResourceType("Settlement");
+            MainStore.setFeatureStat(false);
+            MainStore.setIsResource(false);
+            MainStore.setCurrentStep(1);
+          }
+        } catch (e) {
+          console.log("Auto-select settlement after submission failed", e);
+        }
       } else if (currentStep === 1) {
         const wellLayer = await getVectorLayers(
           "resources",
