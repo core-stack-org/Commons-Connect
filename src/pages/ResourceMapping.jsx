@@ -632,16 +632,12 @@ const ResourceMapping = () => {
                         <button
                             className="px-6 py-3 text-sm font-medium flex items-center justify-center"
                             onClick={() => withLoading(toggleFormsUrl)}
-                            disabled={
-                                (MainStore.isFeatureClicked &&
-                                    !MainStore.isMarkerPlaced) ||
-                                !MainStore.isFeatureClicked
-                            }
+                            disabled={!MainStore.isMarkerPlaced}
                             style={{
-                                backgroundColor: !MainStore.isFeatureClicked
+                                backgroundColor: !MainStore.isMarkerPlaced
                                     ? "#696969"
                                     : "#D6D5C9",
-                                color: !MainStore.isFeatureClicked
+                                color: !MainStore.isMarkerPlaced
                                     ? "#A8A8A8"
                                     : "#592941",
                                 border: "none",

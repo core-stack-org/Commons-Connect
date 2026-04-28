@@ -205,7 +205,7 @@ const MapComponent = () => {
   const currentScreen = useMainStore((state) => state.currentScreen);
   const currentStep = useMainStore((state) => state.currentStep);
 
-  //?                    Settlement       Well         Waterbody     CropGrid
+  //?                    Settlement       Well         Waterbody     (step 3: no layer)
   let assetsLayerRefs = [
     useRef(null),
     useRef(null),
@@ -719,13 +719,6 @@ const MapComponent = () => {
       true,
     );
 
-    const cropGridLayer = await getVectorLayers(
-      "crop_grid_layers",
-      `${districtName}_${blockName}` + "_grid",
-      true,
-      true,
-    );
-
     const AgricultureWorkLayer = await getVectorLayers(
       "works",
       `plan_agri_${currentPlan.plan_id}_${districtName}_${blockName}`,
@@ -1001,7 +994,6 @@ const MapComponent = () => {
     assetsLayerRefs[0].current = settlementLayer;
     assetsLayerRefs[1].current = wellLayer;
     assetsLayerRefs[2].current = waterStructureLayer;
-    assetsLayerRefs[3].current = cropGridLayer;
     AgriLayersRefs[2].current = AgricultureWorkLayer;
     groundwaterRefs[3].current = GroundWaterWorkLayer;
     LivelihoodRefs[0].current = livelihoodLayer;
@@ -1081,10 +1073,6 @@ const MapComponent = () => {
           setFeatureStat(true);
           MainStore.setIsResource(true);
           MainStore.setIsResourceOpen(true);
-        } else if (layer === assetsLayerRefs[3].current) {
-          MainStore.setResourceType("Cropgrid");
-          setSelectedResource(feature.values_);
-          setFeatureStat(true);
         } else if (layer === LivelihoodRefs[0].current) {
           MainStore.setResourceType("Livelihood");
           mapRef.current.removeInteraction(selectSettleIcon);
@@ -1313,7 +1301,9 @@ const MapComponent = () => {
         assetsLayerRefs[2].current = waterStructureLayer;
       }
 
-      mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
+      if (assetsLayerRefs[currentStep].current) {
+        mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
+      }
     } else if (currentScreen === "Groundwater") {
       const GroundWaterWorkLayer = await getVectorLayers(
         "works",
@@ -1456,7 +1446,9 @@ const MapComponent = () => {
       MapMarkerRef.current.setVisible(false);
       setMarkerPlaced(false);
 
-      mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
+      if (assetsLayerRefs[currentStep].current) {
+        mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
+      }
       if (currentStep > 0) {
         tempSettlementLayer.current.setVisible(true);
       }
@@ -1649,7 +1641,9 @@ const MapComponent = () => {
             layerCollection.remove(layer);
           }
         });
-      mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
+      if (assetsLayerRefs[currentStep].current) {
+        mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
+      }
       MainStore.setFeatureStat(false);
       MainStore.setMarkerPlaced(false);
     } else if (currentScreen === "Groundwater") {
