@@ -247,6 +247,150 @@ const MapComponent = () => {
   //?                   Site Suitability Raster, Terrain Mask Layer
   let AgrohorticulureRefs = [useRef(null), useRef(null)];
 
+  const isValidCoordinate = (coords) =>
+    Array.isArray(coords) &&
+    coords.length === 2 &&
+    Number.isFinite(coords[0]) &&
+    Number.isFinite(coords[1]);
+
+  const fetchLocationFromFlutter = async () => {
+    try {
+      if (window.flutter_inappwebview?.callHandler) {
+        const locationData = await window.flutter_inappwebview.callHandler(
+          "GetCurrentLocation",
+        );
+        const longitude = Number(locationData?.longitude);
+        const latitude = Number(locationData?.latitude);
+
+        if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+          return {
+            coords: [longitude, latitude],
+            accuracy: Number(locationData.accuracy) || null,
+          };
+        }
+
+        if (locationData?.error) {
+          console.warn("Flutter app returned error:", locationData.error);
+        }
+      }
+    } catch (err) {
+      console.warn("Flutter location handler unavailable:", err);
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/v1/location`, {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        console.error(`Failed to fetch from Flutter: ${response.status}`);
+        return null;
+      }
+
+      const locationData = await response.json();
+      const longitude = Number(locationData?.longitude);
+      const latitude = Number(locationData?.latitude);
+
+      if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+        return {
+          coords: [longitude, latitude],
+          accuracy: Number(locationData.accuracy) || null,
+        };
+      }
+
+      if (locationData?.error) {
+        console.warn("Flutter app returned error:", locationData.error);
+      }
+    } catch (err) {
+      console.warn("Flutter location endpoint unavailable:", err);
+    }
+
+    return null;
+  };
+
+  const fetchLocationFromBrowser = () =>
+    new Promise((resolve) => {
+      if (!navigator.geolocation?.getCurrentPosition) {
+        resolve(null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            coords: [position.coords.longitude, position.coords.latitude],
+            accuracy: position.coords.accuracy,
+          });
+        },
+        (geoError) => {
+          console.warn("Browser geolocation getCurrentPosition error:", geoError);
+          resolve(null);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
+    });
+
+  const updateLiveGpsPosition = (coords, accuracy = null, shouldCenter = false) => {
+    if (!mapRef.current || !PositionFeatureRef.current || !isValidCoordinate(coords)) {
+      return;
+    }
+
+    MainStore.setGpsLocation(coords);
+    PositionFeatureRef.current.setGeometry(new Point(coords));
+
+    if (AccuracyFeatureRef.current && Number.isFinite(accuracy) && accuracy > 0) {
+      AccuracyFeatureRef.current.setGeometry(
+        new CircleGeom(coords, accuracy / 111320),
+      );
+    }
+
+    const lastCoord =
+      GpsTrailCoordsRef.current[GpsTrailCoordsRef.current.length - 1];
+    const movedEnough =
+      !lastCoord ||
+      Math.abs(lastCoord[0] - coords[0]) > 0.000005 ||
+      Math.abs(lastCoord[1] - coords[1]) > 0.000005;
+
+    if (movedEnough) {
+      GpsTrailCoordsRef.current = [...GpsTrailCoordsRef.current, coords].slice(-300);
+      TrailFeatureRef.current?.setGeometry(
+        new LineString(GpsTrailCoordsRef.current),
+      );
+    }
+
+    if (shouldCenter) {
+      const view = mapRef.current.getView();
+      view.animate(
+        {
+          center: coords,
+          duration: 800,
+          easing: easeOut,
+        },
+        {
+          zoom: 17,
+          duration: 1000,
+          easing: easeOut,
+        },
+      );
+    }
+  };
+
+  const stopLiveGpsTracking = () => {
+    if (GpsPollIntervalRef.current) {
+      clearInterval(GpsPollIntervalRef.current);
+      GpsPollIntervalRef.current = null;
+    }
+
+    if (GpsWatchIdRef.current !== null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(GpsWatchIdRef.current);
+      GpsWatchIdRef.current = null;
+    }
+  };
+
   const initializeMap = async () => {
     const baseLayer = new TileLayer({
       source: new XYZ({
@@ -2097,57 +2241,68 @@ const MapComponent = () => {
         // Fetch location from Flutter app (with fallback to browser)
         const currentLocation = await fetchLocationFromFlutter();
 
-        // Dismiss the loading toast
-        if (loadingToastId) {
-          if (toast.dismiss) {
-            toast.dismiss(loadingToastId);
-          } else if (toast.remove) {
-            toast.remove(loadingToastId);
-          }
-        }
-
-        if (currentLocation !== null && PositionFeatureRef.current !== null) {
-          // Update position feature geometry
-          PositionFeatureRef.current.setGeometry(new Point(currentLocation));
-
-          // Animate map to new position
-          const view = mapRef.current.getView();
-
-          // First pan to location
-          view.animate({
-            center: currentLocation,
-            duration: 800,
-            easing: easeOut,
-          });
-
-          // Then zoom to level 17
-          view.animate({
-            zoom: 17,
-            duration: 1000,
-            easing: easeOut,
-          });
-
-          // Show success toast
-          if (toast.success) {
-            toast.success("Location updated!");
-          } else {
-            toast("Location updated!");
-          }
-        } else if (currentLocation === null) {
-          // Show error toast
-          if (toast.error) {
-            toast.error("Failed to get GPS location");
-          } else {
-            toast("Failed to get GPS location");
-          }
-        }
-
-        // Reset the GPS click state if needed
-        // MainStore.setIsGPSClick(false); // Uncomment if you want to reset the state
+      if (loadingToastId) {
+        toast.dismiss(loadingToastId);
       }
+
+      if (firstLocation) {
+        updateLiveGpsPosition(firstLocation.coords, firstLocation.accuracy, true);
+        toast.success?.("Live GPS tracking started");
+
+        GpsPollIntervalRef.current = window.setInterval(async () => {
+          const nextLocation = await fetchLocationFromFlutter();
+          if (nextLocation) {
+            updateLiveGpsPosition(nextLocation.coords, nextLocation.accuracy);
+          }
+        }, 2500);
+
+        return;
+      }
+
+      const firstBrowserLocation = await fetchLocationFromBrowser();
+      if (firstBrowserLocation) {
+        updateLiveGpsPosition(
+          firstBrowserLocation.coords,
+          firstBrowserLocation.accuracy,
+          true,
+        );
+        toast.success?.("Live GPS tracking started");
+
+        GpsPollIntervalRef.current = window.setInterval(async () => {
+          const nextLocation = await fetchLocationFromBrowser();
+          if (nextLocation) {
+            updateLiveGpsPosition(nextLocation.coords, nextLocation.accuracy);
+          }
+        }, 2500);
+
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        toast.error?.("GPS location is not available");
+        return;
+      }
+
+      GpsWatchIdRef.current = navigator.geolocation.watchPosition(
+        (position) => {
+          updateLiveGpsPosition(
+            [position.coords.longitude, position.coords.latitude],
+            position.coords.accuracy,
+            GpsTrailCoordsRef.current.length === 0,
+          );
+        },
+        (geoError) => {
+          console.error("Browser geolocation error:", geoError);
+          toast.error?.("Failed to get GPS location");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
     };
 
-    // Call the initialization function
     initializeGPSLocation();
 
     // Cleanup function
