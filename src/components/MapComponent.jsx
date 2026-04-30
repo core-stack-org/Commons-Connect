@@ -223,8 +223,9 @@ const MapComponent = () => {
     useRef(null),
   ];
 
-  //?                     17-18       18-19           19-20       20-21           21-22         22-23         23-24
+  //?                     17-18       18-19           19-20       20-21           21-22         22-23         23-24       24-25
   let LulcLayerRefs = [
+    useRef(null),
     useRef(null),
     useRef(null),
     useRef(null),
@@ -244,7 +245,10 @@ const MapComponent = () => {
     4: "21_22",
     5: "22_23",
     6: "23_24",
+    7: "24_25",
   };
+
+  const latestLulcRequestRef = useRef(0);
 
   let LivelihoodRefs = [useRef(null)];
 
@@ -1530,7 +1534,10 @@ const MapComponent = () => {
         });
 
       if (currentStep === 0) {
-        mapRef.current.addLayer(LulcLayerRefs[0].current);
+        const activeLulcRef = LulcLayerRefs[MainStore.lulcYearIdx];
+        if (activeLulcRef?.current) {
+          mapRef.current.addLayer(activeLulcRef.current);
+        }
         mapRef.current.addLayer(AgriLayersRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[1].current);
         mapRef.current.addLayer(AgriLayersRefs[2].current);
@@ -1959,15 +1966,20 @@ const MapComponent = () => {
             loadingPromises.push(DroughtIntensity.loadPromise);
           }
         }
-        if (LulcLayerRefs[0].current === null) {
+        const initialLulcIdx = MainStore.lulcYearIdx;
+        if (
+          LulcLayerRefs[initialLulcIdx] &&
+          LulcLayerRefs[initialLulcIdx].current === null &&
+          LulcYears[initialLulcIdx]
+        ) {
           let lulcLayer = await getImageLayer(
             "LULC_level_3",
-            `LULC_17_18_${districtName}_${blockName}_level_3`,
+            `LULC_${LulcYears[initialLulcIdx]}_${districtName}_${blockName}_level_3`,
             true,
             "",
           );
-          LulcLayerRefs[0].current = lulcLayer;
-          LulcLayerRefs[0].current.setOpacity(0.6);
+          LulcLayerRefs[initialLulcIdx].current = lulcLayer;
+          LulcLayerRefs[initialLulcIdx].current.setOpacity(0.6);
           if (lulcLayer.loadPromise) {
             loadingPromises.push(lulcLayer.loadPromise);
           }
@@ -2010,7 +2022,9 @@ const MapComponent = () => {
             loadingPromises.push(drainageLayer.loadPromise);
           }
         }
-        mapRef.current.addLayer(LulcLayerRefs[0].current);
+        if (LulcLayerRefs[initialLulcIdx]?.current) {
+          mapRef.current.addLayer(LulcLayerRefs[initialLulcIdx].current);
+        }
         mapRef.current.addLayer(AgriLayersRefs[0].current);
         mapRef.current.addLayer(AgriLayersRefs[1].current);
         mapRef.current.addLayer(AgriLayersRefs[2].current);
@@ -2117,24 +2131,38 @@ const MapComponent = () => {
   };
 
   const updateLulcLayer = async () => {
-    if (currentScreen === "Agriculture") {
-      if (LulcLayerRefs[MainStore.lulcYearIdx].current === null) {
-        let lulcLayer = await getImageLayer(
-          "LULC_level_3",
-          `LULC_${LulcYears[MainStore.lulcYearIdx]}_${districtName}_${blockName}_level_3`,
-          true,
-          "",
-        );
-        LulcLayerRefs[MainStore.lulcYearIdx].current = lulcLayer;
-        LulcLayerRefs[MainStore.lulcYearIdx].current.setOpacity(0.6);
-      }
+    if (currentScreen !== "Agriculture" || mapRef.current === null) return;
 
-      LulcLayerRefs.forEach((item) => {
-        if (item.current !== null) mapRef.current.removeLayer(item.current);
-      });
+    const requestedIdx = MainStore.lulcYearIdx;
+    const targetRef = LulcLayerRefs[requestedIdx];
+    const yearKey = LulcYears[requestedIdx];
 
-      mapRef.current.addLayer(LulcLayerRefs[MainStore.lulcYearIdx].current);
+    if (!targetRef || !yearKey) {
+      console.warn(`No LULC layer configured for year index ${requestedIdx}`);
+      return;
     }
+
+    const requestId = ++latestLulcRequestRef.current;
+
+    if (targetRef.current === null) {
+      const lulcLayer = await getImageLayer(
+        "LULC_level_3",
+        `LULC_${yearKey}_${districtName}_${blockName}_level_3`,
+        true,
+        "",
+      );
+      if (requestId !== latestLulcRequestRef.current) return;
+      targetRef.current = lulcLayer;
+      targetRef.current.setOpacity(0.6);
+    }
+
+    if (requestId !== latestLulcRequestRef.current) return;
+
+    LulcLayerRefs.forEach((item) => {
+      if (item.current !== null) mapRef.current.removeLayer(item.current);
+    });
+
+    mapRef.current.addLayer(targetRef.current);
   };
 
   useEffect(() => {
