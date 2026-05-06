@@ -602,72 +602,104 @@ const ResourceMapping = () => {
                 {MainStore.currentStep === 3 && (
                     <div
                         key="state-add-crop"
-                        className="flex items-center justify-center w-full gap-3"
+                        className="flex flex-col items-center justify-center w-full gap-3"
                     >
-                        {/* Separate Back Button */}
-                        <button
-                            className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                            onClick={() =>
-                                withLoading(() => {
-                                    let BACK = MainStore.currentStep - 1;
-                                    if (MainStore.currentStep) {
-                                        MainStore.setCurrentStep(BACK);
-                                        MainStore.setFeatureStat(false);
-                                    }
-                                })
-                            }
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                                borderRadius: "22px",
-                                height: "44px",
-                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                            }}
-                        >
-                            {t("Back")}
-                        </button>
+                        {/* Cropping Info Button - Top pill */}
+                        <div className="flex items-center justify-center w-full">
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={handleAnalyze}
+                                style={{
+                                    display:
+                                        MainStore.isFeatureClicked &&
+                                        MainStore.resourceType === "Cropping"
+                                            ? "block"
+                                            : "none",
+                                    backgroundColor: "#D6D5C9",
+                                    color: "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    width: "350px",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                }}
+                            >
+                                {t("Cropping Pattern Info")}
+                            </button>
+                        </div>
+                        <div className="flex items-center justify-center w-full gap-3">
+                            {/* Separate Back Button */}
+                            <button
+                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() =>
+                                    withLoading(() => {
+                                        let BACK = MainStore.currentStep - 1;
+                                        if (MainStore.currentStep) {
+                                            MainStore.setCurrentStep(BACK);
+                                            MainStore.setFeatureStat(false);
+                                        }
+                                    })
+                                }
+                                style={{
+                                    backgroundColor: "#D6D5C9",
+                                    color: "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                }}
+                            >
+                                {t("Back")}
+                            </button>
 
-                        {/* Provide Crop Info Button - Always visible */}
-                        <button
-                            className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                            onClick={() => withLoading(toggleFormsUrl)}
-                            disabled={!MainStore.isMarkerPlaced}
-                            style={{
-                                backgroundColor: !MainStore.isMarkerPlaced
-                                    ? "#696969"
-                                    : "#D6D5C9",
-                                color: !MainStore.isMarkerPlaced
-                                    ? "#A8A8A8"
-                                    : "#592941",
-                                border: "none",
-                                borderRadius: "22px",
-                                height: "44px",
-                                width: "180px",
-                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                            }}
-                        >
-                            {t("Provide Crop Info")}
-                        </button>
+                            {/* Provide Crop Info Button - Always visible */}
+                            <button
+                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => withLoading(toggleFormsUrl)}
+                                disabled={
+                                    !MainStore.isMarkerPlaced ||
+                                    MainStore.isFeatureClicked
+                                }
+                                style={{
+                                    backgroundColor:
+                                        !MainStore.isMarkerPlaced ||
+                                        MainStore.isFeatureClicked
+                                            ? "#696969"
+                                            : "#D6D5C9",
+                                    color:
+                                        !MainStore.isMarkerPlaced ||
+                                        MainStore.isFeatureClicked
+                                            ? "#A8A8A8"
+                                            : "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    width: "200px",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                }}
+                            >
+                                {t("Provide Crop Info")}
+                            </button>
 
-                        {/* Separate Finish Button */}
-                        <button
-                            className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                            onClick={() => setShowFinishConfirm(true)}
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                                borderRadius: "22px",
-                                height: "44px",
-                                cursor: "pointer",
-                                transition:
-                                    "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                            }}
-                        >
-                            {t("Finish")}
-                        </button>
+                            {/* Separate Finish Button */}
+                            <button
+                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
+                                onClick={() => setShowFinishConfirm(true)}
+                                style={{
+                                    backgroundColor: "#D6D5C9",
+                                    color: "#592941",
+                                    border: "none",
+                                    borderRadius: "22px",
+                                    height: "44px",
+                                    cursor: "pointer",
+                                    transition:
+                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                                }}
+                            >
+                                {t("Finish")}
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

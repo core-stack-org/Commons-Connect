@@ -886,7 +886,7 @@ const MapComponent = () => {
 
     croppingInfoLayer.setStyle(function (feature) {
       return new Style({
-        image: new Icon({ src: CroppingIcon, scale: 1 }),
+        image: new Icon({ src: CroppingIcon, scale: 0.8 }),
       });
     });
 
@@ -1016,7 +1016,7 @@ const MapComponent = () => {
     mapRef.current.addLayer(assetsLayerRefs[0].current);
     mapRef.current.addLayer(assetsLayerRefs[1].current);
     mapRef.current.addLayer(assetsLayerRefs[2].current);
-    mapRef.current.addLayer(assetsLayerRefs[3].current);
+    //mapRef.current.addLayer(assetsLayerRefs[3].current);
 
     //? Adding Marker to the Map on Click
     const markerFeature = new Feature();
@@ -1333,7 +1333,7 @@ const MapComponent = () => {
 
         croppingInfoLayer.setStyle(function (feature) {
           return new Style({
-            image: new Icon({ src: CroppingIcon, scale: 1 }),
+            image: new Icon({ src: CroppingIcon, scale: 0.8 }),
           });
         });
 
