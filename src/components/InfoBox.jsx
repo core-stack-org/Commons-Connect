@@ -492,6 +492,10 @@ const InfoBox = () => {
                                 </h3>
                                 <div className="mt-2 space-y-2">
                                     <div className="flex items-center">
+                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#313695", opacity: 0.7 }}></div>
+                                        <span>Deep valleys and canyons</span>
+                                    </div>
+                                    <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4575b4", opacity: 0.7 }}></div>
                                         <span>Incised drainages and low ridges</span>
                                     </div>
@@ -518,18 +522,6 @@ const InfoBox = () => {
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#d73027", opacity: 0.7 }}></div>
                                         <span>Upper Slopes</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#91bfdb", opacity: 0.7 }}></div>
-                                        <span>Deep valleys and canyons</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#800000", opacity: 0.7 }}></div>
-                                        <span>Incised drainages and low ridges</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <div className="w-6 h-6 rounded mr-3" style={{ backgroundColor: "#4d0000", opacity: 0.7 }}></div>
-                                        <span>Mountain tops and high ridges</span>
                                     </div>
                                 </div>
                             </>

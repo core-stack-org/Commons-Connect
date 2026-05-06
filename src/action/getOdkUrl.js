@@ -84,8 +84,14 @@ export default function getOdkUrlForScreen(
   } else if (screen === "Resource_mapping" && step > 2) {
     odk_url =
       "https://odk.core-stack.org/-/single/Jg7MnKeZ1W9oQkwlDb2iCV7BhXgXDN8?st=z44571PIPvbF2lpzcaRZruzCVIucT8Agm!ZfbrhUxUwhY6l78V8Vs5P!$smauFD3" + // cropping pattern form
+      "&d[/data/GPS_point/point_mapappearance]=" +
+      latlong[1].toString() +
+      "%20" +
+      latlong[0].toString() +
       "&d[/data/hamlet_id]=" +
       settlement_id +
+      "&d[/data/block_name]=" +
+      block_name +
       "&d[/data/crop_Grid_id]=" +
       crop_id +
       "&d[/data/beneficiary_settlement]=" +
