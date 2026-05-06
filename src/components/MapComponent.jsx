@@ -886,7 +886,7 @@ const MapComponent = () => {
 
     croppingInfoLayer.setStyle(function (feature) {
       return new Style({
-        image: new Icon({ src: CroppingIcon, scale: 0.4 }),
+        image: new Icon({ src: CroppingIcon, scale: 1 }),
       });
     });
 
@@ -1333,7 +1333,7 @@ const MapComponent = () => {
 
         croppingInfoLayer.setStyle(function (feature) {
           return new Style({
-            image: new Icon({ src: CroppingIcon, scale: 0.4 }),
+            image: new Icon({ src: CroppingIcon, scale: 1 }),
           });
         });
 

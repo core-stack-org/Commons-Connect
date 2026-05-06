@@ -23,14 +23,14 @@ const Bottomsheet = () => {
         0: "settlement_layer",
         1: "well_layer",
         2: "waterbody_layer",
-        3: "cropgrid_layer",
+        3: "cropping_layer",
     };
 
     const ResourceMapping = {
         0: "settlement",
         1: "well",
         2: "waterbody",
-        3: "cropgrid",
+        3: "cropping",
     };
 
     const PlanningResource = {
