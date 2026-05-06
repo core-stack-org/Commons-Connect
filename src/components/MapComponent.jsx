@@ -28,6 +28,7 @@ import VectorSource from "ol/source/Vector.js";
 
 import settlementIcon from "../assets/settlement_icon.svg";
 import LargeWaterBody from "../assets/waterbodiesScreenIcon.svg";
+import CroppingIcon from "../assets/crop_icon.svg"
 import RechargeIcon from "../assets/recharge_icon.svg";
 import IrrigationIcon from "../assets/irrigation_icon.svg";
 import selectedSettlementIcon from "../assets/selected_settlement.svg";
@@ -723,6 +724,13 @@ const MapComponent = () => {
       true,
     );
 
+    const croppingInfoLayer = await getVectorLayers(
+      "resources",
+      "cropping_" + currentPlan.plan_id + "_" + `${districtName}_${blockName}`,
+      true,
+      true,
+    );
+
     const AgricultureWorkLayer = await getVectorLayers(
       "works",
       `plan_agri_${currentPlan.plan_id}_${districtName}_${blockName}`,
@@ -744,14 +752,6 @@ const MapComponent = () => {
       true,
     );
 
-    // settlementLayer.setStyle(
-    //     new Style({
-    //       image: new Icon({ src: settlementIcon, scale: 0.4 }),
-    //       text : new Text({
-    //         text :
-    //       })
-    //     })
-    // );
     settlementLayer.setStyle(function (feature) {
       const stat = feature.values_;
 
@@ -884,6 +884,12 @@ const MapComponent = () => {
       }
     });
 
+    croppingInfoLayer.setStyle(function (feature) {
+      return new Style({
+        image: new Icon({ src: CroppingIcon, scale: 0.4 }),
+      });
+    });
+
     AgricultureWorkLayer.setStyle(function (feature) {
       const status = feature.values_;
       if (status.TYPE_OF_WO == "New farm pond") {
@@ -991,6 +997,10 @@ const MapComponent = () => {
     if (assetsLayerRefs[2].current !== null) {
       mapRef.current.removeLayer(assetsLayerRefs[2].current);
     }
+    if (assetsLayerRefs[3].current !== null) {
+      mapRef.current.removeLayer(assetsLayerRefs[3].current);
+    }
+
     if (AgriLayersRefs[2].current !== null) {
       mapRef.current.removeLayer(AgriLayersRefs[2].current);
     }
@@ -998,6 +1008,7 @@ const MapComponent = () => {
     assetsLayerRefs[0].current = settlementLayer;
     assetsLayerRefs[1].current = wellLayer;
     assetsLayerRefs[2].current = waterStructureLayer;
+    assetsLayerRefs[3].current = croppingInfoLayer;
     AgriLayersRefs[2].current = AgricultureWorkLayer;
     groundwaterRefs[3].current = GroundWaterWorkLayer;
     LivelihoodRefs[0].current = livelihoodLayer;
@@ -1005,6 +1016,7 @@ const MapComponent = () => {
     mapRef.current.addLayer(assetsLayerRefs[0].current);
     mapRef.current.addLayer(assetsLayerRefs[1].current);
     mapRef.current.addLayer(assetsLayerRefs[2].current);
+    mapRef.current.addLayer(assetsLayerRefs[3].current);
 
     //? Adding Marker to the Map on Click
     const markerFeature = new Feature();
@@ -1064,39 +1076,46 @@ const MapComponent = () => {
           MainStore.setIsResource(true);
           MainStore.setIsResourceOpen(true);
         } else if (layer === assetsLayerRefs[1].current) {
-          MainStore.setResourceType("Well");
-          mapRef.current.removeInteraction(selectSettleIcon);
-          setSelectedResource(feature.values_);
-          setFeatureStat(true);
-          MainStore.setIsResource(true);
-          MainStore.setIsResourceOpen(true);
+            MainStore.setResourceType("Well");
+            mapRef.current.removeInteraction(selectSettleIcon);
+            setSelectedResource(feature.values_);
+            setFeatureStat(true);
+            MainStore.setIsResource(true);
+            MainStore.setIsResourceOpen(true);
         } else if (layer === assetsLayerRefs[2].current) {
-          MainStore.setResourceType("Waterbody");
-          mapRef.current.removeInteraction(selectSettleIcon);
-          setSelectedResource(feature.values_);
-          setFeatureStat(true);
-          MainStore.setIsResource(true);
-          MainStore.setIsResourceOpen(true);
+            MainStore.setResourceType("Waterbody");
+            mapRef.current.removeInteraction(selectSettleIcon);
+            setSelectedResource(feature.values_);
+            setFeatureStat(true);
+            MainStore.setIsResource(true);
+            MainStore.setIsResourceOpen(true);
+        } else if (layer === assetsLayerRefs[3].current) {
+            MainStore.setResourceType("Cropping");
+            mapRef.current.removeInteraction(selectSettleIcon);
+            setSelectedResource(feature.values_);
+            setFeatureStat(true);
+            MainStore.setIsResource(true);
+            MainStore.setIsResourceOpen(true);
         } else if (layer === LivelihoodRefs[0].current) {
-          MainStore.setResourceType("Livelihood");
-          mapRef.current.removeInteraction(selectSettleIcon);
-          setSelectedResource(feature.values_);
-          setFeatureStat(true);
-          MainStore.setIsResource(true);
+            MainStore.setResourceType("Livelihood");
+            mapRef.current.removeInteraction(selectSettleIcon);
+            setSelectedResource(feature.values_);
+            setFeatureStat(true);
+            MainStore.setIsResource(true);
         } else if (layer === groundwaterRefs[3].current) {
-          MainStore.setResourceType("Recharge");
-          mapRef.current.removeInteraction(selectSettleIcon);
-          tempSettlementLayer.current.setVisible(false);
-          setSelectedResource(feature.values_);
-          setFeatureStat(true);
-          MainStore.setIsResource(true);
+            MainStore.setResourceType("Recharge");
+            mapRef.current.removeInteraction(selectSettleIcon);
+            tempSettlementLayer.current.setVisible(false);
+            setSelectedResource(feature.values_);
+            setFeatureStat(true);
+            MainStore.setIsResource(true);
         } else if (layer === AgriLayersRefs[2].current) {
-          setFeatureStat(true);
-          setSelectedResource(feature.values_);
-          MainStore.setResourceType("Irrigation");
-          mapRef.current.removeInteraction(selectSettleIcon);
-          MainStore.setIsResource(true);
-          tempSettlementLayer.current.setVisible(false);
+            setFeatureStat(true);
+            setSelectedResource(feature.values_);
+            MainStore.setResourceType("Irrigation");
+            mapRef.current.removeInteraction(selectSettleIcon);
+            MainStore.setIsResource(true);
+            tempSettlementLayer.current.setVisible(false);
         }
 
         if (
@@ -1303,6 +1322,22 @@ const MapComponent = () => {
         });
 
         assetsLayerRefs[2].current = waterStructureLayer;
+      } else if(currentStep > 2){
+        
+        const croppingInfoLayer = await getVectorLayers(
+          "resources",
+          "cropping_" + currentPlan.plan_id + "_" + `${districtName}_${blockName}`,
+          true,
+          true,
+        );
+
+        croppingInfoLayer.setStyle(function (feature) {
+          return new Style({
+            image: new Icon({ src: CroppingIcon, scale: 0.4 }),
+          });
+        });
+
+        assetsLayerRefs[3].current = croppingInfoLayer;
       }
 
       if (assetsLayerRefs[currentStep].current) {
