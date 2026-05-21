@@ -802,61 +802,35 @@ const Bottomsheet = () => {
                 MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
             }
         >
-            {/* Conditional header buttons based on content type */}
-            {MainStore.isNregaSheet ? (
-                <>
-                    {/* Cancel button for NREGA sheet */}
+            <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-3 py-2 border-b border-gray-100">
+                {MainStore.isNregaSheet ? (
+                    <>
+                        <button
+                            onClick={onDismiss}
+                            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-800 text-sm font-medium shadow-sm transition border border-gray-300"
+                            aria-label="Cancel"
+                        >
+                            {t("Cancel")}
+                        </button>
+                        <button
+                            onClick={onDismiss}
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition"
+                            aria-label="Done"
+                        >
+                            {t("Done")}
+                        </button>
+                    </>
+                ) : (
                     <button
                         onClick={onDismiss}
-                        className="
-                        absolute left-3 top-3 z-10
-                        px-4 py-2 rounded-lg
-                        bg-gray-100 hover:bg-gray-200
-                        text-gray-700 hover:text-gray-800
-                        text-sm font-medium
-                        shadow-sm transition
-                        border border-gray-300
-                    "
-                        aria-label="Cancel"
-                    >
-                        {t("Cancel")}
-                    </button>
-
-                    {/* Done button for NREGA sheet */}
-                    <button
-                        onClick={onDismiss}
-                        className="
-                        absolute right-3 top-3 z-10
-                        px-4 py-2 rounded-lg
-                        bg-blue-600 hover:bg-blue-700
-                        text-white
-                        text-sm font-medium
-                        shadow-sm transition
-                    "
+                        className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition"
                         aria-label="Done"
                     >
                         {t("Done")}
                     </button>
-                </>
-            ) : (
-                /* Cancel button for other sheets */
-                <button
-                    onClick={onDismiss}
-                    className="
-                    absolute left-3 top-3 z-10
-                    px-4 py-2 rounded-lg
-                    bg-gray-100 hover:bg-gray-200
-                    text-gray-700 hover:text-gray-800
-                    text-sm font-medium
-                    shadow-sm transition
-                    border border-gray-300
-                "
-                    aria-label="Cancel"
-                >
-                    {t("Cancel")}
-                </button>
-            )}
-            <div className="pt-6">{renderBody()}</div>
+                )}
+            </div>
+            <div>{renderBody()}</div>
         </BottomSheet>
     );
 };
