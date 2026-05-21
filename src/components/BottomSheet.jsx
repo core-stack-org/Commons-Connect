@@ -264,11 +264,10 @@ const Bottomsheet = () => {
 
     const nregaBody = (
         <>
-            {/* Enhanced Title with cleaner styling */}
-            <div className="text-center pt-8 pb-6 mb-8 bg-gradient-to-r border-b border-gray-200">
-                <h1 className="text-2xl font-semibold text-gray-800 tracking-wide">
+            <div className="flex justify-center pt-6 pb-4">
+                <span className="px-5 py-1.5 rounded-full bg-green-50 text-green-700 text-sm font-semibold tracking-wide border border-green-100">
                     {t("NREGA Assets")}
-                </h1>
+                </span>
             </div>
 
             <div className="px-6 pb-8">
@@ -427,13 +426,15 @@ const Bottomsheet = () => {
 
     const metaDataBody = (
         <>
-            <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-                {t("Asset Info")}
+            <div className="flex justify-center pt-6 pb-4">
+                <span className="px-5 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold tracking-wide border border-indigo-100">
+                    {t("Asset Info")}
+                </span>
             </div>
 
-            <div className="pt-8 px-4 pb-6">
+            <div className="px-4 pb-6">
                 <div className="w-full max-w-4xl mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
                         {MainStore.isMetadata &&
                             MainStore.metadata !== null &&
                             Object.keys(nregaDetails.NameDisplayMapping).map(
@@ -498,13 +499,15 @@ const Bottomsheet = () => {
 
     const resourceBody = (
         <>
-            <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-                {t("Resource Info")}
+            <div className="flex justify-center pt-6 pb-4">
+                <span className="px-5 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold tracking-wide border border-indigo-100">
+                    {t("Resource Info")}
+                </span>
             </div>
 
-            <div className="pt-8 px-4 pb-6">
+            <div className="px-4 pb-6">
                 <div className="w-full max-w-4xl mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
                         {MainStore.isResource &&
                             MainStore.selectedResource !== null &&
                             Object.keys(resourceDetails[MainStore.resourceType])
@@ -802,19 +805,19 @@ const Bottomsheet = () => {
                 MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
             }
         >
-            <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-3 py-2 border-b border-gray-100">
+            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100/60">
                 {MainStore.isNregaSheet ? (
                     <>
                         <button
                             onClick={onDismiss}
-                            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-800 text-sm font-medium shadow-sm transition border border-gray-300"
+                            className="px-4 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium transition-colors border border-gray-200"
                             aria-label="Cancel"
                         >
                             {t("Cancel")}
                         </button>
                         <button
                             onClick={onDismiss}
-                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition"
+                            className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
                             aria-label="Done"
                         >
                             {t("Done")}
@@ -823,7 +826,7 @@ const Bottomsheet = () => {
                 ) : (
                     <button
                         onClick={onDismiss}
-                        className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition"
+                        className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
                         aria-label="Done"
                     >
                         {t("Done")}
