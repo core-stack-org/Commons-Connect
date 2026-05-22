@@ -424,229 +424,212 @@ const Bottomsheet = () => {
         return undefined;
     };
 
-    const metaDataBody = (
-        <>
-            <div className="flex justify-center pt-6 pb-4">
-                <span className="px-5 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold tracking-wide border border-indigo-100">
-                    {t("Asset Info")}
-                </span>
-            </div>
+    const resourceHeroConfig = {
+        Settlement: { id: "Settlement", name: "Settleme_1" },
+        Well:       { id: "well_id",   name: "beneficiar" },
+        Waterbody:  { id: "wb_id",     name: "beneficiar" },
+        Livelihood: { id: "plan_id",   name: "plan_name"  },
+        Recharge:   { id: "work_id",   name: "ben_settle" },
+        Irrigation: { id: "plan_id",   name: "beneficiar" },
+        Cropping:   { id: "sett_name", name: null         },
+    };
 
-            <div className="px-4 pb-6">
-                <div className="w-full max-w-4xl mx-auto">
-                    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                        {MainStore.isMetadata &&
-                            MainStore.metadata !== null &&
-                            Object.keys(nregaDetails.NameDisplayMapping).map(
-                                (key, index) => {
-                                    // Use helper function to get value with fallback
-                                    const rawValue = getMetadataValue(
-                                        MainStore.metadata,
-                                        key
-                                    );
-                                    
-                                    const formattedValue = (() => {
-                                        let value = rawValue;
+    const metaDataBody = (() => {
+        if (!MainStore.isMetadata || MainStore.metadata === null) return null;
 
-                                        // Only try to repair strings that look corrupted
-                                        if (
-                                            typeof value === "string" &&
-                                            looksBroken(value)
-                                        ) {
-                                            value = fixMojibake(value);
-                                        }
+        const mapping = nregaDetails.NameDisplayMapping;
+        const metaHeroKeys = new Set(["Asset ID", "Asset Name", "Work Name", "lat", "lon"]);
 
-                                        // Keep your existing ₹ formatting
-                                        return key === "Material" ||
-                                            key === "Total_Expe"
-                                            ? `₹${value}`
-                                            : value;
-                                    })();
-                                    
-                                    return (
-                                        <div
-                                            key={key}
-                                            className={`flex items-center min-h-[3rem] ${
-                                                index % 2 === 0
-                                                    ? "bg-gray-50"
-                                                    : "bg-white"
-                                            } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                                        >
-                                            <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                                <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                                    {
-                                                        nregaDetails
-                                                            .NameDisplayMapping[
-                                                            key
-                                                        ]
-                                                    }
-                                                </span>
-                                            </div>
-                                            <div className="flex-1 px-4 py-3">
-                                                <span className="text-sm text-gray-800 font-medium">
-                                                    {formattedValue}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    );
-                                },
-                            )}
-                    </div>
+        const idValue   = getMetadataValue(MainStore.metadata, "Asset ID");
+        const assetName = getMetadataValue(MainStore.metadata, "Asset Name");
+        const workName  = getMetadataValue(MainStore.metadata, "Work Name");
+        const lat       = getMetadataValue(MainStore.metadata, "lat");
+        const lon       = getMetadataValue(MainStore.metadata, "lon");
+
+        const gridItems = Object.keys(mapping).flatMap((key) => {
+            if (metaHeroKeys.has(key)) return [];
+            const rawValue = getMetadataValue(MainStore.metadata, key);
+            if (rawValue === null || rawValue === undefined || rawValue === "") return [];
+            let value = rawValue;
+            if (typeof value === "string" && looksBroken(value)) value = fixMojibake(value);
+            if (key === "Material" || key === "Total_Expe") value = `₹${value}`;
+            return [{ key, label: mapping[key], value: String(value) }];
+        });
+
+        return (
+            <div className="min-h-full bg-gray-50 pb-8">
+                <div className="flex justify-center pt-6 pb-4">
+                    <span className="px-5 py-1.5 rounded-full bg-white text-slate-500 text-sm font-semibold tracking-wide border border-gray-200 shadow-sm">
+                        {t("Asset Info")}
+                    </span>
                 </div>
-            </div>
-        </>
-    );
 
-    const resourceBody = (
-        <>
-            <div className="flex justify-center pt-6 pb-4">
-                <span className="px-5 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold tracking-wide border border-indigo-100">
-                    {t("Resource Info")}
-                </span>
-            </div>
-
-            <div className="px-4 pb-6">
-                <div className="w-full max-w-4xl mx-auto">
-                    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                        {MainStore.isResource &&
-                            MainStore.selectedResource !== null &&
-                            Object.keys(resourceDetails[MainStore.resourceType])
-                                .flatMap((key, index) => {
-                                    const label = resourceDetails[MainStore.resourceType][key];
-                                    let rawValue = MainStore.selectedResource[key];
-
-                                    // **Exclude if value doesn't exist in the object**
-                                    if (rawValue === null || rawValue === undefined || rawValue === "") {
-                                        return []; // Skip this field
-                                    }
-
-                                    // Handle nested objects (Livestock_, farmer_fam, Well_condi)
-                                    if (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi") {
-                                        try {
-                                            const jsonReady = rawValue
-                                                .replace(/'/g, '"')
-                                                .replace(/\bNone\b/g, "null");
-
-                                            const data = new Function(`return (${jsonReady})`)();
-
-                                            return Object.keys(data)
-                                                .filter(innerKey => {
-                                                    // **Exclude if nested value doesn't exist**
-                                                    const value = data[innerKey];
-                                                    return value !== null && value !== undefined && value !== "";
-                                                })
-                                                .map((innerKey, innerIndex) => (
-                                                    <div
-                                                        key={innerKey}
-                                                        className={`flex items-center min-h-[3rem] ${(index + innerIndex) % 2 === 0
-                                                            ? "bg-gray-50"
-                                                            : "bg-white"
-                                                            } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                                                    >
-                                                        <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                                            <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                                                {ResourceMetaKeys[innerKey]}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex-1 px-4 py-3">
-                                                            <span className="text-sm text-gray-800 font-medium">
-                                                                {data[innerKey]}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                ));
-                                        } catch (error) {
-                                            console.error(`Error parsing ${key}:`, error);
-                                            return [];
-                                        }
-                                    }
-
-                                    // Handle MNREGA_INF and Well_usage
-                                    else if (key === "MNREGA_INF" || key === "Well_usage") {
-                                        const searchKeys = [
-                                            "NREGA_applied",
-                                            "NREGA_have_job_card",
-                                            "select_one_Functional_Non_functional",
-                                            "select_one_well_used",
-                                            "select_one_change_water_quality",
-                                            "select_one_water_structure_near_you",
-                                        ];
-                                        const extracted = {};
-
-                                        for (const searchKey of searchKeys) {
-                                            const pattern = new RegExp(
-                                                String.raw`['"]${searchKey}['"]\s*:\s*([^,}\n\r]+)`,
-                                                "i",
-                                            );
-
-                                            const match = rawValue.match(pattern);
-                                            if (!match) continue;
-
-                                            let value = match[1].trim();
-                                            if (value === "None") {
-                                                value = null;
-                                            } else if (/^['"]/.test(value)) {
-                                                value = value.replace(/^['"]|['"]$/g, "");
-                                            } else if (/^\d+(\.\d+)?$/.test(value)) {
-                                                value = Number(value);
-                                            }
-
-                                            // **Only add if value exists**
-                                            if (value !== null && value !== undefined && value !== "") {
-                                                extracted[searchKey] = value;
-                                            }
-                                        }
-
-                                        // **Return empty array if nothing was extracted**
-                                        if (Object.keys(extracted).length === 0) {
-                                            return [];
-                                        }
-
-                                        return Object.keys(extracted).map((item, idx) => (
-                                            <div
-                                                key={item}
-                                                className={`flex items-center min-h-[3rem] ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"
-                                                    } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                                            >
-                                                <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                                    <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                                        {ResourceMetaKeys[item]}
-                                                    </span>
-                                                </div>
-                                                <div className="flex-1 px-4 py-3">
-                                                    <span className="text-sm text-gray-800 font-medium">
-                                                        {extracted[item]}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ));
-                                    }
-
-                                    // Handle regular key-value pairs
-                                    return (
-                                        <div
-                                            key={key}
-                                            className={`flex items-center min-h-[3rem] ${index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                                                } hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0`}
-                                        >
-                                            <div className="flex-1 px-4 py-3 bg-gray-100 border-r border-gray-200">
-                                                <span className="text-sm font-semibold text-gray-700 tracking-wide">
-                                                    {label}
-                                                </span>
-                                            </div>
-                                            <div className="flex-1 px-4 py-3">
-                                                <span className="text-sm text-gray-800 font-medium">
-                                                    {rawValue}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                <div className="mx-4 mb-3 rounded-2xl bg-white border border-gray-200 shadow-sm p-5">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">
+                        NREGA Asset
+                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                        <div className="text-xl font-bold text-gray-900 flex-1">{idValue || "—"}</div>
+                        {idValue && (
+                            <button
+                                onClick={() => navigator.clipboard?.writeText(String(idValue)).then(() => toast.success("Copied ✔︎"), () => toast.error("Failed ✖︎"))}
+                                className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 border border-gray-200 flex items-center justify-center transition-colors"
+                                title="Copy ID"
+                            >
+                                <svg className="w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                </svg>
+                            </button>
+                        )}
                     </div>
+                    <div className="text-[10px] text-gray-400 uppercase tracking-wide mt-0.5">Asset ID</div>
+                    {(assetName || workName) && (
+                        <div className="text-sm text-amber-700 mt-2 font-medium">{assetName || workName}</div>
+                    )}
+                    {(lat || lon) && (
+                        <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-gray-100">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-mono text-slate-500">
+                                <svg className="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                                {parseFloat(lat).toFixed(4)}, {parseFloat(lon).toFixed(4)}
+                            </span>
+                        </div>
+                    )}
                 </div>
+
+                {gridItems.length > 0 && (
+                    <div className="flex flex-col gap-2 px-4">
+                        {gridItems.map(({ key, label, value }) => (
+                            <div key={key} className="bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
+                                <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide mb-1 leading-tight">{label}</div>
+                                <div className="text-sm text-gray-800 font-medium leading-snug break-words">{value}</div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-        </>
-    );
+        );
+    })();
+
+    const resourceBody = (() => {
+        if ((!MainStore.isResource && !MainStore.isResourceOpen) || MainStore.selectedResource === null) return null;
+
+        const resourceType = MainStore.resourceType;
+        const resource = MainStore.selectedResource;
+        const mapping = resourceDetails[resourceType] || {};
+        const heroConfig = resourceHeroConfig[resourceType] || {};
+
+        const idKey   = heroConfig.id;
+        const nameKey = heroConfig.name;
+        const heroKeys = new Set([idKey, nameKey, "latitude", "longitude"].filter(Boolean));
+
+        const idValue   = idKey   ? resource[idKey]   : null;
+        const idLabel   = idKey   ? mapping[idKey]    : null;
+        const nameValue = nameKey ? resource[nameKey] : null;
+
+        const rawLat = resource.latitude ?? resource.lat;
+        const rawLon = resource.longitude ?? resource.lon;
+        const lat = rawLat ? parseFloat(rawLat).toFixed(4) : null;
+        const lon = rawLon ? parseFloat(rawLon).toFixed(4) : null;
+
+        const gridItems = Object.keys(mapping).flatMap((key) => {
+            if (heroKeys.has(key)) return [];
+
+            const label = mapping[key];
+            const rawValue = resource[key];
+            if (rawValue === null || rawValue === undefined || rawValue === "") return [];
+
+            if (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi") {
+                try {
+                    const data = new Function(`return (${rawValue.replace(/'/g, '"').replace(/\bNone\b/g, "null")})`)();
+                    return Object.keys(data)
+                        .filter(k => data[k] !== null && data[k] !== undefined && data[k] !== "")
+                        .map(k => ({ key: k, label: ResourceMetaKeys[k] || k, value: String(data[k]) }));
+                } catch { return []; }
+            }
+
+            if (key === "MNREGA_INF" || key === "Well_usage") {
+                const searchKeys = [
+                    "NREGA_applied", "NREGA_have_job_card",
+                    "select_one_Functional_Non_functional", "select_one_well_used",
+                    "select_one_change_water_quality", "select_one_water_structure_near_you",
+                ];
+                return searchKeys.flatMap((sk) => {
+                    const match = rawValue.match(new RegExp(String.raw`['"]${sk}['"]\s*:\s*([^,}\n\r]+)`, "i"));
+                    if (!match) return [];
+                    let val = match[1].trim();
+                    if (val === "None") return [];
+                    if (/^['"]/.test(val)) val = val.replace(/^['"]|['"]$/g, "");
+                    else if (/^\d+(\.\d+)?$/.test(val)) val = Number(val);
+                    if (val === null || val === undefined || val === "") return [];
+                    return [{ key: sk, label: ResourceMetaKeys[sk] || sk, value: String(val) }];
+                });
+            }
+
+            return [{ key, label, value: String(rawValue) }];
+        });
+
+        return (
+            <div className="min-h-full bg-gray-50 pb-8">
+                <div className="flex justify-center pt-6 pb-4">
+                    <span className="px-5 py-1.5 rounded-full bg-white text-slate-500 text-sm font-semibold tracking-wide border border-gray-200 shadow-sm">
+                        {t("Resource Info")}
+                    </span>
+                </div>
+
+                <div className="mx-4 mb-3 rounded-2xl bg-white border border-gray-200 shadow-sm p-5">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">
+                        {resourceType}
+                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                        <div className="text-xl font-bold text-gray-900 flex-1">{idValue || "—"}</div>
+                        {idValue && (
+                            <button
+                                onClick={() => navigator.clipboard?.writeText(String(idValue)).then(() => toast.success("Copied ✔︎"), () => toast.error("Failed ✖︎"))}
+                                className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 border border-gray-200 flex items-center justify-center transition-colors"
+                                title="Copy ID"
+                            >
+                                <svg className="w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                </svg>
+                            </button>
+                        )}
+                    </div>
+                    {idLabel && <div className="text-[10px] text-gray-400 uppercase tracking-wide mt-0.5">{idLabel}</div>}
+                    {nameValue && (
+                        <span className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs text-amber-700">
+                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                            </svg>
+                            {nameValue}
+                        </span>
+                    )}
+                    {(lat || lon) && (
+                        <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-gray-100">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-mono text-slate-500">
+                                <svg className="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                                {lat}, {lon}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
+                {gridItems.length > 0 && (
+                    <div className="flex flex-col gap-2 px-4">
+                        {gridItems.map(({ key, label, value }) => (
+                            <div key={key} className="bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
+                                <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide mb-1 leading-tight">{label}</div>
+                                <div className="text-sm text-gray-800 font-medium leading-snug break-words">{value}</div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    })();
 
     const LayerStoreBody = (
         <>
@@ -766,7 +749,7 @@ const Bottomsheet = () => {
             case MainStore.isMetadata && MainStore.metadata !== null:
                 return metaDataBody;
 
-            case MainStore.isResource && MainStore.selectedResource !== null:
+            case (MainStore.isResource || MainStore.isResourceOpen) && MainStore.selectedResource !== null:
                 return resourceBody;
 
             case MainStore.isWaterbody:

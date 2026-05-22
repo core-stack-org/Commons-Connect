@@ -127,6 +127,7 @@ const ResourceMapping = () => {
     };
 
     const handleAnalyze = () => {
+        MainStore.setIsResourceOpen(true);
         MainStore.setIsOpen(true);
     };
 
