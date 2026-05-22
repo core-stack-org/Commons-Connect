@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import useMainStore from "../store/MainStore.jsx";
@@ -14,11 +14,13 @@ import SiteSuitabilityAnalysis from "./analyze/SiteSuitabilityAnalysis.jsx";
 import { useTranslation } from "react-i18next";
 
 import { looksBroken, fixMojibake } from "../action/getEncoding.js";
+import SquircleLoader from "./SquircleLoader.jsx";
 
 const Bottomsheet = () => {
     const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const LayerStore = useLayersStore((state) => state);
+    const [isSyncing, setIsSyncing] = useState(false);
     const LayerNameMapping = {
         0: "settlement_layer",
         1: "well_layer",
@@ -709,14 +711,7 @@ const Bottomsheet = () => {
         </>
     );
 
-    const onDismiss = () => {
-        if (MainStore.isForm) {
-            stopPolling();
-            if (!syncDoneRef.current) {
-                syncFormSubmission();
-            }
-        }
-
+    const dismissAll = () => {
         MainStore.setIsForm(false);
         MainStore.setNregaSheet(false);
         MainStore.setIsMetadata(false);
@@ -731,18 +726,39 @@ const Bottomsheet = () => {
         MainStore.setIsSiteSuitabilityPopupOpen(false);
     };
 
+    const handleDone = async () => {
+        if (MainStore.isForm && !syncDoneRef.current) {
+            stopPolling();
+            setIsSyncing(true);
+            let success = false;
+            for (let attempt = 0; attempt < 4; attempt++) {
+                success = await syncFormSubmission();
+                if (success) break;
+                if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
+            }
+            setIsSyncing(false);
+            if (!success) return;
+        }
+        dismissAll();
+    };
+
+    const onDismiss = () => {
+        if (MainStore.isForm && !syncDoneRef.current) {
+            stopPolling();
+            const retrySync = async () => {
+                for (let attempt = 0; attempt < 4; attempt++) {
+                    const ok = await syncFormSubmission(true);
+                    if (ok) break;
+                    if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
+                }
+            };
+            retrySync();
+        }
+        dismissAll();
+    };
+
     const renderBody = () => {
         switch (true) {
-            case MainStore.isForm && MainStore.formUrl !== "":
-                return (
-                    <iframe
-                        id="odk-frame"
-                        src={MainStore.formUrl}
-                        style={{ width: "100vw", height: "100vh" }}
-                        allow="camera; microphone; geolocation"
-                    />
-                );
-
             case MainStore.isNregaSheet:
                 return nregaBody;
 
@@ -775,6 +791,26 @@ const Bottomsheet = () => {
         }
     };
 
+    const doneButton = (
+        <button
+            onClick={handleDone}
+            disabled={isSyncing}
+            className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center gap-2"
+            aria-label="Done"
+        >
+            {isSyncing && (
+                <SquircleLoader
+                    size={14}
+                    strokeWidth={2}
+                    color="#ffffff"
+                    backgroundColor="rgba(255,255,255,0.3)"
+                    speed={1000}
+                />
+            )}
+            {isSyncing ? t("Saving…") : t("Done")}
+        </button>
+    );
+
     return (
         <BottomSheet
             open={
@@ -784,39 +820,52 @@ const Bottomsheet = () => {
                     MainStore.currentScreen === "HomeScreen")
             }
             onDismiss={onDismiss}
+            blocking={false}
             snapPoints={({ maxHeight }) =>
                 MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
             }
         >
-            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100/60">
-                {MainStore.isNregaSheet ? (
-                    <>
-                        <button
-                            onClick={onDismiss}
-                            className="px-4 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium transition-colors border border-gray-200"
-                            aria-label="Cancel"
-                        >
-                            {t("Cancel")}
-                        </button>
-                        <button
-                            onClick={onDismiss}
-                            className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
-                            aria-label="Done"
-                        >
-                            {t("Done")}
-                        </button>
-                    </>
-                ) : (
-                    <button
-                        onClick={onDismiss}
-                        className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
-                        aria-label="Done"
-                    >
-                        {t("Done")}
-                    </button>
-                )}
-            </div>
-            <div>{renderBody()}</div>
+            {MainStore.isForm && MainStore.formUrl ? (
+                <div className="flex flex-col" style={{ height: "calc(100dvh - 40px)" }}>
+                    <div className="flex-shrink-0 bg-white/80 backdrop-blur-md flex items-center justify-end px-4 py-3 border-b border-gray-100/60">
+                        {doneButton}
+                    </div>
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                        <iframe
+                            id="odk-frame"
+                            src={MainStore.formUrl}
+                            style={{ width: "100%", height: "100%" }}
+                            allow="camera; microphone; geolocation"
+                        />
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100/60">
+                        {MainStore.isNregaSheet ? (
+                            <>
+                                <button
+                                    onClick={dismissAll}
+                                    className="px-4 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium transition-colors border border-gray-200"
+                                    aria-label="Cancel"
+                                >
+                                    {t("Cancel")}
+                                </button>
+                                <button
+                                    onClick={dismissAll}
+                                    className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                                    aria-label="Done"
+                                >
+                                    {t("Done")}
+                                </button>
+                            </>
+                        ) : (
+                            doneButton
+                        )}
+                    </div>
+                    <div>{renderBody()}</div>
+                </>
+            )}
         </BottomSheet>
     );
 };
