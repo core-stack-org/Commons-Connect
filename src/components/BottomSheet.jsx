@@ -727,17 +727,23 @@ const Bottomsheet = () => {
     };
 
     const handleDone = async () => {
-        if (MainStore.isForm && !syncDoneRef.current) {
-            stopPolling();
+        if (MainStore.isForm) {
             setIsSyncing(true);
-            let success = false;
-            for (let attempt = 0; attempt < 4; attempt++) {
-                success = await syncFormSubmission();
-                if (success) break;
-                if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
+            await new Promise((r) => setTimeout(r, 2000));
+
+            if (!syncDoneRef.current) {
+                stopPolling();
+                let success = false;
+                for (let attempt = 0; attempt < 4; attempt++) {
+                    success = await syncFormSubmission();
+                    if (success) break;
+                    if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
+                }
+                setIsSyncing(false);
+                if (!success) return;
+            } else {
+                setIsSyncing(false);
             }
-            setIsSyncing(false);
-            if (!success) return;
         }
         dismissAll();
     };
