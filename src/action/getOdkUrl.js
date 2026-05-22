@@ -190,7 +190,7 @@ export default function getOdkUrlForScreen(
       "https://odk.core-stack.org/f/IUkvzpDp4lUuCZUJUCLqScMcc18uSzT?st=ON$m7z2cCyJYE5bhwFHWa4$vJNmVNQ7$YpHkMUqCyM!8YC0$GIJGQYnH6nWrFQ1k"; // feedback recharge structure form
   } else if (screen === "SurfaceWater" && !maintain && !isFeedback) {
     odk_url =
-      "https://odk.core-stack.org/f/G5z8BfpmN7rD5T0Mng3lSPdRmUUVSmD?st=jCR5wJ!ZjU5!yrQt0e7KoV9eOmvHgKiLwRIiL40IuoZ53yQ8VNH4yb!N7k0Of7Tp" + // surface water bodies form
+      "https://odk.core-stack.org/f/mnx5heyWfp6Hjz629gd7jsmo03QzGOW?st=H04pS4tz1fE9nOREeKEFC0FrvF8OdFeE7czhpOVTWJQ2ehC!IFP7fke4jg!ZQf3V" + // remote sensed surface water bodies form
       "&d[/data/GPS_point/point_mapsappearance]=" +
       latlong[1].toString() +
       "%20" +
@@ -209,7 +209,7 @@ export default function getOdkUrlForScreen(
       settlement_name;
   } else if (screen === "SurfaceWater" && maintain && !isFeedback) {
     odk_url =
-      "https://odk.core-stack.org/f/mnx5heyWfp6Hjz629gd7jsmo03QzGOW?st=H04pS4tz1fE9nOREeKEFC0FrvF8OdFeE7czhpOVTWJQ2ehC!IFP7fke4jg!ZQf3V" + // maintenance surface water bodies remote sensed form
+      "https://odk.core-stack.org/f/G5z8BfpmN7rD5T0Mng3lSPdRmUUVSmD?st=jCR5wJ!ZjU5!yrQt0e7KoV9eOmvHgKiLwRIiL40IuoZ53yQ8VNH4yb!N7k0Of7Tp" + // surface water bodies form
       "&d[/data/GPS_point/point_mapsappearance]=" +
       latlong[1].toString() +
       "%20" +
