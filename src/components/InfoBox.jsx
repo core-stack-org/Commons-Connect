@@ -426,19 +426,19 @@ const InfoBox = () => {
                         </h3>
                         <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
                             <div className="flex items-center">
-                                <div className="w-6 h-6 rounded mr-3 bg-[#D9F0A3]"></div>
+                                <div className="w-6 h-6 rounded mr-3 bg-[#F0F4A3]"></div>
                                 <span>Single Kharif</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-6 h-6 rounded mr-3 bg-[#A6D96A]"></div>
+                                <div className="w-6 h-6 rounded mr-3 bg-[#D6E96B]"></div>
                                 <span>Single Non-Kharif</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-6 h-6 rounded mr-3 bg-[#4DAF4A]"></div>
+                                <div className="w-6 h-6 rounded mr-3 bg-[#B7D43A]"></div>
                                 <span>Double Crop</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-6 h-6 rounded mr-3 bg-[#006D2C]"></div>
+                                <div className="w-6 h-6 rounded mr-3 bg-[#7FAF2E]"></div>
                                 <span>Triple Crop</span>
                             </div>
                             <div className="flex items-center">
@@ -446,7 +446,7 @@ const InfoBox = () => {
                                 <span>Barren Lands</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-6 h-6 rounded mr-3 bg-[#A18F60]"></div>
+                                <div className="w-6 h-6 rounded mr-3 bg-[#8C7A4F]"></div>
                                 <span>Shrubs and Scrubs</span>
                             </div>
                         </div>
