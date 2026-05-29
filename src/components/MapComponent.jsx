@@ -22,7 +22,6 @@ import VectorLayer from "ol/layer/Vector.js";
 import Point from "ol/geom/Point.js";
 import LineString from "ol/geom/LineString.js";
 import CircleGeom from "ol/geom/Circle.js";
-import Select from "ol/interaction/Select.js";
 import WebGLVectorLayer from "ol/layer/WebGLVector.js";
 import VectorSource from "ol/source/Vector.js";
 
@@ -31,7 +30,6 @@ import LargeWaterBody from "../assets/waterbodiesScreenIcon.svg";
 import CroppingIcon from "../assets/crop_icon.svg"
 import RechargeIcon from "../assets/recharge_icon.svg";
 import IrrigationIcon from "../assets/irrigation_icon.svg";
-import selectedSettlementIcon from "../assets/selected_settlement.svg";
 import iconsDetails from "../assets/icons.json";
 import mapMarker from "../assets/map_marker.svg";
 import farm_pond_proposed from "../assets/farm_pond_proposed.svg";
@@ -161,6 +159,34 @@ function shouldShowWaterStructure(wbsType, screen) {
   }
 }
 
+function getCoordKey(feature) {
+  const coords = feature.getGeometry()?.getCoordinates();
+  return coords ? `${coords[0]},${coords[1]}` : null;
+}
+
+const SELECTION_RINGS = [
+  new Style({
+    image: new CircleStyle({
+      radius: 22,
+      fill: new Fill({ color: "rgba(180, 180, 180, 0.35)" }),
+      stroke: new Stroke({ color: "#9E9E9E", width: 2 }),
+    }),
+  }),
+  new Style({
+    image: new CircleStyle({
+      radius: 15,
+      fill: new Fill({ color: "rgba(255, 255, 255, 0.5)" }),
+      stroke: new Stroke({ color: "#ffffff", width: 2.5 }),
+    }),
+  }),
+];
+
+function withSelection(feature, selectedKey, baseStyle) {
+  if (!selectedKey || getCoordKey(feature) !== selectedKey) return baseStyle;
+  const base = Array.isArray(baseStyle) ? baseStyle : [baseStyle];
+  return [...SELECTION_RINGS, ...base];
+}
+
 const MapComponent = () => {
   const mapElement = useRef(null);
   const mapRef = useRef(null);
@@ -183,8 +209,9 @@ const MapComponent = () => {
   const GpsWatchIdRef = useRef(null);
   const GpsTrailCoordsRef = useRef([]);
 
-  const tempSettlementFeature = useRef(null);
-  const tempSettlementLayer = useRef(null);
+  const selectedFeatureKeyRef = useRef(null);
+  const selectedLayerRef = useRef(null);
+  const showOnlySelectedSettlementRef = useRef(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -752,13 +779,14 @@ const MapComponent = () => {
       true,
     );
 
-    settlementLayer.setStyle(function (feature) {
-      const stat = feature.values_;
-
-      return new Style({
+    settlementLayer.setStyle((feature) => {
+      const key = getCoordKey(feature);
+      const isSelected = key === selectedFeatureKeyRef.current;
+      if (showOnlySelectedSettlementRef.current && !isSelected) return null;
+      const base = new Style({
         image: new Icon({ src: settlementIcon, scale: 0.4 }),
         text: new Text({
-          text: stat.sett_name,
+          text: feature.values_.sett_name,
           font: "14px sans-serif",
           textAlign: "center",
           fill: new Fill({ color: "#111" }),
@@ -767,6 +795,7 @@ const MapComponent = () => {
           offsetY: 20,
         }),
       });
+      return isSelected ? withSelection(feature, selectedFeatureKeyRef.current, base) : base;
     });
 
     wellLayer.setStyle(function (feature) {
@@ -785,8 +814,9 @@ const MapComponent = () => {
         wellMaintenance = m ? m[1].toLowerCase() === "yes" : wellMaintenance;
       }
 
+      let base;
       if (status.status_re in iconsDetails.socialMapping_icons.well) {
-        return new Style({
+        base = new Style({
           image: new Icon({
             image: new Icon({
               src: iconsDetails.socialMapping_icons.well[status.status_re],
@@ -794,23 +824,25 @@ const MapComponent = () => {
           }),
         });
       } else if (wellMaintenance) {
-        return new Style({
+        base = new Style({
           image: new Icon({
             src: iconsDetails.socialMapping_icons.well["maintenance"],
             scale: 0.5,
           }),
         });
       } else {
-        return new Style({
+        base = new Style({
           image: new Icon({
             src: iconsDetails.socialMapping_icons.well["proposed"],
           }),
         });
       }
+      return withSelection(feature, selectedFeatureKeyRef.current, base);
     });
 
     waterStructureLayer.setStyle(function (feature) {
       const status = feature.values_;
+      let base;
 
       if (status.need_maint === "Yes") {
         try {
@@ -819,7 +851,7 @@ const MapComponent = () => {
             status.wbs_type === "Water absorption trenches(WAT)" ||
             status.wbs_type === "Staggered Contour trenches(SCT)"
           ) {
-            return new Style({
+            base = new Style({
               image: new Icon({
                 src: iconsDetails.WB_Icons_Maintenance[status.wbs_type],
                 scale: 0.6,
@@ -835,7 +867,7 @@ const MapComponent = () => {
               }),
             });
           } else {
-            return new Style({
+            base = new Style({
               image: new Icon({
                 src: iconsDetails.WB_Icons_Maintenance[status.wbs_type],
               }),
@@ -854,7 +886,7 @@ const MapComponent = () => {
           console.log(status.wbs_type);
         }
       } else if (status.wbs_type in iconsDetails.WB_Icons) {
-        return new Style({
+        base = new Style({
           image: new Icon({
             src: iconsDetails.WB_Icons[status.wbs_type],
           }),
@@ -869,7 +901,7 @@ const MapComponent = () => {
           }),
         });
       } else {
-        return new Style({
+        base = new Style({
           image: new Icon({ src: LargeWaterBody }),
           text: new Text({
             text: status.wbs_type,
@@ -882,18 +914,21 @@ const MapComponent = () => {
           }),
         });
       }
+      return base ? withSelection(feature, selectedFeatureKeyRef.current, base) : undefined;
     });
 
     croppingInfoLayer.setStyle(function (feature) {
-      return new Style({
+      const base = new Style({
         image: new Icon({ src: CroppingIcon, scale: 0.8 }),
       });
+      return withSelection(feature, selectedFeatureKeyRef.current, base);
     });
 
     AgricultureWorkLayer.setStyle(function (feature) {
       const status = feature.values_;
+      let base;
       if (status.TYPE_OF_WO == "New farm pond") {
-        return new Style({
+        base = new Style({
           image: new Icon({ src: farm_pond_proposed }),
           text: new Text({
             text: status.TYPE_OF_WO,
@@ -906,7 +941,7 @@ const MapComponent = () => {
           }),
         });
       } else if (status.TYPE_OF_WO == "Land leveling") {
-        return new Style({
+        base = new Style({
           image: new Icon({ src: land_leveling_proposed }),
           text: new Text({
             text: status.TYPE_OF_WO,
@@ -919,7 +954,7 @@ const MapComponent = () => {
           }),
         });
       } else if (status.TYPE_OF_WO == "New well") {
-        return new Style({
+        base = new Style({
           image: new Icon({ src: well_mrker }),
           text: new Text({
             text: status.TYPE_OF_WO,
@@ -932,7 +967,7 @@ const MapComponent = () => {
           }),
         });
       } else {
-        return new Style({
+        base = new Style({
           image: new Icon({ src: IrrigationIcon }),
           text: new Text({
             text: status.TYPE_OF_WO,
@@ -945,17 +980,12 @@ const MapComponent = () => {
           }),
         });
       }
+      return withSelection(feature, selectedFeatureKeyRef.current, base);
     });
 
     GroundWaterWorkLayer.setStyle(function (feature) {
       const status = feature.values_;
-      // if(status.work_type in iconsDetails.Recharge_Icons){
-      //     return new Style({
-      //         image: new Icon({ src: iconsDetails.Recharge_Icons[status.work_type] }),
-      //     })
-      // }
-      // else{
-      return new Style({
+      const base = new Style({
         image: new Icon({ src: RechargeIcon }),
         text: new Text({
           text: status.work_type,
@@ -967,25 +997,19 @@ const MapComponent = () => {
           offsetY: 20,
         }),
       });
-      //}
+      return withSelection(feature, selectedFeatureKeyRef.current, base);
     });
 
     livelihoodLayer.setStyle(function (feature) {
-      const stat = feature.values_;
-      // console.log(stat)
+      let base;
       if (feature.values_.select_o_5 === "Yes") {
-        return new Style({
-          image: new Icon({ src: livelihoodIcon }),
-        });
+        base = new Style({ image: new Icon({ src: livelihoodIcon }) });
       } else if (feature.values_.select_o_6 === "Yes") {
-        return new Style({
-          image: new Icon({ src: fisheriesIcon }),
-        });
+        base = new Style({ image: new Icon({ src: fisheriesIcon }) });
       } else {
-        return new Style({
-          image: new Icon({ src: plantationsIcon }),
-        });
+        base = new Style({ image: new Icon({ src: plantationsIcon }) });
       }
+      return withSelection(feature, selectedFeatureKeyRef.current, base);
     });
 
     if (assetsLayerRefs[0].current !== null) {
@@ -1036,24 +1060,6 @@ const MapComponent = () => {
       style: iconStyle,
     });
 
-    //? Interactions
-    const settle_style = new Style({
-      image: new Icon({ src: selectedSettlementIcon }),
-    });
-
-    const selectSettleIcon = new Select({ style: settle_style });
-
-    tempSettlementFeature.current = new Feature();
-
-    tempSettlementLayer.current = new VectorLayer({
-      map: mapRef.current,
-      source: new VectorSource({
-        features: [tempSettlementFeature.current],
-      }),
-      style: settle_style,
-    });
-    tempSettlementLayer.current.setVisible(false);
-
     mapRef.current.on("click", (e) => {
       if (useMainStore.getState().currentScreen === "HomeScreen") return;
 
@@ -1065,66 +1071,64 @@ const MapComponent = () => {
       markerFeature.setGeometry(new Point(e.coordinate));
       MapMarkerRef.current.setVisible(true);
 
+      const selectFeature = (feature, layer) => {
+        const prevLayer = selectedLayerRef.current;
+        selectedFeatureKeyRef.current = getCoordKey(feature);
+        selectedLayerRef.current = layer;
+        if (prevLayer && prevLayer !== layer) {
+          prevLayer.getSource()?.changed();
+        }
+        layer.getSource()?.changed();
+      };
+
       mapRef.current.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
         if (layer === assetsLayerRefs[0].current) {
           MainStore.setResourceType("Settlement");
           setFeatureStat(true);
-          mapRef.current.addInteraction(selectSettleIcon);
           setSelectedResource(feature.values_);
-          tempSettlementFeature.current.setGeometry(new Point(e.coordinate));
+          selectFeature(feature, layer);
           MainStore.setSettlementName(feature.values_.sett_name);
           MainStore.setIsResource(true);
           MainStore.setIsResourceOpen(true);
         } else if (layer === assetsLayerRefs[1].current) {
-            MainStore.setResourceType("Well");
-            mapRef.current.removeInteraction(selectSettleIcon);
-            setSelectedResource(feature.values_);
-            setFeatureStat(true);
-            MainStore.setIsResource(true);
-            MainStore.setIsResourceOpen(true);
+          MainStore.setResourceType("Well");
+          setSelectedResource(feature.values_);
+          setFeatureStat(true);
+          selectFeature(feature, layer);
+          MainStore.setIsResource(true);
+          MainStore.setIsResourceOpen(true);
         } else if (layer === assetsLayerRefs[2].current) {
-            MainStore.setResourceType("Waterbody");
-            mapRef.current.removeInteraction(selectSettleIcon);
-            setSelectedResource(feature.values_);
-            setFeatureStat(true);
-            MainStore.setIsResource(true);
-            MainStore.setIsResourceOpen(true);
+          MainStore.setResourceType("Waterbody");
+          setSelectedResource(feature.values_);
+          setFeatureStat(true);
+          selectFeature(feature, layer);
+          MainStore.setIsResource(true);
+          MainStore.setIsResourceOpen(true);
         } else if (layer === assetsLayerRefs[3].current) {
-            MainStore.setResourceType("Cropping");
-            mapRef.current.removeInteraction(selectSettleIcon);
-            setSelectedResource(feature.values_);
-            setFeatureStat(true);
-            MainStore.setIsResource(true);
-            MainStore.setIsResourceOpen(true);
+          MainStore.setResourceType("Cropping");
+          setSelectedResource(feature.values_);
+          setFeatureStat(true);
+          selectFeature(feature, layer);
+          MainStore.setIsResource(true);
+          MainStore.setIsResourceOpen(true);
         } else if (layer === LivelihoodRefs[0].current) {
-            MainStore.setResourceType("Livelihood");
-            mapRef.current.removeInteraction(selectSettleIcon);
-            setSelectedResource(feature.values_);
-            setFeatureStat(true);
-            MainStore.setIsResource(true);
+          MainStore.setResourceType("Livelihood");
+          setSelectedResource(feature.values_);
+          setFeatureStat(true);
+          selectFeature(feature, layer);
+          MainStore.setIsResource(true);
         } else if (layer === groundwaterRefs[3].current) {
-            MainStore.setResourceType("Recharge");
-            mapRef.current.removeInteraction(selectSettleIcon);
-            tempSettlementLayer.current.setVisible(false);
-            setSelectedResource(feature.values_);
-            setFeatureStat(true);
-            MainStore.setIsResource(true);
+          MainStore.setResourceType("Recharge");
+          setSelectedResource(feature.values_);
+          setFeatureStat(true);
+          selectFeature(feature, layer);
+          MainStore.setIsResource(true);
         } else if (layer === AgriLayersRefs[2].current) {
-            setFeatureStat(true);
-            setSelectedResource(feature.values_);
-            MainStore.setResourceType("Irrigation");
-            mapRef.current.removeInteraction(selectSettleIcon);
-            MainStore.setIsResource(true);
-            tempSettlementLayer.current.setVisible(false);
-        }
-
-        if (
-          feature.geometryChangeKey_.target.flatCoordinates[0] ===
-            GeolocationRef.current.position_[0] &&
-          feature.geometryChangeKey_.target.flatCoordinates[1] ===
-            GeolocationRef.current.position_[1]
-        ) {
-          mapRef.current.removeInteraction(selectSettleIcon);
+          setFeatureStat(true);
+          setSelectedResource(feature.values_);
+          MainStore.setResourceType("Irrigation");
+          selectFeature(feature, layer);
+          MainStore.setIsResource(true);
         }
       });
     });
@@ -1146,8 +1150,11 @@ const MapComponent = () => {
           true,
         );
 
-        settlementLayer.setStyle(function (feature) {
-          return new Style({
+        settlementLayer.setStyle((feature) => {
+          const key = getCoordKey(feature);
+          const isSelected = key === selectedFeatureKeyRef.current;
+          if (showOnlySelectedSettlementRef.current && !isSelected) return null;
+          const base = new Style({
             image: new Icon({ src: settlementIcon, scale: 0.4 }),
             text: new Text({
               text: feature.values_.sett_name,
@@ -1159,11 +1166,9 @@ const MapComponent = () => {
               offsetY: 20,
             }),
           });
+          return isSelected ? withSelection(feature, selectedFeatureKeyRef.current, base) : base;
         });
 
-        tempSettlementFeature.current.setGeometry(
-          new Point(MainStore.markerCoords),
-        );
         assetsLayerRefs[0].current = settlementLayer;
 
         try {
@@ -1186,6 +1191,9 @@ const MapComponent = () => {
             MainStore.setResourceType("Settlement");
             MainStore.setFeatureStat(false);
             MainStore.setIsResource(false);
+            selectedFeatureKeyRef.current = getCoordKey(newFeature);
+            selectedLayerRef.current = assetsLayerRefs[0].current;
+            assetsLayerRefs[0].current?.getSource()?.changed();
             MainStore.setCurrentStep(1);
           }
         } catch (e) {
@@ -1206,26 +1214,28 @@ const MapComponent = () => {
           );
           const wellMaintenance = m ? m[1].toLowerCase() === "yes" : null;
 
+          let base;
           if (status.status_re in iconsDetails.socialMapping_icons.well) {
-            return new Style({
+            base = new Style({
               image: new Icon({
                 src: iconsDetails.socialMapping_icons.well[status.status_re],
               }),
             });
           } else if (wellMaintenance) {
-            return new Style({
+            base = new Style({
               image: new Icon({
                 src: iconsDetails.socialMapping_icons.well["maintenance"],
                 scale: 0.5,
               }),
             });
           } else {
-            return new Style({
+            base = new Style({
               image: new Icon({
                 src: iconsDetails.socialMapping_icons.well["proposed"],
               }),
             });
           }
+          return withSelection(feature, selectedFeatureKeyRef.current, base);
         });
 
         assetsLayerRefs[1].current = wellLayer;
@@ -1242,6 +1252,7 @@ const MapComponent = () => {
 
         waterStructureLayer.setStyle(function (feature) {
           const status = feature.values_;
+          let base;
 
           if (status.need_maint === "Yes") {
             try {
@@ -1250,7 +1261,7 @@ const MapComponent = () => {
                 status.wbs_type === "Water absorption trenches(WAT)" ||
                 status.wbs_type === "Staggered Contour trenches(SCT)"
               ) {
-                return new Style({
+                base = new Style({
                   image: new Icon({
                     src: iconsDetails.WB_Icons_Maintenance[status.wbs_type],
                     scale: 0.6,
@@ -1260,16 +1271,13 @@ const MapComponent = () => {
                     font: "14px sans-serif",
                     textAlign: "center",
                     fill: new Fill({ color: "#111" }),
-                    stroke: new Stroke({
-                      color: "#fff",
-                      width: 3,
-                    }),
+                    stroke: new Stroke({ color: "#fff", width: 3 }),
                     overflow: true,
                     offsetY: 20,
                   }),
                 });
               } else {
-                return new Style({
+                base = new Style({
                   image: new Icon({
                     src: iconsDetails.WB_Icons_Maintenance[status.wbs_type],
                   }),
@@ -1278,10 +1286,7 @@ const MapComponent = () => {
                     font: "14px sans-serif",
                     textAlign: "center",
                     fill: new Fill({ color: "#111" }),
-                    stroke: new Stroke({
-                      color: "#fff",
-                      width: 3,
-                    }),
+                    stroke: new Stroke({ color: "#fff", width: 3 }),
                     overflow: true,
                     offsetY: 20,
                   }),
@@ -1291,7 +1296,7 @@ const MapComponent = () => {
               console.log(status.wbs_type);
             }
           } else if (status.wbs_type in iconsDetails.WB_Icons) {
-            return new Style({
+            base = new Style({
               image: new Icon({
                 src: iconsDetails.WB_Icons[status.wbs_type],
               }),
@@ -1306,7 +1311,7 @@ const MapComponent = () => {
               }),
             });
           } else {
-            return new Style({
+            base = new Style({
               image: new Icon({ src: LargeWaterBody }),
               text: new Text({
                 text: status.wbs_type,
@@ -1319,6 +1324,7 @@ const MapComponent = () => {
               }),
             });
           }
+          return base ? withSelection(feature, selectedFeatureKeyRef.current, base) : undefined;
         });
 
         assetsLayerRefs[2].current = waterStructureLayer;
@@ -1332,9 +1338,8 @@ const MapComponent = () => {
         );
 
         croppingInfoLayer.setStyle(function (feature) {
-          return new Style({
-            image: new Icon({ src: CroppingIcon, scale: 0.8 }),
-          });
+          const base = new Style({ image: new Icon({ src: CroppingIcon, scale: 0.8 }) });
+          return withSelection(feature, selectedFeatureKeyRef.current, base);
         });
 
         assetsLayerRefs[3].current = croppingInfoLayer;
@@ -1352,7 +1357,7 @@ const MapComponent = () => {
       );
       GroundWaterWorkLayer.setStyle(function (feature) {
         const status = feature.values_;
-        return new Style({
+        const base = new Style({
           image: new Icon({ src: RechargeIcon }),
           text: new Text({
             text: status.work_type,
@@ -1364,6 +1369,7 @@ const MapComponent = () => {
             offsetY: 20,
           }),
         });
+        return withSelection(feature, selectedFeatureKeyRef.current, base);
       });
 
       mapRef.current.removeLayer(groundwaterRefs[2].current);
@@ -1378,8 +1384,9 @@ const MapComponent = () => {
       );
       AgricultureWorkLayer.setStyle(function (feature) {
         const status = feature.values_;
+        let base;
         if (status.TYPE_OF_WO == "New farm pond") {
-          return new Style({
+          base = new Style({
             image: new Icon({ src: farm_pond_proposed }),
             text: new Text({
               text: status.TYPE_OF_WO,
@@ -1392,7 +1399,7 @@ const MapComponent = () => {
             }),
           });
         } else if (status.TYPE_OF_WO == "Land leveling") {
-          return new Style({
+          base = new Style({
             image: new Icon({ src: land_leveling_proposed }),
             text: new Text({
               text: status.TYPE_OF_WO,
@@ -1405,7 +1412,7 @@ const MapComponent = () => {
             }),
           });
         } else if (status.TYPE_OF_WO == "New well") {
-          return new Style({
+          base = new Style({
             image: new Icon({ src: well_mrker }),
             text: new Text({
               text: status.TYPE_OF_WO,
@@ -1418,7 +1425,7 @@ const MapComponent = () => {
             }),
           });
         } else {
-          return new Style({
+          base = new Style({
             image: new Icon({ src: IrrigationIcon }),
             text: new Text({
               text: status.TYPE_OF_WO,
@@ -1431,6 +1438,7 @@ const MapComponent = () => {
             }),
           });
         }
+        return withSelection(feature, selectedFeatureKeyRef.current, base);
       });
 
       mapRef.current.removeLayer(AgriLayersRefs[2].current);
@@ -1444,20 +1452,15 @@ const MapComponent = () => {
         true,
       );
       livelihoodLayer.setStyle(function (feature) {
-        const stat = feature.values_;
+        let base;
         if (feature.values_.select_o_3 === "Yes") {
-          return new Style({
-            image: new Icon({ src: livelihoodIcon }),
-          });
+          base = new Style({ image: new Icon({ src: livelihoodIcon }) });
         } else if (feature.values_.select_one === "Yes") {
-          return new Style({
-            image: new Icon({ src: fisheriesIcon }),
-          });
+          base = new Style({ image: new Icon({ src: fisheriesIcon }) });
         } else {
-          return new Style({
-            image: new Icon({ src: plantationsIcon }),
-          });
+          base = new Style({ image: new Icon({ src: plantationsIcon }) });
         }
+        return withSelection(feature, selectedFeatureKeyRef.current, base);
       });
       mapRef.current.removeLayer(LivelihoodRefs[0].current);
       LivelihoodRefs[0].current = livelihoodLayer;
@@ -1485,11 +1488,13 @@ const MapComponent = () => {
       MapMarkerRef.current.setVisible(false);
       setMarkerPlaced(false);
 
+      showOnlySelectedSettlementRef.current = currentStep > 0;
+      if (currentStep > 0 && assetsLayerRefs[0].current) {
+        mapRef.current.addLayer(assetsLayerRefs[0].current);
+        assetsLayerRefs[0].current.getSource()?.changed();
+      }
       if (assetsLayerRefs[currentStep].current) {
         mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
-      }
-      if (currentStep > 0) {
-        tempSettlementLayer.current.setVisible(true);
       }
       if (currentStep === 2) {
         if (WaterbodiesLayerRef.current === null) {
@@ -1612,8 +1617,10 @@ const MapComponent = () => {
       setMarkerPlaced(false);
 
       if (currentStep > 0) {
+        if (assetsLayerRefs[0].current) {
+          mapRef.current.addLayer(assetsLayerRefs[0].current);
+        }
         mapRef.current.addLayer(LivelihoodRefs[0].current);
-        tempSettlementLayer.current.setVisible(true);
       }
     } else if (currentScreen === "Agrohorticulture") {
       layerCollection
@@ -1666,7 +1673,11 @@ const MapComponent = () => {
         MapMarkerRef.current.getSource().getFeatures().forEach(
           (f) => f.setGeometry(undefined),
         );
-        tempSettlementLayer.current.setVisible(false);
+        selectedLayerRef.current?.getSource()?.changed();
+        selectedFeatureKeyRef.current = null;
+        selectedLayerRef.current = null;
+        showOnlySelectedSettlementRef.current = false;
+        assetsLayerRefs[0].current?.getSource()?.changed();
       }
       setMarkerPlaced(false);
       setFeatureStat(false);
@@ -1683,6 +1694,7 @@ const MapComponent = () => {
             layerCollection.remove(layer);
           }
         });
+      showOnlySelectedSettlementRef.current = false;
       if (assetsLayerRefs[currentStep].current) {
         mapRef.current.addLayer(assetsLayerRefs[currentStep].current);
       }
