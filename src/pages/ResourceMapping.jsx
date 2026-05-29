@@ -5,6 +5,7 @@ import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
 import SquircleLoader from "../components/SquircleLoader.jsx";
+import PageTitle from "../components/PageTitle.jsx";
 import toast from "react-hot-toast";
 
 const ResourceMapping = () => {
@@ -174,13 +175,7 @@ const ResourceMapping = () => {
             <Floater />
 
             {/* Title Bubble */}
-            <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
-                <div className="relative w-full max-w-lg mx-auto flex items-center">
-                    <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        {t("Resource Mapping")}
-                    </div>
-                </div>
-            </div>
+            <PageTitle />
 
             {/* 2. Top-left buttons */}
             <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
@@ -708,87 +703,133 @@ const ResourceMapping = () => {
             {showFinishConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
                     <div
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                         onClick={() => setShowFinishConfirm(false)}
                     />
                     <div
-                        className="relative bg-white rounded-2xl shadow-xl max-w-sm w-full mx-4 p-6 z-10"
+                        className="relative bg-white/5 backdrop-blur-2xl border border-white/15 rounded-3xl w-full mx-4 max-w-sm p-6 z-10"
                         style={{
-                            animation: "modalExpand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+                            animation: "modalExpand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
                         }}
                     >
-                        <style>
-                            {`
-                                @keyframes modalExpand {
-                                    0% { opacity: 0; transform: scale(0.8); }
-                                    100% { opacity: 1; transform: scale(1); }
-                                }
-                            `}
-                        </style>
-                        <button
-                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
-                            onClick={() => setShowFinishConfirm(false)}
-                        >
-                            ✕
-                        </button>
-                        <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">
-                            {t("Confirm Completion")}
-                        </h2>
-                        <p className="text-sm text-gray-600 mb-4 text-center">
-                            {t("Have you completed the following?")}
+                        <style>{`
+                            @keyframes modalExpand {
+                                0% { opacity: 0; transform: scale(0.92); }
+                                100% { opacity: 1; transform: scale(1); }
+                            }
+                        `}</style>
+
+                        {MainStore.settlementName && (
+                            <div className="mb-5">
+                                <p className="text-white/40 text-[10px] uppercase tracking-widest mb-2">
+                                    {t("Settlement")}
+                                </p>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400/20 border border-amber-300/30">
+                                    <svg className="w-3.5 h-3.5 text-amber-100 opacity-80" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                                    </svg>
+                                    <span className="text-sm text-amber-100 font-medium">
+                                        {MainStore.settlementName}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        <p className="text-white/40 text-[10px] uppercase tracking-widest mb-3">
+                            {t("Resources Added")}
                         </p>
-                        <div className="space-y-3 mb-6">
+                        <div className="space-y-2 mb-6">
                             {[
-                                { key: 1, label: "Added Settlements" },
-                                { key: 2, label: "Added Wells" },
-                                { key: 3, label: "Added Water Structures" },
-                                { key: 4, label: "Added Cropping Pattern" },
+                                { key: "well", label: t("Well") },
+                                { key: "water", label: t("Water Structure") },
+                                { key: "crop", label: t("Cropping Pattern") },
                             ].map(({ key, label }) => (
                                 <div
                                     key={key}
-                                    className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border cursor-pointer transition-all"
                                     style={{
-                                        backgroundColor: checkedItems[key] ? "#dcfce7" : "#f9fafb",
+                                        backgroundColor: checkedItems[key]
+                                            ? "rgba(34, 197, 94, 0.15)"
+                                            : "rgba(255,255,255,0.07)",
+                                        borderColor: checkedItems[key]
+                                            ? "rgba(34, 197, 94, 0.4)"
+                                            : "rgba(255,255,255,0.12)",
                                     }}
-                                    onClick={() => setCheckedItems(prev => ({ ...prev, [key]: !prev[key] }))}
+                                    onClick={() =>
+                                        setCheckedItems((prev) => ({
+                                            ...prev,
+                                            [key]: !prev[key],
+                                        }))
+                                    }
                                 >
                                     <div
-                                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold transition-colors"
-                                        style={{ backgroundColor: checkedItems[key] ? "#16a34a" : "#592941" }}
+                                        className="w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 transition-all"
+                                        style={{
+                                            backgroundColor: checkedItems[key]
+                                                ? "rgba(34, 197, 94, 0.85)"
+                                                : "transparent",
+                                            borderColor: checkedItems[key]
+                                                ? "rgba(34, 197, 94, 0.9)"
+                                                : "rgba(255,255,255,0.35)",
+                                        }}
                                     >
-                                        {checkedItems[key] ? "✓" : key}
+                                        {checkedItems[key] && (
+                                            <svg
+                                                className="w-3 h-3 text-white"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="3"
+                                            >
+                                                <path
+                                                    d="M20 6L9 17l-5-5"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                />
+                                            </svg>
+                                        )}
                                     </div>
-                                    <span className="text-sm" style={{ color: checkedItems[key] ? "#15803d" : "#374151" }}>
-                                        {t(label)}
-                                    </span>
+                                    <span className="text-sm text-white/80">{label}</span>
                                 </div>
                             ))}
                         </div>
-                        <div className="flex gap-3">
-                            <button
-                                className="flex-1 px-4 py-3 text-sm font-medium rounded-xl"
-                                onClick={() => setShowFinishConfirm(false)}
-                                style={{
-                                    backgroundColor: "#f3f4f6",
-                                    color: "#374151",
-                                }}
-                            >
-                                {t("Go Back")}
-                            </button>
-                            <button
-                                className="flex-1 px-4 py-3 text-sm font-medium rounded-xl"
-                                onClick={() => {
-                                    setShowFinishConfirm(false);
-                                    withLoading(() => navigate("/maps"));
-                                }}
-                                style={{
-                                    backgroundColor: "#592941",
-                                    color: "#ffffff",
-                                }}
-                            >
-                                {t("Finish")}
-                            </button>
+
+                        <button
+                            className="w-full py-3 rounded-2xl text-sm font-semibold mb-3 transition-opacity active:opacity-80"
+                            style={{ backgroundColor: "#592941", color: "#ffffff" }}
+                            onClick={() => {
+                                setShowFinishConfirm(false);
+                                navigate("/maps");
+                            }}
+                        >
+                            {t("Finish")}
+                        </button>
+
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="flex-1 h-px bg-white/15" />
+                            <span className="text-white/35 text-xs">{t("or")}</span>
+                            <div className="flex-1 h-px bg-white/15" />
                         </div>
+
+                        <button
+                            className="w-full py-3 rounded-2xl text-sm font-medium border transition-all active:opacity-80"
+                            style={{
+                                backgroundColor: "rgba(255,255,255,0.07)",
+                                borderColor: "rgba(255,255,255,0.18)",
+                                color: "rgba(255,255,255,0.85)",
+                            }}
+                            onClick={() => {
+                                setShowFinishConfirm(false);
+                                setCheckedItems({});
+                                MainStore.setCurrentStep(0);
+                                MainStore.setSettlementName("");
+                                MainStore.setMarkerPlaced(false);
+                                MainStore.setMarkerCoords(null);
+                                MainStore.setFeatureStat(false);
+                            }}
+                        >
+                            {t("Add Another Settlement")}
+                        </button>
                     </div>
                 </div>
             )}

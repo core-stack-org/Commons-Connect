@@ -12,6 +12,7 @@ import AgricultureAnalyze from "./analyze/AgricultureAnalyze.jsx";
 import SiteAnalysis from "./analyze/SiteAnalysis.jsx";
 import SiteSuitabilityAnalysis from "./analyze/SiteSuitabilityAnalysis.jsx";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 
 import { looksBroken, fixMojibake } from "../action/getEncoding.js";
 import SquircleLoader from "./SquircleLoader.jsx";
@@ -404,6 +405,13 @@ const Bottomsheet = () => {
         </>
     );
 
+    const toTitleCase = (str) =>
+        str
+            ? String(str)
+                  .toLowerCase()
+                  .replace(/\b\w/g, (c) => c.toUpperCase())
+            : str;
+
     // Helper function to get value with underscore fallback
     const getMetadataValue = (obj, key) => {
         // Try the exact key first
@@ -486,7 +494,7 @@ const Bottomsheet = () => {
                     </div>
                     <div className="text-[10px] text-gray-400 uppercase tracking-wide mt-0.5">Asset ID</div>
                     {(assetName || workName) && (
-                        <div className="text-sm text-amber-700 mt-2 font-medium">{assetName || workName}</div>
+                        <div className="text-sm text-amber-700 mt-2 font-medium">{toTitleCase(assetName || workName)}</div>
                     )}
                     {(lat || lon) && (
                         <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-gray-100">
@@ -600,11 +608,11 @@ const Bottomsheet = () => {
                     </div>
                     {idLabel && <div className="text-[10px] text-gray-400 uppercase tracking-wide mt-0.5">{idLabel}</div>}
                     {nameValue && (
-                        <span className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs text-amber-700">
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                        <span className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-700">
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                             </svg>
-                            {nameValue}
+                            {toTitleCase(nameValue)}
                         </span>
                     )}
                     {(lat || lon) && (
@@ -801,7 +809,7 @@ const Bottomsheet = () => {
         <button
             onClick={handleDone}
             disabled={isSyncing}
-            className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center gap-2"
+            className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
             aria-label="Done"
         >
             {isSyncing && (
@@ -833,7 +841,7 @@ const Bottomsheet = () => {
         >
             {MainStore.isForm && MainStore.formUrl ? (
                 <div className="flex flex-col" style={{ height: "calc(100dvh - 40px)" }}>
-                    <div className="flex-shrink-0 bg-white/80 backdrop-blur-md flex items-center justify-end px-4 py-3 border-b border-gray-100/60">
+                    <div className="flex-shrink-0 bg-white/80 backdrop-blur-md flex items-center justify-end px-4 py-1 border-b border-gray-100/60">
                         {doneButton}
                     </div>
                     <div className="flex-1 min-h-0 overflow-hidden">
@@ -847,19 +855,19 @@ const Bottomsheet = () => {
                 </div>
             ) : (
                 <>
-                    <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100/60">
+                    <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-1 border-b border-gray-100/60">
                         {MainStore.isNregaSheet ? (
                             <>
                                 <button
                                     onClick={dismissAll}
-                                    className="px-4 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium transition-colors border border-gray-200"
+                                    className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium transition-colors border border-gray-200"
                                     aria-label="Cancel"
                                 >
                                     {t("Cancel")}
                                 </button>
                                 <button
                                     onClick={dismissAll}
-                                    className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                                    className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
                                     aria-label="Done"
                                 >
                                     {t("Done")}
