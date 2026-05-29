@@ -284,5 +284,12 @@
   "Added Wells": "कुएँ जोड़े गए",
   "Added Water Structures": "जल संरचनाएँ जोड़ी गईं",
   "Added Cropping Pattern": "फसल पैटर्न जोड़ा गया",
-  "Go Back": "वापस जाएँ"
+  "Go Back": "वापस जाएँ",
+  "Have you added the resources for the": "क्या आपने इसके लिए संसाधन जोड़े हैं",
+  "Finish Resource Mapping": "संसाधन मानचित्रण समाप्त करें",
+  "Add Another Settlement": "एक और बस्ती जोड़ें",
+  "Settlement": "बस्ती",
+  "Well": "कुआँ",
+  "Water Structure": "जल संरचना",
+  "Cropping Pattern": "फसल पैटर्न"
 }

@@ -719,25 +719,14 @@ const ResourceMapping = () => {
                             }
                         `}</style>
 
-                        {MainStore.settlementName && (
-                            <div className="mb-5">
-                                <p className="text-white/40 text-[10px] uppercase tracking-widest mb-2">
-                                    {t("Settlement")}
-                                </p>
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400/20 border border-amber-300/30">
-                                    <svg className="w-3.5 h-3.5 text-amber-100 opacity-80" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                                    </svg>
-                                    <span className="text-sm text-amber-100 font-medium">
-                                        {MainStore.settlementName}
-                                    </span>
-                                </div>
-                            </div>
-                        )}
-
-                        <p className="text-white/40 text-[10px] uppercase tracking-widest mb-3">
-                            {t("Resources Added")}
+                        <p className="text-white/90 text-base font-medium mb-5 leading-snug">
+                            {t("Have you added the resources for the")}{" "}
+                            <span className="text-amber-300 font-semibold">
+                                {MainStore.settlementName || t("Settlement")}
+                            </span>
+                            {"?"}
                         </p>
+
                         <div className="space-y-2 mb-6">
                             {[
                                 { key: "well", label: t("Well") },
@@ -794,25 +783,12 @@ const ResourceMapping = () => {
                             ))}
                         </div>
 
-                        <button
-                            className="w-full py-3 rounded-2xl text-sm font-semibold mb-3 transition-opacity active:opacity-80"
-                            style={{ backgroundColor: "#592941", color: "#ffffff" }}
-                            onClick={() => {
-                                setShowFinishConfirm(false);
-                                navigate("/maps");
-                            }}
-                        >
-                            {t("Finish")}
-                        </button>
-
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="flex-1 h-px bg-white/15" />
-                            <span className="text-white/35 text-xs">{t("or")}</span>
                             <div className="flex-1 h-px bg-white/15" />
                         </div>
 
                         <button
-                            className="w-full py-3 rounded-2xl text-sm font-medium border transition-all active:opacity-80"
+                            className="w-full py-3 rounded-2xl text-sm font-medium border transition-all active:opacity-80 mb-3"
                             style={{
                                 backgroundColor: "rgba(255,255,255,0.07)",
                                 borderColor: "rgba(255,255,255,0.18)",
@@ -829,6 +805,21 @@ const ResourceMapping = () => {
                             }}
                         >
                             {t("Add Another Settlement")}
+                        </button>
+
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="flex-1 h-px bg-white/15" />
+                        </div>
+
+                        <button
+                            className="w-full py-3 rounded-2xl text-sm font-semibold transition-opacity active:opacity-80"
+                            style={{ backgroundColor: "#592941", color: "#ffffff" }}
+                            onClick={() => {
+                                setShowFinishConfirm(false);
+                                navigate("/maps");
+                            }}
+                        >
+                            {t("Finish Resource Mapping")}
                         </button>
                     </div>
                 </div>
