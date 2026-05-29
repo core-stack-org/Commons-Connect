@@ -604,6 +604,49 @@ const PlanSheet = ({ isOpen, onClose }) => {
         }
     };
 
+    const PlanRow = ({ plan, onSelect, onInfo, isTest = false }) => {
+        const isSelected = selectedPlanId === plan.id;
+        return (
+            <div
+                className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
+                    isSelected
+                        ? "bg-blue-50"
+                        : isTest
+                          ? "hover:bg-red-50/50"
+                          : "hover:bg-gray-50"
+                }`}
+                onClick={onSelect}
+            >
+                <div
+                    className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                        isSelected ? "border-blue-500 bg-blue-500" : "border-gray-300"
+                    }`}
+                >
+                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-medium truncate ${isSelected ? "text-blue-700" : "text-gray-900"}`}>
+                        {plan.plan}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">
+                        {plan.village_name} · {plan.facilitator_name}
+                    </p>
+                    {plan.project_name && (
+                        <p className="text-xs text-blue-500 mt-0.5 truncate">{plan.project_name}</p>
+                    )}
+                </div>
+                <button
+                    onClick={(e) => { e.stopPropagation(); onInfo(); }}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors flex-shrink-0"
+                >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        );
+    };
+
     const FilterMenu = () => {
         if (!showFilterMenu) return null;
 
@@ -948,32 +991,21 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         </button>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-6 mb-4">
-                            <div className="space-y-3">
-                                <div>
-                                    <div className="text-sm text-gray-600 mb-1">
-                                        {t("Organization")}
-                                    </div>
-                                    <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                        {isSuperAdmin
-                                            ? showPlanDetails.organization_name
-                                            : organizationName}
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="text-sm text-gray-600 mb-1">
-                                        {t("Project")}
-                                    </div>
-                                    <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                        {currentProjectName ||
-                                            "No Project Assigned"}
-                                    </div>
-                                </div>
+                    <div className="space-y-3">
+                        <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 flex gap-6 mb-2">
+                            <div>
+                                <p className="text-[11px] font-medium uppercase tracking-wide text-indigo-400 mb-0.5">{t("Organization")}</p>
+                                <p className="text-sm font-semibold text-gray-800">
+                                    {isSuperAdmin ? showPlanDetails.organization_name : organizationName}
+                                </p>
+                            </div>
+                            <div className="border-l border-indigo-200 pl-6">
+                                <p className="text-[11px] font-medium uppercase tracking-wide text-indigo-400 mb-0.5">{t("Project")}</p>
+                                <p className="text-sm font-semibold text-gray-800">{currentProjectName || "No Project Assigned"}</p>
                             </div>
                         </div>
 
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4">
+                        <div className="bg-white border border-gray-100 rounded-xl p-4">
                             <h3 className="text-lg font-medium text-gray-900 mb-2">
                                 {showPlanDetails.plan}
                             </h3>
@@ -1054,7 +1086,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 mt-4">
+                    <div className="bg-white border border-gray-100 rounded-xl p-4 mt-3">
                         <h4 className="font-medium text-gray-900 mb-3">
                             {t("Location Details")}
                         </h4>
@@ -1097,9 +1129,9 @@ const PlanSheet = ({ isOpen, onClose }) => {
             defaultSnap={({ maxHeight }) => maxHeight * 1.0}
             snapPoints={({ maxHeight }) => [maxHeight * 1.0]}
         >
-            <div className="p-6 pb-8">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900">
+            <div className="p-4 pb-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">
                         {t("Select Plan")}{" "}
                         {isSuperAdmin &&
                             blockId &&
@@ -1136,7 +1168,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                         />
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-3">
                         {/* Superadmin view */}
                         {isSuperAdmin && blockId ? (
                             <>
@@ -1147,7 +1179,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             onClick={() =>
                                                 setShowProjectSelector(true)
                                             }
-                                            className="w-full bg-gradient-to-r from-purple-100 to-blue-100 border border-purple-200 rounded-2xl p-4 text-left hover:from-purple-200 hover:to-blue-200 transition-all"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-left hover:bg-gray-100 transition-colors"
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div>
@@ -1182,42 +1214,30 @@ const PlanSheet = ({ isOpen, onClose }) => {
 
                                 {/* Global plans display */}
                                 <div className="bg-white">
-                                    <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-6 mb-2">
-                                        <div className="space-y-3">
+                                    <div className="bg-violet-50 border border-violet-100 rounded-xl px-4 py-3 mb-3 flex items-center justify-between">
+                                        <div className="flex gap-6">
                                             <div>
-                                                <div className="text-sm text-gray-600 mb-1">
-                                                    {t("Organization")}
-                                                </div>
-                                                <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                    {selectedProject
-                                                        ? selectedProject.organization_name
-                                                        : "Global Access"}
-                                                </div>
+                                                <p className="text-[11px] font-medium uppercase tracking-wide text-violet-400 mb-0.5">{t("Organization")}</p>
+                                                <p className="text-sm font-semibold text-gray-800">
+                                                    {selectedProject ? selectedProject.organization_name : "Global Access"}
+                                                </p>
                                             </div>
-                                            <div>
-                                                <div className="text-sm text-gray-600 mb-1">
-                                                    {t("Project")}
-                                                </div>
-                                                <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                    {selectedProject
-                                                        ? selectedProject.name
-                                                        : "All Projects"}
-                                                </div>
+                                            <div className="border-l border-violet-200 pl-6">
+                                                <p className="text-[11px] font-medium uppercase tracking-wide text-violet-400 mb-0.5">{t("Project")}</p>
+                                                <p className="text-sm font-semibold text-gray-800">
+                                                    {selectedProject ? selectedProject.name : "All Projects"}
+                                                </p>
                                             </div>
                                         </div>
+                                        <span className="text-[11px] font-medium text-violet-700 bg-violet-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+                                            {t("Super Admin")}
+                                        </span>
                                     </div>
 
-                                    <div className="text-center mb-4">
-                                        <div className="text-xs text-purple-700 bg-purple-100 px-3 py-1 rounded-full inline-block">
-                                            {t("Super Administrator")}
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <h3 className="text-lg font-semibold text-gray-900">
-                                                {t("Plans")} ({t("Tehsil ID")}:{" "}
-                                                {blockId})
+                                    <div className="mb-2">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                                                {t("Plans")} · {t("Tehsil")} {blockId}
                                             </h3>
                                             <div className="relative">
                                                 <button
@@ -1355,216 +1375,35 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                         </div>
                                     )}
 
-                                    <div className="space-y-2">
-                                        {/* Regular Plans */}
-                                        {applyFilters(
-                                            getFilteredPlans(),
-                                        ).regularPlans.map((plan) => (
-                                            <div
+                                    <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
+                                        {applyFilters(getFilteredPlans()).regularPlans.map((plan) => (
+                                            <PlanRow
                                                 key={plan.id}
-                                                className={`border rounded-2xl p-4 transition-all ${
-                                                    selectedPlanId === plan.id
-                                                        ? "border-blue-500 bg-blue-50"
-                                                        : "border-gray-200 hover:border-gray-300"
-                                                }`}
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <div
-                                                        className="flex-1 cursor-pointer"
-                                                        onClick={() =>
-                                                            handlePlanSelect(
-                                                                plan,
-                                                                plan.project,
-                                                                plan.project_name,
-                                                            )
-                                                        }
-                                                    >
-                                                        <div className="flex items-center">
-                                                            <div className="flex-1">
-                                                                <div className="flex items-center">
-                                                                    <h3 className="font-medium text-gray-900 mr-2">
-                                                                        {
-                                                                            plan.plan
-                                                                        }
-                                                                    </h3>
-                                                                    {selectedPlanId ===
-                                                                        plan.id && (
-                                                                        <svg
-                                                                            className="w-5 h-5 text-blue-600"
-                                                                            fill="currentColor"
-                                                                            viewBox="0 0 20 20"
-                                                                        >
-                                                                            <path
-                                                                                fillRule="evenodd"
-                                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                clipRule="evenodd"
-                                                                            />
-                                                                        </svg>
-                                                                    )}
-                                                                </div>
-                                                                <div className="text-sm text-gray-600 mt-1">
-                                                                    {
-                                                                        plan.village_name
-                                                                    }{" "}
-                                                                    •{" "}
-                                                                    {
-                                                                        plan.facilitator_name
-                                                                    }
-                                                                </div>
-                                                                {plan.project_name && (
-                                                                    <div className="text-xs text-blue-600 mt-1">
-                                                                        Project:{" "}
-                                                                        {
-                                                                            plan.project_name
-                                                                        }
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            fetchPlanDetails(
-                                                                plan.project,
-                                                                plan.id,
-                                                                plan.project_name,
-                                                                plan.organization_name,
-                                                            );
-                                                        }}
-                                                        className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                        title="View Details"
-                                                    >
-                                                        <svg
-                                                            className="w-4 h-4 text-gray-500"
-                                                            fill="currentColor"
-                                                            viewBox="0 0 20 20"
-                                                        >
-                                                            <path
-                                                                fillRule="evenodd"
-                                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                clipRule="evenodd"
-                                                            />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </div>
+                                                plan={plan}
+                                                onSelect={() => handlePlanSelect(plan, plan.project, plan.project_name)}
+                                                onInfo={() => fetchPlanDetails(plan.project, plan.id, plan.project_name, plan.organization_name)}
+                                            />
                                         ))}
                                     </div>
 
-                                    {/* Test Plans Section */}
-                                    {applyFilters(getFilteredPlans())
-                                        .hasTestPlans && (
+                                    {applyFilters(getFilteredPlans()).hasTestPlans && (
                                         <>
-                                            {/* Horizontal line separator */}
-                                            <hr className="my-4 border-gray-300" />
-
-                                            {/* Test Plans Header */}
-                                            <div className="mb-3">
-                                                <h4 className="text-md font-semibold text-gray-900 mb-1">
-                                                    {t(
-                                                        "Test Plans: For training and practice purposes",
-                                                    )}
-                                                </h4>
+                                            <div className="flex items-center gap-3 my-3">
+                                                <div className="flex-1 border-t border-gray-200" />
+                                                <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{t("Test Plans")}</span>
+                                                <div className="flex-1 border-t border-gray-200" />
                                             </div>
-
-                                            {/* Test Plans */}
-                                            {applyFilters(
-                                                getFilteredPlans(),
-                                            ).testPlans.map((plan) => (
-                                                <div
-                                                    key={plan.id}
-                                                    className={`border border-red-500 rounded-2xl p-4 mb-2 transition-all ${
-                                                        selectedPlanId ===
-                                                        plan.id
-                                                            ? "border-red-600 bg-red-50"
-                                                            : "border-red-500 hover:border-red-600"
-                                                    }`}
-                                                >
-                                                    <div className="flex items-center justify-between">
-                                                        <div
-                                                            className="flex-1 cursor-pointer"
-                                                            onClick={() =>
-                                                                handlePlanSelect(
-                                                                    plan,
-                                                                    plan.project,
-                                                                    plan.project_name,
-                                                                )
-                                                            }
-                                                        >
-                                                            <div className="flex items-center">
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center">
-                                                                        <h3 className="font-medium text-gray-900 mr-2">
-                                                                            {
-                                                                                plan.plan
-                                                                            }
-                                                                        </h3>
-                                                                        {selectedPlanId ===
-                                                                            plan.id && (
-                                                                            <svg
-                                                                                className="w-5 h-5 text-blue-600"
-                                                                                fill="currentColor"
-                                                                                viewBox="0 0 20 20"
-                                                                            >
-                                                                                <path
-                                                                                    fillRule="evenodd"
-                                                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                    clipRule="evenodd"
-                                                                                />
-                                                                            </svg>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="text-sm text-gray-600 mt-1">
-                                                                        {
-                                                                            plan.village_name
-                                                                        }{" "}
-                                                                        •{" "}
-                                                                        {
-                                                                            plan.facilitator_name
-                                                                        }
-                                                                    </div>
-                                                                    {plan.project_name && (
-                                                                        <div className="text-xs text-blue-600 mt-1">
-                                                                            Project:{" "}
-                                                                            {
-                                                                                plan.project_name
-                                                                            }
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                fetchPlanDetails(
-                                                                    plan.project,
-                                                                    plan.id,
-                                                                    plan.project_name,
-                                                                    plan.organization_name,
-                                                                );
-                                                            }}
-                                                            className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                            title="View Details"
-                                                        >
-                                                            <svg
-                                                                className="w-4 h-4 text-gray-500"
-                                                                fill="currentColor"
-                                                                viewBox="0 0 20 20"
-                                                            >
-                                                                <path
-                                                                    fillRule="evenodd"
-                                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                    clipRule="evenodd"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                            <div className="border border-red-100 rounded-xl overflow-hidden divide-y divide-red-50">
+                                                {applyFilters(getFilteredPlans()).testPlans.map((plan) => (
+                                                    <PlanRow
+                                                        key={plan.id}
+                                                        plan={plan}
+                                                        isTest
+                                                        onSelect={() => handlePlanSelect(plan, plan.project, plan.project_name)}
+                                                        onInfo={() => fetchPlanDetails(plan.project, plan.id, plan.project_name, plan.organization_name)}
+                                                    />
+                                                ))}
+                                            </div>
                                         </>
                                     )}
 
@@ -1599,7 +1438,7 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             onClick={() =>
                                                 setShowProjectSelector(true)
                                             }
-                                            className="w-full bg-gradient-to-r from-purple-100 to-blue-100 border border-purple-200 rounded-2xl p-4 text-left hover:from-purple-200 hover:to-blue-200 transition-all"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-left hover:bg-gray-100 transition-colors"
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div>
@@ -1638,40 +1477,25 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             key={projectData.projectId}
                                             className="bg-white"
                                         >
-                                            <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-6 mb-2">
-                                                <div className="space-y-3">
+                                            <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-3 flex items-center justify-between">
+                                                <div className="flex gap-6">
                                                     <div>
-                                                        <div className="text-sm text-gray-600 mb-1">
-                                                            {t("Organization")}
-                                                        </div>
-                                                        <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                            {organizationName}
-                                                        </div>
+                                                        <p className="text-[11px] font-medium uppercase tracking-wide text-blue-400 mb-0.5">{t("Organization")}</p>
+                                                        <p className="text-sm font-semibold text-gray-800">{organizationName}</p>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-sm text-gray-600 mb-1">
-                                                            {t("Project")}
-                                                        </div>
-                                                        <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                            {
-                                                                projectData.projectName
-                                                            }
-                                                        </div>
+                                                    <div className="border-l border-blue-200 pl-6">
+                                                        <p className="text-[11px] font-medium uppercase tracking-wide text-blue-400 mb-0.5">{t("Project")}</p>
+                                                        <p className="text-sm font-semibold text-gray-800">{projectData.projectName}</p>
                                                     </div>
                                                 </div>
+                                                <span className="text-[11px] font-medium text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+                                                    {t("Org Admin")}
+                                                </span>
                                             </div>
 
-                                            <div className="text-center mb-4">
-                                                <div className="text-xs text-blue-700 bg-blue-100 px-3 py-1 rounded-full inline-block">
-                                                    {t(
-                                                        "Organization Administrator",
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div className="mb-3">
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <h3 className="text-lg font-semibold text-gray-900">
+                                            <div className="mb-2">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
                                                         {t("Plans")}
                                                     </h3>
                                                     <div className="relative">
@@ -1814,206 +1638,34 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 </div>
                                             )}
 
-                                            <div className="space-y-2">
-                                                {/* Regular Plans */}
-                                                {applyFilters(
-                                                    projectData.plans,
-                                                ).regularPlans.map((plan) => (
-                                                    <div
+                                            <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
+                                                {applyFilters(projectData.plans).regularPlans.map((plan) => (
+                                                    <PlanRow
                                                         key={plan.id}
-                                                        className={`border rounded-2xl p-4 transition-all ${
-                                                            selectedPlanId ===
-                                                            plan.id
-                                                                ? "border-blue-500 bg-blue-50"
-                                                                : "border-gray-200 hover:border-gray-300"
-                                                        }`}
-                                                    >
-                                                        <div className="flex items-center justify-between">
-                                                            <div
-                                                                className="flex-1 cursor-pointer"
-                                                                onClick={() =>
-                                                                    handlePlanSelect(
-                                                                        plan,
-                                                                        projectData.projectId,
-                                                                        projectData.projectName,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <div className="flex items-center">
-                                                                    <div className="flex-1">
-                                                                        <div className="flex items-center">
-                                                                            <h3 className="font-medium text-gray-900 mr-2">
-                                                                                {
-                                                                                    plan.plan
-                                                                                }
-                                                                            </h3>
-                                                                            {selectedPlanId ===
-                                                                                plan.id && (
-                                                                                <svg
-                                                                                    className="w-5 h-5 text-blue-600"
-                                                                                    fill="currentColor"
-                                                                                    viewBox="0 0 20 20"
-                                                                                >
-                                                                                    <path
-                                                                                        fillRule="evenodd"
-                                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                        clipRule="evenodd"
-                                                                                    />
-                                                                                </svg>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="text-sm text-gray-600 mt-1">
-                                                                            {
-                                                                                plan.village_name
-                                                                            }{" "}
-                                                                            •{" "}
-                                                                            {
-                                                                                plan.facilitator_name
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <button
-                                                                onClick={(
-                                                                    e,
-                                                                ) => {
-                                                                    e.stopPropagation();
-                                                                    fetchPlanDetails(
-                                                                        projectData.projectId,
-                                                                        plan.id,
-                                                                        projectData.projectName,
-                                                                    );
-                                                                }}
-                                                                className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                                title="View Details"
-                                                            >
-                                                                <svg
-                                                                    className="w-4 h-4 text-gray-500"
-                                                                    fill="currentColor"
-                                                                    viewBox="0 0 20 20"
-                                                                >
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                        clipRule="evenodd"
-                                                                    />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                        plan={plan}
+                                                        onSelect={() => handlePlanSelect(plan, projectData.projectId, projectData.projectName)}
+                                                        onInfo={() => fetchPlanDetails(projectData.projectId, plan.id, projectData.projectName)}
+                                                    />
                                                 ))}
 
-                                                {/* Test Plans Section */}
-                                                {applyFilters(projectData.plans)
-                                                    .hasTestPlans && (
+                                                {applyFilters(projectData.plans).hasTestPlans && (
                                                     <>
-                                                        {/* Horizontal line separator */}
-                                                        <hr className="my-4 border-gray-300" />
-
-                                                        {/* Test Plans Header */}
-                                                        <div className="mb-3">
-                                                            <h4 className="text-md font-semibold text-gray-900 mb-1">
-                                                                {t(
-                                                                    "Test Plans: For training and practice purposes",
-                                                                )}
-                                                            </h4>
+                                                        <div className="flex items-center gap-3 my-3">
+                                                            <div className="flex-1 border-t border-gray-200" />
+                                                            <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{t("Test Plans")}</span>
+                                                            <div className="flex-1 border-t border-gray-200" />
                                                         </div>
-
-                                                        {/* Test Plans */}
-                                                        {applyFilters(
-                                                            projectData.plans,
-                                                        ).testPlans.map(
-                                                            (plan) => (
-                                                                <div
-                                                                    key={
-                                                                        plan.id
-                                                                    }
-                                                                    className={`border border-red-500 rounded-2xl p-4 mb-2 transition-all ${
-                                                                        selectedPlanId ===
-                                                                        plan.id
-                                                                            ? "border-red-600 bg-red-50"
-                                                                            : "border-red-500 hover:border-red-600"
-                                                                    }`}
-                                                                >
-                                                                    <div className="flex items-center justify-between">
-                                                                        <div
-                                                                            className="flex-1 cursor-pointer"
-                                                                            onClick={() =>
-                                                                                handlePlanSelect(
-                                                                                    plan,
-                                                                                    projectData.projectId,
-                                                                                    projectData.projectName,
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            <div className="flex items-center">
-                                                                                <div className="flex-1">
-                                                                                    <div className="flex items-center">
-                                                                                        <h3 className="font-medium text-gray-900 mr-2">
-                                                                                            {
-                                                                                                plan.plan
-                                                                                            }
-                                                                                        </h3>
-                                                                                        {selectedPlanId ===
-                                                                                            plan.id && (
-                                                                                            <svg
-                                                                                                className="w-5 h-5 text-blue-600"
-                                                                                                fill="currentColor"
-                                                                                                viewBox="0 0 20 20"
-                                                                                            >
-                                                                                                <path
-                                                                                                    fillRule="evenodd"
-                                                                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                                    clipRule="evenodd"
-                                                                                                />
-                                                                                            </svg>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <div className="text-sm text-gray-600 mt-1">
-                                                                                        {
-                                                                                            plan.village_name
-                                                                                        }{" "}
-                                                                                        •{" "}
-                                                                                        {
-                                                                                            plan.facilitator_name
-                                                                                        }
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <button
-                                                                            onClick={(
-                                                                                e,
-                                                                            ) => {
-                                                                                e.stopPropagation();
-                                                                                fetchPlanDetails(
-                                                                                    projectData.projectId,
-                                                                                    plan.id,
-                                                                                    projectData.projectName,
-                                                                                );
-                                                                            }}
-                                                                            className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                                            title="View Details"
-                                                                        >
-                                                                            <svg
-                                                                                className="w-4 h-4 text-gray-500"
-                                                                                fill="currentColor"
-                                                                                viewBox="0 0 20 20"
-                                                                            >
-                                                                                <path
-                                                                                    fillRule="evenodd"
-                                                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                                    clipRule="evenodd"
-                                                                                />
-                                                                            </svg>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            ),
-                                                        )}
+                                                        <div className="border border-red-100 rounded-xl overflow-hidden divide-y divide-red-50">
+                                                            {applyFilters(projectData.plans).testPlans.map((plan) => (
+                                                                <PlanRow
+                                                                    key={plan.id}
+                                                                    plan={plan}
+                                                                    isTest
+                                                                    onSelect={() => handlePlanSelect(plan, projectData.projectId, projectData.projectName)}
+                                                                    onInfo={() => fetchPlanDetails(projectData.projectId, plan.id, projectData.projectName)}
+                                                                />
+                                                            ))}
+                                                        </div>
                                                     </>
                                                 )}
                                             </div>
@@ -2044,32 +1696,20 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                             key={projectData.projectId}
                                             className="bg-white"
                                         >
-                                            <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-6 mb-4">
-                                                <div className="space-y-3">
-                                                    <div>
-                                                        <div className="text-sm text-gray-600 mb-1">
-                                                            {t("Organization")}
-                                                        </div>
-                                                        <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                            {organizationName}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-sm text-gray-600 mb-1">
-                                                            {t("Project")}
-                                                        </div>
-                                                        <div className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                            {
-                                                                projectData.projectName
-                                                            }
-                                                        </div>
-                                                    </div>
+                                            <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 mb-3 flex gap-6">
+                                                <div>
+                                                    <p className="text-[11px] font-medium uppercase tracking-wide text-indigo-400 mb-0.5">{t("Organization")}</p>
+                                                    <p className="text-sm font-semibold text-gray-800">{organizationName}</p>
+                                                </div>
+                                                <div className="border-l border-indigo-200 pl-6">
+                                                    <p className="text-[11px] font-medium uppercase tracking-wide text-indigo-400 mb-0.5">{t("Project")}</p>
+                                                    <p className="text-sm font-semibold text-gray-800">{projectData.projectName}</p>
                                                 </div>
                                             </div>
 
-                                            <div className="mb-3">
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <h3 className="text-lg font-semibold text-gray-900">
+                                            <div className="mb-2">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
                                                         {t("Plans")}
                                                     </h3>
                                                     <div className="relative">
@@ -2175,206 +1815,34 @@ const PlanSheet = ({ isOpen, onClose }) => {
                                                 </div>
                                             )}
 
-                                            <div className="space-y-2">
-                                                {/* Regular Plans */}
-                                                {applyFilters(
-                                                    projectData.plans,
-                                                ).regularPlans.map((plan) => (
-                                                    <div
+                                            <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
+                                                {applyFilters(projectData.plans).regularPlans.map((plan) => (
+                                                    <PlanRow
                                                         key={plan.id}
-                                                        className={`border rounded-2xl p-4 transition-all ${
-                                                            selectedPlanId ===
-                                                            plan.id
-                                                                ? "border-blue-500 bg-blue-50"
-                                                                : "border-gray-200 hover:border-gray-300"
-                                                        }`}
-                                                    >
-                                                        <div className="flex items-center justify-between">
-                                                            <div
-                                                                className="flex-1 cursor-pointer"
-                                                                onClick={() =>
-                                                                    handlePlanSelect(
-                                                                        plan,
-                                                                        projectData.projectId,
-                                                                        projectData.projectName,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <div className="flex items-center">
-                                                                    <div className="flex-1">
-                                                                        <div className="flex items-center">
-                                                                            <h3 className="font-medium text-gray-900 mr-2">
-                                                                                {
-                                                                                    plan.plan
-                                                                                }
-                                                                            </h3>
-                                                                            {selectedPlanId ===
-                                                                                plan.id && (
-                                                                                <svg
-                                                                                    className="w-5 h-5 text-blue-600"
-                                                                                    fill="currentColor"
-                                                                                    viewBox="0 0 20 20"
-                                                                                >
-                                                                                    <path
-                                                                                        fillRule="evenodd"
-                                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                        clipRule="evenodd"
-                                                                                    />
-                                                                                </svg>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="text-sm text-gray-600 mt-1">
-                                                                            {
-                                                                                plan.village_name
-                                                                            }{" "}
-                                                                            •{" "}
-                                                                            {
-                                                                                plan.facilitator_name
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <button
-                                                                onClick={(
-                                                                    e,
-                                                                ) => {
-                                                                    e.stopPropagation();
-                                                                    fetchPlanDetails(
-                                                                        projectData.projectId,
-                                                                        plan.id,
-                                                                        projectData.projectName,
-                                                                    );
-                                                                }}
-                                                                className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                                title="View Details"
-                                                            >
-                                                                <svg
-                                                                    className="w-4 h-4 text-gray-500"
-                                                                    fill="currentColor"
-                                                                    viewBox="0 0 20 20"
-                                                                >
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                        clipRule="evenodd"
-                                                                    />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                        plan={plan}
+                                                        onSelect={() => handlePlanSelect(plan, projectData.projectId, projectData.projectName)}
+                                                        onInfo={() => fetchPlanDetails(projectData.projectId, plan.id, projectData.projectName)}
+                                                    />
                                                 ))}
 
-                                                {/* Test Plans Section */}
-                                                {applyFilters(projectData.plans)
-                                                    .hasTestPlans && (
+                                                {applyFilters(projectData.plans).hasTestPlans && (
                                                     <>
-                                                        {/* Horizontal line separator */}
-                                                        <hr className="my-4 border-gray-300" />
-
-                                                        {/* Test Plans Header */}
-                                                        <div className="mb-3">
-                                                            <h4 className="text-md font-semibold text-gray-900 mb-1">
-                                                                {t(
-                                                                    "Test Plans: For training and practice purposes",
-                                                                )}
-                                                            </h4>
+                                                        <div className="flex items-center gap-3 my-3">
+                                                            <div className="flex-1 border-t border-gray-200" />
+                                                            <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{t("Test Plans")}</span>
+                                                            <div className="flex-1 border-t border-gray-200" />
                                                         </div>
-
-                                                        {/* Test Plans */}
-                                                        {applyFilters(
-                                                            projectData.plans,
-                                                        ).testPlans.map(
-                                                            (plan) => (
-                                                                <div
-                                                                    key={
-                                                                        plan.id
-                                                                    }
-                                                                    className={`border border-red-500 rounded-2xl p-4 mb-2 transition-all ${
-                                                                        selectedPlanId ===
-                                                                        plan.id
-                                                                            ? "border-red-600 bg-red-50"
-                                                                            : "border-red-500 hover:border-red-600"
-                                                                    }`}
-                                                                >
-                                                                    <div className="flex items-center justify-between">
-                                                                        <div
-                                                                            className="flex-1 cursor-pointer"
-                                                                            onClick={() =>
-                                                                                handlePlanSelect(
-                                                                                    plan,
-                                                                                    projectData.projectId,
-                                                                                    projectData.projectName,
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            <div className="flex items-center">
-                                                                                <div className="flex-1">
-                                                                                    <div className="flex items-center">
-                                                                                        <h3 className="font-medium text-gray-900 mr-2">
-                                                                                            {
-                                                                                                plan.plan
-                                                                                            }
-                                                                                        </h3>
-                                                                                        {selectedPlanId ===
-                                                                                            plan.id && (
-                                                                                            <svg
-                                                                                                className="w-5 h-5 text-blue-600"
-                                                                                                fill="currentColor"
-                                                                                                viewBox="0 0 20 20"
-                                                                                            >
-                                                                                                <path
-                                                                                                    fillRule="evenodd"
-                                                                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                                                    clipRule="evenodd"
-                                                                                                />
-                                                                                            </svg>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <div className="text-sm text-gray-600 mt-1">
-                                                                                        {
-                                                                                            plan.village_name
-                                                                                        }{" "}
-                                                                                        •{" "}
-                                                                                        {
-                                                                                            plan.facilitator_name
-                                                                                        }
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <button
-                                                                            onClick={(
-                                                                                e,
-                                                                            ) => {
-                                                                                e.stopPropagation();
-                                                                                fetchPlanDetails(
-                                                                                    projectData.projectId,
-                                                                                    plan.id,
-                                                                                    projectData.projectName,
-                                                                                );
-                                                                            }}
-                                                                            className="ml-3 p-1 hover:bg-gray-100 rounded-full"
-                                                                            title="View Details"
-                                                                        >
-                                                                            <svg
-                                                                                className="w-4 h-4 text-gray-500"
-                                                                                fill="currentColor"
-                                                                                viewBox="0 0 20 20"
-                                                                            >
-                                                                                <path
-                                                                                    fillRule="evenodd"
-                                                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                                                    clipRule="evenodd"
-                                                                                />
-                                                                            </svg>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            ),
-                                                        )}
+                                                        <div className="border border-red-100 rounded-xl overflow-hidden divide-y divide-red-50">
+                                                            {applyFilters(projectData.plans).testPlans.map((plan) => (
+                                                                <PlanRow
+                                                                    key={plan.id}
+                                                                    plan={plan}
+                                                                    isTest
+                                                                    onSelect={() => handlePlanSelect(plan, projectData.projectId, projectData.projectName)}
+                                                                    onInfo={() => fetchPlanDetails(projectData.projectId, plan.id, projectData.projectName)}
+                                                                />
+                                                            ))}
+                                                        </div>
                                                     </>
                                                 )}
                                             </div>
