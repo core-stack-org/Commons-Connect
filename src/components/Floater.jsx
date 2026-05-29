@@ -12,9 +12,8 @@ const Floater = () => {
     const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
     const floaterRef = useRef(null);
 
-    // Format coordinates to display with proper precision
     const formatCoordinate = (coord) => {
-        return coord ? parseFloat(coord).toFixed(6) : "0.000000";
+        return coord ? parseFloat(coord).toFixed(4) : "0.0000";
     };
 
     // Calculate position and width based on info button location and screen size
@@ -146,69 +145,49 @@ const Floater = () => {
     }
 
     return (
-        <div 
+        <div
             ref={floaterRef}
             className="fixed z-10 pointer-events-none"
-            style={{
-                top: `${position.top}px`,
-                left: `${position.left}px`,
-                transformOrigin: 'top left'
-            }}
+            style={{ top: `${position.top}px`, left: `${position.left}px` }}
         >
-            {/* Main floater content with glassy effect */}
-            <div 
-                className={`bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl shadow-black/20 transition-all duration-300 ease-out relative overflow-hidden pointer-events-auto w-full ${
-                    isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            <div
+                className={`pointer-events-auto transition-all duration-300 ease-out ${
+                    isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
                 }`}
-                style={{
-                    transformOrigin: 'top left'
-                }}
             >
-                {/* Content container */}
-                <div className="px-4 py-3">
-                    {/* Header with buttons on the right */}
-                    <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                            <div className="text-md font-semibold text-white mb-1 drop-shadow-sm">
-                                {content.title}
-                            </div>
-                            <div className="text-sm text-white/90 drop-shadow-sm">
-                                Lat: {content.lat} Lon: {content.lon}
-                            </div>
-                        </div>
-                        
-                        {/* Action buttons */}
-                        <div className="flex ml-4">
-                            <button
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 backdrop-blur-sm bg-white/40 text-white border border-white/50 shadow-md`} 
-                                onClick={handlecopy}
-                            >
-                                📋
-                            </button>
-                        </div>
-                    </div>
+                <div className="bg-black/40 backdrop-blur-md border border-white/20 rounded-2xl px-3 py-2 flex flex-wrap items-center gap-1.5">
+                    {/* Label */}
+                    <span className="text-[10px] font-semibold text-white/50 uppercase tracking-widest mr-0.5">
+                        {t("Pin")}
+                    </span>
 
-                    {/* Settlement and Resource Info */}
-                    {content.showDivider && (
-                        <div className="border-t border-white/30 pt-2 space-y-2">
-                            {/* Persistent Settlement Info */}
-                            {content.settlementInfo && (
-                                <div className="text-sm text-white/90 drop-shadow-sm">
-                                    <div className="font-semibold text-white">
-                                        {content.settlementInfo.type}: {content.settlementInfo.name}
-                                    </div>
-                                </div>
-                            )}
-                            
-                            {/* Current Resource Info */}
-                            {content.currentResource && (
-                                <div className="text-sm text-white/90 drop-shadow-sm">
-                                    <div className="font-medium text-white">
-                                        {content.currentResource.type}: {content.currentResource.name}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                    {/* Coordinates chip */}
+                    <button
+                        onClick={handlecopy}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-xs text-white font-mono transition-colors"
+                        title="Copy coordinates"
+                    >
+                        <svg className="w-3 h-3 opacity-70" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        {content.lat}, {content.lon}
+                    </button>
+
+                    {/* Settlement chip */}
+                    {content.settlementInfo && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/30 text-xs text-amber-100">
+                            <svg className="w-3 h-3 opacity-80" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                            </svg>
+                            {content.settlementInfo.name}
+                        </span>
+                    )}
+
+                    {/* Resource chip */}
+                    {content.currentResource && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-400/20 border border-blue-300/30 text-xs text-blue-100">
+                            {content.currentResource.type}: {content.currentResource.name}
+                        </span>
                     )}
                 </div>
             </div>

@@ -70,6 +70,29 @@
         "wb_id": "Water bodies ID",
         "need_maint": "Maintenance Required?"
     },
+    "Cropping":{
+        "sett_name" : "Beneficiary Settlement",
+        "uncropp_br" : "Uncropped or Barren land ?",
+        "irrigatn" : "Main source of irrigation",
+        "land_cls" : "Land Classification",
+        "crop_seas" : "Cropping seasons practiced",
+        "crop_khrf" : "Main crops grown during Kharif",
+        "crop_kh_o" : "Any other Kharif Crop",
+        "area_khrf" : "Total area under cultivation during the Kharif",
+
+        "crops_rabi" : "Main crops grown during Rabi",
+        "crop_rb_o" : "Any other Rabi Crop",
+        "area_rabi" : "Total area under cultivation during the Rabi",
+
+        "crops_zaid" : "Main crops grown during Zaid",
+        "crop_zd_o" : "Any other Zaid Crop",
+        "area_zaid" : "Total area under cultivation during the Zaid",
+
+        "productiv" : "cropping intensity change over last 3 year",
+        "soil_deg" : "Has the soil degraded over the last 3 years ?",
+        "deg_reas" : "Reason for Soil Degradation",
+        "deg_reas2" : "Any other reason"
+    },
     "Livelihood" : {
         "plan_id" : "Plan Id",
         "plan_name" : "Plan Name",
