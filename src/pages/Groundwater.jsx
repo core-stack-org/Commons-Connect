@@ -4,6 +4,7 @@ import useLayersStore from "../store/LayerStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import PageTitle from "../components/PageTitle.jsx";
 import toast from "react-hot-toast";
 
 const Groundwater = () => {
@@ -196,14 +197,7 @@ const Groundwater = () => {
 
     return (
         <>
-            {/* Title Bubble */}
-            <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
-                <div className="relative w-full max-w-lg mx-auto flex items-center">
-                    <div className="flex-1 px-6 py-3 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-extrabold text-md shadow-md">
-                        {t("Water Balance")}
-                    </div>
-                </div>
-            </div>
+            <PageTitle />
             {/* 2. Top-left buttons */}
             <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
                 <div className="flex gap-4 max-w-lg">

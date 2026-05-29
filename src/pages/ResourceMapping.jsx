@@ -5,6 +5,7 @@ import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
 import SquircleLoader from "../components/SquircleLoader.jsx";
+import PageTitle from "../components/PageTitle.jsx";
 import toast from "react-hot-toast";
 
 const ResourceMapping = () => {
@@ -174,27 +175,7 @@ const ResourceMapping = () => {
             <Floater />
 
             {/* Title Bubble */}
-            <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
-                <div className="relative w-full max-w-lg mx-auto flex items-center">
-                    <div className="flex-1 px-4 py-2.5 text-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 shadow-md">
-                        {MainStore.currentStep > 0 && MainStore.settlementName ? (
-                            <span className="flex items-center justify-center gap-1.5 text-sm">
-                                <span className="text-white/55 font-medium truncate max-w-[120px]">
-                                    {MainStore.settlementName}
-                                </span>
-                                <span className="text-white/30">›</span>
-                                <span className="text-white font-bold">
-                                    {[t("Well"), t("Water Structure"), t("Cropping Pattern")][MainStore.currentStep - 1]}
-                                </span>
-                            </span>
-                        ) : (
-                            <span className="text-white font-extrabold text-md">
-                                {t("Resource Mapping")}
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <PageTitle />
 
             {/* 2. Top-left buttons */}
             <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">

@@ -12,6 +12,7 @@ import AgricultureAnalyze from "./analyze/AgricultureAnalyze.jsx";
 import SiteAnalysis from "./analyze/SiteAnalysis.jsx";
 import SiteSuitabilityAnalysis from "./analyze/SiteSuitabilityAnalysis.jsx";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 
 import { looksBroken, fixMojibake } from "../action/getEncoding.js";
 import SquircleLoader from "./SquircleLoader.jsx";
@@ -808,7 +809,7 @@ const Bottomsheet = () => {
         <button
             onClick={handleDone}
             disabled={isSyncing}
-            className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center gap-2"
+            className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
             aria-label="Done"
         >
             {isSyncing && (
@@ -840,7 +841,7 @@ const Bottomsheet = () => {
         >
             {MainStore.isForm && MainStore.formUrl ? (
                 <div className="flex flex-col" style={{ height: "calc(100dvh - 40px)" }}>
-                    <div className="flex-shrink-0 bg-white/80 backdrop-blur-md flex items-center justify-end px-4 py-3 border-b border-gray-100/60">
+                    <div className="flex-shrink-0 bg-white/80 backdrop-blur-md flex items-center justify-end px-4 py-1 border-b border-gray-100/60">
                         {doneButton}
                     </div>
                     <div className="flex-1 min-h-0 overflow-hidden">
@@ -854,19 +855,19 @@ const Bottomsheet = () => {
                 </div>
             ) : (
                 <>
-                    <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100/60">
+                    <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-1 border-b border-gray-100/60">
                         {MainStore.isNregaSheet ? (
                             <>
                                 <button
                                     onClick={dismissAll}
-                                    className="px-4 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium transition-colors border border-gray-200"
+                                    className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium transition-colors border border-gray-200"
                                     aria-label="Cancel"
                                 >
                                     {t("Cancel")}
                                 </button>
                                 <button
                                     onClick={dismissAll}
-                                    className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                                    className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
                                     aria-label="Done"
                                 >
                                     {t("Done")}
