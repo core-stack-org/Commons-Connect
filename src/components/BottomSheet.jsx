@@ -404,6 +404,13 @@ const Bottomsheet = () => {
         </>
     );
 
+    const toTitleCase = (str) =>
+        str
+            ? String(str)
+                  .toLowerCase()
+                  .replace(/\b\w/g, (c) => c.toUpperCase())
+            : str;
+
     // Helper function to get value with underscore fallback
     const getMetadataValue = (obj, key) => {
         // Try the exact key first
@@ -486,7 +493,7 @@ const Bottomsheet = () => {
                     </div>
                     <div className="text-[10px] text-gray-400 uppercase tracking-wide mt-0.5">Asset ID</div>
                     {(assetName || workName) && (
-                        <div className="text-sm text-amber-700 mt-2 font-medium">{assetName || workName}</div>
+                        <div className="text-sm text-amber-700 mt-2 font-medium">{toTitleCase(assetName || workName)}</div>
                     )}
                     {(lat || lon) && (
                         <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-gray-100">
@@ -600,11 +607,11 @@ const Bottomsheet = () => {
                     </div>
                     {idLabel && <div className="text-[10px] text-gray-400 uppercase tracking-wide mt-0.5">{idLabel}</div>}
                     {nameValue && (
-                        <span className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs text-amber-700">
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                        <span className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-700">
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                             </svg>
-                            {nameValue}
+                            {toTitleCase(nameValue)}
                         </span>
                     )}
                     {(lat || lon) && (
