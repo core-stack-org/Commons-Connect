@@ -4,37 +4,24 @@ import getSiteSuitabilityBandValues from "../../action/getSiteSuitabilityBandVal
 import SquircleLoader from "../SquircleLoader.jsx";
 import { useTranslation } from "react-i18next";
 
-/**
- * Component to display site suitability band values when user clicks the Suitability Score button
- * Shows 7 bands: Constant, Climate, Soil, Socioeconomic, Ecology, Topography, Site Suitability Score
- */
+const SUITABILITY_CONFIG = {
+    1: { color: "#2E7D32", label: "Very Good" },
+    2: { color: "#66BB6A", label: "Good" },
+    3: { color: "#F9A825", label: "Moderate" },
+    4: { color: "#E65100", label: "Marginally Suitable" },
+    5: { color: "#C62828", label: "Unsuitable" },
+};
+
+const BAND_ORDER = ["Climate", "Soil", "Socioeconomic", "Ecology", "Topography"];
+
 const SiteSuitabilityAnalysis = () => {
     const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const [loading, setLoading] = useState(true);
     const [analysisData, setAnalysisData] = useState(null);
 
-    // Color mapping based on suitability score (matching SLD style)
-    // 1 = Very Good, 2 = Good, 3 = Moderate, 4 = Marginally Suitable, 5 = Unsuitable
-    const getSuitabilityColor = (value) => {
-        const roundedValue = Math.round(value);
-        if (roundedValue === 1) return "#2E7D32"; // Very Good - dark green
-        if (roundedValue === 2) return "#66BB6A"; // Good - light green
-        if (roundedValue === 3) return "#FDD835"; // Moderate - yellow
-        if (roundedValue === 4) return "#FF8F00"; // Marginally Suitable - orange
-        if (roundedValue === 5) return "#D32F2F"; // Unsuitable - red
-        return "#9E9E9E"; // Unknown/No data - gray
-    };
-
-    const getSuitabilityLabel = (value) => {
-        const roundedValue = Math.round(value);
-        if (roundedValue === 1) return t("Very Good");
-        if (roundedValue === 2) return t("Good");
-        if (roundedValue === 3) return t("Moderate");
-        if (roundedValue === 4) return t("Marginally Suitable");
-        if (roundedValue === 5) return t("Unsuitable");
-        return t("Unknown");
-    };
+    const getConfig = (value) =>
+        SUITABILITY_CONFIG[Math.round(value)] ?? { color: "#9E9E9E", label: "Unknown" };
 
     useEffect(() => {
         const fetchBandValues = async () => {
@@ -49,23 +36,14 @@ const SiteSuitabilityAnalysis = () => {
             const blockName = MainStore.blockName?.toLowerCase();
 
             if (!districtName || !blockName) {
-                console.error("District or block name not available");
                 setLoading(false);
                 return;
             }
 
-            const bandValues = await getSiteSuitabilityBandValues(
-                districtName,
-                blockName,
-                lon,
-                lat
-            );
+            const bandValues = await getSiteSuitabilityBandValues(districtName, blockName, lon, lat);
 
             if (bandValues && Object.keys(bandValues).length > 0) {
-                setAnalysisData({
-                    ...bandValues,
-                    coordinates: { lat, lon }
-                });
+                setAnalysisData({ ...bandValues, coordinates: { lat, lon } });
                 MainStore.setSiteSuitabilityPixelData(bandValues);
             } else {
                 setAnalysisData(null);
@@ -79,7 +57,7 @@ const SiteSuitabilityAnalysis = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-96">
+            <div className="flex items-center justify-center h-64">
                 <SquircleLoader />
             </div>
         );
@@ -87,151 +65,97 @@ const SiteSuitabilityAnalysis = () => {
 
     if (!analysisData) {
         return (
-            <div className="p-6 text-center text-gray-500">
-                <div className="text-lg font-medium mb-2">{t("No data available at this location")}</div>
-                <p className="text-sm">{t("Please tap on a different location on the map")}</p>
+            <div className="flex flex-col items-center justify-center h-48 px-6 text-center">
+                <div className="text-sm font-medium text-gray-600 mb-1">
+                    {t("No data available at this location")}
+                </div>
+                <div className="text-xs text-gray-400">
+                    {t("Please tap on a different location on the map")}
+                </div>
             </div>
         );
     }
 
-    // Define the order of bands for display (excluding Constant)
-    const bandOrder = [
-        "Climate",
-        "Soil",
-        "Socioeconomic",
-        "Ecology",
-        "Topography"
-    ];
+    const scoreValue = analysisData["Site Suitability Score"];
+    const scoreConfig = scoreValue !== undefined ? getConfig(scoreValue) : null;
+    const { lat, lon } = analysisData.coordinates;
 
     return (
-        <div className="p-6 pb-8">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
-                    {t("Site Suitability Details")}
-                </h2>
+        <div className="min-h-full bg-gray-50 pb-6">
+            {/* Header pill */}
+            <div className="flex justify-center pt-4 pb-3">
+                <span className="px-5 py-1.5 rounded-full bg-white text-slate-500 text-sm font-semibold tracking-wide border border-gray-200 shadow-sm">
+                    {t("Site Suitability")}
+                </span>
             </div>
 
-            <div className="space-y-4">
-                {/* Location Details - matches SiteAnalysis */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">
-                        {t("Location Coordinates")}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
+            {/* Hero: overall score + location */}
+            {scoreConfig && (
+                <div className="mx-4 mb-3 rounded-2xl overflow-hidden shadow-sm">
+                    <div
+                        className="px-5 py-4 flex items-center justify-between"
+                        style={{ backgroundColor: scoreConfig.color }}
+                    >
                         <div>
-                            <span className="font-medium text-gray-600">
-                                {t("Latitude")}:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                                {analysisData.coordinates.lat.toFixed(6)}°
-                            </span>
+                            <div className="text-[10px] font-semibold uppercase tracking-widest text-white/70 mb-0.5">
+                                {t("Overall Rating")}
+                            </div>
+                            <div className="text-2xl font-bold text-white">
+                                {t(scoreConfig.label)}
+                            </div>
                         </div>
-                        <div>
-                            <span className="font-medium text-gray-600">
-                                {t("Longitude")}:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                                {analysisData.coordinates.lon.toFixed(6)}°
-                            </span>
+                        <div
+                            className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold"
+                            style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "#fff" }}
+                        >
+                            {Math.round(scoreValue)}
                         </div>
                     </div>
+                    <div className="bg-white px-5 py-3 flex items-center gap-1.5 border-t border-gray-100">
+                        <svg className="w-3 h-3 text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                        </svg>
+                        <span className="text-xs font-mono text-slate-500">
+                            {lat.toFixed(5)}°, {lon.toFixed(5)}°
+                        </span>
+                    </div>
                 </div>
+            )}
 
-                {/* Overall Suitability Score - Highlighted Card */}
-                {analysisData["Site Suitability Score"] !== undefined && (
-                    <div
-                        className="rounded-2xl p-4 text-white"
-                        style={{
-                            backgroundColor: getSuitabilityColor(analysisData["Site Suitability Score"])
-                        }}
-                    >
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-medium opacity-90">
-                                    {t("Site Suitability")}
-                                </h3>
-                            </div>
-                            <div className="text-right">
-                                <span className="text-2xl font-bold">
-                                    {getSuitabilityLabel(analysisData["Site Suitability Score"])}
+            {/* Component scores */}
+            <div className="px-4 mb-3">
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2 px-1">
+                    {t("Component Scores")}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    {BAND_ORDER.filter((band) => analysisData[band] !== undefined).map((band) => {
+                        const cfg = getConfig(analysisData[band]);
+                        return (
+                            <div
+                                key={band}
+                                className="bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm flex items-center justify-between"
+                            >
+                                <span className="text-sm text-gray-700 font-medium">{t(band)}</span>
+                                <span
+                                    className="text-xs font-semibold px-2.5 py-1 rounded-full text-white"
+                                    style={{ backgroundColor: cfg.color }}
+                                >
+                                    {t(cfg.label)}
                                 </span>
                             </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Band Values Table - Green theme to match SiteAnalysis */}
-                <div className="overflow-hidden rounded-2xl border border-green-200">
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3">
-                        <h4 className="font-medium text-gray-900">
-                            {t("Component Scores")}
-                        </h4>
-                    </div>
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="bg-green-100">
-                                <th className="px-4 py-2.5 text-left font-semibold text-gray-700 border-b border-green-200">
-                                    {t("Component")}
-                                </th>
-                                <th className="px-4 py-2.5 text-right font-semibold text-gray-700 border-b border-green-200">
-                                    {t("Suitability")}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {bandOrder
-                                .filter(band => analysisData[band] !== undefined)
-                                .map((band, index) => (
-                                    <tr
-                                        key={band}
-                                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-green-50/50'
-                                            } hover:bg-green-50 transition-colors`}
-                                    >
-                                        <td className="px-4 py-3 text-gray-600 border-b border-green-100">
-                                            {t(band)}
-                                        </td>
-                                        <td className="px-4 py-3 text-right border-b border-green-100">
-                                            {typeof analysisData[band] === 'number' ? (
-                                                <span
-                                                    className="inline-block px-3 py-1 rounded-full text-sm font-semibold text-white"
-                                                    style={{
-                                                        backgroundColor: getSuitabilityColor(analysisData[band])
-                                                    }}
-                                                >
-                                                    {getSuitabilityLabel(analysisData[band])}
-                                                </span>
-                                            ) : (
-                                                <span className="font-medium text-gray-900">
-                                                    {analysisData[band]}
-                                                </span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
+                        );
+                    })}
                 </div>
+            </div>
 
-                {/* Info Note - matches SiteAnalysis */}
-                <div className="bg-gray-50 rounded-2xl p-4">
-                    <div className="flex flex-col">
-                        <div className="flex items-center mb-2">
-                            <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                            </svg>
-                        </div>
-                        <div className="text-sm text-gray-600 leading-relaxed">
-                            <p>
-                                {t("The site suitability score is calculated based on multiple factors including climate conditions, soil quality, socioeconomic factors, ecological considerations, and topography. Higher scores indicate better suitability for agrohorticulture plantations.")}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            {/* Footnote */}
+            <div className="mx-4 bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                    {t("Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.")}
+                </p>
             </div>
         </div>
     );
 };
 
 export default SiteSuitabilityAnalysis;
-

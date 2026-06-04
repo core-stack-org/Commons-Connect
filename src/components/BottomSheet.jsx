@@ -809,7 +809,7 @@ const Bottomsheet = () => {
         <button
             onClick={handleDone}
             disabled={isSyncing}
-            className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
+            className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center gap-2"
             aria-label="Done"
         >
             {isSyncing && (
@@ -860,14 +860,14 @@ const Bottomsheet = () => {
                             <>
                                 <button
                                     onClick={dismissAll}
-                                    className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium transition-colors border border-gray-200"
+                                    className="px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold transition-colors border border-gray-200"
                                     aria-label="Cancel"
                                 >
                                     {t("Cancel")}
                                 </button>
                                 <button
                                     onClick={dismissAll}
-                                    className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                                    className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
                                     aria-label="Done"
                                 >
                                     {t("Done")}
