@@ -233,6 +233,10 @@ const useMainStore = create((set) => ({
     setSiteSuitabilityPixelCoords: (stat) => set({ siteSuitabilityPixelCoords: stat }),
     setIsSiteSuitabilityPopupOpen: (stat) => set({ isSiteSuitabilityPopupOpen: stat }),
     setIsSiteSuitabilityLoading: (stat) => set({ isSiteSuitabilityLoading: stat }),
+
+    // Manual sync modal
+    isSyncModalOpen: false,
+    setIsSyncModalOpen: (stat) => set({ isSyncModalOpen: stat }),
 }));
 
 export default useMainStore;

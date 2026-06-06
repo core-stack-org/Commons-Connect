@@ -4,6 +4,7 @@ import useMainStore from "../store/MainStore.jsx";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import HamburgerMenu from "../components/HamburgerMenu.jsx";
+import SyncDataModal from "../components/SyncDataModal.jsx";
 import PlanSheet from "../components/PlanSheet.jsx";
 import { useTranslation } from "react-i18next";
 import authService from "../services/authService.js";
@@ -125,6 +126,7 @@ const Homepage = () => {
         open={isSideMenuOpen}
         onClose={() => setIsSideMenuOpen(false)}
       />
+      <SyncDataModal />
       {/* 1. Header + hamburger wrapper */}
       <div className="absolute top-4 left-0 w-full px-2 z-10 pointer-events-none">
         <div className="relative w-full max-w-lg mx-auto flex items-center">

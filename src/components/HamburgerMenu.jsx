@@ -9,6 +9,7 @@ import {
     FolderOpen,
     Shield,
     PlayCircle,
+    RefreshCw,
 } from "lucide-react";
 import useMainStore from "../store/MainStore.jsx";
 import { useTranslation } from "react-i18next";
@@ -18,6 +19,7 @@ const HamburgerMenu = ({ open, onClose }) => {
     const { t } = useTranslation();
     const setMenuOption = useMainStore((state) => state.setMenuOption);
     const setIsInfoOpen = useMainStore((state) => state.setIsInfoOpen);
+    const setIsSyncModalOpen = useMainStore((state) => state.setIsSyncModalOpen);
     const { user } = useMainStore();
 
     // MARK: auth data in the hamburger menu
@@ -177,6 +179,20 @@ const HamburgerMenu = ({ open, onClose }) => {
                                 style={{ color: "#592941" }}
                             />
                             <span>{t("Tutorial")}</span>
+                        </div>
+                        <ChevronRight size={18} className="text-gray-400" />
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            setIsSyncModalOpen(true);
+                            onClose();
+                        }}
+                        className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm hover:shadow-md"
+                    >
+                        <div className="flex items-center gap-3">
+                            <RefreshCw size={18} style={{ color: "#592941" }} />
+                            <span>{t("Sync Data")}</span>
                         </div>
                         <ChevronRight size={18} className="text-gray-400" />
                     </button>
