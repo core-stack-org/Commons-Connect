@@ -122,23 +122,11 @@ const Bottomsheet = () => {
         LULCLayer: "setLULCLayer",
     };
 
-    const pollTimerRef = useRef(null);
     const syncDoneRef = useRef(false);
 
-    const POLL_DELAYS_MS = [45000, 15000, 15000, 15000, 15000, 15000];
-
-    const stopPolling = () => {
-        if (pollTimerRef.current) {
-            clearTimeout(pollTimerRef.current);
-            pollTimerRef.current = null;
-        }
-    };
-
-    const syncFormSubmission = async (silent = false) => {
+    const syncFormSubmission = async () => {
         if (syncDoneRef.current) return true;
         try {
-            if (!silent) MainStore.setIsLoading(true);
-
             const isResource = MainStore.currentScreen === "Resource_mapping";
             const url = isResource
                 ? `${import.meta.env.VITE_API_URL}add_resources/`
@@ -169,18 +157,15 @@ const Bottomsheet = () => {
             });
 
             const res = await response.json();
-            if (!silent) MainStore.setIsLoading(false);
 
             if (res.message === "Success") {
                 syncDoneRef.current = true;
                 MainStore.setIsSubmissionSuccess(true);
-                stopPolling();
                 return true;
             }
             return false;
         } catch (err) {
             console.log(err);
-            if (!silent) MainStore.setIsLoading(false);
             return false;
         }
     };
@@ -188,23 +173,7 @@ const Bottomsheet = () => {
     useEffect(() => {
         if (MainStore.isForm && MainStore.formUrl) {
             syncDoneRef.current = false;
-            let attempt = 0;
-
-            const poll = async () => {
-                if (syncDoneRef.current || attempt >= POLL_DELAYS_MS.length) return;
-                const success = await syncFormSubmission(true);
-                if (success) return;
-                attempt++;
-                if (attempt < POLL_DELAYS_MS.length) {
-                    pollTimerRef.current = setTimeout(poll, POLL_DELAYS_MS[attempt]);
-                }
-            };
-
-            pollTimerRef.current = setTimeout(poll, POLL_DELAYS_MS[0]);
-        } else {
-            stopPolling();
         }
-        return () => stopPolling();
     }, [MainStore.isForm, MainStore.formUrl]);
 
     const getCategoryFillColor = (works) => {
@@ -737,18 +706,23 @@ const Bottomsheet = () => {
     const handleDone = async () => {
         if (MainStore.isForm) {
             setIsSyncing(true);
+            // Give ODK a moment to register the submission before we pull
             await new Promise((r) => setTimeout(r, 2000));
 
             if (!syncDoneRef.current) {
-                stopPolling();
                 let success = false;
-                for (let attempt = 0; attempt < 4; attempt++) {
+                for (let attempt = 0; attempt < 5; attempt++) {
                     success = await syncFormSubmission();
                     if (success) break;
-                    if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
+                    if (attempt < 4) await new Promise((r) => setTimeout(r, 3000));
                 }
                 setIsSyncing(false);
-                if (!success) return;
+                if (success) {
+                    toast.success(t("Data synced successfully"));
+                } else {
+                    toast.error(t("Sync failed. Use 'Sync Data' from the menu to retry."), { duration: 5000 });
+                    return;
+                }
             } else {
                 setIsSyncing(false);
             }
@@ -758,15 +732,20 @@ const Bottomsheet = () => {
 
     const onDismiss = () => {
         if (MainStore.isForm && !syncDoneRef.current) {
-            stopPolling();
-            const retrySync = async () => {
-                for (let attempt = 0; attempt < 4; attempt++) {
-                    const ok = await syncFormSubmission(true);
-                    if (ok) break;
-                    if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
+            const syncToastId = toast.loading(t("Syncing data…"));
+            (async () => {
+                let success = false;
+                for (let attempt = 0; attempt < 5; attempt++) {
+                    const ok = await syncFormSubmission();
+                    if (ok) { success = true; break; }
+                    if (attempt < 4) await new Promise((r) => setTimeout(r, 3000));
                 }
-            };
-            retrySync();
+                if (success) {
+                    toast.success(t("Data synced successfully"), { id: syncToastId });
+                } else {
+                    toast.error(t("Sync failed. Use 'Sync Data' from the menu to retry."), { id: syncToastId, duration: 5000 });
+                }
+            })();
         }
         dismissAll();
     };
