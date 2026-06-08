@@ -706,6 +706,7 @@ const Bottomsheet = () => {
     const handleDone = async () => {
         if (MainStore.isForm) {
             setIsSyncing(true);
+            MainStore.setIsGlobalSyncing(true);
             // Give ODK a moment to register the submission before we pull
             await new Promise((r) => setTimeout(r, 2000));
 
@@ -717,6 +718,7 @@ const Bottomsheet = () => {
                     if (attempt < 4) await new Promise((r) => setTimeout(r, 3000));
                 }
                 setIsSyncing(false);
+                MainStore.setIsGlobalSyncing(false);
                 if (success) {
                     toast.success(t("Data synced successfully"));
                 } else {
@@ -725,6 +727,7 @@ const Bottomsheet = () => {
                 }
             } else {
                 setIsSyncing(false);
+                MainStore.setIsGlobalSyncing(false);
             }
         }
         dismissAll();
@@ -732,6 +735,7 @@ const Bottomsheet = () => {
 
     const onDismiss = () => {
         if (MainStore.isForm && !syncDoneRef.current) {
+            MainStore.setIsGlobalSyncing(true);
             const syncToastId = toast.loading(t("Syncing data…"));
             (async () => {
                 let success = false;
@@ -740,6 +744,7 @@ const Bottomsheet = () => {
                     if (ok) { success = true; break; }
                     if (attempt < 4) await new Promise((r) => setTimeout(r, 3000));
                 }
+                MainStore.setIsGlobalSyncing(false);
                 if (success) {
                     toast.success(t("Data synced successfully"), { id: syncToastId });
                 } else {

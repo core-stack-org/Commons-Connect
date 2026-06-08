@@ -21,11 +21,11 @@ import Agrohorticulture from "./pages/Agrohorticulture";
 import InfoBox from "./components/InfoBox";
 
 function App() {
-    // Initializing authentication as the app starts to load
-    const { initializeAuth, authLoading, isAuthenticated, user } =
+    const { initializeAuth, authLoading, isAuthenticated, isGlobalSyncing } =
         useMainStore();
     const [appReady, setAppReady] = useState(false);
     const { t } = useTranslation();
+
 
     useEffect(() => {
         const initApp = async () => {
@@ -80,6 +80,14 @@ function App() {
         <>
             <Toaster />
             <DevAuthHelper />
+            {isGlobalSyncing && (
+                <div className="fixed inset-0 z-[9999] backdrop-blur-sm bg-black/40 flex flex-col items-center justify-center gap-3 pointer-events-none">
+                    <svg className="w-10 h-10 text-white animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
+                    </svg>
+                    <p className="text-white text-sm font-semibold tracking-wide">{t("Syncing data…")}</p>
+                </div>
+            )}
             <div className="absolute z-30">
                 <Bottomsheet />
             </div>

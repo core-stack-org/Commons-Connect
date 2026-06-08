@@ -237,6 +237,10 @@ const useMainStore = create((set) => ({
     // Manual sync modal
     isSyncModalOpen: false,
     setIsSyncModalOpen: (stat) => set({ isSyncModalOpen: stat }),
+
+    // Global syncing overlay
+    isGlobalSyncing: false,
+    setIsGlobalSyncing: (stat) => set({ isGlobalSyncing: stat }),
 }));
 
 export default useMainStore;
