@@ -41,7 +41,7 @@ const Checkbox = ({ checked }) => (
 
 const SelectableRow = ({ label, checked, onToggle }) => (
     <div
-        className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border cursor-pointer transition-all"
+        className="flex items-center gap-3 px-3 py-2 rounded-xl border cursor-pointer transition-all"
         style={{
             backgroundColor: checked ? "rgba(34, 197, 94, 0.15)" : "rgba(255,255,255,0.07)",
             borderColor: checked ? "rgba(34, 197, 94, 0.4)" : "rgba(255,255,255,0.12)",
@@ -172,14 +172,15 @@ const SyncDataModal = () => {
     if (!MainStore.isSyncModalOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                 onClick={() => MainStore.setIsSyncModalOpen(false)}
             />
             <div
-                className="relative bg-white/5 backdrop-blur-2xl border border-white/15 rounded-3xl w-full mx-4 max-w-sm p-6 z-10"
+                className="relative bg-white/5 backdrop-blur-2xl border border-white/15 rounded-3xl w-full mx-4 max-w-sm z-10 flex flex-col"
                 style={{
+                    maxHeight: "85dvh",
                     animation: "modalExpand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
                 }}
             >
@@ -190,97 +191,99 @@ const SyncDataModal = () => {
                     }
                 `}</style>
 
-                <p className="text-white/90 text-base font-medium mb-5 leading-snug">
-                    {t("Select data to sync from ODK")}
-                </p>
-
-                {/* Resources section */}
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
-                    {t("Resources")}
-                </p>
-                <div className="space-y-2 mb-4">
-                    {RESOURCE_OPTIONS.map((opt) => (
-                        <SelectableRow
-                            key={opt.key}
-                            label={t(opt.label)}
-                            checked={!!selectedResources[opt.key]}
-                            onToggle={() => toggleResource(opt.key)}
-                        />
-                    ))}
+                {/* Fixed header */}
+                <div className="px-5 pt-5 pb-3 flex-shrink-0">
+                    <p className="text-white/90 text-base font-medium leading-snug">
+                        {t("Select data to sync from ODK")}
+                    </p>
                 </div>
 
-                <SectionDivider />
+                {/* Scrollable content */}
+                <div className="overflow-y-auto flex-1 px-5 pb-2" style={{ WebkitOverflowScrolling: "touch" }}>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
+                        {t("Resources")}
+                    </p>
+                    <div className="space-y-1.5 mb-3">
+                        {RESOURCE_OPTIONS.map((opt) => (
+                            <SelectableRow
+                                key={opt.key}
+                                label={t(opt.label)}
+                                checked={!!selectedResources[opt.key]}
+                                onToggle={() => toggleResource(opt.key)}
+                            />
+                        ))}
+                    </div>
 
-                {/* Planning section */}
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 mt-3">
-                    {t("Planning")}
-                </p>
-                <div className="space-y-2 mb-4">
-                    {WORK_OPTIONS.map((opt) => (
-                        <SelectableRow
-                            key={opt.key}
-                            label={t(opt.label)}
-                            checked={!!selectedWorks[opt.key]}
-                            onToggle={() => toggleWork(opt.key)}
-                        />
-                    ))}
+                    <SectionDivider />
+
+                    <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 mt-2">
+                        {t("Planning")}
+                    </p>
+                    <div className="space-y-1.5 mb-3">
+                        {WORK_OPTIONS.map((opt) => (
+                            <SelectableRow
+                                key={opt.key}
+                                label={t(opt.label)}
+                                checked={!!selectedWorks[opt.key]}
+                                onToggle={() => toggleWork(opt.key)}
+                            />
+                        ))}
+                    </div>
+
+                    <SectionDivider />
+
+                    <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 mt-2">
+                        {t("Maintenance")}
+                    </p>
+                    <div className="space-y-1.5 mb-2">
+                        {MAINTENANCE_OPTIONS.map((opt) => (
+                            <SelectableRow
+                                key={opt.key}
+                                label={t(opt.label)}
+                                checked={!!selectedMaintenance[opt.key]}
+                                onToggle={() => toggleMaintenance(opt.key)}
+                            />
+                        ))}
+                    </div>
                 </div>
 
-                <SectionDivider />
+                {/* Fixed footer buttons */}
+                <div className="px-5 pt-3 pb-5 flex-shrink-0 flex gap-2 border-t border-white/10">
+                    <button
+                        className="flex-1 py-2.5 rounded-2xl text-sm font-medium border transition-all active:opacity-80"
+                        style={{
+                            backgroundColor: "rgba(255,255,255,0.07)",
+                            borderColor: "rgba(255,255,255,0.18)",
+                            color: "rgba(255,255,255,0.85)",
+                        }}
+                        onClick={() => {
+                            MainStore.setIsSyncModalOpen(false);
+                            setSelectedResources({});
+                            setSelectedWorks({});
+                            setSelectedMaintenance({});
+                        }}
+                    >
+                        {t("Cancel")}
+                    </button>
 
-                {/* Maintenance section */}
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 mt-3">
-                    {t("Maintenance")}
-                </p>
-                <div className="space-y-2 mb-6">
-                    {MAINTENANCE_OPTIONS.map((opt) => (
-                        <SelectableRow
-                            key={opt.key}
-                            label={t(opt.label)}
-                            checked={!!selectedMaintenance[opt.key]}
-                            onToggle={() => toggleMaintenance(opt.key)}
-                        />
-                    ))}
+                    <button
+                        className="flex-1 py-2.5 rounded-2xl text-sm font-semibold transition-opacity active:opacity-80 flex items-center justify-center gap-2 disabled:opacity-40"
+                        style={{ backgroundColor: "#592941", color: "#ffffff" }}
+                        disabled={!hasSelection || isSyncing}
+                        onClick={handleSync}
+                    >
+                        {isSyncing ? (
+                            <>
+                                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
+                                </svg>
+                                {t("Syncing…")}
+                            </>
+                        ) : (
+                            t("Sync Now")
+                        )}
+                    </button>
                 </div>
-
-                <SectionDivider />
-
-                {/* Cancel */}
-                <button
-                    className="w-full py-3 rounded-2xl text-sm font-medium border transition-all active:opacity-80 mb-3 mt-3"
-                    style={{
-                        backgroundColor: "rgba(255,255,255,0.07)",
-                        borderColor: "rgba(255,255,255,0.18)",
-                        color: "rgba(255,255,255,0.85)",
-                    }}
-                    onClick={() => {
-                        MainStore.setIsSyncModalOpen(false);
-                        setSelectedResources({});
-                        setSelectedWorks({});
-                        setSelectedMaintenance({});
-                    }}
-                >
-                    {t("Cancel")}
-                </button>
-
-                {/* Sync Now */}
-                <button
-                    className="w-full py-3 rounded-2xl text-sm font-semibold transition-opacity active:opacity-80 flex items-center justify-center gap-2 disabled:opacity-40"
-                    style={{ backgroundColor: "#592941", color: "#ffffff" }}
-                    disabled={!hasSelection || isSyncing}
-                    onClick={handleSync}
-                >
-                    {isSyncing ? (
-                        <>
-                            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
-                            </svg>
-                            {t("Syncing…")}
-                        </>
-                    ) : (
-                        t("Sync Now")
-                    )}
-                </button>
             </div>
         </div>
     );
