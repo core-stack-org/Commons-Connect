@@ -78,18 +78,23 @@ const Bottomsheet = () => {
         marginal_farmers: "Farmer Census : Marginal Farmers",
         medium_farmers: "Farmer Census : Medium Farmers",
         small_farmers: "Farmer Census : Small Farmers",
-        NREGA_applied: "Households that have applied for NREGA Job cards",
-        NREGA_have_job_card: "Households that have NREGA job cards",
+        NREGA_applied: "Households Applied for NREGA Job Cards",
+        NREGA_have_job_card: "Households with NREGA Job Cards",
 
-        select_one_Functional_Non_functional: "Functional or not ?",
-        select_one_well_used: "Used for Irrigation or Drinking ?",
-        select_one_well_used_other: "Other usage",
+        select_one_Functional_Non_functional: "Functional?",
+        select_one_well_used: "Used for Irrigation or Drinking?",
+        select_one_well_used_other: "Other Usage",
         select_one_change_water_quality: "Water Quality",
-        select_one_water_structure_near_you:
-            "Any rainwater harvesting or groundwater recharge structures near your wells ?",
-        select_one_maintenance: "Requires Maintainence",
-        select_one_repairs_well: "Type of Repair (if Maintainence required)",
-        select_one_repairs_well_other: "Other type of Repair",
+        select_one_water_structure_near_you: "Recharge Structures Nearby?",
+        select_one_maintenance: "Requires Maintenance?",
+        select_one_repairs_well: "Type of Repair",
+        select_one_repairs_well_other: "Other Repair Type",
+
+        repairs_type: "Repair Type",
+        Is_water_from_well_used: "Water Used from Well?",
+        is_maintenance_required: "Maintenance Required?",
+        select_one_pollutants_groundwater: "Groundwater Pollutants?",
+        select_one_change_observed: "Change Observed?",
     };
 
     const layerStoreNameMapping = {
@@ -404,13 +409,17 @@ const Bottomsheet = () => {
     };
 
     const resourceHeroConfig = {
-        Settlement: { id: "Settlement", name: "Settleme_1" },
-        Well:       { id: "well_id",   name: "beneficiar" },
-        Waterbody:  { id: "wb_id",     name: "beneficiar" },
+        // id / name accept a string OR an ordered array of candidate keys (first match wins)
+        Settlement: {
+            id:   ["settlement_id", "sett_id", "Settlements_id", "Settlement"],
+            name: ["settlement_name", "sett_name", "Settlements_name", "Settleme_1"],
+        },
+        Well:       { id: "well_id",   name: ["beneficiary_settlement", "ben_settlement", "beneficiar"] },
+        Waterbody:  { id: ["waterbody_id", "wb_id"], name: ["beneficiary_settlement", "beneficiar"] },
         Livelihood: { id: "plan_id",   name: "plan_name"  },
-        Recharge:   { id: "work_id",   name: "ben_settle" },
+        Recharge:   { id: ["recharge_structure_id", "work_id"], name: ["beneficiary_settlement", "ben_settlement", "ben_settle"] },
         Irrigation: { id: "plan_id",   name: "beneficiar" },
-        Cropping:   { id: "sett_name", name: null         },
+        Cropping:   { id: ["crop_grid_id", "crop_id"], name: ["beneficiary_settlement", "sett_name"] },
     };
 
     const metaDataBody = (() => {
@@ -499,54 +508,84 @@ const Bottomsheet = () => {
         const mapping = resourceDetails[resourceType] || {};
         const heroConfig = resourceHeroConfig[resourceType] || {};
 
-        const idKey   = heroConfig.id;
-        const nameKey = heroConfig.name;
-        const heroKeys = new Set([idKey, nameKey, "latitude", "longitude"].filter(Boolean));
+        // Resolve the first non-empty value from a string or array of candidate keys
+        const resolveFirst = (keys) => {
+            for (const k of [].concat(keys ?? [])) {
+                const v = getMetadataValue(resource, k);
+                if (v !== null && v !== undefined && v !== "") return [k, v];
+            }
+            return [null, null];
+        };
 
-        const idValue   = idKey   ? resource[idKey]   : null;
-        const idLabel   = idKey   ? mapping[idKey]    : null;
-        const nameValue = nameKey ? resource[nameKey] : null;
+        const [idKey,   idValue]   = resolveFirst(heroConfig.id);
+        const [nameKey, nameValue] = resolveFirst(heroConfig.name);
+        const idLabel = idKey ? (mapping[idKey] ?? "ID") : null;
+
+        // Exclude ALL candidate key variants from the grid so nothing shows twice
+        const heroKeys = new Set([
+            ...[].concat(heroConfig.id   ?? []),
+            ...[].concat(heroConfig.name ?? []),
+            "latitude", "longitude",
+        ]);
 
         const rawLat = resource.latitude ?? resource.lat;
         const rawLon = resource.longitude ?? resource.lon;
         const lat = rawLat ? parseFloat(rawLat).toFixed(4) : null;
         const lon = rawLon ? parseFloat(rawLon).toFixed(4) : null;
 
+        const DICT_PARSE_KEYS  = new Set(["Livestock_", "farmer_fam", "Well_condi", "Well_condition", "livestock_census", "farmer_family"]);
+        const NREGA_PARSE_KEYS = new Set(["MNREGA_INF", "MNREGA_INFORMATION", "Well_usage"]);
+
+        // Convert underscore_slug values (and space-separated lists of them) to readable text
+        const formatValue = (val) => {
+            if (typeof val !== "string" || !val.includes("_")) return String(val);
+            return val
+                .split(" ")
+                .map((part) =>
+                    /^[a-zA-Z0-9_]+$/.test(part) && part.includes("_")
+                        ? part.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                        : part
+                )
+                .join(", ");
+        };
+
         const gridItems = Object.keys(mapping).flatMap((key) => {
             if (heroKeys.has(key)) return [];
 
-            const label = mapping[key];
-            const rawValue = resource[key];
+            const label    = mapping[key];
+            const rawValue = getMetadataValue(resource, key);
             if (rawValue === null || rawValue === undefined || rawValue === "") return [];
 
-            if (key === "Livestock_" || key === "farmer_fam" || key === "Well_condi") {
+            if (DICT_PARSE_KEYS.has(key)) {
                 try {
-                    const data = new Function(`return (${rawValue.replace(/'/g, '"').replace(/\bNone\b/g, "null")})`)();
+                    const data = new Function(`return (${String(rawValue).replace(/'/g, '"').replace(/\bNone\b/g, "null")})`)();
                     return Object.keys(data)
                         .filter(k => data[k] !== null && data[k] !== undefined && data[k] !== "")
-                        .map(k => ({ key: k, label: ResourceMetaKeys[k] || k, value: String(data[k]) }));
+                        .map(k => ({ key: k, label: ResourceMetaKeys[k] || k, value: formatValue(String(data[k])) }));
                 } catch { return []; }
             }
 
-            if (key === "MNREGA_INF" || key === "Well_usage") {
+            if (NREGA_PARSE_KEYS.has(key)) {
                 const searchKeys = [
                     "NREGA_applied", "NREGA_have_job_card",
                     "select_one_Functional_Non_functional", "select_one_well_used",
                     "select_one_change_water_quality", "select_one_water_structure_near_you",
+                    "Is_water_from_well_used", "is_maintenance_required",
+                    "repairs_type", "select_one_pollutants_groundwater", "select_one_change_observed",
                 ];
                 return searchKeys.flatMap((sk) => {
-                    const match = rawValue.match(new RegExp(String.raw`['"]${sk}['"]\s*:\s*([^,}\n\r]+)`, "i"));
+                    const match = String(rawValue).match(new RegExp(String.raw`['"]${sk}['"]\s*:\s*([^,}\n\r]+)`, "i"));
                     if (!match) return [];
                     let val = match[1].trim();
                     if (val === "None") return [];
                     if (/^['"]/.test(val)) val = val.replace(/^['"]|['"]$/g, "");
                     else if (/^\d+(\.\d+)?$/.test(val)) val = Number(val);
                     if (val === null || val === undefined || val === "") return [];
-                    return [{ key: sk, label: ResourceMetaKeys[sk] || sk, value: String(val) }];
+                    return [{ key: sk, label: ResourceMetaKeys[sk] || sk, value: formatValue(String(val)) }];
                 });
             }
 
-            return [{ key, label, value: String(rawValue) }];
+            return [{ key, label, value: formatValue(String(rawValue)) }];
         });
 
         return (
