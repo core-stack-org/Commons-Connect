@@ -90,9 +90,9 @@ const SyncDataModal = () => {
                 body: JSON.stringify(payload),
             });
             const data = await res.json();
-            return data.message === "Success";
+            return data.status === "success" ? (data.data ?? data) : null;
         } catch {
-            return false;
+            return null;
         }
     };
 
@@ -139,11 +139,15 @@ const SyncDataModal = () => {
 
         let successCount = 0;
         let failCount = 0;
+        let totalRecords = 0;
 
         for (const task of tasks) {
-            const ok = await syncOne(task.url, task.payload);
-            if (ok) {
+            const data = await syncOne(task.url, task.payload);
+            if (data) {
                 successCount++;
+                totalRecords += data.record_count ?? 0;
+                const count = data.record_count !== undefined ? ` · ${data.record_count} ${t("record(s)")}` : "";
+                toast.success(`${t(task.label)}${count}`);
             } else {
                 failCount++;
                 toast.error(`${t("Sync failed for")} ${t(task.label)}`);
@@ -154,11 +158,13 @@ const SyncDataModal = () => {
 
         if (successCount > 0) {
             MainStore.setIsSubmissionSuccess(true);
-            toast.success(
-                failCount === 0
-                    ? t("All data synced successfully")
-                    : `${successCount} ${t("synced")}, ${failCount} ${t("failed")}`,
-            );
+            if (tasks.length > 1) {
+                toast.success(
+                    failCount === 0
+                        ? `${successCount} ${t("synced")} · ${totalRecords} ${t("record(s)")}`
+                        : `${successCount} ${t("synced")}, ${failCount} ${t("failed")}`,
+                );
+            }
         }
 
         if (successCount > 0 || failCount > 0) {
