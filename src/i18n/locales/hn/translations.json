@@ -311,6 +311,8 @@
   "Sync failed. Use 'Sync Data' from the menu to retry.": "सिंक विफल। पुनः प्रयास के लिए मेनू से 'डेटा सिंक करें' का उपयोग करें।",
   "Syncing data…": "डेटा सिंक हो रहा है…",
   "Saving…": "सहेजा जा रहा है…",
+  "Synced": "सिंक हुआ",
+  "record(s)": "रिकॉर्ड",
   "Overall Rating": "समग्र रेटिंग",
   "Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.": "जलवायु, मृदा, सामाजिक-आर्थिक, पारिस्थितिक और स्थलाकृतिक कारकों के आधार पर स्कोर। कम स्कोर = बेहतर उपयुक्तता।"
 }

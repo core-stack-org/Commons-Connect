@@ -125,7 +125,7 @@ const Bottomsheet = () => {
     const syncDoneRef = useRef(false);
 
     const syncFormSubmission = async () => {
-        if (syncDoneRef.current) return true;
+        if (syncDoneRef.current) return null;
         try {
             const isResource = MainStore.currentScreen === "Resource_mapping";
             const url = isResource
@@ -158,15 +158,15 @@ const Bottomsheet = () => {
 
             const res = await response.json();
 
-            if (res.message === "Success") {
+            if (res.status === "success") {
                 syncDoneRef.current = true;
                 MainStore.setIsSubmissionSuccess(true);
-                return true;
+                return res.data ?? res;
             }
-            return false;
+            return null;
         } catch (err) {
             console.log(err);
-            return false;
+            return null;
         }
     };
 
@@ -703,24 +703,33 @@ const Bottomsheet = () => {
         MainStore.setIsSiteSuitabilityPopupOpen(false);
     };
 
+    const buildSyncToast = (data) => {
+        if (!data) return t("Data synced successfully");
+        const count = data.record_count;
+        const type = data.resource_type || data.work_type || "";
+        const label = type ? ` · ${type}` : "";
+        return count !== undefined
+            ? `${t("Synced")} ${count} ${t("record(s)")}${label}`
+            : t("Data synced successfully");
+    };
+
     const handleDone = async () => {
         if (MainStore.isForm) {
             setIsSyncing(true);
             MainStore.setIsGlobalSyncing(true);
-            // Give ODK a moment to register the submission before we pull
             await new Promise((r) => setTimeout(r, 2000));
 
             if (!syncDoneRef.current) {
-                let success = false;
+                let result = null;
                 for (let attempt = 0; attempt < 5; attempt++) {
-                    success = await syncFormSubmission();
-                    if (success) break;
+                    result = await syncFormSubmission();
+                    if (result) break;
                     if (attempt < 4) await new Promise((r) => setTimeout(r, 3000));
                 }
                 setIsSyncing(false);
                 MainStore.setIsGlobalSyncing(false);
-                if (success) {
-                    toast.success(t("Data synced successfully"));
+                if (result) {
+                    toast.success(buildSyncToast(result));
                 } else {
                     toast.error(t("Sync failed. Use 'Sync Data' from the menu to retry."), { duration: 5000 });
                     return;
@@ -738,15 +747,15 @@ const Bottomsheet = () => {
             MainStore.setIsGlobalSyncing(true);
             const syncToastId = toast.loading(t("Syncing data…"));
             (async () => {
-                let success = false;
+                let result = null;
                 for (let attempt = 0; attempt < 5; attempt++) {
-                    const ok = await syncFormSubmission();
-                    if (ok) { success = true; break; }
+                    result = await syncFormSubmission();
+                    if (result) break;
                     if (attempt < 4) await new Promise((r) => setTimeout(r, 3000));
                 }
                 MainStore.setIsGlobalSyncing(false);
-                if (success) {
-                    toast.success(t("Data synced successfully"), { id: syncToastId });
+                if (result) {
+                    toast.success(buildSyncToast(result), { id: syncToastId });
                 } else {
                     toast.error(t("Sync failed. Use 'Sync Data' from the menu to retry."), { id: syncToastId, duration: 5000 });
                 }
