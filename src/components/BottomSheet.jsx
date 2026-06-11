@@ -425,9 +425,10 @@ const Bottomsheet = () => {
         Well:       { id: "well_id",   name: ["beneficiary_settlement", "ben_settlement", "beneficiar"] },
         Waterbody:  { id: ["waterbody_id", "wb_id"], name: ["beneficiary_settlement", "beneficiar"] },
         Livelihood: { id: "plan_id",   name: "plan_name"  },
-        Recharge:   { id: ["recharge_structure_id", "work_id"], name: ["beneficiary_settlement", "ben_settlement", "ben_settle"] },
-        Irrigation: { id: "plan_id",   name: "beneficiar" },
-        Cropping:   { id: ["crop_grid_id", "crop_id"], name: ["beneficiary_settlement", "sett_name"] },
+        Recharge:        { id: ["recharge_structure_id", "work_id"], name: ["beneficiary_settlement", "ben_settlement", "ben_settle"] },
+        Irrigation:      { id: "plan_id",   name: "beneficiar" },
+        Cropping:        { id: ["crop_grid_id", "crop_id"], name: ["beneficiary_settlement", "sett_name"] },
+        Agrohorticulture: { id: "agrohorticulture_id", name: ["beneficiary_settlement", "beneficiary_name"] },
     };
 
     const metaDataBody = (() => {
@@ -845,25 +846,78 @@ const Bottomsheet = () => {
         }
     };
 
-    const doneButton = (
-        <button
-            onClick={handleDone}
-            disabled={isSyncing}
-            className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center gap-2"
-            aria-label="Done"
-        >
-            {isSyncing && (
-                <SquircleLoader
-                    size={14}
-                    strokeWidth={2}
-                    color="#ffffff"
-                    backgroundColor="rgba(255,255,255,0.3)"
-                    speed={1000}
-                />
-            )}
-            {isSyncing ? t("Saving…") : t("Done")}
-        </button>
-    );
+    const buildHeader = () => {
+        if (MainStore.isForm && MainStore.formUrl) {
+            return (
+                <div className="flex items-center justify-end px-4 py-3 border-b border-gray-100">
+                    <button
+                        onClick={handleDone}
+                        disabled={isSyncing}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 text-white text-base font-bold transition-colors shadow-sm"
+                        aria-label="Done"
+                    >
+                        {isSyncing ? (
+                            <>
+                                <SquircleLoader
+                                    size={16}
+                                    strokeWidth={2}
+                                    color="#ffffff"
+                                    backgroundColor="rgba(255,255,255,0.3)"
+                                    speed={1000}
+                                />
+                                {t("Saving…")}
+                            </>
+                        ) : (
+                            t("Done")
+                        )}
+                    </button>
+                </div>
+            );
+        }
+
+        if (MainStore.isNregaSheet) {
+            return (
+                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                    <button
+                        onClick={dismissAll}
+                        className="px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold transition-colors border border-gray-200"
+                        aria-label="Cancel"
+                    >
+                        {t("Cancel")}
+                    </button>
+                    <button
+                        onClick={dismissAll}
+                        className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
+                        aria-label="Done"
+                    >
+                        {t("Done")}
+                    </button>
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex items-center justify-end px-4 py-2 border-b border-gray-100">
+                <button
+                    onClick={handleDone}
+                    disabled={isSyncing}
+                    className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center gap-2"
+                    aria-label="Done"
+                >
+                    {isSyncing && (
+                        <SquircleLoader
+                            size={14}
+                            strokeWidth={2}
+                            color="#ffffff"
+                            backgroundColor="rgba(255,255,255,0.3)"
+                            speed={1000}
+                        />
+                    )}
+                    {isSyncing ? t("Saving…") : t("Done")}
+                </button>
+            </div>
+        );
+    };
 
     return (
         <BottomSheet
@@ -878,47 +932,17 @@ const Bottomsheet = () => {
             snapPoints={({ maxHeight }) =>
                 MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
             }
+            header={buildHeader()}
         >
             {MainStore.isForm && MainStore.formUrl ? (
-                <div className="flex flex-col" style={{ height: "calc(100dvh - 40px)" }}>
-                    <div className="flex-shrink-0 bg-white/80 backdrop-blur-md flex items-center justify-end px-4 py-1 border-b border-gray-100/60">
-                        {doneButton}
-                    </div>
-                    <div className="flex-1 min-h-0 overflow-hidden">
-                        <iframe
-                            id="odk-frame"
-                            src={MainStore.formUrl}
-                            style={{ width: "100%", height: "100%" }}
-                            allow="camera; microphone; geolocation"
-                        />
-                    </div>
-                </div>
+                <iframe
+                    id="odk-frame"
+                    src={MainStore.formUrl}
+                    style={{ width: "100%", height: "calc(100dvh - 120px)", display: "block" }}
+                    allow="camera; microphone; geolocation"
+                />
             ) : (
-                <>
-                    <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-1 border-b border-gray-100/60">
-                        {MainStore.isNregaSheet ? (
-                            <>
-                                <button
-                                    onClick={dismissAll}
-                                    className="px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold transition-colors border border-gray-200"
-                                    aria-label="Cancel"
-                                >
-                                    {t("Cancel")}
-                                </button>
-                                <button
-                                    onClick={dismissAll}
-                                    className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
-                                    aria-label="Done"
-                                >
-                                    {t("Done")}
-                                </button>
-                            </>
-                        ) : (
-                            doneButton
-                        )}
-                    </div>
-                    <div>{renderBody()}</div>
-                </>
+                <div>{renderBody()}</div>
             )}
         </BottomSheet>
     );

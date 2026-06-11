@@ -1147,6 +1147,13 @@ const MapComponent = () => {
           MainStore.setResourceType("Irrigation");
           selectFeature(feature, layer);
           MainStore.setIsResource(true);
+        } else if (layer === AgrohorticulureWorksRef.current) {
+          setFeatureStat(true);
+          setSelectedResource(feature.values_);
+          MainStore.setResourceType("Agrohorticulture");
+          selectFeature(feature, layer);
+          MainStore.setIsResource(true);
+          MainStore.setIsResourceOpen(true);
         }
       });
     });
