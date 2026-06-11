@@ -39,6 +39,8 @@ import livelihoodIcon from "../assets/livelihood_proposed.svg";
 import fisheriesIcon from "../assets/Fisheries.svg";
 import plantationsIcon from "../assets/Plantation.svg";
 import agrohorticultureTreeIcon from "../assets/agrohorticulture_tree.svg";
+import RechargeIconMaintenance from "../assets/recharge_icon_maintenance.svg";
+import IrrigationIconMaintenance from "../assets/irrigation_icon_maintenance.svg";
 
 const WATER_STRUCTURE_MAPPING = {
   GROUNDWATER: [
@@ -929,7 +931,20 @@ const MapComponent = () => {
     AgricultureWorkLayer.setStyle(function (feature) {
       const status = feature.values_;
       let base;
-      if (status.TYPE_OF_WO == "New farm pond") {
+      if (status.need_maint === "Yes") {
+        base = new Style({
+          image: new Icon({ src: IrrigationIconMaintenance }),
+          text: new Text({
+            text: status.TYPE_OF_WO,
+            font: "14px sans-serif",
+            textAlign: "center",
+            fill: new Fill({ color: "#111" }),
+            stroke: new Stroke({ color: "#fff", width: 3 }),
+            overflow: true,
+            offsetY: 20,
+          }),
+        });
+      } else if (status.TYPE_OF_WO == "New farm pond") {
         base = new Style({
           image: new Icon({ src: farm_pond_proposed }),
           text: new Text({
@@ -987,8 +1002,9 @@ const MapComponent = () => {
 
     GroundWaterWorkLayer.setStyle(function (feature) {
       const status = feature.values_;
+      const icon = status.need_maint === "Yes" ? RechargeIconMaintenance : RechargeIcon;
       const base = new Style({
-        image: new Icon({ src: RechargeIcon }),
+        image: new Icon({ src: icon }),
         text: new Text({
           text: status.work_type,
           font: "14px sans-serif",
@@ -1359,8 +1375,9 @@ const MapComponent = () => {
       );
       GroundWaterWorkLayer.setStyle(function (feature) {
         const status = feature.values_;
+        const icon = status.need_maint === "Yes" ? RechargeIconMaintenance : RechargeIcon;
         const base = new Style({
-          image: new Icon({ src: RechargeIcon }),
+          image: new Icon({ src: icon }),
           text: new Text({
             text: status.work_type,
             font: "14px sans-serif",
@@ -1387,7 +1404,20 @@ const MapComponent = () => {
       AgricultureWorkLayer.setStyle(function (feature) {
         const status = feature.values_;
         let base;
-        if (status.TYPE_OF_WO == "New farm pond") {
+        if (status.need_maint === "Yes") {
+          base = new Style({
+            image: new Icon({ src: IrrigationIconMaintenance }),
+            text: new Text({
+              text: status.TYPE_OF_WO,
+              font: "14px sans-serif",
+              textAlign: "center",
+              fill: new Fill({ color: "#111" }),
+              stroke: new Stroke({ color: "#fff", width: 3 }),
+              overflow: true,
+              offsetY: 20,
+            }),
+          });
+        } else if (status.TYPE_OF_WO == "New farm pond") {
           base = new Style({
             image: new Icon({ src: farm_pond_proposed }),
             text: new Text({

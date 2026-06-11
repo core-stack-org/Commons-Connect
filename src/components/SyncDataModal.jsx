@@ -18,9 +18,10 @@ const WORK_OPTIONS = [
 ];
 
 const MAINTENANCE_OPTIONS = [
-    { key: "maintain_gw",  label: "Recharge Structure",   workType: "plan_gw_maintain" },
-    { key: "maintain_swb", label: "Surface Water Bodies", workType: "plan_swb_maintain" },
-    { key: "maintain_agri",label: "Irrigation Structure",  workType: "plan_agri_maintain" },
+    { key: "maintain_gw",     label: "Recharge Structure",          workType: "main_gw" },
+    { key: "maintain_swb",    label: "Surface Water Bodies",        workType: "main_swb" },
+    { key: "maintain_swb_rs", label: "Surface Water Bodies (RS)",   workType: "main_swb_rs" },
+    { key: "maintain_agri",   label: "Irrigation Structure",        workType: "main_agri" },
 ];
 
 const Checkbox = ({ checked }) => (
