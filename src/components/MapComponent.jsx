@@ -38,6 +38,7 @@ import well_mrker from "../assets/well_icon.svg";
 import livelihoodIcon from "../assets/livelihood_proposed.svg";
 import fisheriesIcon from "../assets/Fisheries.svg";
 import plantationsIcon from "../assets/Plantation.svg";
+import agrohorticultureTreeIcon from "../assets/agrohorticulture_tree.svg";
 
 const WATER_STRUCTURE_MAPPING = {
   GROUNDWATER: [
@@ -282,6 +283,7 @@ const MapComponent = () => {
 
   //?                   Site Suitability Raster, Terrain Mask Layer
   let AgrohorticulureRefs = [useRef(null), useRef(null)];
+  let AgrohorticulureWorksRef = useRef(null);
 
   const isValidCoordinate = (coords) =>
     Array.isArray(coords) &&
@@ -1465,6 +1467,32 @@ const MapComponent = () => {
       mapRef.current.removeLayer(LivelihoodRefs[0].current);
       LivelihoodRefs[0].current = livelihoodLayer;
       mapRef.current.addLayer(LivelihoodRefs[0].current);
+    } else if (currentScreen === "Agrohorticulture") {
+      const agroWorksLayer = await getVectorLayers(
+        "works",
+        `agrohorticulture_${currentPlan.plan_id}_${districtName}_${blockName}`,
+        true,
+        true,
+      );
+      agroWorksLayer.setStyle(function (feature) {
+        return new Style({
+          image: new Icon({ src: agrohorticultureTreeIcon, scale: 0.8 }),
+          text: new Text({
+            text: feature.values_.work_type ?? "",
+            font: "13px sans-serif",
+            textAlign: "center",
+            fill: new Fill({ color: "#111" }),
+            stroke: new Stroke({ color: "#fff", width: 3 }),
+            overflow: true,
+            offsetY: 22,
+          }),
+        });
+      });
+      if (AgrohorticulureWorksRef.current !== null) {
+        mapRef.current.removeLayer(AgrohorticulureWorksRef.current);
+      }
+      AgrohorticulureWorksRef.current = agroWorksLayer;
+      mapRef.current.addLayer(AgrohorticulureWorksRef.current);
     }
   };
 
@@ -1635,12 +1663,15 @@ const MapComponent = () => {
           }
         });
 
-      // Add site suitability layer if available
       if (AgrohorticulureRefs[0].current !== null) {
         mapRef.current.addLayer(AgrohorticulureRefs[0].current);
       }
 
       mapRef.current.addLayer(assetsLayerRefs[0].current);
+
+      if (AgrohorticulureWorksRef.current !== null) {
+        mapRef.current.addLayer(AgrohorticulureWorksRef.current);
+      }
     }
   };
 
@@ -2172,7 +2203,35 @@ const MapComponent = () => {
       // Set mask state to true (mask is active by default)
       MainStore.setIsAgrohorticultureMaskActive(true);
 
+      if (AgrohorticulureWorksRef.current === null && currentPlan) {
+        const agroWorksLayer = await getVectorLayers(
+          "works",
+          `agrohorticulture_${currentPlan.plan_id}_${districtName}_${blockName}`,
+          true,
+          true,
+        );
+        agroWorksLayer.setStyle(function (feature) {
+          return new Style({
+            image: new Icon({ src: agrohorticultureTreeIcon, scale: 0.8 }),
+            text: new Text({
+              text: feature.values_.work_type ?? "",
+              font: "13px sans-serif",
+              textAlign: "center",
+              fill: new Fill({ color: "#111" }),
+              stroke: new Stroke({ color: "#fff", width: 3 }),
+              overflow: true,
+              offsetY: 22,
+            }),
+          });
+        });
+        AgrohorticulureWorksRef.current = agroWorksLayer;
+      }
+
       mapRef.current.addLayer(assetsLayerRefs[0].current);
+
+      if (AgrohorticulureWorksRef.current !== null) {
+        mapRef.current.addLayer(AgrohorticulureWorksRef.current);
+      }
     }
     setIsLoading(false);
   };
