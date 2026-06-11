@@ -11,10 +11,10 @@ const RESOURCE_OPTIONS = [
 ];
 
 const WORK_OPTIONS = [
-    { key: "groundwater",      label: "Recharge Structure", workType: "plan_gw" },
+    { key: "groundwater",      label: "Recharge Structure",  workType: "plan_gw" },
     { key: "agriculture",      label: "Irrigation Structure", workType: "plan_agri" },
-    { key: "livelihood",       label: "Livelihood",         workType: "livelihood" },
-    { key: "agrohorticulture", label: "Agrohorticulture",   workType: "plan_agro" },
+    { key: "livelihood",       label: "Livelihood",           workType: "livelihood" },
+    { key: "agrohorticulture", label: "Agrohorticulture",     workType: "agrohorticulture", layerName: "agrohorticulture" },
 ];
 
 const MAINTENANCE_OPTIONS = [
@@ -126,14 +126,14 @@ const SyncDataModal = () => {
                 .map((opt) => ({
                     label: opt.label,
                     url: workUrl,
-                    payload: { ...basePayload, layer_name: "planning_layer", work_type: opt.workType },
+                    payload: { ...basePayload, layer_name: opt.layerName ?? "planning_layer", work_type: opt.workType },
                 })),
             ...MAINTENANCE_OPTIONS
                 .filter((opt) => selectedMaintenance[opt.key])
                 .map((opt) => ({
                     label: opt.label,
                     url: workUrl,
-                    payload: { ...basePayload, layer_name: "planning_layer", work_type: opt.workType },
+                    payload: { ...basePayload, layer_name: opt.layerName ?? "planning_layer", work_type: opt.workType },
                 })),
         ];
 
