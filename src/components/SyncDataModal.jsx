@@ -105,7 +105,7 @@ const SyncDataModal = () => {
 
         setIsSyncing(true);
         const basePayload = {
-            plan_id: MainStore.currentPlan.plan_id,
+            plan_id: String(MainStore.currentPlan.plan_id),
             plan_name: MainStore.currentPlan.plan,
             district_name: MainStore.districtName,
             block_name: MainStore.blockName,
