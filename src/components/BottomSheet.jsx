@@ -40,6 +40,14 @@ const Bottomsheet = () => {
         Agriculture: "plan_agri",
         Groundwater: "plan_gw",
         Livelihood: "livelihood",
+        Agrohorticulture: "agrohorticulture",
+    };
+
+    const PlanningLayerName = {
+        Agriculture: "planning_layer",
+        Groundwater: "planning_layer",
+        Livelihood: "planning_layer",
+        Agrohorticulture: "agrohorticulture",
     };
 
     const LayerStoreKeysGW = [
@@ -147,9 +155,9 @@ const Bottomsheet = () => {
                     block_name: MainStore.blockName,
                 }
                 : {
-                    layer_name: "planning_layer",
+                    layer_name: PlanningLayerName[MainStore.currentScreen] ?? "planning_layer",
                     work_type: PlanningResource[MainStore.currentScreen],
-                    plan_id: MainStore.currentPlan.plan_id,
+                    plan_id: String(MainStore.currentPlan.plan_id),
                     plan_name: MainStore.currentPlan.plan,
                     district_name: MainStore.districtName,
                     block_name: MainStore.blockName,

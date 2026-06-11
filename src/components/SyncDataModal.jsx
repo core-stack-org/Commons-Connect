@@ -85,14 +85,18 @@ const SyncDataModal = () => {
 
     const syncOne = async (url, payload) => {
         try {
+            console.log("[sync] POST", url, JSON.stringify(payload));
             const res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
+            console.log("[sync] HTTP status:", res.status);
             const data = await res.json();
+            console.log("[sync] response body:", JSON.stringify(data));
             return data.status === "success" ? (data.data ?? data) : null;
-        } catch {
+        } catch (err) {
+            console.error("[sync] fetch/parse error:", err);
             return null;
         }
     };
@@ -105,7 +109,7 @@ const SyncDataModal = () => {
 
         setIsSyncing(true);
         const basePayload = {
-            plan_id: MainStore.currentPlan.plan_id,
+            plan_id: String(MainStore.currentPlan.plan_id),
             plan_name: MainStore.currentPlan.plan,
             district_name: MainStore.districtName,
             block_name: MainStore.blockName,
