@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import useMainStore from "../store/MainStore";
 import toast from "react-hot-toast";
 import i18next from "i18next";
@@ -22,6 +22,14 @@ const InfoBox = () => {
   const isHome = currentScreen === "HomeScreen";
 
   const [email, setEmail] = useState("");
+  const emailInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isInfoOpen && currentMenuOption === "download dpr" && currentPlan) {
+      const timer = setTimeout(() => emailInputRef.current?.focus(), 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isInfoOpen, currentMenuOption, currentPlan]);
 
   const [selectedLanguage, setSelectedLanguage] = useState(null);
   const [currentLanguage, setCurrentLanguage] = useState(i18next.language); // Default language
@@ -1011,130 +1019,99 @@ const InfoBox = () => {
             )}
 
             {currentMenuOption === "download dpr" && (
-              <div className="space-y-4">
-                {currentPlan ? (
-                  <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-4 mb-4">
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      {t("DPR Status")}
-                    </h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center">
-                        <div
-                          className={`w-3 h-3 rounded-full mr-2 ${currentPlan.is_dpr_generated ? "bg-green-500" : "bg-gray-300"}`}
-                        ></div>
-                        <span>{t("DPR Generated")}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div
-                          className={`w-3 h-3 rounded-full mr-2 ${currentPlan.is_dpr_reviewed ? "bg-green-500" : "bg-gray-300"}`}
-                        ></div>
-                        <span>{t("DPR Reviewed")}</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 rounded-2xl p-4 mb-4">
-                    <div className="text-center">
-                      <h4 className="font-medium text-red-600 mb-2">
+              <div className="space-y-5 text-left">
+                {/* Plan not selected error */}
+                {!currentPlan && (
+                  <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                    <svg
+                      className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+                      />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-semibold text-red-700">
                         {t("Plan Selection Required")}
-                      </h4>
-                      <p className="text-red-600 text-sm">
+                      </p>
+                      <p className="text-sm text-red-600 mt-0.5">
                         {t("Please, select a plan first!")}
                       </p>
                     </div>
                   </div>
                 )}
 
-                <div
-                  className="rounded-2xl p-4 mb-4"
-                  style={{ backgroundColor: "#C9BACE" }}
-                >
-                  <div className="flex items-start space-x-3 text-black">
-                    <svg
-                      className="w-6 h-6 mt-0.5 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
-                    </svg>
-                    <p className="text-sm leading-relaxed text-left">
-                      {t("Enter your email to receive the DPR document.")}
+                {/* DPR status */}
+                {currentPlan && (
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">
+                      {t("DPR Status")}
                     </p>
-                  </div>
-                </div>
-
-                {/* Input Section */}
-                <div
-                  className="rounded-2xl p-4 space-y-4"
-                  style={{ border: "1px solid #592941" }}
-                >
-                  <div className="relative">
-                    <label
-                      htmlFor="email-input"
-                      className="block text-sm font-bold text-gray-700 mb-2"
-                    >
-                      {t("Enter your email address")}
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg
-                          className="h-5 w-5 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        {
+                          label: t("Completed"),
+                          active: currentPlan.is_dpr_generated,
+                        },
+                        {
+                          label: t("Reviewed"),
+                          active: currentPlan.is_dpr_reviewed,
+                        },
+                      ].map(({ label, active }) => (
+                        <div
+                          key={label}
+                          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
+                            active
+                              ? "bg-green-50 text-green-700"
+                              : "bg-gray-100 text-gray-500"
+                          }`}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                          />
-                        </svg>
-                      </div>
-                      <input
-                        id="email-input"
-                        type="email"
-                        placeholder="your.email@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={!currentPlan}
-                        className={`w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 ${
-                          !currentPlan
-                            ? "bg-gray-100 cursor-not-allowed opacity-60"
-                            : ""
-                        }`}
-                      />
+                          <span
+                            className={`flex items-center justify-center w-4 h-4 rounded-full ${
+                              active ? "bg-green-500" : "bg-gray-300"
+                            }`}
+                          >
+                            {active && (
+                              <svg
+                                className="w-2.5 h-2.5 text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={3}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            )}
+                          </span>
+                          {label}
+                        </div>
+                      ))}
                     </div>
-                    {email && !isValidEmail(email) && currentPlan && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {t("Please enter a valid email address")}
-                      </p>
-                    )}
                   </div>
+                )}
 
-                  {/* Download Button */}
-                  <button
-                    onClick={handleDownloadDPR}
-                    disabled={!email || !isValidEmail(email) || !currentPlan}
-                    className="w-full py-3 px-4 rounded-2xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:transform-none disabled:opacity-60 disabled:cursor-not-allowed"
-                    style={{
-                      backgroundColor:
-                        email && isValidEmail(email) && currentPlan
-                          ? "#592941"
-                          : "#D6D5C9",
-                      color:
-                        email && isValidEmail(email) && currentPlan
-                          ? "#FFFFFF"
-                          : "#8B7355",
-                      boxShadow:
-                        email && isValidEmail(email) && currentPlan
-                          ? "0 4px 12px rgba(89, 41, 65, 0.3)"
-                          : "none",
-                    }}
+                {/* Email input */}
+                <div>
+                  <label
+                    htmlFor="email-input"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    <div className="flex items-center justify-center space-x-2">
+                    {t("Enter your email address")}
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg
-                        className="w-5 h-5"
+                        className="h-5 w-5 text-gray-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1143,40 +1120,89 @@ const InfoBox = () => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
                         />
                       </svg>
-                      <span>{t("Get pre-DPR")}</span>
                     </div>
-                  </button>
+                    <input
+                      ref={emailInputRef}
+                      id="email-input"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={!currentPlan}
+                      className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592941]/40 focus:border-[#592941] transition-all duration-200 placeholder-gray-400 ${
+                        email && !isValidEmail(email) && currentPlan
+                          ? "border-red-300"
+                          : "border-gray-300"
+                      } ${
+                        !currentPlan
+                          ? "bg-gray-100 cursor-not-allowed opacity-60"
+                          : ""
+                      }`}
+                    />
+                  </div>
+                  {email && !isValidEmail(email) && currentPlan && (
+                    <p className="mt-1.5 text-sm text-red-600">
+                      {t("Please enter a valid email address")}
+                    </p>
+                  )}
                 </div>
 
-                {currentPlan && (
-                  <div
-                    className="rounded-2xl p-4"
-                    style={{ backgroundColor: "#C9BACE" }}
-                  >
-                    <div className="flex items-start space-x-3 text-black">
-                      <svg
-                        className="w-6 h-6 mt-0.5 flex-shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
-                      </svg>
-                      <div className="text-sm">
-                        <p className="font-medium mb-2 text-left">
-                          {t("What to expect")}:
-                        </p>
-                        <ul className="space-y-1 text-left">
-                          <li>• {t("Document will be sent to your email")}</li>
-                          <li>• {t("Processing may take 5 to 10 minutes")}</li>
-                          <li>• {t("Check spam folder if not received")}</li>
-                        </ul>
-                      </div>
-                    </div>
+                {/* Submit */}
+                <button
+                  onClick={handleDownloadDPR}
+                  disabled={!email || !isValidEmail(email) || !currentPlan}
+                  className="w-full py-3 px-4 rounded-xl font-semibold text-white bg-[#592941] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#592941] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <span>{t("Get pre-DPR")}</span>
                   </div>
-                )}
+                </button>
+
+                {/* What to expect */}
+                <div className="rounded-xl border-l-4 border-[#592941] bg-[#F5F0F2] p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <svg
+                      className="w-5 h-5 text-[#592941] flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1zM12 20h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1z" />
+                    </svg>
+                    <p className="text-sm font-semibold text-[#592941]">
+                      {t("What to expect")}
+                    </p>
+                  </div>
+                  <ul className="space-y-1.5 text-sm text-gray-700">
+                    <li className="flex gap-2">
+                      <span className="text-[#592941]">•</span>
+                      {t("Document will be sent to your email")}
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-[#592941]">•</span>
+                      {t("Processing may take 5 to 10 minutes")}
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-[#592941]">•</span>
+                      {t("Check spam folder if not received")}
+                    </li>
+                  </ul>
+                </div>
               </div>
             )}
 
