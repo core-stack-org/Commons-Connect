@@ -102,7 +102,7 @@ const Homepage = () => {
     }
     setIsPlanningOpen(false);
 
-    if (section === "Water Balance") {
+    if (section === "Groundwater") {
       MainStore.setCurrentScreen("Groundwater");
       navigate("/groundwater");
     } else if (section === "Surface Waterbodies") {
@@ -127,36 +127,34 @@ const Homepage = () => {
         onClose={() => setIsSideMenuOpen(false)}
       />
       <SyncDataModal />
-      {/* 1. Header + hamburger wrapper */}
-      <div className="absolute top-4 left-0 w-full px-2 z-10 pointer-events-none">
-        <div className="relative w-full max-w-lg mx-auto flex items-center">
-          {/* Hamburger button: re-enable pointer events just for this */}
+      {/* 1. Header — hamburger + full-width title + compass */}
+      <div className="absolute top-4 left-0 w-full px-4 z-10 pointer-events-none">
+        <div className="relative w-full max-w-lg mx-auto flex items-center gap-3">
+          {/* Hamburger — glass pin style */}
           <button
-            className="pointer-events-auto p-2"
+            className="pointer-events-auto flex-shrink-0 w-9 h-9 rounded-md flex items-center justify-center"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.18)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.35)",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            }}
             onClick={() => setIsSideMenuOpen(true)}
           >
-            {/* simple SVG "hamburger" icon */}
-            <svg
-              className="h-10 w-10 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={3}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="28" width="60" height="10" rx="5" fill="white" />
+              <rect x="20" y="45" width="60" height="10" rx="5" fill="white" />
+              <rect x="20" y="62" width="60" height="10" rx="5" fill="white" />
+              <ellipse cx="34" cy="22" rx="12" ry="6" fill="rgba(255,255,255,0.35)" />
             </svg>
           </button>
 
-          {/* Title bubble (still purely decorative) */}
+          {/* Title bubble — full width */}
           <div
-            className="flex-1 px-6 py-3 text-center rounded-full
+            className="flex-1 px-5 py-2 text-center rounded-full
                          bg-white/10 backdrop-blur-sm border border-white/20
-                         text-white font-extrabold text-md shadow-md"
+                         text-white font-extrabold text-md shadow-md truncate"
           >
             {MainStore.blockName
               ? MainStore.blockName
@@ -167,13 +165,13 @@ const Homepage = () => {
           </div>
 
           {/* North indicator */}
-          <div className="pointer-events-auto ml-2 flex-shrink-0">
+          <div className="pointer-events-auto flex-shrink-0">
             <NorthIndicator />
           </div>
         </div>
       </div>
 
-      {/* 2. Top-left buttons */}
+      {/* 2. Top-left buttons — GPS / info column parallel to plans + nrega */}
       <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
         <div className="flex gap-4 max-w-lg">
           <div className="flex flex-col gap-3">
@@ -364,7 +362,7 @@ const Homepage = () => {
                   "
               >
                 {[
-                  "Water Balance",
+                  "Groundwater",
                   "Surface Waterbodies",
                   "Agriculture",
                   "Livelihood",
