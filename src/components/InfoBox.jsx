@@ -1,9 +1,18 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import useMainStore from "../store/MainStore";
 import toast from "react-hot-toast";
 import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import SquircleLoader from "./SquircleLoader.jsx";
+import authService from "../services/authService.js";
+
+const DPR_LANGUAGES = [
+  { code: "en", label: "English", native: "English" },
+  { code: "hi", label: "Hindi", native: "हिन्दी" },
+];
+
+const normalizeDprLanguage = (language) =>
+  language === "hi" || language === "en" ? language : "en";
 
 const InfoBox = () => {
   const isInfoOpen = useMainStore((state) => state.isInfoOpen);
@@ -22,14 +31,17 @@ const InfoBox = () => {
   const isHome = currentScreen === "HomeScreen";
 
   const [email, setEmail] = useState("");
-  const emailInputRef = useRef(null);
+  const [dprLanguage, setDprLanguage] = useState(() =>
+    normalizeDprLanguage(i18next.language),
+  );
 
   useEffect(() => {
-    if (isInfoOpen && currentMenuOption === "download dpr" && currentPlan) {
-      const timer = setTimeout(() => emailInputRef.current?.focus(), 150);
-      return () => clearTimeout(timer);
+    if (isInfoOpen && currentMenuOption === "download dpr") {
+      const userEmail = authService.getUserEmail();
+      if (userEmail) setEmail(userEmail);
+      setDprLanguage(normalizeDprLanguage(i18n.language));
     }
-  }, [isInfoOpen, currentMenuOption, currentPlan]);
+  }, [isInfoOpen, currentMenuOption, i18n.language]);
 
   const [selectedLanguage, setSelectedLanguage] = useState(null);
   const [currentLanguage, setCurrentLanguage] = useState(i18next.language); // Default language
@@ -67,7 +79,11 @@ const InfoBox = () => {
 
   const handleDownloadDPR = () => {
     if (currentPlan !== null) {
-      const body = { plan_id: currentPlan.plan_id, email_id: email };
+      const body = {
+        plan_id: currentPlan.plan_id,
+        email_id: email.trim(),
+        language: dprLanguage,
+      };
 
       fetch(`${import.meta.env.VITE_API_URL}generate_dpr/`, {
         method: "POST",
@@ -236,6 +252,13 @@ const InfoBox = () => {
                   <div className="flex items-center">
                     <div
                       className="w-6 h-6 rounded mr-3"
+                      style={{ backgroundColor: "#313695", opacity: 0.7 }}
+                    ></div>
+                    <span>Deep valleys and canyons</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div
+                      className="w-6 h-6 rounded mr-3"
                       style={{ backgroundColor: "#4575b4", opacity: 0.7 }}
                     ></div>
                     <span>Incised drainages and low ridges</span>
@@ -281,27 +304,6 @@ const InfoBox = () => {
                       style={{ backgroundColor: "#d73027", opacity: 0.7 }}
                     ></div>
                     <span>Upper Slopes</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#91bfdb", opacity: 0.7 }}
-                    ></div>
-                    <span>Deep valleys and canyons</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#800000", opacity: 0.7 }}
-                    ></div>
-                    <span>Incised drainages and low ridges</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#4d0000", opacity: 0.7 }}
-                    ></div>
-                    <span>Mountain tops and high ridges</span>
                   </div>
                 </div>
               </>
@@ -1066,7 +1068,7 @@ const InfoBox = () => {
                       ].map(({ label, active }) => (
                         <div
                           key={label}
-                          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
+                          className={`flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium ${
                             active
                               ? "bg-green-50 text-green-700"
                               : "bg-gray-100 text-gray-500"
@@ -1125,14 +1127,13 @@ const InfoBox = () => {
                       </svg>
                     </div>
                     <input
-                      ref={emailInputRef}
                       id="email-input"
                       type="email"
                       placeholder="your.email@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={!currentPlan}
-                      className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592941]/40 focus:border-[#592941] transition-all duration-200 placeholder-gray-400 ${
+                      className={`w-full pl-10 pr-12 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592941]/40 focus:border-[#592941] transition-all duration-200 placeholder-gray-400 ${
                         email && !isValidEmail(email) && currentPlan
                           ? "border-red-300"
                           : "border-gray-300"
@@ -1142,6 +1143,16 @@ const InfoBox = () => {
                           : ""
                       }`}
                     />
+                    {email && currentPlan && (
+                      <button
+                        type="button"
+                        onClick={() => setEmail("")}
+                        className="absolute inset-y-0 right-0 px-3 flex items-center text-xl leading-none text-gray-400 hover:text-[#592941] focus:outline-none"
+                        aria-label={t("Clear email")}
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                   {email && !isValidEmail(email) && currentPlan && (
                     <p className="mt-1.5 text-sm text-red-600">
@@ -1150,10 +1161,46 @@ const InfoBox = () => {
                   )}
                 </div>
 
+                {/* DPR language */}
+                <div>
+                  <p className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t("DPR Language")}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {DPR_LANGUAGES.map((language) => (
+                      <button
+                        key={language.code}
+                        type="button"
+                        onClick={() => setDprLanguage(language.code)}
+                        disabled={!currentPlan}
+                        className={`rounded-xl border-2 p-3 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#592941]/30 ${
+                          dprLanguage === language.code
+                            ? "border-[#592941] bg-[#F5F0F2]"
+                            : "border-gray-200 bg-white hover:border-[#592941]/40"
+                        } ${
+                          !currentPlan
+                            ? "cursor-not-allowed opacity-60"
+                            : ""
+                        }`}
+                      >
+                        <span className="block text-sm font-semibold text-gray-900">
+                          {language.label}
+                        </span>
+                        <span className="block text-xs text-gray-500">
+                          {language.native}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-1.5 text-xs text-gray-500">
+                    {t("Choose the language for the generated DPR")}
+                  </p>
+                </div>
+
                 {/* Submit */}
                 <button
                   onClick={handleDownloadDPR}
-                  disabled={!email || !isValidEmail(email) || !currentPlan}
+                  disabled={!email.trim() || !isValidEmail(email.trim()) || !currentPlan}
                   className="w-full py-3 px-4 rounded-xl font-semibold text-white bg-[#592941] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#592941] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="flex items-center justify-center space-x-2">

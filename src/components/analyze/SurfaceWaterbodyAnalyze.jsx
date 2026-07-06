@@ -10,7 +10,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
-import getOdkUrlForScreen from "../../action/getOdkUrl"
+import getOdkUrlForScreen from "../../action/getOdkUrl";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -63,165 +63,191 @@ const SurfaceWaterBodies = () => {
   }, [idx, MainStore.selectedResource, yearKey, year, t]);
 
   const toggleFormsUrl = () => {
-    MainStore.setIsForm(true)
-    MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, [0,0], true))
-  }
+    MainStore.setIsForm(true);
+    MainStore.setFormUrl(
+      getOdkUrlForScreen(
+        MainStore.currentScreen,
+        MainStore.currentStep,
+        MainStore.markerCoords,
+        "",
+        "",
+        MainStore.blockName,
+        MainStore.currentPlan.plan_id,
+        MainStore.currentPlan.plan,
+        "",
+        !MainStore.isWaterbody,
+        [0, 0],
+        true,
+      ),
+    );
+  };
 
   const boldFont = { weight: "bold" };
 
   return (
-    <>
-      {/* title */}
-      <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2 mb-6">
-        {t("swb_heading")}
-      </div>
-
-      <div className="px-4 max-w-3xl mx-auto">
-        {/* chart */}
-        <div className="relative h-72 sm:h-96 flex items-center justify-center">
-          {isZero ? (
-            <span className="text-gray-500 font-semibold">
-              {t("swb_no_data") || t("The data for this year is Zero")}
-            </span>
-          ) : (
-            <Bar
-              data={chartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false, labels: { font: boldFont } },
-                  tooltip: {
-                    mode: "index",
-                    intersect: false,
-                    titleFont: boldFont,
-                    bodyFont: boldFont,
-                  },
-                },
-                scales: {
-                  x: { ticks: { font: boldFont } },
-                  y: {
-                    beginAtZero: true,
-                    min: 0,
-                    max: 100,
-                    ticks: { 
-                      stepSize: 25,
-                      font: boldFont,
-                      callback: function(value) {
-                        return value + '%';
-                      }
-                    },
-                    title: {
-                      display: true,
-                      text: t("swb_chart_title"),
-                      font: boldFont,
-                    },
-                  },
-                },
-              }}
-            />
-          )}
+    <div className="bg-slate-50 min-h-full">
+      <div className="max-w-3xl mx-auto px-4 pt-3 pb-6 space-y-5">
+        <div className="text-center">
+          <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
+            {t("swb_heading")}
+          </h1>
+          <p className="mt-1 text-sm font-semibold text-slate-500">
+            {agrFullLabel(year)}
+          </p>
         </div>
 
-        {/* year slider */}
-        <div className="w-full max-w-md mx-auto pt-4 pb-8 px-4">
-          <div className="text-center mb-4">
-            <span className="text-2xl font-bold text-[#592941]">
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+          <h2 className="font-bold text-slate-800 mb-3">
+            {t("swb_chart_title")}
+          </h2>
+          <div className="relative h-72 sm:h-80 flex items-center justify-center">
+            {isZero ? (
+              <span className="text-slate-500 font-semibold">
+                {t("swb_no_data") || t("The data for this year is Zero")}
+              </span>
+            ) : (
+              <Bar
+                data={chartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { display: false, labels: { font: boldFont } },
+                    tooltip: {
+                      mode: "index",
+                      intersect: false,
+                      titleFont: boldFont,
+                      bodyFont: boldFont,
+                    },
+                  },
+                  scales: {
+                    x: { ticks: { font: boldFont } },
+                    y: {
+                      beginAtZero: true,
+                      min: 0,
+                      max: 100,
+                      ticks: {
+                        stepSize: 25,
+                        font: boldFont,
+                        callback: function(value) {
+                          return `${value}%`;
+                        },
+                      },
+                      title: {
+                        display: true,
+                        text: t("swb_chart_title"),
+                        font: boldFont,
+                      },
+                    },
+                  },
+                }}
+              />
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="text-center">
+            <h2 className="text-base font-bold text-slate-800">
+              {t("Yearly Analysis")}
+            </h2>
+            <span className="mt-1 block text-xl font-extrabold text-[#592941]">
               {agrFullLabel(year)}
             </span>
           </div>
 
-          <div className="relative mb-2">
-            <div className="flex justify-between relative">
-              {YEARS.map((y, index) => {
-                const showLabel = index === 0 || index === YEARS.length - 1 || index === idx;
-                return (
-                  <div key={y} className="flex flex-col items-center relative flex-1">
-                    <div
-                      className={`w-0.5 transition-all duration-200 ${
-                        index === idx ? "h-4 bg-[#592941]" : "h-2 bg-gray-400"
-                      }`}
-                    />
-                    {showLabel && (
-                      <span
-                        className={`text-xs font-medium mt-1 transition-colors duration-200 ${
-                          index === idx ? "text-[#592941] font-bold" : "text-gray-500"
+          <div className="w-full max-w-md mx-auto pt-4 px-1">
+            <div className="relative mb-3">
+              <div className="flex justify-between relative">
+                {YEARS.map((y, index) => {
+                  const showLabel =
+                    index === 0 || index === YEARS.length - 1 || index === idx;
+
+                  return (
+                    <div key={y} className="flex flex-col items-center relative flex-1">
+                      <div
+                        className={`w-0.5 transition-all duration-200 ${
+                          index === idx ? "h-4 bg-[#592941]" : "h-2 bg-gray-400"
                         }`}
-                      >
-                        {agrShortLabel(y)}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+                      />
+                      {showLabel && (
+                        <span
+                          className={`text-xs font-medium mt-1 transition-colors duration-200 ${
+                            index === idx ? "text-[#592941] font-bold" : "text-gray-500"
+                          }`}
+                        >
+                          {agrShortLabel(y)}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+
+            <input
+              type="range"
+              min="0"
+              max={YEARS.length - 1}
+              step="1"
+              value={idx}
+              onChange={(e) => setIdx(Number(e.target.value))}
+              className="w-full accent-[#592941] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-swb"
+            />
+
+            <style>{`
+              .slider-swb::-webkit-slider-thumb {
+                appearance: none;
+                height: 20px;
+                width: 20px;
+                border-radius: 50%;
+                background: #592941;
+                cursor: pointer;
+                border: 2px solid white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+              }
+              .slider-swb::-moz-range-thumb {
+                height: 20px;
+                width: 20px;
+                border-radius: 50%;
+                background: #592941;
+                cursor: pointer;
+                border: 2px solid white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+              }
+            `}</style>
           </div>
+        </section>
 
-          <input
-            type="range"
-            min="0"
-            max={YEARS.length - 1}
-            step="1"
-            value={idx}
-            onChange={(e) => setIdx(Number(e.target.value))}
-            className="w-full accent-[#592941] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-swb"
-          />
-
-          <style jsx>{`
-            .slider-swb::-webkit-slider-thumb {
-              appearance: none;
-              height: 20px;
-              width: 20px;
-              border-radius: 50%;
-              background: #592941;
-              cursor: pointer;
-              border: 2px solid white;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-            .slider-swb::-moz-range-thumb {
-              height: 20px;
-              width: 20px;
-              border-radius: 50%;
-              background: #592941;
-              cursor: pointer;
-              border: 2px solid white;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-          `}</style>
-        </div>
-
-        {/* acreage chip */}
-        <div className="flex justify-center mt-8">
-          <div className="rounded-xl bg-[#f8fafc] border border-gray-200 py-2 px-6 text-center shadow-sm">
-            <div className="text-xs tracking-wide text-gray-500 mb-1">
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 space-y-5 text-sm leading-relaxed text-slate-700 shadow-sm">
+          <div className="rounded-2xl bg-slate-50 border border-slate-200 py-3 px-6 text-center">
+            <div className="text-xs tracking-wide text-slate-500 mb-1">
               {t("Area")}
             </div>
-            <div className="text-lg font-bold">{acreage} acres</div>
+            <div className="text-2xl font-extrabold tracking-tight text-slate-950">
+              {acreage} acres
+            </div>
           </div>
-        </div>
 
-        {/* paragraph */}
-        <div className="mt-8 mx-auto max-w-prose px-4 text-[#374151] leading-relaxed tracking-wide">
-          <p className="text-sm sm:text-sm">{t("info_swb_modal_1")}</p>
-        </div>
+          <p>{t("info_swb_modal_1")}</p>
 
-        {/* Provide Feedback */}
-        <div className="flex justify-center mt-6">
-          <button
-            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-md"
-            onClick={toggleFormsUrl}
-            style={{ 
-                backgroundColor: '#D6D5C9',
-                color: '#592941',
-                border: 'none', 
-            }}
-            disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
-          >
-          {t("Provide Feedback")}
-          </button>
-        </div>
+          <div className="flex justify-center pt-2">
+            <button
+              className="w-full px-4 py-3 rounded-2xl shadow-sm text-md font-semibold transition-opacity disabled:opacity-60"
+              onClick={toggleFormsUrl}
+              style={{
+                backgroundColor: "#D6D5C9",
+                color: "#592941",
+                border: "none",
+              }}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+            >
+              {t("Provide Feedback")}
+            </button>
+          </div>
+        </section>
       </div>
-    </>
+    </div>
   );
 };
 

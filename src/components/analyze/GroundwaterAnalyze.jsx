@@ -13,7 +13,7 @@ import {
 import { Bar, Line } from "react-chartjs-2";
 import useMainStore from "../../store/MainStore";
 import { useTranslation } from "react-i18next";
-import getOdkUrlForScreen from "../../action/getOdkUrl"
+import getOdkUrlForScreen from "../../action/getOdkUrl";
 
 ChartJS.register(
   CategoryScale,
@@ -54,10 +54,12 @@ const getAgrYearKeyFromDate = (isoDate) => {
 };
 
 const CAPSULE_KEYS = ["DeltaG", "Precipitation", "RunOff", "ET", "WellDepth"];
+const cardClass =
+  "rounded-2xl bg-white border border-slate-200 p-3.5 text-center shadow-[0_8px_24px_rgba(15,23,42,0.08)]";
 
 const GroundwaterAnalyze = () => {
-  const fortnightData = useMainStore((state) => state.fortnightData)
-  const yearlyData = useMainStore((state) => state.selectedResource)
+  const fortnightData = useMainStore((state) => state.fortnightData);
+  const yearlyData = useMainStore((state) => state.selectedResource);
   const { t } = useTranslation();
   const MainStore = useMainStore((s) => s);
 
@@ -122,7 +124,7 @@ const GroundwaterAnalyze = () => {
   }, [selectedKey, fortnightData]);
 
   const hasAnnual = Object.keys(annual).length > 0;
-  const hasFort   = fort.dates.length > 0;
+  const hasFort = fort.dates.length > 0;
 
 
   const barLine = {
@@ -181,91 +183,111 @@ const GroundwaterAnalyze = () => {
   };
 
   const toggleFormsUrl = () => {
-    MainStore.setIsForm(true)
-    MainStore.setFormUrl(getOdkUrlForScreen(MainStore.currentScreen, MainStore.currentStep, MainStore.markerCoords, "", "", MainStore.blockName, MainStore.currentPlan.plan_id, MainStore.currentPlan.plan, "", !MainStore.isWaterbody, [0,0], true))
-  }
+    MainStore.setIsForm(true);
+    MainStore.setFormUrl(
+      getOdkUrlForScreen(
+        MainStore.currentScreen,
+        MainStore.currentStep,
+        MainStore.markerCoords,
+        "",
+        "",
+        MainStore.blockName,
+        MainStore.currentPlan.plan_id,
+        MainStore.currentPlan.plan,
+        "",
+        !MainStore.isWaterbody,
+        [0, 0],
+        true,
+      ),
+    );
+  };
 
 
   return (
-    <>
-      <div className="sticky top-12 z-10 bg-white text-center pt-8 text-xl font-bold text-gray-800 border-b border-gray-300 shadow-md pb-2">
-        {t("gw_heading")}
-      </div>
-
-      <div className="p-4 max-w-6xl mx-auto space-y-8 mt-4">
-        <h2 className="text-center font-extrabold text-gray-700 mb-3 text-sm">
+    <div className="bg-slate-50 min-h-full">
+      <div className="max-w-6xl mx-auto px-4 pt-3 pb-6 space-y-5">
+        <div className="text-center">
+          <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
+            {t("gw_heading")}
+          </h1>
+          <p className="mt-1 text-sm font-semibold text-slate-500">
             {t("info_gw_header_1")} {selectedKey ? agrFullLabel(selectedKey) : ""}
-        </h2>
+          </p>
+        </div>
 
-        {/* capsules */}
         {hasAnnual ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {CAPSULE_KEYS.map((k) => (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {CAPSULE_KEYS.map((k, index) => (
               <div
                 key={k}
-                className="rounded-xl bg-[#f8fafc] border border-gray-200 p-4 text-center shadow-sm"
+                className={`${cardClass} ${
+                  index === CAPSULE_KEYS.length - 1 ? "col-span-2 sm:col-span-1" : ""
+                }`}
               >
-                <div className="text-xs tracking-wide text-gray-500 mb-1">
+                <div className="min-h-10 flex items-center justify-center text-[13px] leading-snug font-medium tracking-wide text-slate-500">
                   {t(k)}
                 </div>
-                <div className="text-lg font-bold">{fmt(annual[k], 1)}</div>
+                <div className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950">
+                  {fmt(annual[k], 1)}
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-500">
+          <p className="rounded-2xl border border-slate-200 bg-white p-4 text-center text-slate-500 shadow-sm">
             {t("info_blank")} {selectedKey ? agrFullLabel(selectedKey) : ""}
           </p>
         )}
 
-        <h2 className="text-center font-bold text-gray-700 text-lg pt-4">
-          {t("Fortnightly changes")}
-        </h2>
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+          <div className="text-center">
+            <h2 className="text-base font-bold text-slate-800">
+              {t("Fortnightly changes")}
+            </h2>
+            <span className="mt-1 block text-xl font-extrabold text-[#0f766e]">
+              {selectedKey ? agrFullLabel(selectedKey) : ""}
+            </span>
+          </div>
 
-        {/* year slider */}
-        <div className="w-full max-w-md mx-auto pt-4 pb-8 px-4">
-            <div className="text-center mb-4">
-                <span className="text-2xl font-bold text-[#0f766e]">
-                    {selectedKey ? agrFullLabel(selectedKey) : ""}
-                </span>
-            </div>
+          <div className="w-full max-w-md mx-auto pt-4 px-1">
+            <div className="relative mb-3">
+              <div className="flex justify-between relative">
+                {YEAR_KEYS.map((key, index) => {
+                  const showLabel =
+                    index === 0 || index === YEAR_KEYS.length - 1 || index === idx;
 
-            <div className="relative mb-2">
-                <div className="flex justify-between relative">
-                    {YEAR_KEYS.map((key, index) => {
-                        const showLabel = index === 0 || index === YEAR_KEYS.length - 1 || index === idx;
-                        return (
-                            <div key={key} className="flex flex-col items-center relative flex-1">
-                                <div
-                                    className={`w-0.5 transition-all duration-200 ${
-                                        index === idx ? 'h-4 bg-[#0f766e]' : 'h-2 bg-gray-400'
-                                    }`}
-                                />
-                                {showLabel && (
-                                    <span
-                                        className={`text-xs font-medium mt-1 transition-colors duration-200 ${
-                                            index === idx ? 'text-[#0f766e] font-bold' : 'text-gray-500'
-                                        }`}
-                                    >
-                                        {agrShortLabel(key)}
-                                    </span>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+                  return (
+                    <div key={key} className="flex flex-col items-center relative flex-1">
+                      <div
+                        className={`w-0.5 transition-all duration-200 ${
+                          index === idx ? "h-4 bg-[#0f766e]" : "h-2 bg-gray-400"
+                        }`}
+                      />
+                      {showLabel && (
+                        <span
+                          className={`text-xs font-medium mt-1 transition-colors duration-200 ${
+                            index === idx ? "text-[#0f766e] font-bold" : "text-gray-500"
+                          }`}
+                        >
+                          {agrShortLabel(key)}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <input
-                type="range"
-                min="0"
-                max={YEAR_KEYS.length - 1}
-                value={idx}
-                onChange={(e) => setIdx(Number(e.target.value))}
-                className="w-full accent-[#0f766e] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
+              type="range"
+              min="0"
+              max={YEAR_KEYS.length - 1}
+              value={idx}
+              onChange={(e) => setIdx(Number(e.target.value))}
+              className="w-full accent-[#0f766e] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-custom"
             />
 
-            <style jsx>{`
+            <style>{`
                 .slider-custom::-webkit-slider-thumb {
                     appearance: none;
                     height: 20px;
@@ -286,11 +308,11 @@ const GroundwaterAnalyze = () => {
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                 }
             `}</style>
-        </div>
+          </div>
+        </section>
 
-        {/* Precip + Run-off chart */}
-        <section>
-          <h2 className="font-bold text-gray-700 mb-2">
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="font-bold text-slate-800 mb-3">
             {t("info_gw_header_2")} ({selectedKey ? agrFullLabel(selectedKey) : ""})
           </h2>
           {hasFort ? (
@@ -320,9 +342,8 @@ const GroundwaterAnalyze = () => {
           )}
         </section>
 
-        {/* ET area */}
-        <section>
-          <h2 className="font-bold text-gray-700 mb-2">{t("info_gw_header_3")} (ET)</h2>
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="font-bold text-slate-800 mb-3">{t("info_gw_header_3")} (ET)</h2>
           {hasFort ? (
             <div className="relative h-56">
               <Line
@@ -343,9 +364,8 @@ const GroundwaterAnalyze = () => {
           )}
         </section>
 
-        {/* Ground-water area */}
-        <section>
-          <h2 className="font-bold text-gray-700 mb-2">{t("info_gw_header_4")}</h2>
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="font-bold text-slate-800 mb-3">{t("info_gw_header_4")}</h2>
           {hasFort ? (
             <div className="relative h-56">
               <Line
@@ -366,57 +386,51 @@ const GroundwaterAnalyze = () => {
           )}
         </section>
 
-        {/* explanation blocks remain unchanged … */}
-        <section className="space-y-8 text-sm leading-relaxed text-gray-700 mt-8">
-
-        {/* 1.  Precipitation & Run-off */}
-        <div>
-            <h3 className="font-bold mb-2">
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 space-y-5 text-sm leading-relaxed text-slate-700 shadow-sm">
+          <div>
+            <h3 className="font-bold mb-1 text-slate-900">
               {t("info_gw_header_2")}
             </h3>
             <p>
               {t("info_gw_modal_1")}
             </p>
-        </div>
+          </div>
 
-        {/* 2.  Ground-water Storage */}
-        <div>
-            <h3 className="font-bold mb-2">
+          <div>
+            <h3 className="font-bold mb-1 text-slate-900">
               {t("info_gw_header_3")}
             </h3>
             <p>
               {t("info_gw_modal_2")}
             </p>
-        </div>
+          </div>
 
-        {/* 3.  Evapotranspiration */}
-        <div>
-            <h3 className="font-bold mb-2">
+          <div>
+            <h3 className="font-bold mb-1 text-slate-900">
               {t("info_gw_header_4")}
             </h3>
             <p>
               {t("info_gw_modal_3")}
             </p>
-        </div>
+          </div>
 
-        {/* Provide Feedback */}
-        <div className="flex justify-center mt-6">
-          <button
-            className="flex-1 px-4 py-3 rounded-xl shadow-sm text-md"
-            onClick={toggleFormsUrl}
-            style={{ 
-                backgroundColor: '#D6D5C9',
-                color: '#592941',
-                border: 'none', 
-            }}
-            disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
-          >
-          {t("Provide Feedback")}
-          </button>
-        </div>  
+          <div className="flex justify-center pt-2">
+            <button
+              className="w-full px-4 py-3 rounded-2xl shadow-sm text-md font-semibold transition-opacity disabled:opacity-60"
+              onClick={toggleFormsUrl}
+              style={{
+                backgroundColor: "#D6D5C9",
+                color: "#592941",
+                border: "none",
+              }}
+              disabled={MainStore.isFeatureClicked && !MainStore.isMarkerPlaced}
+            >
+              {t("Provide Feedback")}
+            </button>
+          </div>
         </section>
       </div>
-    </>
+    </div>
   );
 };
 
