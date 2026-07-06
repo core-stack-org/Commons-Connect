@@ -57,7 +57,7 @@ const SiteSuitabilityAnalysis = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
+            <div className="bg-slate-50 min-h-full flex items-center justify-center h-64">
                 <SquircleLoader />
             </div>
         );
@@ -65,12 +65,14 @@ const SiteSuitabilityAnalysis = () => {
 
     if (!analysisData) {
         return (
-            <div className="flex flex-col items-center justify-center h-48 px-6 text-center">
-                <div className="text-sm font-medium text-gray-600 mb-1">
-                    {t("No data available at this location")}
-                </div>
-                <div className="text-xs text-gray-400">
-                    {t("Please tap on a different location on the map")}
+            <div className="bg-slate-50 min-h-full px-4 py-6">
+                <div className="max-w-3xl mx-auto rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+                    <div className="text-base font-bold text-slate-900 mb-1">
+                        {t("No data available at this location")}
+                    </div>
+                    <div className="text-sm text-slate-500">
+                        {t("Please tap on a different location on the map")}
+                    </div>
                 </div>
             </div>
         );
@@ -81,78 +83,79 @@ const SiteSuitabilityAnalysis = () => {
     const { lat, lon } = analysisData.coordinates;
 
     return (
-        <div className="min-h-full bg-gray-50 pb-6">
-            {/* Header pill */}
-            <div className="flex justify-center pt-4 pb-3">
-                <span className="px-5 py-1.5 rounded-full bg-white text-slate-500 text-sm font-semibold tracking-wide border border-gray-200 shadow-sm">
+        <div className="min-h-full bg-slate-50">
+            <div className="max-w-3xl mx-auto px-4 pt-3 pb-6 space-y-5">
+                <div className="text-center">
+                    <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
                     {t("Site Suitability")}
-                </span>
-            </div>
+                    </h1>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">
+                        {lat.toFixed(5)}°, {lon.toFixed(5)}°
+                    </p>
+                </div>
 
-            {/* Hero: overall score + location */}
-            {scoreConfig && (
-                <div className="mx-4 mb-3 rounded-2xl overflow-hidden shadow-sm">
-                    <div
-                        className="px-5 py-4 flex items-center justify-between"
-                        style={{ backgroundColor: scoreConfig.color }}
-                    >
-                        <div>
-                            <div className="text-[10px] font-semibold uppercase tracking-widest text-white/70 mb-0.5">
-                                {t("Overall Rating")}
-                            </div>
-                            <div className="text-2xl font-bold text-white">
-                                {t(scoreConfig.label)}
-                            </div>
-                        </div>
+                {scoreConfig && (
+                    <section className="rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
                         <div
-                            className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold"
-                            style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "#fff" }}
+                            className="px-5 py-4 flex items-center justify-between"
+                            style={{ backgroundColor: scoreConfig.color }}
                         >
-                            {Math.round(scoreValue)}
-                        </div>
-                    </div>
-                    <div className="bg-white px-5 py-3 flex items-center gap-1.5 border-t border-gray-100">
-                        <svg className="w-3 h-3 text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                        </svg>
-                        <span className="text-xs font-mono text-slate-500">
-                            {lat.toFixed(5)}°, {lon.toFixed(5)}°
-                        </span>
-                    </div>
-                </div>
-            )}
-
-            {/* Component scores */}
-            <div className="px-4 mb-3">
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2 px-1">
-                    {t("Component Scores")}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                    {BAND_ORDER.filter((band) => analysisData[band] !== undefined).map((band) => {
-                        const cfg = getConfig(analysisData[band]);
-                        return (
-                            <div
-                                key={band}
-                                className="bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm flex items-center justify-between"
-                            >
-                                <span className="text-sm text-gray-700 font-medium">{t(band)}</span>
-                                <span
-                                    className="text-xs font-semibold px-2.5 py-1 rounded-full text-white"
-                                    style={{ backgroundColor: cfg.color }}
-                                >
-                                    {t(cfg.label)}
-                                </span>
+                            <div>
+                                <div className="text-[10px] font-semibold uppercase tracking-widest text-white/70 mb-0.5">
+                                    {t("Overall Rating")}
+                                </div>
+                                <div className="text-2xl font-bold text-white">
+                                    {t(scoreConfig.label)}
+                                </div>
                             </div>
-                        );
-                    })}
-                </div>
-            </div>
+                            <div
+                                className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold"
+                                style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "#fff" }}
+                            >
+                                {Math.round(scoreValue)}
+                            </div>
+                        </div>
+                        <div className="bg-white px-5 py-3 flex items-center gap-1.5 border-t border-slate-100">
+                            <svg className="w-3 h-3 text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                            </svg>
+                            <span className="text-xs font-mono text-slate-500">
+                                {lat.toFixed(5)}°, {lon.toFixed(5)}°
+                            </span>
+                        </div>
+                    </section>
+                )}
 
-            {/* Footnote */}
-            <div className="mx-4 bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
-                <p className="text-xs text-gray-400 leading-relaxed">
-                    {t("Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.")}
-                </p>
+                <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <h2 className="font-bold text-slate-800 mb-3">
+                        {t("Component Scores")}
+                    </h2>
+                    <div className="flex flex-col gap-2">
+                        {BAND_ORDER.filter((band) => analysisData[band] !== undefined).map((band) => {
+                            const cfg = getConfig(analysisData[band]);
+                            return (
+                                <div
+                                    key={band}
+                                    className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 flex items-center justify-between"
+                                >
+                                    <span className="text-sm text-slate-700 font-semibold">{t(band)}</span>
+                                    <span
+                                        className="text-xs font-bold px-2.5 py-1 rounded-full text-white"
+                                        style={{ backgroundColor: cfg.color }}
+                                    >
+                                        {t(cfg.label)}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        {t("Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.")}
+                    </p>
+                </section>
             </div>
         </div>
     );

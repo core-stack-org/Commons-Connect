@@ -143,5 +143,9 @@
     "Synced": "Synced",
     "record(s)": "record(s)",
     "Overall Rating": "Overall Rating",
-    "Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.": "Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability."
+    "Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.": "Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.",
+    "DPR Language": "DPR Language",
+    "Choose the language for the generated DPR": "Choose the language for the generated DPR",
+    "Clear": "Clear",
+    "Clear email": "Clear email"
 }

@@ -73,7 +73,7 @@ const SiteAnalysis = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-96">
+            <div className="bg-slate-50 min-h-full flex items-center justify-center h-96">
                 <SquircleLoader />
             </div>
         );
@@ -81,104 +81,111 @@ const SiteAnalysis = () => {
 
     if (!analysisData) {
         return (
-            <div className="p-6 text-center text-gray-500">
-                <div className="text-lg font-medium mb-2">No site analysis data available</div>
-                <p className="text-sm">Please place a marker on the map and try again</p>
+            <div className="bg-slate-50 min-h-full px-4 py-6">
+                <div className="max-w-3xl mx-auto rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+                    <div className="text-lg font-bold text-slate-900 mb-2">
+                        No site analysis data available
+                    </div>
+                    <p className="text-sm text-slate-500">
+                        Please place a marker on the map and try again
+                    </p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="p-6 pb-8">
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
+        <div className="bg-slate-50 min-h-full">
+            <div className="max-w-4xl mx-auto px-4 pt-3 pb-6 space-y-5">
+                <div className="text-center">
+                    <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
                     Site Analysis
-                </h2>
-            </div>
+                    </h1>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">
+                        Hydrological suitability parameters
+                    </p>
+                </div>
 
-            <div className="space-y-4">
-                {/* Location Details */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">
+                <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+                    <h3 className="text-base font-bold text-slate-900 mb-3">
                         Location Coordinates
                     </h3>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                            <span className="font-medium text-gray-600">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div className="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+                            <span className="block font-medium text-slate-500">
                                 Latitude:
                             </span>
-                            <span className="ml-2 text-gray-900">
+                            <span className="mt-1 block text-lg font-extrabold text-slate-950">
                                 {analysisData.coordinates.lat.toFixed(6)}°
                             </span>
                         </div>
-                        <div>
-                            <span className="font-medium text-gray-600">
+                        <div className="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+                            <span className="block font-medium text-slate-500">
                                 Longitude:
                             </span>
-                            <span className="ml-2 text-gray-900">
+                            <span className="mt-1 block text-lg font-extrabold text-slate-950">
                                 {analysisData.coordinates.lon.toFixed(6)}°
                             </span>
                         </div>
                     </div>
                 </div>
 
-                {/* Analysis Parameters */}
-                <div className="overflow-hidden rounded-2xl border border-green-200">
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3">
-                        <h4 className="font-medium text-gray-900">
+                <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                    <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
+                        <h4 className="font-bold text-slate-900">
                             Hydrological Parameters
                         </h4>
                     </div>
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="bg-green-100">
-                                <th className="px-4 py-2.5 text-left font-semibold text-gray-700 border-b border-green-200">
+                            <tr className="bg-white">
+                                <th className="px-4 py-2.5 text-left font-semibold text-slate-600 border-b border-slate-200">
                                     Parameter
                                 </th>
-                                <th className="px-4 py-2.5 text-right font-semibold text-gray-700 border-b border-green-200">
+                                <th className="px-4 py-2.5 text-right font-semibold text-slate-600 border-b border-slate-200">
                                     Value
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="bg-white hover:bg-green-50 transition-colors">
-                                <td className="px-4 py-3 text-gray-600 border-b border-green-100">
+                            <tr className="bg-white">
+                                <td className="px-4 py-3 text-slate-600 border-b border-slate-100">
                                     Distance to Nearest Upstream Drainage Line
                                 </td>
-                                <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
+                                <td className="px-4 py-3 text-right font-semibold text-slate-900 border-b border-slate-100">
                                     {analysisData.drainageLine !== "N/A"
                                         ? `${parseFloat(analysisData.drainageLine).toFixed(2)} m`
                                         : "Data not available"
                                     }
                                 </td>
                             </tr>
-                            <tr className="bg-green-50/50 hover:bg-green-50 transition-colors">
-                                <td className="px-4 py-3 text-gray-600 border-b border-green-100">
+                            <tr className="bg-slate-50/60">
+                                <td className="px-4 py-3 text-slate-600 border-b border-slate-100">
                                     Single Flow Catchment Area
                                 </td>
-                                <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
+                                <td className="px-4 py-3 text-right font-semibold text-slate-900 border-b border-slate-100">
                                     {analysisData.catchmentArea !== "N/A"
                                         ? `${parseFloat(analysisData.catchmentArea).toFixed(2)} hectares`
                                         : "Data not available"
                                     }
                                 </td>
                             </tr>
-                            <tr className="bg-white hover:bg-green-50 transition-colors">
-                                <td className="px-4 py-3 text-gray-600 border-b border-green-100">
+                            <tr className="bg-white">
+                                <td className="px-4 py-3 text-slate-600 border-b border-slate-100">
                                     Stream Order
                                 </td>
-                                <td className="px-4 py-3 text-right font-medium text-gray-900 border-b border-green-100">
+                                <td className="px-4 py-3 text-right font-semibold text-slate-900 border-b border-slate-100">
                                     {analysisData.streamOrder !== "N/A"
                                         ? analysisData.streamOrder
                                         : "Data not available"
                                     }
                                 </td>
                             </tr>
-                            <tr className="bg-green-50/50 hover:bg-green-50 transition-colors">
-                                <td className="px-4 py-3 text-gray-600">
+                            <tr className="bg-slate-50/60">
+                                <td className="px-4 py-3 text-slate-600">
                                     Slope Percentage
                                 </td>
-                                <td className="px-4 py-3 text-right font-medium text-gray-900">
+                                <td className="px-4 py-3 text-right font-semibold text-slate-900">
                                     {analysisData.slopePercentage !== "N/A"
                                         ? `${parseFloat(analysisData.slopePercentage).toFixed(2)}%`
                                         : "Data not available"
@@ -189,15 +196,14 @@ const SiteAnalysis = () => {
                     </table>
                 </div>
 
-                {/* Info Note */}
-                <div className="bg-gray-50 rounded-2xl p-4">
+                <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="flex flex-col">
                         <div className="flex items-center mb-2">
                             <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                             </svg>
                         </div>
-                        <div className="text-sm text-gray-600 leading-relaxed">
+                        <div className="text-sm text-slate-700 leading-relaxed">
                             {currentScreen === "Groundwater" ? (
                                 <p>
                                     Sites on drainage lines, having a reasonable catchment area but not too large (4 to 40 ha), in higher stream orders (2, 3), and low slope (&lt; 15%) are good for checkdams. Sites in higher slopes and on drainage lines can sustain gully plugs. Sites in lower slopes and off drainage lines are good for contour trenches.
