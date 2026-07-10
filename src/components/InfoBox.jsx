@@ -94,7 +94,7 @@ const InfoBox = () => {
       });
 
       toast.success(
-        "You will receive an email from contact@core-stack.org upon DPR generation.",
+        "You will receive an email from support@core-stack.org upon DPR generation.",
       );
     } else {
       toast.error("No Plan selected !");
