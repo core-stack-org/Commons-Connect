@@ -31,21 +31,7 @@ const ResourceMapping = () => {
     };
 
     useEffect(() => {
-        toast(t("add_settlement_toast"), {
-            duration: 5000,
-            dismissible: true,
-            style: {
-                background: "#ffffff",
-                color: "#000000",
-                borderRadius: "20px",
-                padding: "10px",
-                fontSize: "14px",
-                fontFamily: "Inter",
-                fontWeight: "400",
-                textAlign: "left",
-                lineHeight: "1.5",
-            },
-        });
+        toast(t("add_settlement_toast"));
     }, []);
 
     useEffect(() => {

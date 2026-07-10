@@ -78,7 +78,30 @@ function App() {
 
     return (
         <>
-            <Toaster />
+            <Toaster
+                toastOptions={{
+                    duration: 5000,
+                    style: {
+                        background: "#ffffff",
+                        color: "#000000",
+                        borderRadius: "20px",
+                        padding: "10px 16px",
+                        fontSize: "14px",
+                        fontFamily: "Inter",
+                        fontWeight: "400",
+                        textAlign: "left",
+                        lineHeight: "1.5",
+                        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
+                        maxWidth: "420px",
+                    },
+                    success: {
+                        iconTheme: { primary: "#22c55e", secondary: "#ffffff" },
+                    },
+                    error: {
+                        iconTheme: { primary: "#ef4444", secondary: "#ffffff" },
+                    },
+                }}
+            />
             <DevAuthHelper />
             {isGlobalSyncing && (
                 <div className="fixed inset-0 z-[9999] backdrop-blur-sm bg-black/40 flex flex-col items-center justify-center gap-3 pointer-events-none">

@@ -138,20 +138,7 @@ const Agriculture = () => {
         MainStore.setCurrentStep(1);
         // Set default layer for InfoBox legend
         MainStore.setLayerClicked("CLARTLayer");
-        toast(t("toast_agri"), {
-            duration: 5000,
-            style: {
-                background: "#ffffff",
-                color: "#000000",
-                borderRadius: "20px",
-                padding: "10px",
-                fontSize: "14px",
-                fontFamily: "Inter",
-                fontWeight: "400",
-                textAlign: "left",
-                lineHeight: "1.5",
-            },
-        });
+        toast(t("toast_agri"));
     };
 
     const handleLayerChange = (layerName) => {
