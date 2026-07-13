@@ -133,6 +133,7 @@ const Groundwater = () => {
     const handleSiteAnalysis = () => {
         if (MainStore.markerCoords) {
             MainStore.setSiteAnalysisCoords(MainStore.markerCoords);
+            MainStore.setIsGroundWater(false);
             MainStore.setIsSiteAnalysis(true);
             MainStore.setIsOpen(true);
         }

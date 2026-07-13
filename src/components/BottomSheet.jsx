@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
+import "./BottomSheet.css";
 import useMainStore from "../store/MainStore.jsx";
 import useLayersStore from "../store/LayerStore.jsx";
+import { Check, X } from "lucide-react";
 
 import nregaDetails from "../assets/nregaMapping.json";
 import resourceDetails from "../assets/resource_mapping.json";
@@ -400,19 +402,19 @@ const Bottomsheet = () => {
         if (key in obj) {
             return obj[key];
         }
-        
+
         // Try with underscores replaced by spaces
         const spaceVersion = key.replace(/_/g, " ");
         if (spaceVersion !== key && spaceVersion in obj) {
             return obj[spaceVersion];
         }
-        
+
         // Try with spaces replaced by underscores
         const underscoreVersion = key.replace(/ /g, "_");
         if (underscoreVersion !== key && underscoreVersion in obj) {
             return obj[underscoreVersion];
         }
-        
+
         return undefined;
     };
 
@@ -846,65 +848,50 @@ const Bottomsheet = () => {
         }
     };
 
+    const getSheetTitle = () => {
+        if (MainStore.isForm && MainStore.formUrl) return t("Complete submission");
+        if (MainStore.isNregaSheet) return t("NREGA details");
+        if (MainStore.isMetadata) return t("Asset details");
+        if (MainStore.isResource || MainStore.isResourceOpen) {
+            return MainStore.resourceType
+                ? t(MainStore.resourceType)
+                : t("Resource details");
+        }
+        if (MainStore.isWaterbody) return t("Surface water analysis");
+        if (MainStore.isGroundWater) return t("Water balance analysis");
+        if (MainStore.isAgriculture) return t("Agriculture analysis");
+        if (MainStore.isLayerStore) return t("Map layers");
+        if (MainStore.isSiteAnalysis) return t("Site analysis");
+        if (MainStore.isSiteSuitabilityPopupOpen) {
+            return t("Site suitability");
+        }
+        return t("Details");
+    };
+
     const buildHeader = () => {
-        if (MainStore.isForm && MainStore.formUrl) {
-            return (
-                <div className="flex items-center justify-end px-4 py-3 border-b border-gray-100">
-                    <button
-                        onClick={handleDone}
-                        disabled={isSyncing}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 text-white text-base font-bold transition-colors shadow-sm"
-                        aria-label="Done"
-                    >
-                        {isSyncing ? (
-                            <>
-                                <SquircleLoader
-                                    size={16}
-                                    strokeWidth={2}
-                                    color="#ffffff"
-                                    backgroundColor="rgba(255,255,255,0.3)"
-                                    speed={1000}
-                                />
-                                {t("Saving…")}
-                            </>
-                        ) : (
-                            t("Done")
-                        )}
-                    </button>
-                </div>
-            );
-        }
-
-        if (MainStore.isNregaSheet) {
-            return (
-                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
-                    <button
-                        onClick={dismissAll}
-                        className="px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold transition-colors border border-gray-200"
-                        aria-label="Cancel"
-                    >
-                        {t("Cancel")}
-                    </button>
-                    <button
-                        onClick={dismissAll}
-                        className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
-                        aria-label="Done"
-                    >
-                        {t("Done")}
-                    </button>
-                </div>
-            );
-        }
-
         return (
-            <div className="flex items-center justify-end px-4 py-2 border-b border-gray-100">
+            <div className="commons-sheet-header">
                 <button
-                    onClick={handleDone}
-                    disabled={isSyncing}
-                    className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center gap-2"
-                    aria-label="Done"
+                    type="button"
+                    onClick={onDismiss}
+                    className="commons-sheet-icon-button"
+                    aria-label={t("Close")}
                 >
-                    {isSyncing && (
+                    <X size={19} strokeWidth={2.25} />
+                </button>
+
+                <div className="commons-sheet-heading">
+                    <h2>{getSheetTitle()}</h2>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={MainStore.isNregaSheet ? dismissAll : handleDone}
+                    disabled={isSyncing}
+                    className="commons-sheet-done-button"
+                    aria-label={t("Done")}
+                >
+                    {isSyncing ? (
                         <SquircleLoader
                             size={14}
                             strokeWidth={2}
@@ -912,6 +899,8 @@ const Bottomsheet = () => {
                             backgroundColor="rgba(255,255,255,0.3)"
                             speed={1000}
                         />
+                    ) : (
+                        <Check size={16} strokeWidth={2.5} />
                     )}
                     {isSyncing ? t("Saving…") : t("Done")}
                 </button>
@@ -921,6 +910,7 @@ const Bottomsheet = () => {
 
     return (
         <BottomSheet
+            className="commons-bottom-sheet"
             open={
                 MainStore.isOpen ||
                 MainStore.isSiteSuitabilityPopupOpen ||
@@ -930,7 +920,9 @@ const Bottomsheet = () => {
             onDismiss={onDismiss}
             blocking={false}
             snapPoints={({ maxHeight }) =>
-                MainStore.isLayerStore ? [maxHeight / 2] : [maxHeight]
+                MainStore.isLayerStore
+                    ? [maxHeight * 0.52]
+                    : [maxHeight * 1.00]
             }
             header={buildHeader()}
         >
@@ -938,11 +930,11 @@ const Bottomsheet = () => {
                 <iframe
                     id="odk-frame"
                     src={MainStore.formUrl}
-                    style={{ width: "100%", height: "calc(100dvh - 120px)", display: "block" }}
+                    className="commons-sheet-frame"
                     allow="camera; microphone; geolocation"
                 />
             ) : (
-                <div>{renderBody()}</div>
+                <div className="commons-sheet-body">{renderBody()}</div>
             )}
         </BottomSheet>
     );
