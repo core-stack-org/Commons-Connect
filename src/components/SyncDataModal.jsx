@@ -6,7 +6,7 @@ import useMainStore from "../store/MainStore.jsx";
 const RESOURCE_OPTIONS = [
     { key: "settlement", label: "Settlement",       layerName: "settlement_layer", resourceType: "settlement" },
     { key: "well",       label: "Well",             layerName: "well_layer",       resourceType: "well" },
-    { key: "water",      label: "Water Structures", layerName: "waterbody_layer",  resourceType: "waterbody" },
+    { key: "water",      label: "Water Structure",  layerName: "waterbody_layer",  resourceType: "waterbody" },
     { key: "crop",       label: "Cropping Pattern", layerName: "cropping_layer",   resourceType: "cropping" },
 ];
 
@@ -18,10 +18,10 @@ const WORK_OPTIONS = [
 ];
 
 const MAINTENANCE_OPTIONS = [
-    { key: "maintain_gw",     label: "Recharge Structure",          workType: "main_gw" },
-    { key: "maintain_swb",    label: "Surface Water Bodies",        workType: "main_swb" },
-    { key: "maintain_swb_rs", label: "Surface Water Bodies (RS)",   workType: "main_swb_rs" },
-    { key: "maintain_agri",   label: "Irrigation Structure",        workType: "main_agri" },
+    { key: "maintain_gw",     label: "Maintenance of Recharge Structure",     workType: "main_gw" },
+    { key: "maintain_swb",    label: "Maintenance of Surface Waterbodies",    workType: "main_swb" },
+    { key: "maintain_swb_rs", label: "Maintenance of Remotely Sensed SWB",    workType: "main_swb_rs" },
+    { key: "maintain_agri",   label: "Maintenance of Irrigation Structure",   workType: "main_agri" },
 ];
 
 const Checkbox = ({ checked }) => (
