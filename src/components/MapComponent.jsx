@@ -790,7 +790,7 @@ const MapComponent = () => {
       const base = new Style({
         image: new Icon({ src: settlementIcon, scale: 0.4 }),
         text: new Text({
-          text: feature.values_.sett_name,
+          text: feature.values_.settlement_name,
           font: "14px sans-serif",
           textAlign: "center",
           fill: new Fill({ color: "#111" }),
@@ -1105,7 +1105,7 @@ const MapComponent = () => {
           setFeatureStat(true);
           setSelectedResource(feature.values_);
           selectFeature(feature, layer);
-          MainStore.setSettlementName(feature.values_.sett_name);
+          MainStore.setSettlementName(feature.values_.settlement_name);
           MainStore.setIsResource(true);
           MainStore.setIsResourceOpen(true);
         } else if (layer === assetsLayerRefs[1].current) {
@@ -1182,7 +1182,7 @@ const MapComponent = () => {
           const base = new Style({
             image: new Icon({ src: settlementIcon, scale: 0.4 }),
             text: new Text({
-              text: feature.values_.sett_name,
+              text: feature.values_.settlement_name,
               font: "14px sans-serif",
               textAlign: "center",
               fill: new Fill({ color: "#111" }),
@@ -1211,7 +1211,7 @@ const MapComponent = () => {
             });
 
           if (newFeature) {
-            MainStore.setSettlementName(newFeature.values_.sett_name);
+            MainStore.setSettlementName(newFeature.values_.settlement_name);
             MainStore.setSelectedResource(newFeature.values_);
             MainStore.setResourceType("Settlement");
             MainStore.setFeatureStat(false);
