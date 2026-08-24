@@ -32,10 +32,12 @@ export default async function getWebGlLayers(layer_store, layer_name, setAllNreg
           return response.json();
         }).then(json => {
           vectorSource.addFeatures(vectorSource.getFormat().readFeatures(json).map((item)=>{
-  
-            item.values_.itemColor = colorMapping[item.values_.WorkCatego] ? colorMapping[item.values_.WorkCatego] : colorMapping["Default"]
-            
-            let temp_year = new Date(Date.parse(item.values_.creation_t)).getFullYear()
+
+            const workCategory = item.values_.WorkCatego || item.values_.WorkCategory;
+            item.values_.itemColor = colorMapping[workCategory] ? colorMapping[workCategory] : colorMapping["Default"]
+
+            const creationTime = item.values_.creation_t || item.values_.creation_time;
+            let temp_year = new Date(Date.parse(creationTime)).getFullYear()
             item.values_.workYear = temp_year;
 
             if (!isNaN(temp_year) && !nregaYears_temp.includes(temp_year)) {

@@ -451,7 +451,7 @@ const Bottomsheet = () => {
             if (rawValue === null || rawValue === undefined || rawValue === "") return [];
             let value = rawValue;
             if (typeof value === "string" && looksBroken(value)) value = fixMojibake(value);
-            if (key === "Material" || key === "Total_Expe") value = `₹${value}`;
+            if (key === "Material" || key === "Total_Expe" || key === "Total_Expenditure") value = `₹${value}`;
             return [{ key, label: mapping[key], value: String(value) }];
         });
 
