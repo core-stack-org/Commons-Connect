@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import getSiteSuitabilityBandValues from "../action/getSiteSuitabilityBandValues.js";
 import getRasterValue from "../action/getRasterValue.js";
+import NregaButton from "../components/NregaButton.jsx";
 
 const Agrohorticulture = () => {
     const MainStore = useMainStore((state) => state);
@@ -276,6 +277,7 @@ const Agrohorticulture = () => {
                             {getPlanLabel()}
                         </button>
                     </div>
+                    <NregaButton />
                 </div>
             </div>
 

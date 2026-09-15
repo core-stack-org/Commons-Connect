@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PageTitle from "../components/PageTitle.jsx";
 import toast from "react-hot-toast";
+import NregaButton from "../components/NregaButton.jsx";
 
 const Groundwater = () => {
     const STATE_MACHINE = {
@@ -299,6 +300,7 @@ const Groundwater = () => {
                             {getPlanLabel()}
                         </button>
                     </div>
+                    <NregaButton />
                 </div>
             </div>
 
