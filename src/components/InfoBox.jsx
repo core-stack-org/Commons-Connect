@@ -465,22 +465,55 @@ const InfoBox = () => {
               {t("Water Balance")}
             </h3>
             <div className="mt-2 space-y-2">
+
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded bg-red-600 mr-3"></div>
-                <span>{t("Less than -5m")}</span>
+                <div
+                  className="w-6 h-6 rounded mr-3"
+                  style={{ backgroundColor: "#b2182b" }}
+                ></div>
+                <span>{t("Less than -50mm")}</span>
               </div>
+
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded bg-yellow-300 mr-3"></div>
-                <span>{t(">-5m to -1m")}</span>
+                <div
+                  className="w-6 h-6 rounded mr-3"
+                  style={{ backgroundColor: "#e37357" }}
+                ></div>
+                <span>{t("-50mm to -15mm")}</span>
               </div>
+
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded bg-green-500 mr-3"></div>
-                <span>{t(">-1m to 1m")}</span>
+                <div
+                  className="w-6 h-6 rounded mr-3"
+                  style={{ backgroundColor: "#f4cbbb" }}
+                ></div>
+                <span>{t("-15mm to 0mm")}</span>
               </div>
+
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded bg-blue-600 mr-3"></div>
-                <span>{t("More than 1m")}</span>
+                <div
+                  className="w-6 h-6 rounded mr-3"
+                  style={{ backgroundColor: "#bdd8e7" }}
+                ></div>
+                <span>{t("0mm to 15mm")}</span>
               </div>
+
+              <div className="flex items-center">
+                <div
+                  className="w-6 h-6 rounded mr-3"
+                  style={{ backgroundColor: "#599cc8" }}
+                ></div>
+                <span>{t("15mm to 50mm")}</span>
+              </div>
+
+              <div className="flex items-center">
+                <div
+                  className="w-6 h-6 rounded mr-3"
+                  style={{ backgroundColor: "#2166ac" }}
+                ></div>
+                <span>{t("More than 50mm")}</span>
+              </div>
+
             </div>
           </>
         )}

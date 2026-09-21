@@ -675,16 +675,33 @@ const MapComponent = () => {
               });
             } else {
               const status = feature.values_;
+
               let tempColor;
 
-              if (status.Net2018_23 < -5) {
-                tempColor = "rgba(255, 0, 0, 0.5)";
-              } else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) {
-                tempColor = "rgba(255, 255, 0, 0.5)";
-              } else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) {
-                tempColor = "rgba(0, 255, 0, 0.5)";
+              let avgDeltaG = 0;
+
+              for(const key of Object.keys(status)){
+                if(/^\d{4}_\d{4}$/.test(key)){
+                  const data  = JSON.parse(status[key]);
+
+                  avgDeltaG += data.DeltaG
+                }
+              }
+
+              avgDeltaG = avgDeltaG / Object.keys(status).length;
+
+              if (avgDeltaG < -50) {
+                tempColor = "rgba(178, 24, 43, 0.5)";
+              } else if (avgDeltaG >= -50 && avgDeltaG < -15) {
+                tempColor = "rgba(227, 115, 87, 0.5)";
+              } else if (avgDeltaG >= -15 && avgDeltaG < 0) {
+                tempColor = "rgba(244, 203, 187, 0.5)";
+              } else if (avgDeltaG >= 0 && avgDeltaG < 15) {
+                tempColor = "rgba(189, 216, 231, 0.5)";
+              } else if (avgDeltaG >= 15 && avgDeltaG < 50) {
+                tempColor = "rgba(89, 156, 200, 0.5)";
               } else {
-                tempColor = "rgba(0, 0, 255, 0.5)";
+                tempColor = "rgba(33, 102, 172, 0.5)";
               }
 
               return new Style({
@@ -1916,15 +1933,29 @@ const MapComponent = () => {
         groundwaterRefs[0].current.setStyle(function (feature) {
           const status = feature.values_;
           let tempColor;
+          let avgDeltaG = 0;
 
-          if (status.Net2018_23 < -5) {
-            tempColor = "rgba(255, 0, 0, 0.5)";
-          } else if (status.Net2018_23 >= -5 && status.Net2018_23 < -1) {
-            tempColor = "rgba(255, 255, 0, 0.5)";
-          } else if (status.Net2018_23 >= -1 && status.Net2018_23 <= 1) {
-            tempColor = "rgba(0, 255, 0, 0.5)";
+          for(const key of Object.keys(status)){
+            if(/^\d{4}_\d{4}$/.test(key)){
+              const data  = JSON.parse(status[key]);
+              avgDeltaG += data.DeltaG
+            }
+          }
+
+          avgDeltaG = avgDeltaG / Object.keys(status).length;
+
+          if (avgDeltaG < -50) {
+            tempColor = "rgba(178, 24, 43, 0.5)";
+          } else if (avgDeltaG >= -50 && avgDeltaG < -15) {
+            tempColor = "rgba(227, 115, 87, 0.5)";
+          } else if (avgDeltaG >= -15 && avgDeltaG < 0) {
+            tempColor = "rgba(244, 203, 187, 0.5)";
+          } else if (avgDeltaG >= 0 && avgDeltaG < 15) {
+            tempColor = "rgba(189, 216, 231, 0.5)";
+          } else if (avgDeltaG >= 15 && avgDeltaG < 50) {
+            tempColor = "rgba(89, 156, 200, 0.5)";
           } else {
-            tempColor = "rgba(0, 0, 255, 0.5)";
+            tempColor = "rgba(33, 102, 172, 0.5)";
           }
 
           return new Style({
@@ -2560,15 +2591,29 @@ const MapComponent = () => {
         const status = feature.values_;
         let tempColor;
 
-        const netValue = status[`Net${MainStore.selectWellDepthYear}`];
-        if (netValue < -5) {
-          tempColor = "rgba(255, 0, 0, 0.5)";
-        } else if (netValue >= -5 && netValue < -1) {
-          tempColor = "rgba(255, 255, 0, 0.5)";
-        } else if (netValue >= -1 && netValue <= 1) {
-          tempColor = "rgba(0, 255, 0, 0.5)";
+        let avgDeltaG = 0;
+
+        for(const key of Object.keys(status)){
+          if(/^\d{4}_\d{4}$/.test(key)){
+            const data  = JSON.parse(status[key]);
+            avgDeltaG += data.DeltaG
+          }
+        }
+        
+        avgDeltaG = avgDeltaG / Object.keys(status).length;
+
+       if (avgDeltaG < -50) {
+          tempColor = "rgba(178, 24, 43, 0.5)";
+        } else if (avgDeltaG >= -50 && avgDeltaG < -15) {
+          tempColor = "rgba(227, 115, 87, 0.5)";
+        } else if (avgDeltaG >= -15 && avgDeltaG < 0) {
+          tempColor = "rgba(244, 203, 187, 0.5)";
+        } else if (avgDeltaG >= 0 && avgDeltaG < 15) {
+          tempColor = "rgba(189, 216, 231, 0.5)";
+        } else if (avgDeltaG >= 15 && avgDeltaG < 50) {
+          tempColor = "rgba(89, 156, 200, 0.5)";
         } else {
-          tempColor = "rgba(0, 0, 255, 0.5)";
+          tempColor = "rgba(33, 102, 172, 0.5)";
         }
 
         return new Style({
