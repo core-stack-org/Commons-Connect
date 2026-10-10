@@ -557,19 +557,19 @@ const InfoBox = () => {
             </h3>
             <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded mr-3 bg-[#F0F4A3]"></div>
+                <div className="w-6 h-6 rounded mr-3 bg-[#F5F8BF]"></div>
                 <span>Single Kharif</span>
               </div>
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded mr-3 bg-[#D6E96B]"></div>
+                <div className="w-6 h-6 rounded mr-3 bg-[#FEC016]"></div>
                 <span>Single Non-Kharif</span>
               </div>
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded mr-3 bg-[#B7D43A]"></div>
+                <div className="w-6 h-6 rounded mr-3 bg-[#7FAF2E]"></div>
                 <span>Double Crop</span>
               </div>
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded mr-3 bg-[#7FAF2E]"></div>
+                <div className="w-6 h-6 rounded mr-3 bg-[#73861D]"></div>
                 <span>Triple Crop</span>
               </div>
               <div className="flex items-center">
