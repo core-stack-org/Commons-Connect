@@ -2122,7 +2122,7 @@ const MapComponent = () => {
             "LULC_level_3",
             `LULC_${LulcYears[initialLulcIdx]}_${districtName}_${blockName}_level_3`,
             true,
-            "",
+            "lulc_level_3_style",
           );
           LulcLayerRefs[initialLulcIdx].current = lulcLayer;
           LulcLayerRefs[initialLulcIdx].current.setOpacity(0.6);
@@ -2323,7 +2323,7 @@ const MapComponent = () => {
         "LULC_level_3",
         `LULC_${yearKey}_${districtName}_${blockName}_level_3`,
         true,
-        "",
+        "lulc_level_3_style",
       );
       if (requestId !== latestLulcRequestRef.current) return;
       targetRef.current = lulcLayer;
