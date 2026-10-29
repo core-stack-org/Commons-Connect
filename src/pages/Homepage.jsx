@@ -9,6 +9,9 @@ import PlanSheet from "../components/PlanSheet.jsx";
 import { useTranslation } from "react-i18next";
 import authService from "../services/authService.js";
 import NorthIndicator from "../components/NorthIndicator.jsx";
+import  {NREGA_MAPPINGS} from "../store/NregaMapping.jsx";
+import NregaButton from "../components/NregaButton.jsx";
+
 
 const Homepage = () => {
   const [searchParams] = useSearchParams();
@@ -101,7 +104,11 @@ const Homepage = () => {
       return;
     }
     setIsPlanningOpen(false);
-
+    MainStore.setCurrentCategory(
+      section === "Surface Waterbodies"
+        ? "SurfaceWaterbodies"
+        : section
+    );
     if (section === "Groundwater") {
       MainStore.setCurrentScreen("Groundwater");
       navigate("/groundwater");
@@ -261,8 +268,8 @@ const Homepage = () => {
               {getPlanLabel()}
             </button>
           </div>
-
-          <button
+              <NregaButton />
+          {/* <button
             className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm h-9"
             style={{
               backgroundColor: "#D6D5C9",
@@ -273,7 +280,7 @@ const Homepage = () => {
             onClick={handleNregaSheet}
           >
             {t("NREGA Works")}
-          </button>
+          </button> */}
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Floater from "../components/Floater.jsx";
+import NregaButton from "../components/NregaButton.jsx";
 
 const Livelihood = () => {
     const MainStore = useMainStore((state) => state);
@@ -216,6 +217,7 @@ const Livelihood = () => {
                             {getPlanLabel()}
                         </button>
                     </div>
+                    <NregaButton />
                 </div>
             </div>
 

@@ -2,6 +2,7 @@ import useMainStore from "../store/MainStore.jsx";
 import getOdkUrlForScreen from "../action/getOdkUrl.js";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import NregaButton from "../components/NregaButton.jsx";
 
 const SurfaceWaterBodies = () => {
     const MainStore = useMainStore((state) => state);
@@ -201,6 +202,7 @@ const SurfaceWaterBodies = () => {
                             {getPlanLabel()}
                         </button>
                     </div>
+                    <NregaButton />
                 </div>
             </div>
 

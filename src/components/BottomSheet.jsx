@@ -15,6 +15,7 @@ import SiteAnalysis from "./analyze/SiteAnalysis.jsx";
 import SiteSuitabilityAnalysis from "./analyze/SiteSuitabilityAnalysis.jsx";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { NREGA_MAPPINGS } from "../store/NregaMapping.jsx";
 
 import { looksBroken, fixMojibake } from "../action/getEncoding.js";
 import SquircleLoader from "./SquircleLoader.jsx";
@@ -248,6 +249,8 @@ const Bottomsheet = () => {
         MainStore.setNregaWorks(tempWorks);
         MainStore.setNregaStyle(buildNregaStyle(tempWorks, MainStore.selectNregaYears));
     };
+    const allowedNregaWorks =
+  NREGA_MAPPINGS[MainStore.currentCategory] || nregaDetails.works;
 
     const nregaBody = (
         <>
@@ -269,7 +272,8 @@ const Bottomsheet = () => {
 
                     {/* Improved button grid layout */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {nregaDetails.works.map((item, idx) => {
+                        {allowedNregaWorks.map((item) => {
+                            const idx = nregaDetails.works.indexOf(item);
                             const color = [
                                 nregaDetails.buttonColorMapping[item],
                                 nregaDetails.buttonColorMapping.Default,
