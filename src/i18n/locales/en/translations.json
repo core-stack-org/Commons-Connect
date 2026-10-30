@@ -116,6 +116,7 @@
     "Go Back": "Go Back",
     "Have you added the resources for the": "Have you added the resources for the",
     "Finish Resource Mapping": "Finish Resource Mapping",
+    "Keep Adding for": "Keep Adding for",
     "Add Another Settlement": "Add Another Settlement",
     "Settlement": "Settlement",
     "Well": "Well",
@@ -151,5 +152,19 @@
     "DPR Language": "DPR Language",
     "Choose the language for the generated DPR": "Choose the language for the generated DPR",
     "Clear": "Clear",
-    "Clear email": "Clear email"
+    "Clear email": "Clear email",
+    "My location": "My location",
+    "Info": "Info",
+    "Menu": "Menu",
+    "Copied": "Copied",
+    "Copy failed": "Copy failed",
+    "Copy coordinates": "Copy coordinates",
+    "hint_place_settlement": "Tap the map to place a pin for the settlement",
+    "hint_place_pin": "Tap the map to drop a pin",
+    "hint_existing_selected": "An existing resource is selected. Tap an empty spot to add a new one",
+    "hint_select_structure": "Tap an existing structure to propose maintenance",
+    "hint_select_waterbody": "Tap a waterbody on the map to continue",
+    "Stream Order": "Stream Order",
+    "Natural Depression": "Natural Depression",
+    "Terrain": "Terrain"
 }

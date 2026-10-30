@@ -1,7 +1,7 @@
 import WebGLTileLayer from 'ol/layer/WebGLTile.js';
 import TileWMS from 'ol/source/TileWMS.js';
 
-export default async function getImageLayer(layer_store, layer_name, setVisible = false, style = '') {
+export default async function getImageLayer(layer_store, layer_name, setVisible = false, style = '', sldBody = null) {
     let loadPromiseResolve, loadPromiseReject;
     const loadPromise = new Promise((resolve, reject) => {
         loadPromiseResolve = resolve;
@@ -14,6 +14,7 @@ export default async function getImageLayer(layer_store, layer_name, setVisible 
             'LAYERS': layer_store + ':' + layer_name,
             'STYLES': style,
             'TILED': true,
+            ...(sldBody && { 'SLD_BODY': sldBody }),
         },
         ratio: 2,
         serverType: 'geoserver',

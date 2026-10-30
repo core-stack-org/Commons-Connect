@@ -1,3 +1,11 @@
 @import "tailwindcss";
+
+/* Brand tokens — use as bg-sand, text-plum, etc. */
+@theme {
+    --color-sand: #D6D5C9;
+    --color-plum: #592941;
+    --color-muted: #5A5A5A;
+    --color-muted-fg: #D4D4D4;
+}
 /* @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap'); */

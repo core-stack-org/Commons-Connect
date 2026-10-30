@@ -5,6 +5,7 @@ import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import SquircleLoader from "./SquircleLoader.jsx";
 import authService from "../services/authService.js";
+import { STREAM_ORDER_COLORS } from "../assets/streamOrderColors.js";
 
 const DPR_LANGUAGES = [
   { code: "en", label: "English", native: "English" },
@@ -97,7 +98,7 @@ const InfoBox = () => {
         "You will receive an email from support@core-stack.org upon DPR generation.",
       );
     } else {
-      toast.error("No Plan selected !");
+      toast.error(t("select_plan"));
     }
 
     setMenuOption(null);
@@ -316,83 +317,15 @@ const InfoBox = () => {
                   {t("stream_order_info")}
                 </p>
                 <div className="mt-2 space-y-2">
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#f7fbff" }}
-                    ></div>
-                    <span>1</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#e4eff9" }}
-                    ></div>
-                    <span>2</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#d1e2f3" }}
-                    ></div>
-                    <span>3</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#bad6eb" }}
-                    ></div>
-                    <span>4</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#9ac8e0" }}
-                    ></div>
-                    <span>5</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#73b2d8" }}
-                    ></div>
-                    <span>6</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#529dcc" }}
-                    ></div>
-                    <span>7</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#3585bf" }}
-                    ></div>
-                    <span>8</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#1d6cb1" }}
-                    ></div>
-                    <span>9</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#08519c" }}
-                    ></div>
-                    <span>10</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div
-                      className="w-6 h-6 rounded mr-3"
-                      style={{ backgroundColor: "#08306b" }}
-                    ></div>
-                    <span>11</span>
-                  </div>
+                  {STREAM_ORDER_COLORS.map(({ order, color }) => (
+                    <div key={order} className="flex items-center">
+                      <div
+                        className="w-6 h-6 rounded mr-3"
+                        style={{ backgroundColor: color }}
+                      ></div>
+                      <span>{order}</span>
+                    </div>
+                  ))}
                 </div>
               </>
             ) : layerClicked === "NaturalDepressionLayer" ? (

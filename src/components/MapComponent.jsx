@@ -41,6 +41,7 @@ import plantationsIcon from "../assets/Plantation.svg";
 import agrohorticultureTreeIcon from "../assets/agrohorticulture_tree.svg";
 import RechargeIconMaintenance from "../assets/recharge_icon_maintenance.svg";
 import IrrigationIconMaintenance from "../assets/irrigation_icon_maintenance.svg";
+import { getStreamOrderSld } from "../assets/streamOrderColors.js";
 
 const WATER_STRUCTURE_MAPPING = {
   GROUNDWATER: [
@@ -1879,6 +1880,7 @@ const MapComponent = () => {
             `stream_order_${districtName}_${blockName}_raster`,
             true,
             "",
+            getStreamOrderSld(`stream_order:stream_order_${districtName}_${blockName}_raster`),
           );
           StreamOrderLayer.setOpacity(0.6);
           groundwaterRefs[4].current = StreamOrderLayer;

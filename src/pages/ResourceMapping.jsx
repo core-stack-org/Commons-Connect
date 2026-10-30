@@ -7,6 +7,15 @@ import Floater from "../components/Floater.jsx";
 import SquircleLoader from "../components/SquircleLoader.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 import toast from "react-hot-toast";
+import MapControls from "../components/MapControls.jsx";
+import StepBar from "../components/ui/StepBar.jsx";
+
+// Steps 1–3 of resource mapping; step 0 is placing the settlement.
+const RESOURCE_STEPS = {
+    1: { key: "well", resourceType: "Well", info: "Well Info", action: "Add Well" },
+    2: { key: "water", resourceType: "Waterbody", info: "Water Structure Info", action: "Add Water Structure" },
+    3: { key: "crop", resourceType: "Cropping", info: "Cropping Pattern Info", action: "Provide Crop Info" },
+};
 
 const ResourceMapping = () => {
     const { t } = useTranslation();
@@ -14,6 +23,8 @@ const ResourceMapping = () => {
     const navigate = useNavigate();
     const [showFinishConfirm, setShowFinishConfirm] = useState(false);
     const [checkedItems, setCheckedItems] = useState({});
+    // Resources submitted for the current settlement — pre-ticks the Finish checklist.
+    const [submittedItems, setSubmittedItems] = useState({});
 
     const STATE_MACHINE = {
         1: {
@@ -33,6 +44,13 @@ const ResourceMapping = () => {
     useEffect(() => {
         toast(t("add_settlement_toast"));
     }, []);
+
+    useEffect(() => {
+        const key = RESOURCE_STEPS[MainStore.currentStep]?.key;
+        if (MainStore.isSubmissionSuccess && key) {
+            setSubmittedItems((prev) => ({ ...prev, [key]: true }));
+        }
+    }, [MainStore.isSubmissionSuccess]);
 
     useEffect(() => {
         const handleBackButton = () => {
@@ -102,51 +120,39 @@ const ResourceMapping = () => {
         }
     };
 
-    const withLoading = async (action) => {
-        MainStore.setIsLoading(true);
-        try {
-            await action();
-        } catch (error) {
-            console.error("Error during action:", error);
-        } finally {
-            MainStore.setIsLoading(false);
-        }
-    };
-
     const handleAnalyze = () => {
         MainStore.setIsResourceOpen(true);
         MainStore.setIsOpen(true);
     };
 
-    const getPlanLabel = () => {
-        if (!MainStore.currentPlan) return t("Select Plan");
+    const goToStep = (step) => {
+        MainStore.setCurrentStep(step);
+        MainStore.setFeatureStat(false);
+    };
 
-        const planName = MainStore.currentPlan.plan || "Unknown Plan";
+    const openFinishConfirm = () => {
+        setCheckedItems(submittedItems);
+        setShowFinishConfirm(true);
+    };
 
-        // Helper function to capitalize each word
-        const capitalizeWords = (str) => {
-            return str
-                .split(" ")
-                .map(
-                    (word) =>
-                        word.charAt(0).toUpperCase() +
-                        word.slice(1).toLowerCase(),
-                )
-                .join(" ");
-        };
+    const step = MainStore.currentStep;
+    const stepConfig = RESOURCE_STEPS[step];
+    const canAdd = MainStore.isMarkerPlaced && !MainStore.isFeatureClicked;
 
-        const capitalizedPlan = capitalizeWords(planName);
-        if (capitalizedPlan.length > 15) {
-            return capitalizedPlan.slice(0, 13) + "..";
+    const getHint = () => {
+        if (step === 0) {
+            return !MainStore.isMarkerPlaced ? t("hint_place_settlement") : null;
         }
-        return capitalizedPlan;
+        if (MainStore.isFeatureClicked) return t("hint_existing_selected");
+        if (!MainStore.isMarkerPlaced) return t("hint_place_pin");
+        return null;
     };
 
     return (
         <>
             {/* Loader overlay */}
             {MainStore.isLoading && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                     <SquircleLoader
                         size={48}
                         strokeWidth={4}
@@ -157,534 +163,69 @@ const ResourceMapping = () => {
                 </div>
             )}
 
-            {/* Floater component for marker information */}
-            <Floater />
-
             {/* Title Bubble */}
             <PageTitle />
 
-            {/* 2. Top-left buttons */}
-            <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
-                <div className="flex gap-4 max-w-lg">
-                    <div className="flex flex-col gap-3">
-                        {/* GPS Button */}
-                        <button
-                            className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                                backdropFilter: "none",
-                            }}
-                            onClick={() => {
-                                MainStore.setIsGPSClick(!MainStore.isGPSClick);
-                            }}
-                        >
-                            <svg
-                                viewBox="-16 0 130 130"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <ellipse
-                                    cx="50"
-                                    cy="130"
-                                    rx="18"
-                                    ry="6"
-                                    fill="#00000010"
-                                />
-                                <path
-                                    d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z"
-                                    fill="#592941"
-                                    stroke="#592941"
-                                    strokeWidth="1.5"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="55"
-                                    r="16"
-                                    fill="#FFFFFF"
-                                    stroke="#1E40AF"
-                                    strokeWidth="1.5"
-                                />
-                                <circle cx="50" cy="55" r="6" fill="#592941" />
-                                <ellipse
-                                    cx="46"
-                                    cy="38"
-                                    rx="6"
-                                    ry="10"
-                                    fill="#FFFFFF25"
-                                />
-                            </svg>
-                        </button>
-
-                        <button
-                            className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                            }}
-                            onClick={() => MainStore.setIsInfoOpen(true)}
-                        >
-                            <svg
-                                viewBox="-16 0 130 100"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    fill="#592941"
-                                    stroke="#592941"
-                                    strokeWidth="2"
-                                />
-
-                                <circle cx="50" cy="50" r="36" fill="#592941" />
-
-                                <circle cx="50" cy="35" r="4" fill="#FFFFFF" />
-
-                                <rect
-                                    x="46"
-                                    y="45"
-                                    width="8"
-                                    height="25"
-                                    rx="4"
-                                    fill="#FFFFFF"
-                                />
-
-                                <ellipse
-                                    cx="42"
-                                    cy="42"
-                                    rx="8"
-                                    ry="12"
-                                    fill="#FFFFFF20"
-                                />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {/* Plan selector with dropdown */}
-                    <div className="relative">
-                        <button
-                            className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
-                            style={{
-                                backgroundColor: "#808080",
-                                color: "#592941",
-                                border: "1px solid #D6D5C9",
-                                backdropFilter: "none",
-                            }}
-                        >
-                            {getPlanLabel()}
-                        </button>
-                    </div>
-                </div>
-            </div>
+            {/* Top-left controls, with the pin floater under the plan chip */}
+            <MapControls showNrega={false}>
+                <Floater />
+            </MapControls>
 
             {/* MARK: Bottom Controls */}
-            <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
-                {MainStore.currentStep === 0 && !MainStore.isFeatureClicked && (
-                    <div
-                        key="state-initial"
-                        className="flex items-center justify-center w-full gap-3"
-                    >
-                        {/* Separate Back Button */}
-                        <button
-                            className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                            onClick={() => navigate("/maps")}
-                            style={{
-                                backgroundColor: "#D6D5C9",
-                                color: "#592941",
-                                border: "none",
-                                borderRadius: "22px",
-                                height: "44px",
-                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                            }}
-                        >
-                            {t("Back")}
-                        </button>
+            {step === 0 && !MainStore.isFeatureClicked && (
+                <StepBar
+                    hint={getHint()}
+                    back={{ label: t("Back"), onClick: () => navigate("/maps") }}
+                    main={{
+                        label: t("Add Settlement"),
+                        onClick: toggleFormsUrl,
+                        disabled: !MainStore.isMarkerPlaced,
+                    }}
+                />
+            )}
 
-                        {/* Add Settlement Button */}
-                        <button
-                            className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                            onClick={() => {
-                                withLoading(toggleFormsUrl);
-                            }}
-                            disabled={!MainStore.isMarkerPlaced}
-                            style={{
-                                backgroundColor: !MainStore.isMarkerPlaced
-                                    ? "#696969"
-                                    : "#D6D5C9",
-                                color: !MainStore.isMarkerPlaced
-                                    ? "#A8A8A8"
-                                    : "#592941",
-                                border: "none",
-                                borderRadius: "22px",
-                                height: "44px",
-                                width: "270px",
-                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                            }}
-                        >
-                            {t("Add Settlement")}
-                        </button>
-                    </div>
-                )}
+            {step === 0 && MainStore.isMarkerPlaced && MainStore.isFeatureClicked && (
+                <StepBar
+                    top={[
+                        { label: t("Settlement Info"), onClick: handleAnalyze },
+                    ]}
+                    back={{ label: t("Back"), onClick: () => navigate("/maps") }}
+                    main={{
+                        label: t("Mark Resources"),
+                        onClick: () => {
+                            MainStore.setCurrentStep(1);
+                            MainStore.setIsResource(false);
+                        },
+                    }}
+                />
+            )}
 
-                {MainStore.currentStep === 0 &&
-                    MainStore.isMarkerPlaced &&
-                    MainStore.isFeatureClicked && (
-                        <div className="flex gap-4 w-full">
-                            <button
-                                className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                                onClick={() => {
-                                    MainStore.setCurrentStep(1);
-                                    MainStore.setIsResource(false);
-                                }}
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                }}
-                            >
-                                {t("Mark Resources")}
-                            </button>
-                            <button
-                                className="flex-1 px-4 py-3 rounded-xl shadow-sm text-sm"
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                }}
-                                onClick={handleAnalyze}
-                            >
-                                {t("Settlement Info")}
-                            </button>
-                        </div>
-                    )}
-
-                {MainStore.currentStep === 1 && (
-                    <div
-                        key="state-well-info"
-                        className="flex flex-col items-center justify-center w-full gap-3"
-                    >
-                        {/* Well Info Button - Top pill */}
-                        <div className="flex items-center justify-center w-full">
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={handleAnalyze}
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    display:
-                                        MainStore.isFeatureClicked &&
-                                        MainStore.resourceType === "Well"
-                                            ? "block"
-                                            : "none",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    width: "350px",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Well Info")}
-                            </button>
-                        </div>
-
-                        {/* Add Well Button with separated Back and Next - Bottom section */}
-                        <div className="flex items-center justify-center w-full gap-3">
-                            {/* Separate Back Button */}
-                            <button
-                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() =>
-                                    withLoading(() => {
-                                        let BACK = MainStore.currentStep - 1;
-                                        if (MainStore.currentStep) {
-                                            MainStore.setCurrentStep(BACK);
-                                            MainStore.setFeatureStat(false);
-                                        }
-                                    })
-                                }
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    cursor: "pointer",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Back")}
-                            </button>
-
-                            {/* Add Well Button - Always visible */}
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => withLoading(toggleFormsUrl)}
-                                disabled={
-                                    !MainStore.isMarkerPlaced ||
-                                    MainStore.isFeatureClicked
-                                }
-                                style={{
-                                    backgroundColor:
-                                        !MainStore.isMarkerPlaced ||
-                                        MainStore.isFeatureClicked
-                                            ? "#696969"
-                                            : "#D6D5C9",
-                                    color:
-                                        !MainStore.isMarkerPlaced ||
-                                        MainStore.isFeatureClicked
-                                            ? "#A8A8A8"
-                                            : "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    width: "200px",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Add Well")}
-                            </button>
-
-                            {/* Separate Next Button */}
-                            <button
-                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() =>
-                                    withLoading(() => {
-                                        MainStore.setCurrentStep(2);
-                                        MainStore.setFeatureStat(false);
-                                    })
-                                }
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    cursor: "pointer",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Next")}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {MainStore.currentStep === 2 && (
-                    <div
-                        key="state-waterbody-info"
-                        className="flex flex-col items-center justify-center w-full gap-3"
-                    >
-                        {/* Water Structure Info Button - Top pill */}
-                        <div className="flex items-center justify-center w-full">
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={handleAnalyze}
-                                style={{
-                                    display:
-                                        MainStore.isFeatureClicked &&
-                                        MainStore.resourceType === "Waterbody"
-                                            ? "block"
-                                            : "none",
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    width: "350px",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Water Structure Info")}
-                            </button>
-                        </div>
-
-                        {/* Add Water Structure Button with separated Back and Next - Bottom section */}
-                        <div className="flex items-center justify-center w-full gap-3">
-                            {/* Separate Back Button */}
-                            <button
-                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() =>
-                                    withLoading(() => {
-                                        let BACK = MainStore.currentStep - 1;
-                                        if (MainStore.currentStep) {
-                                            MainStore.setCurrentStep(BACK);
-                                            MainStore.setFeatureStat(false);
-                                        }
-                                    })
-                                }
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    cursor: "pointer",
-                                    transition:
-                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Back")}
-                            </button>
-
-                            {/* Add Water Structure Button - Always visible */}
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => withLoading(toggleFormsUrl)}
-                                disabled={
-                                    !MainStore.isMarkerPlaced ||
-                                    MainStore.isFeatureClicked
-                                }
-                                style={{
-                                    backgroundColor:
-                                        !MainStore.isMarkerPlaced ||
-                                        MainStore.isFeatureClicked
-                                            ? "#696969"
-                                            : "#D6D5C9",
-                                    color:
-                                        !MainStore.isMarkerPlaced ||
-                                        MainStore.isFeatureClicked
-                                            ? "#A8A8A8"
-                                            : "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    width: "200px",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Add Water Structure")}
-                            </button>
-
-                            {/* Separate Next Button */}
-                            <button
-                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() =>
-                                    withLoading(() =>
-                                        MainStore.setCurrentStep(3),
-                                    )
-                                }
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    cursor: "pointer",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Next")}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {MainStore.currentStep === 3 && (
-                    <div
-                        key="state-add-crop"
-                        className="flex flex-col items-center justify-center w-full gap-3"
-                    >
-                        {/* Cropping Info Button - Top pill */}
-                        <div className="flex items-center justify-center w-full">
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={handleAnalyze}
-                                style={{
-                                    display:
-                                        MainStore.isFeatureClicked &&
-                                        MainStore.resourceType === "Cropping"
-                                            ? "block"
-                                            : "none",
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    width: "350px",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Cropping Pattern Info")}
-                            </button>
-                        </div>
-                        <div className="flex items-center justify-center w-full gap-3">
-                            {/* Separate Back Button */}
-                            <button
-                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() =>
-                                    withLoading(() => {
-                                        let BACK = MainStore.currentStep - 1;
-                                        if (MainStore.currentStep) {
-                                            MainStore.setCurrentStep(BACK);
-                                            MainStore.setFeatureStat(false);
-                                        }
-                                    })
-                                }
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Back")}
-                            </button>
-
-                            {/* Provide Crop Info Button - Always visible */}
-                            <button
-                                className="px-6 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => withLoading(toggleFormsUrl)}
-                                disabled={
-                                    !MainStore.isMarkerPlaced ||
-                                    MainStore.isFeatureClicked
-                                }
-                                style={{
-                                    backgroundColor:
-                                        !MainStore.isMarkerPlaced ||
-                                        MainStore.isFeatureClicked
-                                            ? "#696969"
-                                            : "#D6D5C9",
-                                    color:
-                                        !MainStore.isMarkerPlaced ||
-                                        MainStore.isFeatureClicked
-                                            ? "#A8A8A8"
-                                            : "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    width: "200px",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Provide Crop Info")}
-                            </button>
-
-                            {/* Separate Finish Button */}
-                            <button
-                                className="px-4 py-3 text-sm font-medium flex items-center justify-center"
-                                onClick={() => setShowFinishConfirm(true)}
-                                style={{
-                                    backgroundColor: "#D6D5C9",
-                                    color: "#592941",
-                                    border: "none",
-                                    borderRadius: "22px",
-                                    height: "44px",
-                                    cursor: "pointer",
-                                    transition:
-                                        "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {t("Finish")}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
+            {stepConfig && (
+                <StepBar
+                    hint={getHint()}
+                    top={[
+                        {
+                            label: t(stepConfig.info),
+                            onClick: handleAnalyze,
+                            hidden: !(
+                                MainStore.isFeatureClicked &&
+                                MainStore.resourceType === stepConfig.resourceType
+                            ),
+                        },
+                    ]}
+                    back={{ label: t("Back"), onClick: () => goToStep(step - 1) }}
+                    main={{
+                        label: t(stepConfig.action),
+                        onClick: toggleFormsUrl,
+                        disabled: !canAdd,
+                    }}
+                    next={
+                        RESOURCE_STEPS[step + 1]
+                            ? { label: t("Next"), onClick: () => goToStep(step + 1) }
+                            : { label: t("Finish"), onClick: openFinishConfirm }
+                    }
+                />
+            )}
 
             {showFinishConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -783,6 +324,27 @@ const ResourceMapping = () => {
                             onClick={() => {
                                 setShowFinishConfirm(false);
                                 setCheckedItems({});
+                                MainStore.setCurrentStep(1);
+                                MainStore.setMarkerPlaced(false);
+                                MainStore.setMarkerCoords(null);
+                                MainStore.setFeatureStat(false);
+                            }}
+                        >
+                            {t("Keep Adding for")}{" "}
+                            {MainStore.settlementName || t("Settlement")}
+                        </button>
+
+                        <button
+                            className="w-full py-3 rounded-2xl text-sm font-medium border transition-all active:opacity-80 mb-3"
+                            style={{
+                                backgroundColor: "rgba(255,255,255,0.07)",
+                                borderColor: "rgba(255,255,255,0.18)",
+                                color: "rgba(255,255,255,0.85)",
+                            }}
+                            onClick={() => {
+                                setShowFinishConfirm(false);
+                                setCheckedItems({});
+                                setSubmittedItems({});
                                 MainStore.setCurrentStep(0);
                                 MainStore.setSettlementName("");
                                 MainStore.setMarkerPlaced(false);

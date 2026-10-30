@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 const SCREEN_CONFIG = {
     Resource_mapping: {
         root: "Resource Mapping",
+        total: 3,
         steps: (step, { settlementName }) => {
             const labels = [null, "Well", "Water Structure", "Cropping Pattern"];
             if (step > 0 && labels[step]) {
@@ -14,6 +15,7 @@ const SCREEN_CONFIG = {
     },
     Groundwater: {
         root: "Water Balance",
+        total: 2,
         steps: (step) => {
             const labels = [null, "Maintenance", "Recharge Structure"];
             return step > 0 && labels[step] ? { parent: "Water Balance", child: labels[step] } : null;
@@ -52,9 +54,28 @@ const PageTitle = () => {
                                 {t(crumb.parent)}
                             </span>
                             <span className="text-white/30">›</span>
-                            <span className="text-white font-bold">
+                            <span className="text-white font-bold truncate">
                                 {t(crumb.child)}
                             </span>
+                            {config.total > 1 && (
+                                <span
+                                    className="flex items-center gap-1 ml-1.5 flex-shrink-0"
+                                    aria-label={`${currentStep} / ${config.total}`}
+                                >
+                                    {Array.from({ length: config.total }, (_, i) => (
+                                        <span
+                                            key={i}
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                                                i + 1 === currentStep
+                                                    ? "w-4 bg-white"
+                                                    : i + 1 < currentStep
+                                                      ? "w-1.5 bg-white/70"
+                                                      : "w-1.5 bg-white/30"
+                                            }`}
+                                        />
+                                    ))}
+                                </span>
+                            )}
                         </span>
                     ) : (
                         <span className="text-white font-extrabold text-md">

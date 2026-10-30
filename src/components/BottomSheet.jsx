@@ -475,7 +475,7 @@ const Bottomsheet = () => {
                         <div className="text-xl font-bold text-gray-900 flex-1">{idValue || "—"}</div>
                         {idValue && (
                             <button
-                                onClick={() => navigator.clipboard?.writeText(String(idValue)).then(() => toast.success("Copied ✔︎"), () => toast.error("Failed ✖︎"))}
+                                onClick={() => navigator.clipboard?.writeText(String(idValue)).then(() => toast.success(t("Copied")), () => toast.error(t("Copy failed")))}
                                 className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 border border-gray-200 flex items-center justify-center transition-colors"
                                 title="Copy ID"
                             >
@@ -619,7 +619,7 @@ const Bottomsheet = () => {
                         <div className="text-xl font-bold text-gray-900 flex-1">{idValue || "—"}</div>
                         {idValue && (
                             <button
-                                onClick={() => navigator.clipboard?.writeText(String(idValue)).then(() => toast.success("Copied ✔︎"), () => toast.error("Failed ✖︎"))}
+                                onClick={() => navigator.clipboard?.writeText(String(idValue)).then(() => toast.success(t("Copied")), () => toast.error(t("Copy failed")))}
                                 className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 border border-gray-200 flex items-center justify-center transition-colors"
                                 title="Copy ID"
                             >
