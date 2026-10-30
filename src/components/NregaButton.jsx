@@ -12,13 +12,8 @@ const NregaButton = () => {
 
   return (
     <button
-      className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm h-9"
-      style={{
-        backgroundColor: "#D6D5C9",
-        color: "#592941",
-        border: "none",
-        backdropFilter: "none",
-      }}
+      type="button"
+      className="flex-shrink-0 px-3 py-2 rounded-xl shadow-sm text-sm h-9 bg-sand text-plum whitespace-nowrap active:scale-95 transition-transform"
       onClick={handleNregaSheet}
     >
       {t("NREGA Works")}

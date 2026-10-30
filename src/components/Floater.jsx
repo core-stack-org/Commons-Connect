@@ -1,75 +1,30 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import useMainStore from "../store/MainStore.jsx";
 import { useTranslation } from "react-i18next";
 import toast from 'react-hot-toast';
 
+// Rendered inside MapControls, so it sits under the plan row without measuring the DOM.
 const Floater = () => {
     const { t } = useTranslation();
     const MainStore = useMainStore((state) => state);
     const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-    const [isPinned, setIsPinned] = useState(false);
-    const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
-    const floaterRef = useRef(null);
 
     const formatCoordinate = (coord) => {
         return coord ? parseFloat(coord).toFixed(4) : "0.0000";
     };
 
-    // Calculate position and width based on info button location and screen size
-    const calculatePosition = () => {
-        const infoButton = document.querySelector('button[aria-label="Info"]') || 
-                          document.querySelector('button svg circle[fill="#592941"]')?.closest('button');
-        
-        if (infoButton) {
-            const rect = infoButton.getBoundingClientRect();
-            const screenWidth = window.innerWidth;
-            const leftPadding = rect.left;
-            const rightPadding = leftPadding;
-            
-            return {
-                top: rect.bottom + 8,
-                left: rect.left + 55,
-                width: screenWidth - rect.left - rightPadding
-            };
-        }
-    };
-
     // Control visibility and animation based on marker placement
     useEffect(() => {
         if (MainStore.isMarkerPlaced && MainStore.markerCoords) {
-            const newPosition = calculatePosition();
-            if (newPosition) {
-                setPosition(newPosition);
-                setIsVisible(true);
-                setTimeout(() => setIsAnimating(true), 50);
-            }
-        } else {
-            setIsAnimating(false);
-            setIsPinned(false);
-            setTimeout(() => setIsVisible(false), 300);
+            setIsVisible(true);
+            const timer = setTimeout(() => setIsAnimating(true), 50);
+            return () => clearTimeout(timer);
         }
+        setIsAnimating(false);
+        const timer = setTimeout(() => setIsVisible(false), 300);
+        return () => clearTimeout(timer);
     }, [MainStore.isMarkerPlaced, MainStore.markerCoords]);
-
-    // Update position when window resizes or scrolls
-    useEffect(() => {
-        if (isVisible) {
-            const updatePosition = () => {
-                const newPosition = calculatePosition();
-                if (newPosition) {
-                    setPosition(newPosition);
-                }
-            };
-
-            window.addEventListener('resize', updatePosition);
-            window.addEventListener('scroll', updatePosition);
-
-            return () => {
-                window.removeEventListener('resize', updatePosition);
-                window.removeEventListener('scroll', updatePosition);
-            };
-        }
-    }, [isVisible]);
 
     // Determine what information to show based on the current state
     const getFloaterContent = () => {
@@ -123,18 +78,16 @@ const Floater = () => {
         };
     };
 
-    const handleClose = () => {
-        setIsAnimating(false);
-        setIsPinned(false);
-        setTimeout(() => setIsVisible(false), 300);
-    };
-
+    // Copy as "lat, lon" — the order shown on screen and what Google Maps expects.
     const handlecopy = () => {
+        const [lon, lat] = MainStore.markerCoords;
         if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText(MainStore.markerCoords).then(
-                () => toast.success("Copied ✔︎"),
-                () => toast.error("Failed ✖︎")
-            )
+            navigator.clipboard
+                .writeText(`${Number(lat).toFixed(6)}, ${Number(lon).toFixed(6)}`)
+                .then(
+                    () => toast.success(t("Copied")),
+                    () => toast.error(t("Copy failed"))
+                );
         }
     };
 
@@ -145,11 +98,7 @@ const Floater = () => {
     }
 
     return (
-        <div
-            ref={floaterRef}
-            className="fixed z-10 pointer-events-none"
-            style={{ top: `${position.top}px`, left: `${position.left}px` }}
-        >
+        <div className="pointer-events-none max-w-full">
             <div
                 className={`pointer-events-auto transition-all duration-300 ease-out ${
                     isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
@@ -165,7 +114,8 @@ const Floater = () => {
                     <button
                         onClick={handlecopy}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-xs text-white font-mono transition-colors"
-                        title="Copy coordinates"
+                        title={t("Copy coordinates")}
+                        aria-label={t("Copy coordinates")}
                     >
                         <svg className="w-3 h-3 opacity-70" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>

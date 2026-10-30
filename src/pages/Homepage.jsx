@@ -10,7 +10,8 @@ import { useTranslation } from "react-i18next";
 import authService from "../services/authService.js";
 import NorthIndicator from "../components/NorthIndicator.jsx";
 import  {NREGA_MAPPINGS} from "../store/NregaMapping.jsx";
-import NregaButton from "../components/NregaButton.jsx";
+import MapControls from "../components/MapControls.jsx";
+import PillButton from "../components/ui/PillButton.jsx";
 
 
 const Homepage = () => {
@@ -74,30 +75,6 @@ const Homepage = () => {
     fetchPlansIfReady();
   }, [MainStore.isAuthenticated]);
 
-  const getPlanLabel = () => {
-    if (!MainStore.currentPlan) return t("Select Plan");
-
-    const planName = MainStore.currentPlan.plan || "Unknown Plan";
-    const capitalizeWords = (str) => {
-      return str
-        .split(" ")
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-        )
-        .join(" ");
-    };
-
-    const capitalizedPlan = capitalizeWords(planName);
-    if (capitalizedPlan.length > 15) {
-      return capitalizedPlan.slice(0, 13) + "..";
-    }
-    return capitalizedPlan;
-  };
-  const handleNregaSheet = () => {
-    MainStore.setNregaSheet(true);
-    MainStore.setIsOpen(true);
-  };
-
   const handleSelect = (section) => {
     if (!MainStore.currentPlan) {
       toast.error(t("select_plan"));
@@ -148,6 +125,7 @@ const Homepage = () => {
               boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
             }}
             onClick={() => setIsSideMenuOpen(true)}
+            aria-label={t("Menu")}
           >
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <rect x="20" y="28" width="60" height="10" rx="5" fill="white" />
@@ -178,184 +156,48 @@ const Homepage = () => {
         </div>
       </div>
 
-      {/* 2. Top-left buttons — GPS / info column parallel to plans + nrega */}
-      <div className="absolute top-20 left-0 w-full px-4 z-10 flex justify-start pointer-events-auto">
-        <div className="flex gap-4 max-w-lg">
-          <div className="flex flex-col gap-3">
-            {/* GPS Button */}
-            <button
-              className="flex-shrink-0 w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-              style={{
-                backgroundColor: "#D6D5C9",
-                color: "#592941",
-                border: "none",
-                backdropFilter: "none",
-              }}
-              onClick={() => {
-                MainStore.setIsGPSClick(!MainStore.isGPSClick);
-              }}
-            >
-              <svg viewBox="-16 0 130 130" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="50" cy="130" rx="18" ry="6" fill="#00000010" />
-                <path
-                  d="M50 20 C70 20 85 35 85 55 C85 75 50 110 50 110 C50 110 15 75 15 55 C15 35 30 20 50 20 Z"
-                  fill="#592941"
-                  stroke="#592941"
-                  strokeWidth="1.5"
-                />
-                <circle
-                  cx="50"
-                  cy="55"
-                  r="16"
-                  fill="#FFFFFF"
-                  stroke="#1E40AF"
-                  strokeWidth="1.5"
-                />
-                <circle cx="50" cy="55" r="6" fill="#592941" />
-                <ellipse cx="46" cy="38" rx="6" ry="10" fill="#FFFFFF25" />
-              </svg>
-            </button>
-
-            <button
-              className="w-9 h-9 rounded-md shadow-sm flex items-center justify-center"
-              style={{
-                backgroundColor: "#D6D5C9",
-                color: "#592941",
-                border: "none",
-              }}
-              onClick={() => MainStore.setIsInfoOpen(true)}
-            >
-              <svg viewBox="-16 0 130 100" xmlns="http://www.w3.org/2000/svg">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="#592941"
-                  stroke="#592941"
-                  strokeWidth="2"
-                />
-
-                <circle cx="50" cy="50" r="36" fill="#592941" />
-
-                <circle cx="50" cy="35" r="4" fill="#FFFFFF" />
-
-                <rect
-                  x="46"
-                  y="45"
-                  width="8"
-                  height="25"
-                  rx="4"
-                  fill="#FFFFFF"
-                />
-
-                <ellipse cx="42" cy="42" rx="8" ry="12" fill="#FFFFFF20" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Plan selector with sheet */}
-          <div className="relative">
-            <button
-              onClick={() => setIsPlanSheetOpen(true)}
-              className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm"
-              style={{
-                backgroundColor: "#D6D5C9",
-                color: "#592941",
-                border: "none",
-                backdropFilter: "none",
-              }}
-            >
-              {getPlanLabel()}
-            </button>
-          </div>
-              <NregaButton />
-          {/* <button
-            className="flex-1 px-3 py-2 rounded-xl shadow-sm text-sm h-9"
-            style={{
-              backgroundColor: "#D6D5C9",
-              color: "#592941",
-              border: "none",
-              backdropFilter: "none",
-            }}
-            onClick={handleNregaSheet}
-          >
-            {t("NREGA Works")}
-          </button> */}
-        </div>
-      </div>
+      {/* 2. Top-left controls — GPS / info column, plan selector, NREGA */}
+      <MapControls onPlanClick={() => setIsPlanSheetOpen(true)} />
 
       {/* 3. Bottom buttons */}
-      <div className="absolute bottom-13 left-0 w-full px-4 z-10 pointer-events-auto">
+      {isPlanningOpen && (
+        // Tap anywhere outside the menu to close it
+        <div
+          className="absolute inset-0 z-10"
+          onClick={() => setIsPlanningOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <div className="absolute left-0 w-full px-4 z-10 pointer-events-auto bottom-[calc(3.25rem+env(safe-area-inset-bottom))]">
         <div className="flex gap-4 w-full">
           {/* ─── RESOURCE MAPPING ───────────────────────────────────────────── */}
-          <div className="relative flex-1">
-            <button
-              className="w-full px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95 whitespace-nowrap"
-              style={{
-                backgroundColor: "#D6D5C9",
-                color: "#592941",
-                border: "none",
-                minHeight: "44px",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-              }}
+          <div className="relative flex-1 min-w-0">
+            <PillButton
+              shape="xl"
+              className="w-full"
               onClick={() => {
                 if (MainStore.currentPlan) {
                   MainStore.setCurrentScreen("Resource_mapping");
                   navigate("/resourcemapping");
                 } else {
-                  toast.error("Please Select a Plan !");
+                  toast.error(t("select_plan"));
                 }
               }}
-              onTouchStart={(e) => {
-                e.currentTarget.style.transform = "scale(0.95)";
-              }}
-              onTouchEnd={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
-              onMouseDown={(e) => {
-                e.currentTarget.style.transform = "scale(0.95)";
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
             >
-              {t("Resource Mapping")}
-            </button>
+              <span className="truncate">{t("Resource Mapping")}</span>
+            </PillButton>
           </div>
 
           {/* ─── PLANNING + MENU ────────────────────────────────────────────── */}
-          <div className="relative flex-1">
-            <button
-              className="w-full px-6 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95"
-              style={{
-                backgroundColor: "#D6D5C9",
-                color: "#592941",
-                border: "none",
-                height: "44px",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-              }}
+          <div className="relative flex-1 min-w-0">
+            <PillButton
+              shape="xl"
+              className="w-full"
+              aria-expanded={isPlanningOpen}
               onClick={() => setIsPlanningOpen((o) => !o)}
-              onTouchStart={(e) => {
-                e.currentTarget.style.transform = "scale(0.95)";
-              }}
-              onTouchEnd={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
-              onMouseDown={(e) => {
-                e.currentTarget.style.transform = "scale(0.95)";
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
             >
-              {t("Planning")}
-            </button>
+              <span className="truncate">{t("Planning")}</span>
+            </PillButton>
 
             {isPlanningOpen && (
               <div
@@ -375,35 +217,14 @@ const Homepage = () => {
                   "Livelihood",
                   "Agrohorticulture",
                 ].map((item) => (
-                  <button
+                  <PillButton
                     key={item}
-                    className="w-48 px-2 py-2 rounded-xl shadow-lg text-sm font-medium flex items-center justify-center transition-all duration-300 ease-in-out transform active:scale-95"
-                    style={{
-                      backgroundColor: "#D6D5C9",
-                      color: "#592941",
-                      border: "none",
-                      height: "48px",
-                      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                    }}
+                    shape="xl"
+                    className="w-48 h-12"
                     onClick={() => handleSelect(item)}
-                    onTouchStart={(e) => {
-                      e.currentTarget.style.transform = "scale(0.95)";
-                    }}
-                    onTouchEnd={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.95)";
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }}
                   >
                     {t(item)}
-                  </button>
+                  </PillButton>
                 ))}
               </div>
             )}

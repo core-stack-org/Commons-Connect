@@ -97,7 +97,7 @@ const InfoBox = () => {
         "You will receive an email from support@core-stack.org upon DPR generation.",
       );
     } else {
-      toast.error("No Plan selected !");
+      toast.error(t("select_plan"));
     }
 
     setMenuOption(null);

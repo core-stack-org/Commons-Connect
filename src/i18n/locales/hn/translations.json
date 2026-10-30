@@ -325,5 +325,19 @@
   "Synced": "सिंक हुआ",
   "record(s)": "रिकॉर्ड",
   "Overall Rating": "समग्र रेटिंग",
-  "Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.": "जलवायु, मृदा, सामाजिक-आर्थिक, पारिस्थितिक और स्थलाकृतिक कारकों के आधार पर स्कोर। कम स्कोर = बेहतर उपयुक्तता।"
+  "Score based on climate, soil, socioeconomic, ecological, and topographic factors. Lower score = better suitability.": "जलवायु, मृदा, सामाजिक-आर्थिक, पारिस्थितिक और स्थलाकृतिक कारकों के आधार पर स्कोर। कम स्कोर = बेहतर उपयुक्तता।",
+  "My location": "मेरा स्थान",
+  "Info": "जानकारी",
+  "Menu": "मेनू",
+  "Copied": "कॉपी हो गया",
+  "Copy failed": "कॉपी नहीं हो सका",
+  "Copy coordinates": "निर्देशांक कॉपी करें",
+  "hint_place_settlement": "बस्ती के लिए पिन लगाने हेतु मानचित्र पर टैप करें",
+  "hint_place_pin": "पिन लगाने के लिए मानचित्र पर टैप करें",
+  "hint_existing_selected": "एक मौजूदा संसाधन चुना गया है। नया जोड़ने के लिए खाली जगह पर टैप करें",
+  "hint_select_structure": "रखरखाव प्रस्तावित करने के लिए किसी मौजूदा संरचना पर टैप करें",
+  "hint_select_waterbody": "आगे बढ़ने के लिए मानचित्र पर किसी जल निकाय पर टैप करें",
+  "Stream Order": "धारा क्रम",
+  "Natural Depression": "प्राकृतिक गड्ढा",
+  "Terrain": "भू-भाग"
 }
