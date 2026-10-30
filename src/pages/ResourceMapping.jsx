@@ -783,6 +783,26 @@ const ResourceMapping = () => {
                             onClick={() => {
                                 setShowFinishConfirm(false);
                                 setCheckedItems({});
+                                MainStore.setCurrentStep(1);
+                                MainStore.setMarkerPlaced(false);
+                                MainStore.setMarkerCoords(null);
+                                MainStore.setFeatureStat(false);
+                            }}
+                        >
+                            {t("Keep Adding for")}{" "}
+                            {MainStore.settlementName || t("Settlement")}
+                        </button>
+
+                        <button
+                            className="w-full py-3 rounded-2xl text-sm font-medium border transition-all active:opacity-80 mb-3"
+                            style={{
+                                backgroundColor: "rgba(255,255,255,0.07)",
+                                borderColor: "rgba(255,255,255,0.18)",
+                                color: "rgba(255,255,255,0.85)",
+                            }}
+                            onClick={() => {
+                                setShowFinishConfirm(false);
+                                setCheckedItems({});
                                 MainStore.setCurrentStep(0);
                                 MainStore.setSettlementName("");
                                 MainStore.setMarkerPlaced(false);
