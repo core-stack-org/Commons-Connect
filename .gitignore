@@ -28,3 +28,5 @@ version:1.yaml
 *.sw?
 .cursor
 plan.md
+skills/*
+bugs.md
