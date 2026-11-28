@@ -64,9 +64,12 @@ const AgricultureAnalyze = () => {
     );
     const selectedResource = useMainStore((state) => state.selectedResource);
 
-    // Dynamically extract available years
+    // Dynamically extract available years (supports both new and legacy drought column names)
     const droughtYears = useMemo(() => {
-        return extractYearsFromKeys(selectedMWSDrought, /^drlb_(\d{4})$/);
+        return extractYearsFromKeys(
+            selectedMWSDrought,
+            /^(?:drought_labels|number_of_weeks_in_mild_drought|total_dryspell_weeks|drlb)_(\d{4})$/,
+        );
     }, [selectedMWSDrought]);
 
     const croppingYears = useMemo(() => {
@@ -96,9 +99,6 @@ const AgricultureAnalyze = () => {
     }, [selectedResource]);
 
     const annual = useMemo(() => {
-        const drlbKey = `drlb_${year}`;
-        const dryspKey = `drysp_${year}`;
-
         // Check if drought data exists for this year
         const hasDroughtData = droughtYears.includes(year);
 
@@ -108,13 +108,40 @@ const AgricultureAnalyze = () => {
         let dryspellCount = 0;
 
         if (hasDroughtData && selectedMWSDrought) {
-            if (selectedMWSDrought[drlbKey]) {
-                const drlbArray = JSON.parse(selectedMWSDrought[drlbKey] || "[]");
-                mildCount = drlbArray.filter((v) => v === 1).length;
-                moderateCount = drlbArray.filter((v) => v === 2).length;
-                severeCount = drlbArray.filter((v) => v === 3).length;
+            const mildKey = `number_of_weeks_in_mild_drought_${year}`;
+            const moderateKey = `number_of_weeks_in_moderate_drought_${year}`;
+            const severeKey = `number_of_weeks_in_severe_drought_${year}`;
+            const droughtLabelsRaw =
+                selectedMWSDrought[`drought_labels_${year}`] ??
+                selectedMWSDrought[`drlb_${year}`];
+
+            if (
+                selectedMWSDrought[mildKey] != null ||
+                selectedMWSDrought[moderateKey] != null ||
+                selectedMWSDrought[severeKey] != null
+            ) {
+                mildCount = Number(selectedMWSDrought[mildKey]) || 0;
+                moderateCount = Number(selectedMWSDrought[moderateKey]) || 0;
+                severeCount = Number(selectedMWSDrought[severeKey]) || 0;
+            } else if (droughtLabelsRaw) {
+                try {
+                    const droughtLabels = Array.isArray(droughtLabelsRaw)
+                        ? droughtLabelsRaw
+                        : JSON.parse(droughtLabelsRaw || "[]");
+                    if (Array.isArray(droughtLabels)) {
+                        mildCount = droughtLabels.filter((v) => v === 1).length;
+                        moderateCount = droughtLabels.filter((v) => v === 2).length;
+                        severeCount = droughtLabels.filter((v) => v === 3).length;
+                    }
+                } catch (err) {
+                    console.error("Failed to parse drought labels:", err);
+                }
             }
-            dryspellCount = selectedMWSDrought[dryspKey] || 0;
+
+            const dryspellVal =
+                selectedMWSDrought[`total_dryspell_weeks_${year}`] ??
+                selectedMWSDrought[`drysp_${year}`];
+            dryspellCount = Number(dryspellVal) || 0;
         }
 
         const cropIntensity = selectedResource
